@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## NEXT SESSION: **LAND PR #1 (THE BACKSTAGE); HIS EYE ON IT; THEN THE ACTORS' ACT-1 NOTES** (2026-10-15, late)
+## NEXT SESSION: **HIS EYE ON THE BACKSTAGE; THEN THE ACTORS' ACT-1 NOTES** (2026-10-15, late; PRs #1 and #2 merged, Pages LIVE)
 
 Rulings at **GH** (GI next). This is `midtown_theater_gms` now (split from `gms-theater` at its `14af651`; the Palace
 stayed there). `main` is the split commit; **PR #1 `backstage`** is open with the backstage block. STATE.md item 1 has
@@ -237,7 +237,8 @@ the decisions the block raises; item 3a the actors' next round (his act-1 notes)
 
 1. ~~When PR #1 merges~~ Done 2026-10-15: PR #1 merged (`22777e6`), `backstage` deleted both sides; gms-theater's
    PR #236 removed the Midtown files there and its landed branches are deleted both sides.
-2. **Enable Pages on this repository** (Settings → Pages, `main`, root): `index.html` redirects to `midtown.html`.
+2. ~~Enable Pages~~ Done 2026-10-15: the repository is public and Pages serves `main`'s root —
+   https://jackscreations21.github.io/midtown_theater_gms/midtown.html (`index.html` redirects there).
 3. **His eye on the backstage**, then the actors' act-1 notes (HANDOFF's "HIS ACT-1 NOTES" block below), then the
    cue checklist.
 
