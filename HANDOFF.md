@@ -1,5 +1,10 @@
 # THE HOUSE — handoff
 
+> **2026-10-15 — this file came to `midtown_theater_gms` whole from `gms-theater`.** Sections 0–5 below describe the
+> Palace game (`the-house.html`, `build.sh`, `src/`, the suites), which stayed in `gms-theater`; they are kept for the
+> record. The Midtown rounds begin at 2026-10-11 ("the Midtown preview round") and run to the top of the NEXT SESSION /
+> DONE blocks. Read STATE.md first.
+
 A 3D theatre you work in. Two buildings, three stages, a lighting rig you can
 plot, a counterweight fly rail you can haul, productions that load in, a crew
 that carries them, and a VR mode for a Quest 3. One HTML file, ~875KB, three.js
@@ -226,7 +231,7 @@ compare the *same* production across stages instead.
 
 ## NEXT SESSION: **LAND #235 AND #233; HIS EYE ON THEATRE 2'S BOOTH, DESK AND THE DOORS** (2026-10-15)
 
-Rulings at **FG** (FH next). `main` is **`5d24188`**. Two PRs open, independent of each other: **#235 `second-house`**
+Rulings at **GH** (GI next; GG/GH were FF/FG until the split — see STATE.md). `main` is **`5d24188`**. Two PRs open, independent of each other: **#235 `second-house`**
 (now `bb74206`: Theatre 2, its booth and desk, the doors) and **#233 `cue-blackouts`** (the 2026-10-12 cue day; its
 record lives only on that branch, so whichever merges second conflicts here at the top block: keep both). STATE.md
 holds the open items only.
@@ -237,7 +242,7 @@ holds the open items only.
    projection rooms; walk lobby → either house: E opens the doors, E parts the curtain at the passage's far end).
    The decisions it raises are STATE.md item 2: E in orbit mode, the curtain's colour,
    a show for Theatre 2 or empty, the signs, Build mode's scope, the desk measure's speed, the props' size when fitted.
-   The swing direction is ruled (FF, below).
+   The swing direction is ruled (GG, below).
 3. **His re-check through the checklist** (STATE.md item 3; the method is in #233's NEXT SESSION block on
    `cue-blackouts`), then the older list.
 
@@ -266,7 +271,7 @@ doorway); the walker stops 0.25 m off a closed leaf from either side. +32 draw c
 on the live loop (the pane at 1.5 fps — see TRAPS). Pushed; nothing in `src/`; suites not run (Node not on the PATH).
 Both agents' worktrees were cut from `main`, not `second-house`, and each fixed that before editing (TRAPS).
 
-**RULING FF** (2026-10-15) — asked whether the doors should swing toward the lobby, as real egress doors do, instead of
+**RULING GG** (2026-10-15; lettered FF until the split, which collided with the mannequin's FF) — asked whether the doors should swing toward the lobby, as real egress doors do, instead of
 into the house, Jack: *"Keep the doors swinging into the house."* So the leaves swing into the passage and lie flat on
 their reveals when open, as built; do not re-open this for the projection rooms' sake or for realism.
 
@@ -284,7 +289,7 @@ on a run through a doorway 244 → 356, frame cost no worse. Lead's check on the
 hint `E — open the doors` → E → 90° open → walked to the curtain, stopped at 0.27 m with `E — open the curtain` → E →
 100 % open → into the aisle. Two TRAPS (the fold that reads flat; a leaf opened onto a walker passes through them).
 
-**RULING FG** (2026-10-15) — asked whether a closed curtain should keep stopping the walker or let them push through,
+**RULING GH** (2026-10-15; lettered FG until the split) — asked whether a closed curtain should keep stopping the walker or let them push through,
 Jack: *"Keep a closed curtain stopping the walker, like a closed door."* So a drawn curtain is a wall to the walk
 (`doorsHit`) until E parts it, as built; do not make it pushable for realism.
 

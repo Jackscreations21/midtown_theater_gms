@@ -1,4 +1,4 @@
-# STATE — 2026-10-15 (OPEN ITEMS ONLY — `second-house` = PR #235 OPEN, carrying `main` as of #234; #233 and #234 MERGED)
+# STATE — 2026-10-15 (OPEN ITEMS ONLY — `midtown_theater_gms`, split out of `gms-theater` this day; the backstage round in flight)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,50 +6,39 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **`main` is `b74480b`**: #234 (`actors` — the automatic actors, the editor, the dancing, the video capture, dance
-  round 2; it carried #233, the 2026-10-12 cue day) merged 2026-10-15 at Jack's word, on top of #230–#232. The Midtown
-  page with the rig, the set, the whole of Hamilton auto-timed AND the actors is on Pages:
-  https://jackscreations21.github.io/gms-theater-game/midtown.html
-- **PR #235 (`second-house`, off `main`) is OPEN**: https://github.com/Jackscreations21/gms-theater-game/pull/235.
-  Jack: *"use the same theater we used for the hamilton one. just copy it over then remove the hamilton set. also make
-  the lobby bigger to fit the second theater."* Theatre 2 is a second, uncut copy of the scanned house at x +20
-  (`HOUSE2.dx`) with an empty stage — no set, no rig, no cuts, no bakes, the GLB's own proscenium and hanging iron —
-  and the lobby runs behind both houses (x −9.80…30.00, four doorways, "THEATRE 2" signs over the new pair). A
-  "Theatre 2" view button; the walk grid covers it; `MIDTOWN.house2` / `house2Spec` / `house2Mesh`. Jack's baked
-  stage-floor slab (box 21) is trimmed at x 10.4, where it ran into Theatre 2. Built by one Opus agent. Nothing in
-  `src/`. **Independent of #233** — different regions of `midtown.html`. The record for #233 (its HANDOFF and the
-  earlier STATE) lives only on `cue-blackouts`; whichever merges second will conflict in HANDOFF.md at its top block
-  and in this file — keep both HANDOFF blocks, keep this file's shape. **Both branches match their remotes; no
-  local-only commits anywhere** (2026-10-15). Local server: `http://localhost:8080/midtown.html` (`preview_start`
-  `the-house` if it is down).
-- **Also on #235 (2026-10-15, two Opus agents, merged `bb74206`):** Theatre 2 has the followspot booth and the lighting desk
-  (the same functions, moved `HOUSE2.dx`, measured against its own scan; three Lycians as props, no beams; the desk's
-  monitors dark — no show), and all four auditorium doorways have double doors that open for the walker and close behind.
-  Checked on the merge at localhost:8080: no errors or warnings, house 1's booth/desk/lobby lines unchanged, `walls.check()`
-  and `lx.check()` unchanged, the walk passed lobby → house-right doorway → house with the doors opening ahead and closing
-  behind (the live loop). Pages will not show it until #235 merges.
-- **And (2026-10-15, later, one Opus agent, `41ba7d1`):** *"make it so you open and close the doors by pressing e and they
-  are at the edge by the lobby then at the other end of the hallway there is a curtain you can open and close by
-  pressing e."* The doors no longer open by themselves: while walking, E toggles the door pair or curtain you face within
-  2 m and 50° (the walk hint says `E — open the doors` / `… the curtain`); a red velour curtain hangs at each passage's
-  house end (two pleated halves on a track, parting to the jambs in 1 s); a closed door or curtain stops the walker.
-  Checked on the merge at localhost:8080 with real key presses: doors opened on E, the curtain stopped the walker,
-  E parted it, the walker went through into the aisle; console clean, `walls.check()` / `lx.check()` unchanged.
-- **PR #233 and PR #234 are MERGED** (2026-10-15). Their records — the cue day, the actors, the dancing, the video
-  capture — are HANDOFF.md's blocks below the second-house ones. **The actors' open work is item 3a below.**
-- Rulings are at **FG** (FH next). FF (2026-10-15): the auditorium doors swing INTO the house. FG (2026-10-15): a
-  closed curtain stops the walker, like a closed door.
+- **This repository is the Midtown theatre's own**, split out of `gms-theater` (the Palace game, "THE HOUSE") at
+  Jack's word on 2026-10-15: *"can you move everything for the midtown theater to that repository."* Its history is
+  `gms-theater`'s history filtered to the Midtown files (279 of them) as of `gms-theater` `main` `14af651` (the merge
+  of #235), so `git log` on any Midtown file still shows every round. HANDOFF.md, FUTURE.md and TRAPS.md came across
+  whole: their blocks before 2026-10-11 are the Palace's and stay for the record; the Palace itself stays in
+  `gms-theater`. **Pages:** enable it for this repository (Settings → Pages, `main`, root) and the page is
+  `https://jackscreations21.github.io/midtown_theater_gms/midtown.html` (`index.html` redirects there). Until then
+  the old link `https://jackscreations21.github.io/gms-theater-game/midtown.html` still serves `gms-theater`'s copy.
+- **What `main` holds:** the house at 1:1 with the Hamilton set and rig, the lighting engine, the whole show
+  auto-timed (891 cues), the automatic actors with the show's choreography (dance round 2, RULING GF), the video
+  capture pipeline, Theatre 2 beside the first with its own followspot booth and lighting desk, one lobby behind
+  both with E-key doors and a curtain in each passage, and the backstage block's SPEC with two stubs
+  (`buildBackstage`, `buildBackstageFittings`) — the shell and the fittings are being built now by two Opus agents
+  off `gms-theater`'s `second-house` tip (`21d3b09`); their work lands here on a `backstage` branch.
+- **Rulings are at GH (GI next).** The second-house line used FF and FG on 2026-10-15 while the actors line had
+  already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
+  the house; **GH** (2026-10-15) a closed curtain stops the walker, like a closed door. FF is the mannequin.
+- Local server: any static server over the repository root, e.g. `python -m http.server 8080`, then
+  `http://localhost:8080/midtown.html` (Jack's Chrome for pointer lock; the Claude Browser pane for checks only).
 
 ## Open, in the order it will bite
 
-1. **Land #235, then the post-merge protocol:** fast-forward local `main`; delete the landed branches `second-house`,
-   `actors`, `cue-blackouts` and the five older landed ones `midtown-walk`, `midtown-walls`, `midtown-lights`,
-   `record-230`, `fixture-glbs` both sides (the sandbox refuses `git push --delete`; Jack or a terminal); suites when
-   Node is on the PATH (`winget install OpenJS.NodeJS.LTS`, Jack runs it — the sandbox cannot; `C:\Program Files\nodejs`
-   does not exist on this machine today). The `actors` worktree under `.claude/worktrees/` goes with its branch.
+1. **The backstage round (in flight):** two Opus agents build the shell (`buildBackstage`: envelope, the ways in from
+   both stages — house 1's two slots beside the set, a pair of E-key doors cut through Theatre 2's back brick — the
+   room partitions and E-key doors, lights, signs, a `Backstage` view) and the fittings (`buildBackstageFittings`:
+   four dressing rooms, the green room, the stage door, wardrobe, showers/WC, prop tables). The lead merges both onto
+   `backstage`, checks at the local link, records and opens the PR here. Then the post-merge protocol: in
+   `gms-theater` the remote branches `second-house`, `actors`, `cue-blackouts` and the older landed ones still want
+   deleting (the sandbox refuses remote deletes), and the Midtown files want REMOVING from `gms-theater` once Jack
+   says so (it breaks the old Pages link; his call).
 2. **Jack's eye on Theatre 2, its booth and desk, the doors and the long lobby** (PR #235). Decisions it raises, none
    made: Theatre 2's own show, or stays empty (its desk screens are dark until there is one); the doors' swing is
-   RULED (FF: into the house); a closed curtain stopping the walker is RULED (FG: it does, like a closed door); whether
+   RULED (GG: into the house); a closed curtain stopping the walker is RULED (GH: it does, like a closed door); whether
    E should also work in orbit mode (walking only now); the curtain's colour (0x7a1020, glow 0.3); whether E should
    refuse to open a pair onto a walker standing in a leaf's path (the leaf passes through them now; they walk out); the
    curtains' 48 track rings are always drawn (~3.8k triangles, frustum culling off on the instanced mesh); the 0.68 m
@@ -86,25 +75,6 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
    started; start fresh off the branch tip.
 7. **The Hamilton game spec is not written** (FUTURE.md PART 2 "THE HAMILTON GAME"): `midtown.html` is a preview
    page, not the second build target. Rulings letter from FF.
-8. **A headset run, now four rounds owed** (`?v=29`, DR–DY, the Art-Net round, and nothing of Midtown has been in the
-   Quest). Read the four wrist lines (`avg`, `pk`, `fov`, `calls · tri`) at: empty Palace, Beetlejuice pre-show, the
-   1:00 cue with eight blinders, and at the proscenium looking up into the neon with a desk driving 311..314.
-   Prediction on record: **~590 calls empty at the boot view**; ~700 means the build is stale.
-9. **Art-Net, still his to decide** (the round itself is closed, EL–FD; the built facts are in `docs/ARTNET.md`,
-   which is generated and cannot drift — never patch off this file):
-   - **Commit the `--csv` output of `tools/artnet-map.js` and guard it, or leave it an on-demand flag?** Asked twice,
-     unanswered. Today nothing warns when the sheet he pasted goes stale.
-   - **Audio from QLC+?** Art-Net is DMX only. The offer: a 4-channel sound block (track, play/stop, volume, seek)
-     so a desk cue fires the game's own recordings; or volume only; or nothing. Also named in the Hamilton game brief.
-   - **Channel 317 is one-way:** the Maitlands exterior has `home` 0 and no `out`, so every byte sends it home and
-     none sends it back. Widening it means consulting `sc.parkMv`, which the plan forbids. Needs a ruling.
-   - **Channel 310's traveler moves with the production** (line 2 on the Palace hang, line 1 under Beetlejuice).
-     Nothing to rule; know it before patching.
-   - The rest — RULING EY ruled and not built, `ART_PROVE` and the relay's sequence guard sized off the nominal
-     44 Hz, the ARTNET row that cannot tell three failures apart, the three spellings of "a desk drives this rig",
-     the `smoke.js` flake (~1 in 12; one re-run settles it) — are FUTURE.md PART 1a items 4–7.
-10. **Carried from the perf round, still his:** FUTURE.md "Carried from STATE.md, still his" (neon rake, the sign's
-    red at GO, 181 MB of models, `pr6.json` untracked and unruled, …).
 
 ## Facts you need to work on the Midtown page (not history)
 
@@ -129,7 +99,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   taken before anything touches house 1 — two clones of one GLB share buffers otherwise, TRAPS). Its materials are in
   `houseMats`, so the House light slider and the show's house fades dim both. The lobby is one room behind both
   (`LOBBY`, `buildLobby(house1, house2)`, four `doors` each with `house` and `side`).
-- **Local serving:** `.claude/launch.json` (gitignored) entry `the-house`, Python `http.server` on 8080 over the repo
+- **Local serving:** `.claude/launch.json` (gitignored) entry `midtown`, Python `http.server` on 8080 over the repo
   root; `preview_start` it. **It dies when the Browser pane is closed** — restart before navigating. Pointer lock
   fails inside the pane; a normal Chrome window at the same URL is the better window for him. His Chrome must be
   on the RTX 5060 (set to High performance in Windows), unverified.
@@ -145,18 +115,19 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 - **Bakes:** he exports `Downloads\midtown-build*.json`; append `pieces` to `BAKED` and `cuts` to `BAKED_CUTS`
   (replace only if he pressed "Edit the baked pieces" first); suffix names "(bake N)"; **tell him Clear all** after.
   **Check every baked piece's extent against Theatre 2** (x 10.2…30.0): box 21 reached into it once.
-- **Node is not on the PATH** on this machine; a portable copy may survive in an old session scratch. Suites were
-  last green 20/21 on 2026-10-11 (the one red was the then-untracked GLBs, since committed).
-- **`gh` is not installed**, so the app cannot bind a PR to a session; PRs open through the API (WORKFLOW.md) and
-  Jack merges them on GitHub.
+- **No test suite covers `midtown.html`**: the checks are the page's own (`MIDTOWN.show.check()`, `lx.check()`,
+  `actors.check()`, `walls.check()`, `doors.state()`), the console, and renders. Node is not installed on this machine.
+- **`gh` is not installed**, so the app cannot bind a PR to a session; PRs open through the API (CLAUDE.md) and
+  Jack merges them on GitHub (or says the word and the lead merges through the API).
 - **Never commit:** his photographs, his soundtrack, the Broadway plot PDFs, lyrics. ETC's set and rig are
   non-commercial (`assets/README.md`).
 
 ## Standing facts
 
-Suite count **21** (`npm test` in tests/); probe-lint runs first. The patch is 39 channels on every stage and the
-rail is 14 lines. three.js has **no multiview at any version**; r128 in the game, r160.1 is the UMD ceiling. Every
-timestamp in the Beetlejuice plot is a position in his WHOLE recording. **Patch a desk off `docs/ARTNET.md`.**
+Coordinates are the GLB's: Y up, metres, the deck at y 0.80, the proscenium plane at z 2.30, UPSTAGE IS +Z (the
+opposite of the Palace's convention; the set model is turned 180°). House 1 at the origin, Theatre 2 at x +20
+(`HOUSE2.dx`). three.js r128 from a CDN. ETC's set and rig are non-commercial (`assets/README.md`). The
+mannequin is Jack's own scan (RULING FF). Every timestamp in the show file is seconds into the album track.
 
 ## Shelved
 
