@@ -229,6 +229,20 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-15 (night): the soundtrack from his own disk on Pages, instead of YouTube (PR #4)
+
+*"can you just make it play the audio from the file i gave becuase it started playing from youtube and i got an ad."*
+The file cannot go to GitHub (a commercial album, the hard rule; and 125 MB, over the 100 MB limit), so the page takes it
+off his disk: when the server has no `assets/audio/hamilton-soundtrack.mp3` (Pages), the Show panel shows "Use your
+soundtrack file…" — the File System Access picker's handle is kept in IndexedDB and re-read on the next visit without
+asking when Chrome keeps the grant ("allow on every visit"), else with one click; browsers without the picker get a plain
+file input for the visit. The file becomes `SHW.sound` (`local: true`) with the show file's seek table and envelope, its
+object URL the element's `src` directly (no second copy of 125 MB), and a length check warns if it is not the copy the
+tables were made for. YouTube stays the fallback for a visitor with no file. Checked at the local link with the server
+copy renamed away: the button appeared, a File handed to `MIDTOWN.show.useLocalFile` became the soundtrack, My Shot
+played from 0:30 off it, the YouTube player was never created. The picker and the remembered handle were not driven
+(a native dialog); their code is the browser API's documented path.
+
 ## NEXT SESSION: **HIS EYE ON THE BACKSTAGE; THEN THE ACTORS' ACT-1 NOTES** (2026-10-15, late; PRs #1 and #2 merged, Pages LIVE)
 
 Rulings at **GH** (GI next). This is `midtown_theater_gms` now (split from `gms-theater` at its `14af651`; the Palace
