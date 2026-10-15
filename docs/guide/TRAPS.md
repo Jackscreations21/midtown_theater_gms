@@ -1926,3 +1926,27 @@ against this list before opening a PR; **add new traps as you hit them.**
   which reads as "the doors are slow" or "the walk is stuck". Count `requestAnimationFrame` over two seconds before
   trusting any timing in the pane, and give a walk-through ten-second waits; the numbers in his Chrome are right.
 
+## From the backstage round (2026-10-15)
+
+- **Theatre 2's fills are two triangles each, and nothing splits them.** `applyCut` drops a triangle by its centroid,
+  so a door-sized box on `h2: back_brick_lo` (one 14 × 5.4 m quad) takes the whole wall or none of it; `wallSplit`
+  splits only house 1's meshes. The stage doors' box (`BACKSTAGE_CUT`) has `buildBackstage` split Theatre 2's meshes
+  along its faces first (`wallSplitMesh`, before the first `reapplyAll`: a mesh already in `originals` cannot be
+  split cleanly). Any new box on Theatre 2 needs the same. And keep its faces off the deck: the scan's deck
+  (`h2: Object_5`) runs to z 8.81 under the brick, so a box from 8.80 would have holed the stage floor.
+- **`HOUSE2_CUTS` and `VIEWS` are evaluated long before `BACKSTAGE` is defined.** A literal there that reads
+  `BACKSTAGE` is a temporal-dead-zone ReferenceError and the page never loads. The backstage pushes its box into
+  `HOUSE2_CUTS` from its own section, and its view is written out in numbers.
+- **A SpotLight casts nothing here, so it lights through walls.** A down-cone from the backstage ceiling reaches
+  anything lit (MeshStandardMaterial) inside its cone, on the far side of any wall — a light in the corridor behind
+  house 1 would have lit the set's upstage platforms. The backstage's two hang where their cones meet only the block
+  and Theatre 2 (whose materials are unlit). Check where a cone lands before hanging one.
+- **A dark map times a dark emissive is black.** `emissive × emissiveMap` (both linear): the vinyl's grey map under an
+  emissive of 0x262626 glowed nothing and the corridor floor rendered black away from the lights. An emissive-lit
+  floor needs an emissive near white when its map carries the colour.
+- **The hidden pane can give no animation frames at all**, not just 1.5 fps: `requestAnimationFrame` fired 0 times
+  in 2 s this round. Drive the walk from the console with the walk's own code — `MIDTOWN.walk.step(0.05)` and
+  `MIDTOWN.doors.tick(0.05)` in a loop with `MIDTOWN.walk.keys` held — and draw with `MIDTOWN.frame()`.
+- **Frame times in the pane drift by ±5 ms between loads** on the Intel UHD (Back of house read 24 ms, then 29–36 ms
+  for the same page). Only an A/B inside one session (toggle `visible`, re-measure, interleaved) separates a cost of
+  a few ms from the drift.
