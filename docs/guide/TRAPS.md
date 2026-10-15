@@ -1950,3 +1950,14 @@ against this list before opening a PR; **add new traps as you hit them.**
 - **Frame times in the pane drift by ±5 ms between loads** on the Intel UHD (Back of house read 24 ms, then 29–36 ms
   for the same page). Only an A/B inside one session (toggle `visible`, re-measure, interleaved) separates a cost of
   a few ms from the drift.
+- **An InstancedMesh inside a group the walk's grid takes by name puts ONE copy of its geometry at the origin.**
+  `colliderMeshes` reads `o.geometry` through `o.matrixWorld` and never the instance matrices, so the mirror bulbs (121
+  spheres) would have been one phantom sphere at (0, 0, 0) on house 1's stage, in the walk's grid and the lights'
+  landing rays. The bulbs are a scene child of their own (`backstage bulbs`), outside the regex.
+- **A counter at 0.75 m with knee space does not stop the walker.** The walk's wall rays sit at 0.46 / 0.8 / 1.2 / 1.7 m
+  over the feet: the 0.8 ray passes over a 0.75 top and the 0.46 ray goes through the knee hole, so only the centre's
+  head check (`rayUp`) stops the body, by then half under the top. The make-up counters have a closed front (drawers to
+  a plinth); anything meant to stop the walker needs a face across 0.46 or 0.8. Things 0.40 m or lower are stepped ON.
+- **A vertex-coloured MeshStandardMaterial glows a flat grey, not its own colour.** `emissive` is a uniform; vertex
+  colours tint only the diffuse. The fittings' `bsColour` multiplies `totalEmissiveRadiance` by `vColor` in
+  `onBeforeCompile` (with its own `customProgramCacheKey`), so a red costume glows red in the unlit rooms.
