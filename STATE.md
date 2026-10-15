@@ -1,4 +1,4 @@
-# STATE — 2026-10-15 (OPEN ITEMS ONLY — `midtown_theater_gms`; `main` = `22777e6`, PR #1 merged; nothing is local-only)
+# STATE — 2026-10-15 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1 and #2 merged; public, Pages live; nothing is local-only)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -11,8 +11,8 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   `gms-theater`'s history filtered to the Midtown files (279 of them) as of `gms-theater` `main` `14af651` (the merge
   of #235), so `git log` on any Midtown file still shows every round. HANDOFF.md, FUTURE.md and TRAPS.md came across
   whole: their blocks before 2026-10-11 are the Palace's and stay for the record; the Palace itself stays in
-  `gms-theater`. **Pages:** enable it for this repository (Settings → Pages, `main`, root) and the page is
-  `https://jackscreations21.github.io/midtown_theater_gms/midtown.html` (`index.html` redirects there). **The old
+  `gms-theater`. **Pages:** on (the repository is public; `main`, root); the page is
+  `https://jackscreations21.github.io/midtown_theater_gms/midtown.html` — LIVE since 2026-10-15 (`index.html` redirects there). **The old
   link `…/gms-theater-game/midtown.html` is dead:** gms-theater's PR #236 (merged 2026-10-15) removed the Midtown
   files from that repository; only its record files keep the Midtown blocks, frozen at the split.
 - **What `main` holds:** the house at 1:1 with the Hamilton set and rig, the lighting engine, the whole show
@@ -44,7 +44,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
    does not stop the walker — TRAPS); the jog's return wall stands at x 10.40 (box 21's end), not the spec's 10.20 —
    trim the slab to 10.2 or change `stageZ.jog`; `stageDoors.h2.head` was read as a height over the floor (the doors
    are 4.2 m tall — a real stage door is 2.4–3 m; his call); the brick cut starts at z 8.85 (8.80 would hole the deck).
-   **Enable Pages on this repository** (Settings → Pages, `main`, root) — Jack's click. `gms-theater`'s landed
+   **Pages is LIVE** (public repository, `main`, root, 2026-10-15): the page is the URL above. `gms-theater`'s landed
    branches are deleted both sides; its Midtown files are gone (PR #236).
 2. **Jack's eye on Theatre 2, its booth and desk, the doors and the long lobby** (PR #235). Decisions it raises, none
    made: Theatre 2's own show, or stays empty (its desk screens are dark until there is one); the doors' swing is
