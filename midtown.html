@@ -32,6 +32,14 @@
   Each doorway has a pair of timber doors at its lobby end (Jack: "add doors to both theaters"; THE DOORS below) that
   swing into the passage (RULING FF), and a red velour curtain at its house end, where the passage meets the side aisle
   (THE CURTAINS); walking, E opens or closes whichever of them you face within reach, and the hint line says which.
+
+  BACKSTAGE (Jack: "add an area behind both stages for dressing rooms and stuff and make it be one big area not 2 separate
+  ones"): ONE block behind both stage houses (BACKSTAGE, "HOUSE WORKS: BACKSTAGE" below), its floor level with both decks
+  — a crossover corridor the whole 40 m width along the stage-side wall and eight rooms off it: the stage door (its street
+  door fixed), the green room, four dressing rooms, wardrobe, showers. From house 1's wings two open slots beside the set
+  lead straight into the corridor; from Theatre 2's stage a pair of steel doors cut through its back brick (HOUSE2_CUTS)
+  swing into the backstage on E, as every room's door swings into its room. Lit like the lobby: glowing surfaces,
+  fluorescent battens, blue running lights and two real lights; signs to the rooms, the stages and the exits.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -203,6 +211,7 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
     <button id="v-fly">Fly tower</button>
     <button id="v-lobby">Lobby</button>
     <button id="v-house2">Theatre 2</button>
+    <button id="v-backstage">Backstage</button>
   </div>
   <div class="mode" role="group" aria-label="Set size">
     <button id="s-fit" aria-pressed="false">Set fitted</button>
@@ -329,6 +338,9 @@ const VIEWS = {
   // house-left one is hidden behind it)
   'v-lobby':   [[-7.0, 2.48, -21.1], [2.0, 2.0, -14.0]],
   'v-house2':  [[HOUSE2.dx, 5.0, -13.5], [HOUSE2.dx, 2.5, 5]],   // Theatre 2's back of house
+  // eye height in the backstage corridor (floor y 0.80) just short of the jog, looking along it to Theatre 2's end: its
+  // stage doors on the left, the rooms' doors on the right (BACKSTAGE, defined later, so the numbers are written out)
+  'v-backstage': [[8.6, 2.4, 12.6], [28.0, 2.0, 11.2]],
 };
 let tween = null;
 function go(id) {
@@ -8977,13 +8989,856 @@ const BACKSTAGE = {
     { key: 'wc',        name: 'SHOWERS · WC',    x0: 25.65, x1: 30.00, door: { x0: 25.90, x1: 26.80 } },
   ],
 };
-// The shell: floor, walls, ceiling, the stage doors and their cuts, the room doors, the corridor's and rooms' lights, signs.
-function buildBackstage() { console.warn('backstage: the shell is not built yet'); return null; }
+/* ---------------------------------------------------------------- HOUSE WORKS: BACKSTAGE — THE SHELL
+   The block BACKSTAGE describes, built in the world frame like the lobby: geometry filed by material key (deskBox /
+   deskPut) and merged one mesh per material into the scene child 'backstage' (in the walk's collision grid by that
+   name), every mesh userData.rig, nothing cast or caught.
+   THE ENVELOPE. A dark grey vinyl floor, its top level with both decks; the ceiling and roof; outer walls t thick — the
+   far wall, the two end walls on the fly walls' lines (x −9.8 / 30.0), run forward to z 9.10 where the fly walls end
+   so the strip behind house 1 (z 9.10…10.80, Jack's slab underfoot) is closed at its sides — and the stage-side wall,
+   staggered: behind house 1 a wall z 10.80…11.00, its house face black (it is the back of house 1's stage now, seen
+   through the set); behind Theatre 2 a skin on the back brick's outer face (z 9.10…9.30); and the return wall closing
+   the jog, x 10.00…10.40 — 20 cm past BACKSTAGE.stageZ.jog, because Jack's slab (box 21, top y 0.845) ends at x 10.40
+   and would otherwise lie in the corridor as a 4.5 cm curb. Over the block the stage houses rise on to y 16: house 1's
+   back is open sky above the block's roof (its back brick and tower are cut for the set), and is left so.
+   THE WAYS IN. House 1's two slots (stageDoors.h1) are openings floor to 2.4 m, lined dark: from either wing a walker
+   goes upstage past the set's side on the slab and steps 4.5 cm down, at the wall's inner face, into the corridor.
+   Theatre 2's (stageDoors.h2, its head over the floor like every head here) is a pair of steel doors through the back
+   brick: BACKSTAGE_CUT, in HOUSE2_CUTS (so reapplyAll keeps it), after the brick's fills — two triangles each — are
+   split along the box's faces the way wallSplit splits house 1's, so the hole is the box; lined, framed, a threshold,
+   and the leaves hung on the corridor side, swinging into the backstage (RULING FF: nothing swings over a stage).
+   THE ROOMS. Partitions between them; the corridor wall with each room's doorway (a steel frame and ONE leaf hinged on
+   its x0 side, swinging into the room); the stage door room's street door in the far wall, which is FIXED — a solid
+   leaf with a push bar and an EXIT sign over it, in the grid, not on E (there is no street).
+   THE DOORS' LEAVES are DOORS.list entries in the lobby pairs' shape (backstageHang; kind 'doors' for the pair, 'door'
+   for a single leaf), so E, the aim, the hint, the swing, the rays and state() / check() take them with the lobby's;
+   in DOORS.group, never in the grid.
+   THE LIGHT, the lobby's recipe: surfaces that glow faintly of their own colour, white fluorescent battens (glow
+   planes) down the corridor every 3 m and one or two in every room, blue running lights at 0.3 m along the stage-side
+   wall, and BACKSTAGE_LIGHTS.n real lights (no shadows) — every SpotLight costs every lit pixel of the page, and a
+   cone from this ceiling reaches through the walls (they cast nothing), so none hangs where it could reach house 1's
+   set: one in the corridor behind Theatre 2 (whose house is unlit) before its stage doors, one in the green room.
+   SIGNS off one canvas (backstageSigns): each room's name over its door, the way to each stage either side of it, two
+   QUIET PLEASE boards, green EXITs over the street door and the three ways onto the stages. backstageReport, once the load is done
+   (the set at real size, the cuts made, the grid built): the slots and the door measured, one console line, and
+   MIDTOWN.backstage. */
+const BACKSTAGE_LINING = 0.10;      // the Theatre 2 doorway's lining: 10 cm jambs and soffit round the cut, like the lobby's passages
+// Theatre 2's doorway through the back brick: its lining's outside, floor to soffit, from just in front of the brick's
+// stage face (z 8.90) to behind the outer face (back_tower, z 9.10). z from 8.85, not 8.80: the scan's deck (h2: Object_5,
+// y 0.82) runs to z 8.81 and would be split and holed; y from the floor, so the deck's fill (y 0.796) is never inside.
+const BACKSTAGE_CUT = (() => {
+  const B = BACKSTAGE, d = B.stageDoors.h2, L = BACKSTAGE_LINING, r3 = v => +v.toFixed(3);
+  const x0 = d.x0 - L, x1 = d.x1 + L, y0 = B.floor, y1 = B.floor + d.head + L, z0 = 8.85, z1 = 9.35;
+  return { name: 'Theatre 2 stage doors', only: 'house2', p: [(x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2].map(r3), r: [0, 0, 0], s: [x1 - x0, y1 - y0, z1 - z0].map(r3) };
+})();
+HOUSE2_CUTS.push(BACKSTAGE_CUT);
+// The real lights: how many, candela, cone, colour. Two, measured on the Intel UHD in the pane (the same session, the
+// medians of 15 frames): three cost 2–5 ms a frame at Back of house and Theatre 2 and 6 at Backstage over none.
+const BACKSTAGE_LIGHTS = { n: 2, cd: 30, angle: 0.9, color: 0xf0f4ff };
+const backstageMat = {
+  floor:   lobbyStd(0xffffff, 0.6, 0, { emissive: 0xa0a0a0 }),   // map and emissiveMap: backstageVinyl(), at build (the glow carries it: nothing lights a floor here but two lights)
+  wall:    lobbyStd(0xbab5ab, 0.9, 0.14),                        // painted block
+  ceil:    lobbyStd(0xd4d3cf, 0.95, 0.30),
+  black:   lobbyStd(0x121113, 1.0, 0),                           // the faces toward house 1's stage
+  reveal:  lobbyStd(0x2c2b2d, 0.9, 0.15),                        // the openings' linings
+  frame:   lobbyStd(0x80858c, 0.5, 0.26),                        // pressed-steel frames and casings
+  door:    lobbyStd(0x5f7f99, 0.6, 0.28),                        // the rooms' leaves, painted
+  panel:   lobbyStd(0x56738b, 0.6, 0.24, { side: THREE.DoubleSide }),   // a room leaf's recessed panel where the lobby's have glass
+  steel:   lobbyStd(0x5c6066, 0.5, 0.24),                        // the stage doors, the street door, sign boxes
+  kick:    lobbyStd(0xa4a9ae, 0.35, 0.20),                       // plates, push bars, thresholds
+  housing: lobbyStd(0xe4e4e0, 0.6, 0.30),                        // the battens' bodies
+  glow:    new THREE.MeshBasicMaterial({ color: 0xf2f6ff, toneMapped: false }),   // the battens' diffusers
+  blue:    new THREE.MeshBasicMaterial({ color: 0x2a5cff, toneMapped: false }),   // the running lights
+  sign:    new THREE.MeshBasicMaterial({ toneMapped: false }),                     // map: backstageSigns(), at build
+};
+// The signs, one canvas, a row each: its text, its aspect (width over height), its style, h: its height in rows.
+const BACKSTAGE_SIGNS = [
+  ...BACKSTAGE.rooms.map(r => ({ text: r.name, a: 6.5, s: 'room' })),
+  { text: 'STAGE 1 →', a: 4, s: 'way' }, { text: '← STAGE 1', a: 4, s: 'way' },
+  { text: 'STAGE 2 →', a: 4, s: 'way' }, { text: '← STAGE 2', a: 4, s: 'way' },
+  { text: 'QUIET PLEASE', sub: 'SHOW IN PROGRESS', a: 3, s: 'quiet', h: 2 },
+  { text: 'EXIT', a: 2.5, s: 'exit' },
+];
+const BS_SIGN = (() => {                                     // the rows laid out: 128 px a row, each drawn centred at its aspect
+  let y = 0;
+  const rows = BACKSTAGE_SIGNS.map(s => { const hpx = 128 * (s.h || 1), w = Math.min(1024, hpx * s.a), r = { ...s, y0: y, hpx, u0: (1024 - w) / 2048, u1: (1024 + w) / 2048 }; y += hpx; return r; });
+  return { rows, W: 1024, H: y };
+})();
+// A sign h tall (its width the row's aspect) on a wall face at (x, y, z), facing ry (0: +z, π: −z, π/2: +x): a 2 cm
+// steel box on the wall and the lit face on it.
+function backstageSign(P, text, h, x, y, z, ry) {
+  const r = BS_SIGN.rows.find(q => q.text === text), w = h * r.a, nx = Math.sin(ry), nz = Math.cos(ry);
+  deskBox(P, 'steel', w + 0.04, h + 0.04, 0.02, x + nx * 0.01, y, z + nz * 0.01, 0, ry);
+  const g = new THREE.PlaneGeometry(w, h), uv = g.attributes.uv;
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, r.u0 + (r.u1 - r.u0) * uv.getX(i), 1 - (r.y0 + (1 - uv.getY(i)) * r.hpx) / BS_SIGN.H);
+  deskPut(P, 'sign', g, x + nx * 0.021, y, z + nz * 0.021, 0, ry);
+}
+function backstageSigns() {
+  const c = document.createElement('canvas'); c.width = BS_SIGN.W; c.height = BS_SIGN.H;
+  const g = c.getContext('2d'), tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const font = px => `600 ${px}px "IBM Plex Sans", system-ui, sans-serif`;
+  const STYLE = { room: ['#1b1d21', '#e9ebee', '#5a5f66'], way: ['#101114', '#f2f2f2', '#3c4048'], quiet: ['#160606', '#ff3b30', '#5a1410'], exit: ['#06140a', '#3cff6e', '#1e5a2c'] };
+  const draw = () => {
+    g.fillStyle = '#000'; g.fillRect(0, 0, c.width, c.height);
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    for (const r of BS_SIGN.rows) {
+      const [bg, fg, edge] = STYLE[r.s], x0 = r.u0 * c.width, w = (r.u1 - r.u0) * c.width, sp = t => t.split('').join(String.fromCharCode(8202));
+      g.fillStyle = bg; g.fillRect(x0, r.y0, w, r.hpx);
+      g.strokeStyle = edge; g.lineWidth = 6; g.strokeRect(x0 + 9, r.y0 + 9, w - 18, r.hpx - 18);
+      g.fillStyle = fg;
+      if (r.sub) {
+        g.font = font(104); g.fillText(sp(r.text), c.width / 2, r.y0 + r.hpx * 0.37, w - 60);
+        g.font = font(62); g.fillText(sp(r.sub), c.width / 2, r.y0 + r.hpx * 0.73, w - 60);
+      } else { g.font = font(r.s === 'exit' ? 86 : 70); g.fillText(sp(r.text), c.width / 2, r.y0 + r.hpx / 2 + 4, w - 56); }
+    }
+    tex.needsUpdate = true; requestRender();
+  };
+  draw();
+  if (document.fonts) document.fonts.load(font(70)).then(draw, () => {});   // redrawn once the page's face is in (a load wait, not game timing)
+  return tex;
+}
+// The floor: dark grey sealed vinyl, a faint fleck, 60 cm tiles with a darker seam.
+const BACKSTAGE_TILE = 0.6;
+function backstageVinyl() {
+  const c = document.createElement('canvas'); c.width = c.height = 256;
+  const g = c.getContext('2d');
+  g.fillStyle = '#55575b'; g.fillRect(0, 0, 256, 256);
+  let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 1400; i++) { const v = 66 + Math.floor(rnd() * 40); g.fillStyle = `rgb(${v},${v},${v + 3})`; g.fillRect(rnd() * 256, rnd() * 256, 2, 2); }
+  g.strokeStyle = '#3c3e42'; g.lineWidth = 3; g.strokeRect(1.5, 1.5, 253, 253);
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping; t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+// One backstage doorway's leaves, in DOORS.list in the lobby pairs' shape so doorsUse / doorAim / doorsTick / doorsHit /
+// state() / check() take them as they take those. o: { name, kind ('doors': a pair; 'door': one leaf hinged at x0),
+// x0, x1 (the reveals' faces), zlo (the frame's face; the closed leaves stand 6 mm behind it and swing toward +z), zhi
+// (as far as they may sweep, for check()), head (the opening's head, y), sill (a threshold under the closed leaves), mats }.
+function backstageHang(o) {
+  const D = DOORS, F = BACKSTAGE.floor, a = o.x0, b = o.x1, pair = o.kind === 'doors';
+  const W = pair ? (b - a) / 2 - D.gap - D.meet : b - a - 2 * D.gap, hz = o.zlo + 0.006 + D.t;
+  const floorAt = z => (o.sill && z <= o.zlo + D.sillIn ? F + D.sill : F);
+  const y0 = Math.max(floorAt(o.zlo), floorAt(hz + W + 0.05)) + D.under, y1 = o.head - 0.004 - D.top;
+  const sides = pair ? [[1, a + D.gap, 'house right leaf'], [-1, b - D.gap, 'house left leaf']] : [[1, a + D.gap, 'leaf']];
+  const leaves = [], hit = [];
+  for (const [s, hx, side] of sides) {
+    const l = doorLeaf(`door: ${o.name}, ${side}`, s, W, y1 - y0, { mats: o.mats, astragal: pair });
+    l.leaf.position.set(hx, y0, hz); (D.group || scene).add(l.leaf); l.leaf.updateMatrixWorld(true);
+    leaves.push(l.leaf); hit.push(...l.hit);
+  }
+  const e = { name: o.name, kind: o.kind, spec: o, cx: (a + b) / 2, cz: hz - D.t / 2, fy: F, leaves, hit, W, H: y1 - y0, y0, hinges: sides.map(s => s[1]), hz,
+    box: [a, b, y0, y1, o.zlo, hz + W + 0.02], z0: o.zlo, z1: hz + W,
+    reveal: [a, b], zlo: o.zlo, zhi: o.zhi, zhiName: 'sweep limit', floorAt, headY: o.head - 0.004,   // check()'s bounds (the lobby's come off LOBBY)
+    u: 0, want: 0, angle: 0 };
+  D.list.push(e);
+  return e;
+}
+let backstageBuilt = null;                                   // what buildBackstage made, for backstageReport
+function buildBackstage() {
+  const B = BACKSTAGE, t0 = performance.now(), F = B.floor, C = B.ceil, R = B.roof, T = B.t, D = DOORS, fw = D.frame;
+  const X0 = B.x0 - T, X1 = B.x1 + T, Z1 = B.stageZ.h1, Z1o = Z1 - T, Z2 = B.stageZ.h2, BR = 9.10;   // BR: the back brick's outer face (h2: back_tower)
+  const JX0 = 10.00, JX1 = 10.40;                           // the return wall: house 1's fly wall's line to the end of Jack's slab
+  const h2 = B.stageDoors.h2, L = BACKSTAGE_LINING, dH = F + h2.head;
+  // 1. THE BRICK, split along the cut box's faces before any cut (reapplyAll, at the load's tail, makes the cut): each of
+  // Theatre 2's meshes the box reaches, the other Theatre 2 boxes' triangles left whole as wallSplit leaves house 1's.
+  const doorBox = cutAABB(BACKSTAGE_CUT), whole = HOUSE2_CUTS.filter(c => c !== BACKSTAGE_CUT).map(c => cutAABB(c).expandByScalar(0.01));
+  const split = { split: 0, made: 0, meshes: [] };
+  if (house2Root) {
+    scene.updateMatrixWorld(true);
+    house2Root.traverse(o => {
+      if (!o.isMesh || !o.geometry.attributes.position) return;
+      const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox();
+      if (!g.boundingBox.clone().applyMatrix4(o.matrixWorld).intersectsBox(doorBox)) return;
+      if (originals.has(o)) { console.warn(`backstage: ${o.name} was cut before it could be split — the stage doors' hole stays ragged`); return; }
+      const r = wallSplitMesh(o, [doorBox], whole);
+      if (r.split) { split.split += r.split; split.made += r.made; split.meshes.push(`${o.name} ${r.split}→${r.made}`); }
+    });
+  }
+  const P = {};
+  const bx = (key, x0, x1, y0, y1, z0, z1) => deskBox(P, key, Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0), (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+  // a wall along x over x0…x1, y0…y1, z0…z1, solid but for openings [a, b, top] from its foot
+  const run = (key, x0, x1, y0, y1, z0, z1, holes) => {
+    let x = x0;
+    for (const [a, b, top] of [...holes].sort((p, q) => p[0] - q[0])) { if (a > x) bx(key, x, a, y0, y1, z0, z1); if (top < y1) bx(key, a, b, top, y1, z0, z1); x = b; }
+    if (x < x1) bx(key, x, x1, y0, y1, z0, z1);
+  };
+  // 2. THE ENVELOPE. The floor behind house 1 from under its wall, behind Theatre 2 from where its deck's fill stops
+  // (z 9.00, y 0.796); the ceiling the same; the far wall with the street doors' openings; the end walls from the fly
+  // walls' ends (house 1's black where they face its stage)
+  bx('floor', X0, JX0, F - 0.2, F, Z1o, B.farZ); bx('floor', JX0, X1, F - 0.2, F, 9.00, B.farZ);
+  bx('ceil', X0, JX0, C, R, Z1o + 0.02, B.farZ); bx('ceil', JX0 + 0.02, X1, C, R, BR, B.farZ);   // behind the black skins below
+  const streets = B.rooms.filter(r => r.street).map(r => r.street);
+  run('wall', X0, X1, F - 0.2, C, B.roomZ1, B.farZ, streets.map(s => [s.x0, s.x1, F + s.head]));
+  bx('black', X0, B.x0, F - 0.2, R, BR, Z1o); bx('wall', X0, B.x0, F - 0.2, C, Z1o, B.farZ);
+  bx('wall', B.x1, X1, F - 0.2, C, BR, B.farZ);
+  // the stage-side wall behind house 1, black on its house face, the two slots through it (each hole 1 cm over the slot all
+  // round, lined back to the slot's size); the black runs up over the roof's edge, which house 1's stage looks at
+  const slots = B.stageDoors.h1.map(s => ({ ...s, top: F + 2.4 }));
+  const slotHoles = slots.map(s => [s.x0 - 0.01, s.x1 + 0.01, s.top + 0.01]);
+  run('black', X0, JX0, F, R, Z1o, Z1o + 0.02, slotHoles); run('wall', B.x0, JX0, F, C, Z1o + 0.02, Z1, slotHoles);
+  for (const s of slots) {
+    bx('reveal', s.x0 - 0.01, s.x0, F, s.top + 0.01, Z1o, Z1); bx('reveal', s.x1, s.x1 + 0.01, F, s.top + 0.01, Z1o, Z1);
+    bx('reveal', s.x0, s.x1, s.top, s.top + 0.01, Z1o, Z1);
+  }
+  // the return wall at the jog, black where it faces house 1's stage; behind Theatre 2 the skin on the brick, holed for its doors
+  bx('black', JX0, JX0 + 0.02, F, R, BR, Z1o + 0.02); bx('wall', JX0 + 0.02, JX1, F, C, BR, Z1); bx('wall', JX0, JX0 + 0.02, F, C, Z1o + 0.02, Z1);
+  run('wall', JX1, B.x1, F, C, BR + 0.005, Z2, [[h2.x0 - L, h2.x1 + L, dH + L]]);
+  // 3. THEATRE 2'S STAGE DOORS: the lining through the brick and the skin (1 cm proud of the brick's stage face), a steel
+  // casing round it on the stage face and on the corridor's, the frame the leaves close on (jambs and a head in the
+  // skin's depth), a threshold under the closed leaves
+  const zs = 8.89;
+  bx('reveal', h2.x0 - L, h2.x0, F, dH + L, zs, Z2); bx('reveal', h2.x1, h2.x1 + L, F, dH + L, zs, Z2); bx('reveal', h2.x0 - L, h2.x1 + L, dH, dH + L, zs, Z2);
+  for (const [za, zb] of [[zs - 0.025, zs], [Z2, Z2 + 0.02]]) {
+    bx('steel', h2.x0 - L - 0.08, h2.x0 - L, F, dH + L + 0.08, za, zb); bx('steel', h2.x1 + L, h2.x1 + L + 0.08, F, dH + L + 0.08, za, zb);
+    bx('steel', h2.x0 - L, h2.x1 + L, dH + L, dH + L + 0.08, za, zb);
+  }
+  bx('frame', h2.x0, h2.x0 + fw, F, dH, BR, Z2); bx('frame', h2.x1 - fw, h2.x1, F, dH, BR, Z2); bx('frame', h2.x0 + fw, h2.x1 - fw, dH - D.headH, dH, BR, Z2);
+  bx('kick', h2.x0, h2.x1, F - 0.01, F + D.sill, zs - 0.01, Z2 + D.sillIn);
+  // 4. THE ROOMS: the partitions, the corridor wall and its doorways (a steel frame through its depth, casings on both
+  // faces), the street door (fixed)
+  for (let i = 0; i + 1 < B.rooms.length; i++) bx('wall', B.rooms[i].x1, B.rooms[i + 1].x0, F, C, B.roomZ0, B.roomZ1);
+  const dHd = F + B.doorHead;
+  run('wall', B.x0, B.x1, F, C, B.corridorZ, B.roomZ0, B.rooms.map(r => [r.door.x0, r.door.x1, dHd]));
+  for (const r of B.rooms) {
+    const d = r.door;
+    bx('frame', d.x0, d.x0 + fw, F, dHd, B.corridorZ, B.roomZ0); bx('frame', d.x1 - fw, d.x1, F, dHd, B.corridorZ, B.roomZ0);
+    bx('frame', d.x0 + fw, d.x1 - fw, dHd - D.headH, dHd, B.corridorZ, B.roomZ0);
+    for (const [za, zb] of [[B.corridorZ - 0.02, B.corridorZ], [B.roomZ0, B.roomZ0 + 0.02]]) {
+      bx('frame', d.x0 - 0.06, d.x0, F, dHd + 0.06, za, zb); bx('frame', d.x1, d.x1 + 0.06, F, dHd + 0.06, za, zb); bx('frame', d.x0, d.x1, dHd, dHd + 0.06, za, zb);
+    }
+  }
+  for (const s of streets) {
+    const top = F + s.head, zi = B.roomZ1;
+    bx('frame', s.x0, s.x0 + fw, F, top, zi, B.farZ); bx('frame', s.x1 - fw, s.x1, F, top, zi, B.farZ); bx('frame', s.x0 + fw, s.x1 - fw, top - 0.06, top, zi, B.farZ);
+    bx('frame', s.x0 - 0.06, s.x0, F, top + 0.06, zi - 0.02, zi); bx('frame', s.x1, s.x1 + 0.06, F, top + 0.06, zi - 0.02, zi); bx('frame', s.x0, s.x1, top, top + 0.06, zi - 0.02, zi);
+    bx('steel', s.x0 + fw, s.x1 - fw, F, top - 0.06, zi + 0.04, zi + 0.09);                          // the leaf, set 4 cm into the wall's depth
+    bx('kick', s.x0 + fw + 0.03, s.x1 - fw - 0.03, F + 0.02, F + 0.28, zi + 0.037, zi + 0.04);        // its kick plate
+    bx('kick', s.x0 + 0.18, s.x1 - 0.18, F + 0.98, F + 1.04, zi - 0.035, zi - 0.005);                 // the push bar, on two brackets
+    for (const x of [s.x0 + 0.2, s.x1 - 0.2]) bx('steel', x - 0.03, x + 0.03, F + 0.95, F + 1.07, zi - 0.005, zi + 0.04);
+  }
+  // 5. LIGHT: battens down the corridor's middle (behind house 1 and behind Theatre 2) and in every room; blue running
+  // lights at 0.3 m along the stage-side wall's corridor face, the slots and the stage doors left clear
+  let battens = 0, blues = 0;
+  const batten = (x, z) => { bx('housing', x - 0.62, x + 0.62, C - 0.06, C, z - 0.08, z + 0.08); deskPut(P, 'glow', new THREE.PlaneGeometry(1.18, 0.1), x, C - 0.061, z, Math.PI / 2); battens++; };
+  for (let x = B.x0 + 1.5; x < JX0 - 0.6; x += 3) batten(x, (Z1 + B.corridorZ) / 2);
+  for (let x = JX1 + 1.5; x < B.x1 - 0.6; x += 3) batten(x, (Z2 + B.corridorZ) / 2);
+  for (const r of B.rooms) { const w = r.x1 - r.x0, n = w > 4.5 ? 2 : 1; for (let i = 1; i <= n; i++) batten(r.x0 + w * i / (n + 1), (B.roomZ0 + B.roomZ1) / 2); }
+  const blue = (x, z, ry) => {
+    const nx = Math.sin(ry), nz = Math.cos(ry);
+    deskBox(P, 'steel', 0.12, 0.05, 0.02, x + nx * 0.01, F + 0.3, z + nz * 0.01, 0, ry);
+    deskPut(P, 'blue', new THREE.PlaneGeometry(0.09, 0.025), x + nx * 0.0205, F + 0.3, z + nz * 0.0205, 0, ry); blues++;
+  };
+  for (let x = B.x0 + 0.75; x < JX0; x += 1.5) if (!slots.some(s => x > s.x0 - 0.2 && x < s.x1 + 0.2)) blue(x, Z1, 0);
+  for (let x = JX1 + 0.6; x < B.x1; x += 1.5) if (!(x > h2.x0 - L - 0.3 && x < h2.x1 + L + 0.3)) blue(x, Z2, 0);
+  for (let z = Z2 + 0.6; z < Z1 - 0.1; z += 1.0) blue(JX1, z, Math.PI / 2);
+  // 6. SIGNS: each room's name over its door; the way to each stage either side of it; the boards; EXIT over the street
+  // door and the three ways onto the stages
+  for (const r of B.rooms) backstageSign(P, r.name, 0.16, (r.door.x0 + r.door.x1) / 2, dHd + 0.28, B.corridorZ, Math.PI);
+  const [sr, sl] = slots;
+  backstageSign(P, '← STAGE 1', 0.2, sr.x1 + 1.3, F + 1.65, Z1, 0); backstageSign(P, 'STAGE 1 →', 0.2, sl.x0 - 1.3, F + 1.65, Z1, 0);
+  backstageSign(P, 'STAGE 2 →', 0.2, h2.x0 - L - 1.4, F + 1.65, Z2, 0); backstageSign(P, '← STAGE 2', 0.2, h2.x1 + L + 1.4, F + 1.65, Z2, 0);
+  backstageSign(P, 'QUIET PLEASE', 0.36, 0.0, F + 2.0, Z1, 0); backstageSign(P, 'QUIET PLEASE', 0.36, h2.x1 + L + 4.0, F + 2.0, Z2, 0);
+  for (const s of slots) backstageSign(P, 'EXIT', 0.14, (s.x0 + s.x1) / 2, s.top + 0.2, Z1, 0);
+  backstageSign(P, 'EXIT', 0.14, (h2.x0 + h2.x1) / 2, dH + L + 0.08 + 0.1, Z2 + 0.02, 0);
+  for (const s of streets) backstageSign(P, 'EXIT', 0.14, (s.x0 + s.x1) / 2, F + s.head + 0.2, B.roomZ1, Math.PI);
+  // 7. One mesh per material, the floor's uv in world metres (its tiles)
+  backstageMat.floor.map = backstageMat.floor.emissiveMap = backstageVinyl(); backstageMat.sign.map = backstageSigns();
+  const group = new THREE.Group(); group.name = 'backstage';
+  let tris = 0;
+  for (const [key, geos] of Object.entries(P)) {
+    const geo = mergeGeometries(geos, false); geos.forEach(g => g.dispose());
+    if (!geo) { console.warn(`backstage: the ${key} pieces did not merge — left out`); continue; }
+    if (key === 'floor') { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / BACKSTAGE_TILE, -p.getZ(i) / BACKSTAGE_TILE); }
+    const mesh = new THREE.Mesh(geo, backstageMat[key]);
+    mesh.name = 'backstage: ' + key; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    tris += (geo.index ? geo.index.count : geo.attributes.position.count) / 3;
+    group.add(mesh);
+  }
+  scene.add(group); group.updateMatrixWorld(true);
+  // 8. THE LEAVES (DOORS.list): the stage pair, then one a room
+  const doors = [backstageHang({ name: 'Theatre 2 stage', kind: 'doors', x0: h2.x0, x1: h2.x1, zlo: Z2, zhi: B.corridorZ, head: dH, sill: true,
+    mats: { wood: backstageMat.steel, glass: lobbyMat.glass, brass: backstageMat.kick } })];
+  for (const r of B.rooms) doors.push(backstageHang({ name: r.name, kind: 'door', x0: r.door.x0, x1: r.door.x1, zlo: B.roomZ0, zhi: +(B.roomZ0 + 1.2).toFixed(2), head: dHd, sill: false,
+    mats: { wood: backstageMat.door, glass: backstageMat.panel, brass: backstageMat.kick } }));
+  // 9. THE REAL LIGHTS: in the corridor behind Theatre 2 in front of its stage doors, and the green room's middle (then,
+  // if BACKSTAGE_LIGHTS.n says more, along Theatre 2's corridor)
+  const LT = BACKSTAGE_LIGHTS, green = B.rooms.find(r => r.key === 'green'), zc = (Z2 + B.corridorZ) / 2;
+  const at = [[(h2.x0 + h2.x1) / 2, zc], [(green.x0 + green.x1) / 2, (B.roomZ0 + B.roomZ1) / 2], [JX1 + (B.x1 - JX1) * 0.8, zc]].slice(0, LT.n);
+  const lights = at.map(([x, z]) => spot(x, C - 0.04, z, x, F, z, LT.cd, LT.angle, LT.color, false));
+  group.userData = { spec: B, triangles: tris, lights, doors, split, battens, blues, ms: performance.now() - t0 };
+  backstageBuilt = { group, lights, doors, split, triangles: tris, battens, blues, ms: group.userData.ms,
+    extent: { x: [X0, X1], z: [Math.min(BR, Z1o), B.farZ], jog: [JX0, JX1] } };
+  requestRender();
+  return group;
+}
+// After the load (the set at real size, every cut made): the slots measured with the walk's own rays — the free width
+// at each of its heights through the wall's depth and on the approach behind the fly walls, the floor either side of the
+// wall's inner face — the stage doors' frame, what the brick's cut took; one console line; → MIDTOWN.backstage.
+function backstageReport() {
+  const bs = backstageBuilt;
+  if (!bs) return null;
+  if (col.stale) buildCollider();
+  const B = BACKSTAGE, Rd = WALK.radius, f2 = v => (v === null || !Number.isFinite(v) ? '—' : v.toFixed(2)), f3 = v => (v === null || !Number.isFinite(v) ? '—' : v.toFixed(3));
+  const width = (x, zs) => {
+    let lo = -Infinity, hi = Infinity;
+    for (const z of zs) {
+      const g = groundAt(x, z, B.floor + 0.1) ?? B.floor;
+      for (const h of WALK.rays) { lo = Math.max(lo, x - rayH(x, g + h, z, -1, 0, 3)); hi = Math.min(hi, x + rayH(x, g + h, z, 1, 0, 3)); }
+    }
+    return [lo, hi];
+  };
+  const Z1 = B.stageZ.h1;
+  const slots = B.stageDoors.h1.map((s, i) => {
+    const xm = (s.x0 + s.x1) / 2, [lo, hi] = width(xm, [Z1 - 0.18, Z1 - 0.1, Z1 - 0.02]), [alo, ahi] = width(xm, [9.2, 9.5, 9.8, 10.1, 10.4, 10.7]);
+    return { name: i ? 'house left' : 'house right', x0: lo, x1: hi, width: hi - lo, clear: (hi - lo) / 2 - Rd, approach: ahi - alo, approachX: [alo, ahi],
+      floorOut: groundAt(xm, Z1 - 0.05, B.floor + 0.1), floorIn: groundAt(xm, Z1 + 0.05, B.floor + 0.1) };
+  });
+  const h2 = B.stageDoors.h2, [dlo, dhi] = width((h2.x0 + h2.x1) / 2, [9.2, 9.25]);
+  const door = { x0: dlo, x1: dhi, width: dhi - dlo, floorStage: groundAt(20, 8.8, B.floor + 0.1), floorDoor: groundAt(20, 9.2, B.floor + 0.1), floorIn: groundAt(20, 9.6, B.floor + 0.1) };
+  const cut = house2Cut.find(c => c.cut === BACKSTAGE_CUT), removed = cut ? cut.removed : {}, cutN = Object.values(removed).reduce((a, k) => a + k, 0);
+  const measured = { slots, door, cut: removed, split: bs.split };
+  const { x, z, jog } = bs.extent;
+  console.info(`backstage: one block x ${x[0].toFixed(2)}…${x[1].toFixed(2)} z ${z[0].toFixed(2)}…${z[1].toFixed(2)} (${(x[1] - x[0]).toFixed(1)} m wide), floor y ${B.floor}, ceiling ${B.ceil}, roof ${B.roof}; `
+    + `the stage-side wall's inner face z ${Z1.toFixed(2)} behind house 1 and ${B.stageZ.h2.toFixed(2)} behind Theatre 2, the jog's return wall x ${jog[0].toFixed(2)}…${jog[1].toFixed(2)}; the corridor to z ${B.corridorZ}`
+    + ` · house 1's slots, measured with the walk's rays: ` + slots.map(s => `${s.name} x ${f3(s.x0)}…${f3(s.x1)} (${f3(s.width)} m: ${f3(s.clear)} m a side past the walker's ${Rd} m, on the approach behind the fly walls the nearest thing each side at x ${f2(s.approachX[0])} / ${f2(s.approachX[1])}, — for nothing within 3 m), floor ${f3(s.floorOut)} → ${f3(s.floorIn)}`).join('; ')
+    + ` · Theatre 2's stage doors x ${h2.x0}…${h2.x1}, head y ${(B.floor + h2.head).toFixed(2)}, ${f3(door.width)} m between the frame's jambs, floor ${f3(door.floorStage)} (stage) → ${f3(door.floorDoor)} (threshold) → ${f3(door.floorIn)}; `
+    + `the brick cut "${BACKSTAGE_CUT.name}" took ${cutN} triangles (${Object.entries(removed).map(([n, k]) => `${n} ${k}`).join(', ') || 'none'}) after splitting ${bs.split.split} into ${bs.split.made} (${bs.split.meshes.join(', ') || 'none'})`
+    + ` · ${B.rooms.length} rooms, ${bs.doors.length} doorways on E (${bs.doors.filter(d => d.kind === 'doors').length} pair, ${bs.doors.filter(d => d.kind === 'door').length} single), the street door fixed`
+    + ` · ${bs.battens} battens, ${bs.blues} running lights, ${bs.lights.length} real lights · ${bs.group.children.length} meshes, ${bs.triangles} triangles · ${bs.ms.toFixed(0)} ms`);
+  for (const s of slots) if (!(s.clear > 0.05)) console.warn(`backstage: the ${s.name} slot leaves ${f3(s.clear)} m a side — check BACKSTAGE.stageDoors.h1`);
+  if (!cutN) console.warn('backstage: the brick cut took nothing — Theatre 2 has no way through');
+  return { group: bs.group, spec: B, measured, get cuts() { return house2Cut.filter(c => c.cut === BACKSTAGE_CUT); }, triangles: bs.triangles, lights: bs.lights, doors: bs.doors };
+}
 // ---- (the shell's code goes above this line; the fittings' below it — two agents, one file, no shared lines)
-// The spec's rooms are the whole contract: a fitting reads its room's x0/x1 and BACKSTAGE.roomZ0/roomZ1/floor and
-// stays clear of the doorway's swath (door.x0 − 0.1 … door.x1 + 0.1, 1.2 m into the room) and the street door's.
-// The fittings: each room's furniture by its key (mirrors, counters, rails, sofas, the stage door's desk …).
-function buildBackstageFittings() { console.warn('backstage: the fittings are not built yet'); return null; }
+/* ---------------------------------------------------------------- HOUSE WORKS: BACKSTAGE — THE FITTINGS
+   What stands in the rooms and along the corridor, by each room's key, read off BACKSTAGE alone (its rooms' x0/x1,
+   roomZ0/roomZ1, floor, ceil, doors and the stage door's street door) — never the shell's geometry, so the two can be
+   built apart. Every piece keeps out of its doorway's swath (door.x0 − 0.1 … door.x1 + 0.1, 1.2 m into the room, where
+   the leaf swings in) and 1.2 m clear of the street door; the corridor's pieces stand against its stage-side wall, at
+   most 0.6 m deep, 1.0 m clear of every way in from a stage and 0.5 m clear of every room door. check() proves it, box
+   by box. Built from boxes, cylinders and spheres like the lobby's fittings, filed by material (deskPut) and merged one
+   mesh per material; the costumes, cushions and props are one vertex-coloured material whose glow is its own colour.
+   In the walk's collision grid by the group's name (counters, sofas and rails stop the walker); the mirror bulbs are an
+   InstancedMesh of their own (a scene child NOT in the grid: an instanced mesh's one sphere would land at the origin). */
+const bsStd = (color, roughness, glow = 0.24) => lobbyStd(color, roughness, glow);
+// one vertex-coloured material for everything tinted; emissive × the vertex colour, so each piece glows a little of its own
+const bsColour = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.8, metalness: 0, emissive: new THREE.Color(0.24, 0.24, 0.24) });
+bsColour.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n#ifdef USE_COLOR\n\ttotalEmissiveRadiance *= vColor.rgb;\n#endif'); };
+bsColour.customProgramCacheKey = () => 'backstage: colour';
+const bsMat = {
+  wood:   bsStd(0x6b4a2e, 0.6, 0.22),        // tables, the keeper's desk, shelves, benches, the pigeonholes
+  lam:    bsStd(0xbdb6a8, 0.55),             // laminate: the counters' carcasses, the kitchen's units, the cubicles' doors
+  dark:   deskStd(0x2e2d30, 0.6),            // frames, chair bases, the rails' feet, bins, bezels, clock hands
+  steel:  bsStd(0xa8acb2, 0.35, 0.2),        // taps, rail bars and uprights, the sinks
+  white:  bsStd(0xe2e0da, 0.45),             // appliances, basins, pans, the clocks' faces
+  tile:   bsStd(0xd4e0e4, 0.25, 0.3),        // the showers' tiled walls and trays: lighter than anything round them
+  cork:   bsStd(0xa47a4a, 0.95, 0.2),        // the callboard, the corridor's notice board
+  colour: bsColour,                           // costumes, cushions, seats, papers, props, the extinguishers
+  mirror: new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }),   // near-black glass, lighter towards the top
+  screen: deskMat.screen, halo: deskMat.halo, // the green room's show relay, as the desk's monitors
+};
+const bsBulb = new THREE.MeshBasicMaterial({ color: 0xffe2b8, toneMapped: false });   // the mirror bulbs, the keeper's lamp
+let backstageFittings = null;                                   // MIDTOWN.backstageFittings once the page is up
+function buildBackstageFittings() {
+  const B = BACKSTAGE, t0 = performance.now(), F = B.floor, Z0 = B.roomZ0, Z1 = B.roomZ1, C = B.ceil;
+  const V = (x, y, z) => new THREE.Vector3(x, y, z), PI = Math.PI, HP = PI / 2;
+  const room = k => B.rooms.find(r => r.key === k);
+  // every primitive is filed under its material (P) AND under the piece it belongs to (items, each with its world box)
+  const P = {}, items = [], bulbs = [];
+  let cur = null;
+  const begin = (zone, name) => { cur = { zone, name, box: new THREE.Box3() }; items.push(cur); };
+  const file = g => { g.computeBoundingBox(); cur.box.union(g.boundingBox); return g; };
+  const put = (key, g, x, y, z, rx = 0, ry = 0, rz = 0) => file(deskPut(P, key, g, x, y, z, rx, ry, rz));
+  const box = (key, w, h, d, x, y, z, rx = 0, ry = 0, rz = 0) => put(key, new THREE.BoxGeometry(w, h, d), x, y, z, rx, ry, rz);
+  const bx = (key, x0, x1, y0, y1, z0, z1) => box(key, Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0), (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+  const cyl = (key, rT, rB, y0, y1, x, z, seg = 12) => put(key, new THREE.CylinderGeometry(rT, rB, y1 - y0, seg), x, (y0 + y1) / 2, z);
+  const rod = (key, a, b, r, seg = 6) => { deskRod(P, key, a, b, r, seg); return file(P[key][P[key].length - 1]); };
+  const tint = (g, hex) => { const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([c.r, c.g, c.b], i * 3); g.setAttribute('color', new THREE.BufferAttribute(a, 3)); return g; };
+  const cbx = (hex, ...a) => tint(bx('colour', ...a), hex);
+  const ccyl = (hex, ...a) => tint(cyl('colour', ...a), hex);
+  const bulb = (x, y, z, s = 1) => { bulbs.push([x, y, z, s]); const r = 0.03 * s; cur.box.union(new THREE.Box3(V(x - r, y - r, z - r), V(x + r, y + r, z + r))); };
+  // A local frame: origin (x, z) on the floor plan, turned ry about y; its +z is the way a piece faces (out of its wall)
+  const frame = (x, z, ry = 0) => ({ x, z, ry, c: Math.cos(ry), s: Math.sin(ry) });
+  const wx = (f, u, w) => f.x + u * f.c + w * f.s, wz = (f, u, w) => f.z - u * f.s + w * f.c;
+  const lv = (f, u, y, w) => V(wx(f, u, w), y, wz(f, u, w));
+  const lb = (f, key, sw, sh, sd, u, y, w, rx = 0, rz = 0) => box(key, sw, sh, sd, wx(f, u, w), y, wz(f, u, w), rx, f.ry, rz);
+  const lcb = (f, hex, ...a) => tint(lb(f, 'colour', ...a), hex);
+  const lcyl = (f, key, rT, rB, y0, y1, u, w, seg) => cyl(key, rT, rB, y0, y1, wx(f, u, w), wz(f, u, w), seg);
+  const disc = (f, key, r, d, u, y, w, seg = 20) => put(key, new THREE.CylinderGeometry(r, r, d, seg), wx(f, u, w), y, wz(f, u, w), HP, f.ry);   // facing the frame's +z
+  const mirrorPlane = (w, h) => { const g = new THREE.PlaneGeometry(w, h), p = g.attributes.position, a = new Float32Array(p.count * 3), lo = new THREE.Color(0x101318), hi = new THREE.Color(0x2e353e); for (let i = 0; i < p.count; i++) { const c = p.getY(i) > 0 ? hi : lo; a.set([c.r, c.g, c.b], i * 3); } g.setAttribute('color', new THREE.BufferAttribute(a, 3)); return g; };
+  // walls' frames: a piece's back 5 mm off its wall, facing into the room
+  const onA = (r, z) => frame(r.x0 + 0.005, z, HP), onB = (r, z) => frame(r.x1 - 0.005, z, -HP);   // the house-right side wall, the house-left one
+  const onC = x => frame(x, Z0 + 0.005, 0), onFar = x => frame(x, Z1 - 0.005, PI);                    // the corridor wall's room face, the far wall
+  const onStage = (x, z) => frame(x, z + 0.005, 0);                                                    // the corridor's stage-side wall
+
+  // ---- THE FURNITURE, piece by piece (each in a local frame: +z is the way it faces)
+  const chair = (f, hex, s = 0.9) => {                            // the desk's operator's chair, smaller: base, post, seat, back
+    lcyl(f, 'dark', 0.24 * s, 0.24 * s, F, F + 0.03, 0, 0, 8);
+    lcyl(f, 'dark', 0.022, 0.022, F + 0.03, F + 0.43, 0, 0, 6);
+    lcb(f, hex, 0.42 * s, 0.07, 0.42 * s, 0, F + 0.465, 0);
+    lb(f, 'dark', 0.04, 0.26, 0.02, 0, F + 0.58, -0.21 * s, -0.14);
+    lcb(f, hex, 0.40 * s, 0.34, 0.05, 0, F + 0.80, -0.235 * s, -0.14);
+  };
+  const sofa = (f, L, hex, cush) => {                            // back at −z, 0.84 deep; seat top 0.47 (above the walk's step)
+    for (const su of [-1, 1]) for (const sw of [-1, 1]) lb(f, 'dark', 0.05, 0.10, 0.05, su * (L / 2 - 0.08), F + 0.05, sw * 0.33);
+    lcb(f, hex, L, 0.26, 0.82, 0, F + 0.23, 0);
+    const n = L > 1.6 ? 3 : L > 1.1 ? 2 : 1, cw = (L - 0.32) / n;
+    for (let i = 0; i < n; i++) {
+      const u = -L / 2 + 0.16 + cw * (i + 0.5);
+      lcb(f, cush, cw - 0.015, 0.11, 0.62, u, F + 0.415, 0.08);
+      lcb(f, cush, cw - 0.03, 0.36, 0.12, u, F + 0.66, -0.16, -0.18);
+    }
+    lcb(f, hex, L, 0.52, 0.2, 0, F + 0.62, -0.31);
+    for (const su of [-1, 1]) lcb(f, hex, 0.16, 0.26, 0.82, su * (L / 2 - 0.08), F + 0.49, 0);
+  };
+  const HEIGHTS = [0.95, 1.25, 0.8, 1.35, 1.05, 0.9, 1.2, 0.75, 1.3, 1.0, 0.85];
+  const rail = (f, len, n, pal, seed) => {                       // a costume rail: the bar along the frame's u, garments across it
+    for (const su of [-1, 1]) {
+      const u = su * len / 2;
+      rod('steel', lv(f, u, F + 0.04, 0), lv(f, u, F + 1.74, 0), 0.016, 6);
+      lb(f, 'dark', 0.05, 0.04, 0.56, u, F + 0.02, 0);
+    }
+    rod('steel', lv(f, -len / 2, F + 1.72, 0), lv(f, len / 2, F + 1.72, 0), 0.013, 6);
+    for (let i = 0; i < n; i++) {
+      const u = -len / 2 + 0.1 + (len - 0.2) * (i + 0.5) / n, k = (seed * 7 + i * 5) % HEIGHTS.length, h = HEIGHTS[k];
+      const c = pal[(seed + i * 3) % pal.length], w = [0.44, 0.42, 0.46, 0.40][(i + seed) % 4];
+      rod('dark', lv(f, u, F + 1.72, 0), lv(f, u, F + 1.645, 0), 0.005, 4);           // the hook
+      lb(f, 'dark', 0.012, 0.012, w - 0.02, u, F + 1.64, 0);                          // the hanger
+      lcb(f, c, 0.05 + (k % 3) * 0.02, h, w, u, F + 1.63 - h / 2, 0);                  // the garment
+      if (h > 1.15) lcb(f, c, 0.075, 0.42, w + 0.1, u, F + 1.63 - h + 0.21, 0);        // a gown's skirt, wider at the hem
+      else if (k % 4 === 1) lcb(f, c, 0.09, 0.10, w + 0.04, u, F + 1.56, 0);           // a jacket's shoulders
+    }
+  };
+  const basin = (f, top = F + 0.86, mirror = false) => {         // a wall-hung basin on a pedestal, a tap over it
+    lb(f, 'white', 0.5, 0.16, 0.44, 0, top - 0.08, 0.225);
+    lb(f, 'steel', 0.36, 0.006, 0.28, 0, top + 0.002, 0.25);
+    lcyl(f, 'white', 0.07, 0.09, F, top - 0.16, 0, 0.2, 10);
+    lb(f, 'steel', 0.14, 0.03, 0.04, 0, top + 0.015, 0.03);
+    rod('steel', lv(f, 0, top + 0.03, 0.03), lv(f, 0, top + 0.16, 0.03), 0.012, 6);
+    rod('steel', lv(f, 0, top + 0.16, 0.03), lv(f, 0, top + 0.16, 0.15), 0.01, 6);
+    if (mirror) {
+      lb(f, 'dark', 0.56, 0.76, 0.02, 0, top + 0.62, 0.01);
+      put('mirror', mirrorPlane(0.5, 0.7), wx(f, 0, 0.021), top + 0.62, wz(f, 0, 0.021), 0, f.ry);
+    }
+  };
+  const fridge = (f, w = 0.55, h = 0.84) => {                    // an under-counter fridge, its back to the wall
+    lb(f, 'white', w, h, 0.56, 0, F + 0.01 + h / 2, 0.29);
+    lb(f, 'dark', w - 0.04, 0.006, 0.006, 0, F + h - 0.16, 0.573);
+    lb(f, 'steel', 0.02, 0.22, 0.03, w / 2 - 0.06, F + h - 0.3, 0.59);
+    return F + 0.01 + h;
+  };
+  const kettle = (x, y, z, hex = 0xd8d4cc) => {
+    cyl('dark', 0.085, 0.085, y, y + 0.02, x, z, 12);
+    ccyl(hex, 0.07, 0.085, y + 0.02, y + 0.22, x, z, 12);
+    cbx(hex, x + 0.08, x + 0.11, y + 0.06, y + 0.2, z - 0.015, z + 0.015);
+    tint(put('colour', new THREE.CylinderGeometry(0.012, 0.02, 0.07, 6), x - 0.09, y + 0.14, z, 0, 0, 0.9), hex);
+  };
+  const mugs = (x, y, z, hexes) => hexes.forEach((h, i) => ccyl(h, 0.04, 0.04, y, y + 0.1, x + i * 0.11, z, 10));
+  const basket = (x, z, hex = 0x9a7a4a, towel = 0x6a8aa0) => { ccyl(hex, 0.21, 0.17, F, F + 0.55, x, z, 12); cbx(towel, x - 0.14, x + 0.12, F + 0.55, F + 0.6, z - 0.1, z + 0.14); };
+  const bin = (x, z, r = 0.17) => { cyl('dark', r, r * 0.85, F, F + 0.5, x, z, 12); cyl('steel', r + 0.005, r + 0.005, F + 0.5, F + 0.52, x, z, 12); };
+  const clock = (f, y, hrs = 2, mins = 0.6) => {                  // a wall clock: rim, face, two hands
+    disc(f, 'dark', 0.16, 0.03, 0, y, 0.017);
+    disc(f, 'white', 0.14, 0.03, 0, y, 0.022);
+    for (const [len, a, wd] of [[0.08, -hrs * PI / 6, 0.014], [0.12, -mins * 2 * PI, 0.008]])
+      lb(f, 'dark', wd, len, 0.004, -Math.sin(a) * len / 2, y + Math.cos(a) * len / 2, 0.039, 0, a);
+  };
+  const papers = (f, u0, u1, y0, y1, w, n, seed) => {             // sheets pinned to a board
+    const PAPER = [0xf2efe6, 0xf0e6a8, 0xf2f2f2, 0xe8c8c8, 0xc8dce8, 0xf2efe6];
+    for (let i = 0; i < n; i++) {
+      const fu = ((i * 37 + seed * 11) % 100) / 100, fy = ((i * 53 + seed * 29) % 100) / 100, pw = 0.21 + (i % 2) * 0.04, ph = 0.29 - (i % 3) * 0.06;
+      const u = u0 + pw / 2 + 0.03 + fu * (u1 - u0 - pw - 0.06), y = y0 + ph / 2 + 0.03 + fy * (y1 - y0 - ph - 0.06);
+      lcb(f, PAPER[(i + seed) % PAPER.length], pw, ph, 0.003, u, y, w + 0.0015 + i * 0.0005, 0, ((i % 3) - 1) * 0.04);
+    }
+  };
+
+  // ---- THE DRESSING ROOMS: a make-up counter the room's width (less 0.3 m an end) along the far wall, a mirror and its
+  // ring of ten bulbs over each seat (about every metre), a chair per seat; a costume rail on one side wall, a basin on
+  // the other; a laundry basket, a fridge or a kettle on a shelf, a clock. o: positions in metres from the room's x0 (u).
+  const dressing = (r, o) => {
+    const X = u => r.x0 + u, k = r.key;
+    const c0 = X(o.counter[0]), c1 = X(o.counter[1]), n = o.seats, pitch = (c1 - c0) / n, seats = [];
+    for (let i = 0; i < n; i++) seats.push(c0 + pitch * (i + 0.5));
+    begin(k, 'make-up counter');
+    bx('lam', c0, c1, F + 0.09, F + 0.71, Z1 - 0.57, Z1 - 0.005);                 // a closed front: the walk's knee ray meets it
+    bx('dark', c0 + 0.03, c1 - 0.03, F + 0.002, F + 0.09, Z1 - 0.52, Z1 - 0.005);   // the plinth, set back
+    cbx(o.top, c0, c1, F + 0.71, F + 0.75, Z1 - 0.6, Z1 - 0.005);
+    for (const sx of seats) {
+      bx('dark', sx - 0.36, sx + 0.36, F + 0.615, F + 0.62, Z1 - 0.574, Z1 - 0.569);     // a drawer's line
+      bx('steel', sx - 0.08, sx + 0.08, F + 0.55, F + 0.57, Z1 - 0.59, Z1 - 0.57);       // its handle
+    }
+    for (let i = 1; i < n; i++) bx('dark', c0 + pitch * i - 0.004, c0 + pitch * i + 0.004, F + 0.09, F + 0.62, Z1 - 0.574, Z1 - 0.569);
+    begin(k, 'make-up');
+    seats.forEach((sx, i) => {
+      const p = o.pal;
+      ccyl(p[i % p.length], 0.025, 0.025, F + 0.75, F + 0.86, sx - 0.28, Z1 - 0.16, 8);
+      ccyl(p[(i + 2) % p.length], 0.035, 0.035, F + 0.75, F + 0.8, sx - 0.18, Z1 - 0.2, 8);
+      cbx(0x222024, sx + 0.06, sx + 0.26, F + 0.75, F + 0.81, Z1 - 0.3, Z1 - 0.16);            // a make-up box
+      cbx(0xe8e2d8, sx - 0.12, sx + 0.04, F + 0.75, F + 0.765, Z1 - 0.42, Z1 - 0.3);           // a towel, folded
+      if ((i + o.wig) % 2 === 0) {                                                            // a wig on its block
+        ccyl(0x8a7a66, 0.03, 0.05, F + 0.75, F + 0.95, sx + 0.33, Z1 - 0.26, 8);
+        tint(put('colour', new THREE.SphereGeometry(0.095, 10, 8), sx + 0.33, F + 1.03, Z1 - 0.26), o.wigHex[i % o.wigHex.length]);
+      }
+    });
+    begin(k, 'mirrors and bulbs');
+    const fw = Math.min(0.94, pitch - 0.08), mw = fw - 0.2;
+    for (const sx of seats) {
+      bx('dark', sx - fw / 2, sx + fw / 2, F + 0.86, F + 1.97, Z1 - 0.03, Z1 - 0.005);
+      put('mirror', mirrorPlane(mw, 0.9), sx, F + 1.40, Z1 - 0.031, 0, PI);
+      for (let j = 0; j < 4; j++) bulb(sx + (j - 1.5) * mw / 3.7, F + 1.915, Z1 - 0.062);
+      for (const s of [-1, 1]) for (const y of [1.05, 1.40, 1.75]) bulb(sx + s * (fw / 2 - 0.06), F + y, Z1 - 0.062);
+    }
+    begin(k, 'chairs');
+    seats.forEach((sx, i) => chair(frame(sx + ((i * 7) % 3 - 1) * 0.04, Z1 - 0.9), o.seat));
+    begin(k, 'costume rail');
+    const rz = o.rail.z, rf = o.rail.wall === 'A' ? frame(r.x0 + 0.31, (rz[0] + rz[1]) / 2, HP) : frame(r.x1 - 0.31, (rz[0] + rz[1]) / 2, HP);
+    rail(rf, rz[1] - rz[0], o.rail.n, o.pal, o.rail.seed);
+    begin(k, 'wash basin');
+    basin(o.basin.wall === 'A' ? onA(r, o.basin.z) : onB(r, o.basin.z), F + 0.86, true);
+    begin(k, 'laundry basket');
+    basket(X(o.basket[0]), o.basket[1], o.basketHex);
+    if (o.fridge !== undefined) {
+      begin(k, 'fridge and kettle');
+      const top = fridge(onC(X(o.fridge)));
+      kettle(X(o.fridge) - 0.1, top, Z0 + 0.3); mugs(X(o.fridge) + 0.1, top, Z0 + 0.2, [o.pal[1], 0xe8e4dc]);
+    } else {
+      begin(k, 'shelf and kettle');
+      const s = o.shelf, f = s.wall === 'A' ? onA(r, s.z) : s.wall === 'B' ? onB(r, s.z) : onC(X(s.u)), y = F + 1.15;
+      lb(f, 'wood', 0.7, 0.025, 0.28, 0, y - 0.0125, 0.14);
+      for (const su of [-0.28, 0.28]) lb(f, 'dark', 0.02, 0.14, 0.2, su, y - 0.095, 0.1);
+      kettle(wx(f, -0.18, 0.14), y, wz(f, -0.18, 0.14));
+      mugs(wx(f, 0.06, 0.12), y, wz(f, 0.06, 0.12), [o.pal[0]]); mugs(wx(f, 0.19, 0.16), y, wz(f, 0.19, 0.16), [0xe8e4dc]);
+    }
+    begin(k, 'clock');
+    clock(onC(X(o.clock)), F + 2.4, 1 + (o.seats * 3) % 12, 0.15 * o.seats);
+    if (o.sofa) { begin(k, 'sofa'); sofa(frame(r.x1 - 0.43, o.sofa.z, -HP), o.sofa.len, o.sofa.hex, o.sofa.cush); }
+  };
+  const PAL = {
+    red:   [0x8a1e28, 0x2a3a6a, 0xd8c8a0, 0x1e1e22, 0x6a2a5a, 0xb08a3a, 0xe8e0d0, 0x3a5a3a],
+    blue:  [0x2a4a7a, 0x9a2a2a, 0xe0d8c4, 0x5a4a2a, 0x1e2a3a, 0xc89a4a, 0x7a7a82, 0x4a1e3a],
+    green: [0x2e5a3a, 0xc8b070, 0x6a1e2a, 0xe6e0d2, 0x283048, 0x8a5a2a, 0x5a6a7a, 0xb04a3a],
+    gold:  [0xb08a3a, 0x3a2a5a, 0xe8dcc4, 0x7a1e1e, 0x1e3a3a, 0xd8d0c0, 0x4a4a4a, 0x8a3a6a],
+  };
+  dressing(room('dr1'), { seats: 4, counter: [0.3, 4.55], top: 0xcfc4ac, seat: 0x6a2a32, pal: PAL.red, wig: 0, wigHex: [0x3a2618, 0xb89a5a],
+    rail: { wall: 'B', z: [13.75, 15.65], n: 8, seed: 1 }, basin: { wall: 'A', z: 15.25 }, fridge: 3.2, basket: [2.3, 13.86], clock: 1.8 });
+  dressing(room('dr2'), { seats: 3, counter: [1.2, 4.55], top: 0x8a8a8e, seat: 0x2a3a5a, pal: PAL.blue, wig: 1, wigHex: [0x6a4a2a, 0x1e1a18],
+    rail: { wall: 'A', z: [14.95, 16.85], n: 7, seed: 2 }, basin: { wall: 'B', z: 14.85 }, shelf: { wall: 'B', z: 14.05 }, basket: [4.55, 15.5], basketHex: 0x5a6a7a, clock: 2.6 });
+  dressing(room('dr3'), { seats: 3, counter: [0.3, 3.6], top: 0xd8d2c4, seat: 0x2e4a34, pal: PAL.green, wig: 0, wigHex: [0x8a6a3a, 0x2a1a12],
+    rail: { wall: 'B', z: [13.75, 16.3], n: 10, seed: 3 }, basin: { wall: 'A', z: 15.25 }, fridge: 2.75, basket: [1.85, 13.86], basketHex: 0x8a6a40, clock: 3.6 });
+  dressing(room('dr4'), { seats: 2, counter: [0.9, 3.2], top: 0x3a3236, seat: 0x7a5a2a, pal: PAL.gold, wig: 1, wigHex: [0xc8a86a],
+    rail: { wall: 'A', z: [14.95, 16.85], n: 7, seed: 4 }, basin: { wall: 'B', z: 16.55 }, shelf: { u: 2.5 }, basket: [3.5, 13.86], basketHex: 0xa08a60, clock: 1.8,
+    sofa: { z: 14.9, len: 1.5, hex: 0x5a2a3a, cush: 0x6a3446 } });
+
+  // ---- THE GREEN ROOM: two sofas and an armchair round a low table; a kitchenette along the far wall (counter, sink,
+  // kettle, microwave, a tall fridge, wall units); the show relay on the corridor wall, facing the far sofa; the callboard;
+  // a water cooler; a bin.
+  {
+    const r = room('green'), k = r.key;
+    begin(k, 'sofa, far wall'); sofa(frame(-1.5, Z1 - 0.435, PI), 2.0, 0x2e4a3e, 0x365646);
+    begin(k, 'sofa, side wall'); sofa(frame(r.x1 - 0.435, 14.75, -HP), 1.9, 0x2e4a3e, 0x365646);
+    begin(k, 'armchair'); sofa(frame(-2.28, 15.3, HP), 0.85, 0x6a3a26, 0x7a4630);
+    begin(k, 'low table');
+    bx('wood', -1.6, -0.7, F + 0.41, F + 0.45, 14.9, 15.5);
+    for (const [x, z] of [[-1.56, 14.94], [-0.74, 14.94], [-1.56, 15.46], [-0.74, 15.46]]) bx('dark', x - 0.02, x + 0.02, F, F + 0.41, z - 0.02, z + 0.02);
+    cbx(0x8a2a2a, -1.45, -1.21, F + 0.45, F + 0.47, 15.05, 15.22); mugs(-0.95, F + 0.45, 15.3, [0xe8e4dc]);
+    begin(k, 'kitchenette');
+    const k0 = -5.5, k1 = -3.4, kt = F + 0.9;
+    bx('lam', k0, k1, F + 0.1, kt - 0.04, Z1 - 0.58, Z1 - 0.005);
+    bx('dark', k0 + 0.03, k1 - 0.03, F + 0.002, F + 0.1, Z1 - 0.52, Z1 - 0.005);
+    bx('wood', k0, k1, kt - 0.04, kt, Z1 - 0.62, Z1 - 0.005);
+    for (let x = k0 + 0.525; x < k1 - 0.01; x += 0.525) bx('dark', x - 0.004, x + 0.004, F + 0.12, kt - 0.06, Z1 - 0.584, Z1 - 0.579);
+    bx('steel', -5.25, -4.75, kt, kt + 0.006, Z1 - 0.5, Z1 - 0.12);                       // the sink
+    rod('steel', V(-5.0, kt, Z1 - 0.08), V(-5.0, kt + 0.25, Z1 - 0.08), 0.014, 6); rod('steel', V(-5.0, kt + 0.25, Z1 - 0.08), V(-5.0, kt + 0.22, Z1 - 0.3), 0.012, 6);
+    kettle(-4.45, kt, Z1 - 0.25, 0x2a2a2e); mugs(-4.25, kt, Z1 - 0.42, [0x8a2a2a, 0x2a4a7a, 0xe8e4dc]);
+    bx('white', -4.12, -3.6, kt, kt + 0.3, Z1 - 0.43, Z1 - 0.04);                          // the microwave
+    bx('dark', -4.08, -3.78, kt + 0.04, kt + 0.26, Z1 - 0.436, Z1 - 0.43);
+    bx('lam', k0, k1, F + 1.5, F + 2.2, Z1 - 0.34, Z1 - 0.005);                            // wall units
+    for (let x = k0 + 0.525; x < k1 - 0.01; x += 0.525) bx('dark', x - 0.004, x + 0.004, F + 1.52, F + 2.18, Z1 - 0.345, Z1 - 0.34);
+    begin(k, 'fridge');
+    bx('white', r.x0 + 0.03, r.x0 + 0.63, F + 0.01, F + 1.8, Z1 - 0.63, Z1 - 0.005);
+    bx('dark', r.x0 + 0.05, r.x0 + 0.61, F + 1.18, F + 1.186, Z1 - 0.636, Z1 - 0.63);
+    for (const y of [F + 0.9, F + 1.4]) bx('steel', r.x0 + 0.55, r.x0 + 0.57, y - 0.12, y + 0.12, Z1 - 0.66, Z1 - 0.63);
+    begin(k, 'show relay');
+    { const f = onC(-1.2), y = F + 2.1;
+      lb(f, 'dark', 0.14, 0.22, 0.06, 0, y, 0.03); lb(f, 'dark', 0.95, 0.56, 0.04, 0, y, 0.08);
+      put('screen', new THREE.PlaneGeometry(0.9, 0.51), wx(f, 0, 0.101), y, wz(f, 0, 0.101), 0, f.ry);
+      put('halo', new THREE.PlaneGeometry(1.04, 0.63), wx(f, 0, 0.103), y, wz(f, 0, 0.103), 0, f.ry); }
+    begin(k, 'callboard');
+    { const f = onA(r, 14.7), y0 = F + 1.1, y1 = F + 2.0;
+      lb(f, 'wood', 1.24, y1 - y0 + 0.04, 0.02, 0, (y0 + y1) / 2, 0.01); lb(f, 'cork', 1.2, y1 - y0, 0.012, 0, (y0 + y1) / 2, 0.026);
+      papers(f, -0.6, 0.6, y0, y1, 0.032, 8, 1); }
+    begin(k, 'water cooler');
+    bx('white', -5.76, -5.44, F, F + 0.95, Z0 + 0.02, Z0 + 0.34);
+    ccyl(0x9ac0d8, 0.13, 0.13, F + 0.95, F + 1.38, -5.6, Z0 + 0.18, 12); ccyl(0x9ac0d8, 0.05, 0.13, F + 1.38, F + 1.44, -5.6, Z0 + 0.18, 12);
+    bx('dark', -5.66, -5.54, F + 0.7, F + 0.76, Z0 + 0.34, Z0 + 0.37);
+    begin(k, 'bin'); bin(-3.85, Z0 + 0.25);
+    begin(k, 'clock'); clock(onC(-4.6), F + 2.45, 7, 0.4);
+  }
+
+  // ---- THE STAGE DOOR: the keeper's desk beside the way from the street (its hatch ledge on the visitors' side, a sign-in
+  // book on it, a lamp), the keeper's chair behind it; a wall of pigeonholes (5 × 6); a key cabinet; the tannoy; a clock;
+  // a coat stand. The street door's 1.2 m stays clear.
+  {
+    const r = room('stagedoor'), k = r.key, dx0 = -7.45, dx1 = -6.85, dz0 = 15.0, dz1 = 16.5, top = F + 0.76;
+    begin(k, "keeper's desk");
+    bx('wood', dx0, dx0 + 0.04, F, F + 1.05, dz0, dz1);                                   // the front, rising to the hatch ledge
+    bx('wood', dx0 - 0.03, dx0 + 0.18, F + 1.05, F + 1.09, dz0, dz1);                      // the ledge
+    bx('wood', dx0 + 0.04, dx1, top - 0.04, top, dz0, dz1);                                // the desk top
+    for (const z of [dz0, dz1 - 0.03]) bx('wood', dx0 + 0.04, dx1, F, top - 0.04, z, z + 0.03);
+    cbx(0x5a1e1e, dx0 - 0.02, dx0 + 0.16, F + 1.09, F + 1.11, 15.45, 15.85);              // the sign-in book, open
+    cbx(0xf0ece0, dx0 - 0.01, dx0 + 0.15, F + 1.11, F + 1.115, 15.47, 15.83);
+    rod('dark', V(dx0 + 0.05, F + 1.12, 15.9), V(dx0 + 0.12, F + 1.12, 16.02), 0.005, 4);  // a pen
+    cbx(0x1e1e22, -7.2, -6.98, top, top + 0.07, 15.15, 15.35);                             // the telephone
+    cbx(0xf0ece0, -7.3, -7.05, top, top + 0.004, 15.6, 15.9);                              // a list
+    begin(k, 'desk lamp');
+    { const lx = -7.0, lz = 16.3;
+      cyl('dark', 0.06, 0.07, top, top + 0.025, lx, lz, 10);
+      const g1 = V(lx, top + 0.38, lz), g2 = V(lx - 0.18, top + 0.42, lz - 0.05);
+      rod('dark', V(lx, top + 0.025, lz), g1, 0.006, 6); rod('dark', g1, g2, 0.006, 6);
+      cyl('dark', 0.03, 0.075, g2.y - 0.1, g2.y, g2.x, g2.z, 12);
+      bulb(g2.x, g2.y - 0.1, g2.z, 1.4); }
+    begin(k, "keeper's chair"); chair(frame(-6.6, 15.75, -HP), 0x3a3a46, 1);
+    begin(k, 'pigeonholes');
+    { const f = onA(r, 15.05), y0 = F + 1.0, cw = 0.25, n = 6, m = 5, LET = [0xf2efe6, 0xe8dcb8, 0xc8d8e8, 0xf2efe6, 0xa8c8a8];
+      lb(f, 'wood', n * cw + 0.015, m * cw + 0.015, 0.012, 0, y0 + m * cw / 2, 0.006);
+      for (let c = 0; c <= n; c++) lb(f, 'wood', 0.015, m * cw + 0.015, 0.3, -n * cw / 2 + c * cw, y0 + m * cw / 2, 0.15);
+      for (let w = 0; w <= m; w++) lb(f, 'wood', n * cw + 0.015, 0.015, 0.3, 0, y0 + w * cw, 0.15);
+      for (let c = 0; c < n; c++) for (let w = 0; w < m; w++) if ((c * 3 + w * 7) % 5 < 2)
+        lcb(f, LET[(c + w) % LET.length], 0.17, 0.012 + ((c + w) % 3) * 0.015, 0.22, -n * cw / 2 + (c + 0.5) * cw, y0 + w * cw + 0.014 + ((c + w) % 3) * 0.0075, 0.16); }
+    begin(k, 'key cabinet');
+    { const f = onB(r, 16.75), y = F + 1.7;
+      lb(f, 'wood', 0.42, 0.56, 0.07, 0, y, 0.035); lb(f, 'lam', 0.36, 0.5, 0.004, 0, y, 0.072);
+      const TAG = [0xb83a2a, 0x2a6ab8, 0xe8c040, 0x3a9a5a, 0xe8e4dc];
+      for (let row = 0; row < 3; row++) for (let i = 0; i < 5; i++) {
+        const u = -0.14 + i * 0.07, yy = y + 0.15 - row * 0.15;
+        rod('steel', lv(f, u, yy, 0.074), lv(f, u, yy, 0.1), 0.003, 4);
+        if ((row * 5 + i) % 3) lcb(f, TAG[(row + i) % TAG.length], 0.025, 0.04, 0.004, u, yy - 0.035, 0.09);
+      } }
+    begin(k, 'tannoy');
+    { const f = onC(-9.2), y = F + 2.95;
+      lb(f, 'dark', 0.28, 0.36, 0.18, 0, y, 0.16, 0.25); lb(f, 'dark', 0.06, 0.06, 0.08, 0, y + 0.2, 0.04);
+      lcb(f, 0x55565a, 0.22, 0.28, 0.01, 0, y + 0.006, 0.25, 0.25); }
+    begin(k, 'clock'); clock(onC(-8.4), F + 2.4, 10, 0.1);
+    begin(k, 'coat stand');
+    { const x = -9.45, z = 13.98;
+      cyl('dark', 0.2, 0.2, F, F + 0.03, x, z, 12); rod('wood', V(x, F + 0.03, z), V(x, F + 1.8, z), 0.02, 8);
+      for (const a of [0, HP, PI, -HP]) rod('wood', V(x, F + 1.62, z), V(x + Math.cos(a) * 0.13, F + 1.72, z + Math.sin(a) * 0.13), 0.01, 4);
+      cbx(0x2a2a3a, x + 0.08, x + 0.22, F + 0.85, F + 1.7, z - 0.21, z + 0.21);               // a coat on the house-left hook
+      cbx(0x6a4a2a, x - 0.2, x + 0.2, F + 1.0, F + 1.7, z + 0.07, z + 0.2); }                // and one on the far one
+  }
+
+  // ---- WARDROBE: two washers and a dryer along the far wall, a steamer beside them, shelves of folded cloth; a long rail
+  // on the house-right wall and another on the corridor wall, packed; the cutting table with its sewing machine and a
+  // chair; the ironing board and iron by the house-left wall.
+  {
+    const r = room('wardrobe'), k = r.key;
+    begin(k, 'washers and dryer');
+    [[11.65, 0x101418], [12.3, 0x101418], [12.95, 0x2a2a30]].forEach(([x, glass], i) => {
+      bx('white', x - 0.3, x + 0.3, F + 0.01, F + 0.86, Z1 - 0.605, Z1 - 0.005);
+      put('steel', new THREE.CylinderGeometry(0.2, 0.2, 0.03, 20), x, F + 0.42, Z1 - 0.62, HP);
+      tint(put('colour', new THREE.CylinderGeometry(0.15, 0.15, 0.03, 20), x, F + 0.42, Z1 - 0.628, HP), glass);
+      bx('dark', x - 0.28, x + 0.28, F + 0.74, F + 0.82, Z1 - 0.612, Z1 - 0.604);
+      cyl('steel', 0.025, 0.025, F + 0.76, F + 0.8, x + 0.18, Z1 - 0.62, 8);
+      if (i < 2) ccyl(i ? 0x3a7ab8 : 0xe86a2a, 0.05, 0.06, F + 0.86, F + 1.1, x - 0.12, Z1 - 0.25, 8);
+    });
+    begin(k, 'steamer');
+    { const x = 13.5, z = 16.65;
+      cbx(0xe8e4dc, x - 0.14, x + 0.14, F + 0.03, F + 0.3, z - 0.14, z + 0.14); bx('dark', x - 0.15, x + 0.15, F, F + 0.03, z - 0.15, z + 0.15);
+      rod('steel', V(x, F + 0.3, z), V(x, F + 1.6, z), 0.012, 6); bx('steel', x - 0.06, x + 0.06, F + 1.6, F + 1.64, z - 0.02, z + 0.02);
+      rod('dark', V(x + 0.1, F + 0.3, z), V(x + 0.11, F + 1.25, z - 0.06), 0.012, 6); bx('steel', x + 0.07, x + 0.15, F + 1.25, F + 1.4, z - 0.1, z - 0.03); }
+    begin(k, 'shelves of cloth');
+    { const s0 = 13.75, s1 = 15.45, z0 = Z1 - 0.4, z1 = Z1 - 0.005, CLOTH = [0x8a2a2a, 0x2a4a7a, 0xd8ccb0, 0x3a5a3a, 0x1e1e22, 0xb89a4a, 0x6a3a6a, 0xe8e4dc];
+      for (const x of [s0, (s0 + s1) / 2, s1]) bx('lam', x - (x === s0 ? 0 : x === s1 ? 0.02 : 0.01), x + (x === s0 ? 0.02 : x === s1 ? 0 : 0.01), F, F + 2.0, z0, z1);
+      let c = 0;
+      for (const y of [F + 0.3, F + 0.8, F + 1.3, F + 1.8]) {
+        bx('lam', s0, s1, y - 0.02, y, z0, z1);
+        for (let x = s0 + 0.05; x + 0.36 < s1 - 0.02; x += 0.4) {
+          if (Math.abs(x + 0.18 - (s0 + s1) / 2) < 0.2) continue;
+          const h = 0.06 + ((c * 5) % 4) * 0.03; cbx(CLOTH[c++ % CLOTH.length], x, x + 0.34, y, y + h, z0 + 0.04, z1 - 0.04);
+        }
+      } }
+    begin(k, 'costume rail, house-right wall'); rail(frame(r.x0 + 0.31, 15.0, HP), 2.6, 16, PAL.red.concat(PAL.blue), 5);
+    begin(k, 'costume rail, corridor wall'); rail(frame(14.65, Z0 + 0.31, 0), 1.5, 10, PAL.gold.concat(PAL.green), 6);
+    begin(k, 'cutting table');
+    { const x0 = 11.55, x1 = 13.95, z0 = 15.05, z1 = 15.8, t = F + 0.9;
+      bx('wood', x0, x1, t - 0.04, t, z0, z1);
+      for (const x of [x0 + 0.03, x1 - 0.03]) for (const z of [z0 + 0.03, z1 - 0.03]) bx('dark', x - 0.025, x + 0.025, F, t - 0.04, z - 0.025, z + 0.025);
+      bx('dark', x0 + 0.05, x1 - 0.05, F + 0.15, F + 0.17, z0 + 0.05, z1 - 0.05);              // a low shelf
+      cbx(0x2e5a3e, x0 + 0.1, x0 + 1.3, t, t + 0.004, z0 + 0.06, z1 - 0.06);                    // the cutting mat
+      cbx(0x9a2a3a, x0 + 0.3, x0 + 1.1, t + 0.004, t + 0.01, z0 + 0.15, z1 - 0.2);              // a length of cloth
+      cbx(0x3a3a6a, x0 + 0.15, x0 + 1.25, F + 0.17, F + 0.32, z0 + 0.1, z1 - 0.1);              // a bolt on the shelf
+      const mx = 13.35, mz = 15.42, W = 0xe8e2d4;                                                // the sewing machine
+      cbx(W, mx - 0.21, mx + 0.21, t, t + 0.08, mz - 0.1, mz + 0.1);
+      cbx(W, mx + 0.11, mx + 0.2, t + 0.08, t + 0.33, mz - 0.08, mz + 0.08);
+      cbx(W, mx - 0.21, mx + 0.2, t + 0.25, t + 0.34, mz - 0.075, mz + 0.075);
+      cbx(W, mx - 0.21, mx - 0.12, t + 0.12, t + 0.34, mz - 0.08, mz + 0.08);
+      rod('steel', V(mx - 0.17, t + 0.12, mz), V(mx - 0.17, t + 0.08, mz), 0.004, 4);
+      ccyl(0xb83a2a, 0.018, 0.018, t + 0.34, t + 0.39, mx + 0.06, mz, 8); }
+    begin(k, 'chair'); chair(frame(11.9, 14.78), 0x4a4a56);
+    begin(k, 'ironing board and iron');
+    { const x = 15.0, z0 = 14.85, z1 = 16.0, t = F + 0.86;
+      cbx(0x8aa0b8, x - 0.18, x + 0.18, t - 0.025, t, z0 + 0.12, z1);
+      tint(put('colour', new THREE.CylinderGeometry(0.18, 0.18, 0.025, 14, 1, false, 0, PI), x, t - 0.0125, z0 + 0.12, 0, PI / 2), 0x8aa0b8);   // the rounded nose
+      for (const s of [-1, 1]) { rod('steel', V(x + s * 0.13, F + 0.01, z0 + 0.3), V(x + s * 0.13, t - 0.03, z1 - 0.25), 0.01, 6); rod('steel', V(x + s * 0.13, F + 0.01, z1 - 0.25), V(x + s * 0.13, t - 0.03, z0 + 0.3), 0.01, 6); }
+      bx('steel', x - 0.06, x + 0.06, t, t + 0.05, z1 - 0.38, z1 - 0.14);                        // the iron
+      bx('dark', x - 0.015, x + 0.015, t + 0.05, t + 0.12, z1 - 0.34, z1 - 0.18); }
+  }
+
+  // ---- SHOWERS · WC: three cubicles along the far wall (partitions and doors 2.0 m, 15 cm off the floor, a pan and
+  // cistern in each); two showers along the house-left wall (tiled, a tray, a curtain half drawn); two basins with
+  // mirrors on the house-right wall; a bench.
+  {
+    const r = room('wc'), k = r.key, cx0 = 27.15, cw = (r.x1 - cx0) / 3, cz = 15.5, py0 = F + 0.15, py1 = F + 2.15, PART = 0x5f7a86;
+    begin(k, 'WC cubicles');
+    for (let i = 0; i < 3; i++) {
+      const x = cx0 + i * cw;
+      cbx(PART, x, x + 0.03, py0, py1, cz, Z1 - 0.005);                                    // the partition (the first is the run's end)
+      const xa = x + 0.03, xb = x + cw;
+      cbx(PART, xa + 0.67, xb - (i === 2 ? 0.005 : 0), py0, py1, cz, cz + 0.03);          // the front's fixed panel
+      cbx(i === 1 ? 0x6f8a96 : PART, xa + 0.02, xa + 0.65, py0, py1 - 0.02, cz + 0.005, cz + 0.025);   // the door, closed
+      bx('steel', xa + 0.56, xa + 0.6, F + 1.0, F + 1.04, cz - 0.015, cz + 0.005);        // its handle
+      const px = xa + (cw - 0.03) / 2;
+      cyl('white', 0.19, 0.15, F, F + 0.4, px, 16.5, 14); cyl('dark', 0.2, 0.2, F + 0.4, F + 0.42, px, 16.5, 14);
+      bx('white', px - 0.2, px + 0.2, F + 0.45, F + 0.82, Z1 - 0.2, Z1 - 0.005);          // the cistern
+      cyl('steel', 0.03, 0.03, F + 0.82, F + 0.84, px, Z1 - 0.1, 8);
+    }
+    begin(k, 'showers');
+    { const sx0 = 29.05, X1 = r.x1 - 0.005;
+      for (const [z0, z1] of [[Z0 + 0.005, 14.5], [14.55, 15.45]]) {
+        bx('tile', sx0, X1, F, F + 0.08, z0, z1);                                          // the tray
+        bx('tile', X1 - 0.012, X1, F + 0.08, F + 2.1, z0, z1);                             // tiles on the house-left wall
+        for (let y = F + 0.38; y < F + 2.1; y += 0.3) bx('steel', X1 - 0.014, X1 - 0.011, y - 0.002, y + 0.002, z0, z1);   // the grout's rows
+        rod('steel', V(X1, F + 1.95, (z0 + z1) / 2), V(X1 - 0.2, F + 1.95, (z0 + z1) / 2), 0.012, 6);
+        cyl('steel', 0.06, 0.04, F + 1.9, F + 1.95, X1 - 0.22, (z0 + z1) / 2, 10);
+        rod('steel', V(sx0, F + 2.05, z0), V(sx0, F + 2.05, z1), 0.01, 6);                 // the curtain's rail
+        const cz1 = z0 + (z1 - z0) * 0.62, folds = 5, fl = (cz1 - z0) / folds;            // the curtain, drawn two-thirds
+        for (let j = 0; j < folds; j++) cbx(0xc8d8e0, sx0 - 0.03 + (j % 2) * 0.03, sx0 + (j % 2) * 0.03, F + 0.25, F + 2.04, z0 + j * fl, z0 + (j + 1) * fl + 0.01);
+      }
+      bx('tile', sx0, X1, F + 0.08, F + 2.1, Z0 + 0.005, Z0 + 0.017);                 // tiles on the corridor wall
+      bx('tile', sx0, X1, F, F + 2.1, 14.5, 14.55);                                        // the partition between the two
+      bx('tile', sx0, X1, F, F + 2.1, 15.45, 15.48); }                                     // and the second's far side
+    begin(k, 'basins and mirrors');
+    for (const z of [15.15, 16.05]) basin(onA(r, z), F + 0.86, true);
+    begin(k, 'bench');
+    bx('wood', 27.0, 28.4, F + 0.42, F + 0.47, 13.95, 14.35);
+    for (const x of [27.1, 28.3]) bx('dark', x - 0.04, x + 0.04, F, F + 0.42, 13.99, 14.31);
+  }
+
+  // ---- THE CORRIDOR, against its stage-side wall: a prop table by each of house 1's slots and by Theatre 2's doors (a
+  // black cloth top, a few props), two fire extinguishers, a notice board, a bench, two bins.
+  {
+    const h1 = B.stageZ.h1, h2 = B.stageZ.h2;
+    const propTable = (zone, x0, wall, props) => {
+      begin(zone, 'prop table');
+      const f = onStage(x0 + 0.9, wall), t = F + 0.9;
+      lcb(f, 0x141416, 1.8, 0.02, 0.59, 0, t - 0.01, 0.295);                              // the black cloth over the top
+      lcb(f, 0x141416, 1.8, 0.22, 0.01, 0, t - 0.12, 0.585);                              // its front drop
+      for (const u of [-0.86, 0.86]) for (const w of [0.04, 0.54]) lb(f, 'dark', 0.04, t - F - 0.02, 0.04, u, F + (t - F - 0.02) / 2, w);
+      lb(f, 'dark', 1.72, 0.02, 0.5, 0, F + 0.2, 0.29);                                   // the bottom shelf
+      for (const [u, w, len] of [[-0.5, 0.3, 0.42], [0.35, 0.28, 0.36]]) lcb(f, 0xd8e0e8, len, 0.003, 0.025, u, t + 0.0015, w);   // glow tape: each prop's place
+      props(f, t);
+    };
+    const book = (f, t, u, w, hex) => { lcb(f, hex, 0.16, 0.04, 0.23, u, t + 0.02, w); lcb(f, 0xe8e2d0, 0.15, 0.034, 0.005, u, t + 0.02, w + 0.116); };
+    const bottle = (f, t, u, w, hex) => { lcyl(f, 'colour', 0.035, 0.035, t, t + 0.2, u, w, 8); tint(P.colour[P.colour.length - 1], hex); lcyl(f, 'colour', 0.012, 0.03, t + 0.2, t + 0.3, u, w, 8); tint(P.colour[P.colour.length - 1], hex); };
+    const hat = (f, t, u, w, hex) => { lcyl(f, 'colour', 0.17, 0.17, t, t + 0.012, u, w, 16); tint(P.colour[P.colour.length - 1], hex); lcyl(f, 'colour', 0.1, 0.11, t + 0.012, t + 0.14, u, w, 14); tint(P.colour[P.colour.length - 1], hex); };
+    const letter = (f, t, u, w) => { lcb(f, 0xf0e8d4, 0.22, 0.003, 0.11, u, t + 0.0015, w, 0, 0); lcb(f, 0x8a1e1e, 0.025, 0.004, 0.025, u, t + 0.004, w); };
+    propTable('h1', -7.7, h1, (f, t) => { book(f, t, -0.5, 0.3, 0x5a2a1e); bottle(f, t, -0.05, 0.25, 0x2a5a32); hat(f, t, 0.5, 0.3, 0x1e1e22); });
+    propTable('h1', 5.9, h1, (f, t) => { letter(f, t, -0.55, 0.28); book(f, t, -0.1, 0.32, 0x2a3a5a); hat(f, t, 0.45, 0.3, 0x5a3a20); bottle(f, t, 0.75, 0.15, 0x8a6a2a); });
+    propTable('h2', 22.1, h2, (f, t) => { bottle(f, t, -0.6, 0.3, 0xb8c6bc); letter(f, t, -0.15, 0.3); book(f, t, 0.3, 0.3, 0x6a1e2a); });
+    const extinguisher = (zone, x, wall) => {
+      begin(zone, 'fire extinguisher');
+      const f = onStage(x, wall);
+      lb(f, 'dark', 0.12, 0.1, 0.03, 0, F + 1.2, 0.015);                                   // the bracket
+      lcyl(f, 'colour', 0.08, 0.08, F + 0.62, F + 1.12, 0, 0.12, 12); tint(P.colour[P.colour.length - 1], 0xb81e1e);
+      lcyl(f, 'colour', 0.04, 0.08, F + 1.12, F + 1.17, 0, 0.12, 12); tint(P.colour[P.colour.length - 1], 0xb81e1e);
+      lb(f, 'dark', 0.03, 0.06, 0.03, 0, F + 1.2, 0.12); lb(f, 'dark', 0.1, 0.015, 0.03, 0.03, F + 1.24, 0.12);
+      rod('dark', lv(f, 0.02, F + 1.2, 0.14), lv(f, 0.09, F + 0.8, 0.2), 0.01, 6);
+      lcb(f, 0xe8e4dc, 0.1, 0.12, 0.004, 0, F + 0.88, 0.2015);                            // its label
+    };
+    extinguisher('h1', -5.4, h1); extinguisher('h2', 17.6, h2);
+    begin('h1', 'notice board');
+    { const f = onStage(-1.0, h1), y0 = F + 1.15, y1 = F + 2.05;
+      lb(f, 'wood', 1.54, y1 - y0 + 0.04, 0.02, 0, (y0 + y1) / 2, 0.01); lb(f, 'cork', 1.5, y1 - y0, 0.012, 0, (y0 + y1) / 2, 0.026);
+      papers(f, -0.75, 0.75, y0, y1, 0.032, 9, 4); }
+    begin('h2', 'bench');
+    { const f = onStage(12.8, h2);
+      lb(f, 'wood', 1.6, 0.05, 0.4, 0, F + 0.445, 0.25); lb(f, 'wood', 1.6, 0.3, 0.03, 0, F + 0.75, 0.03);
+      for (const u of [-0.7, 0.7]) lb(f, 'dark', 0.06, 0.42, 0.36, u, F + 0.21, 0.25); }
+    begin('h1', 'bin'); bin(3.4, h1 + 0.205, 0.18);
+    begin('h2', 'bin'); bin(24.6, h2 + 0.205, 0.18);
+  }
+
+  // ---- One mesh per material (world frame, never cast or caught, skipped by the build tools), the bulbs instanced.
+  const group = new THREE.Group(); group.name = 'backstage fittings';
+  let tris = 0;
+  const triCount = g => (g.index ? g.index.count : g.attributes.position.count) / 3;
+  for (const [key, geos] of Object.entries(P)) {
+    const geo = mergeGeometries(geos, false); geos.forEach(g => g.dispose());
+    if (!geo) { console.warn(`backstage fittings: the ${key} pieces did not merge — left out`); continue; }
+    const mesh = new THREE.Mesh(geo, bsMat[key]);
+    mesh.name = 'backstage fittings: ' + key; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    if (key === 'halo') mesh.renderOrder = 2;
+    tris += triCount(geo);
+    group.add(mesh);
+  }
+  const sphere = new THREE.SphereGeometry(0.03, 8, 6), lamps = new THREE.InstancedMesh(sphere, bsBulb, bulbs.length), m4 = new THREE.Matrix4();
+  bulbs.forEach(([x, y, z, s], i) => lamps.setMatrixAt(i, m4.makeScale(s, s, s).setPosition(x, y, z)));
+  lamps.instanceMatrix.needsUpdate = true; lamps.computeBoundingSphere();
+  lamps.name = 'backstage bulbs'; lamps.castShadow = lamps.receiveShadow = false; lamps.userData.rig = true;
+  const bulbTris = triCount(sphere) * bulbs.length;
+  scene.add(group); scene.add(lamps);
+  const byRoom = {};
+  for (const it of items) (byRoom[it.zone] = byRoom[it.zone] || []).push(it);
+  const zones = [...B.rooms.map(r => r.key), 'h1', 'h2'];
+  const ms = performance.now() - t0;
+  console.info(`backstage fittings: ${zones.map(z => `${z === 'h1' ? 'corridor behind house 1' : z === 'h2' ? 'corridor behind Theatre 2' : z} ${(byRoom[z] || []).length}`).join(', ')} pieces`
+    + ` · ${tris + bulbTris} triangles (${tris} merged + ${bulbs.length} bulbs × ${triCount(sphere)}) · ${group.children.length + 1} meshes (${group.children.length} + the bulbs) · ${ms.toFixed(0)} ms`);
+  backstageFittings = { group, bulbs: lamps, byRoom, items, triangles: tris + bulbTris, check: () => backstageFittingsCheck(backstageFittings) };
+  const res = backstageFittingsCheck(backstageFittings);    // prints the worst margins per room; fails loudly
+  if (!res.pass) console.error(`backstage fittings: ${res.violations.length} piece(s) out of bounds —`, JSON.stringify(res.violations));
+  requestRender();
+  return backstageFittings;
+}
+// Every piece's world box inside its room (x0…x1, roomZ0…roomZ1, floor…ceil) or its corridor strip (against the stage-side
+// wall, 0.6 m deep), and clear of every doorway's swath, the street door's 1.2 m, and (the corridor's) 1.0 m from each way
+// in from a stage and 0.5 m from each room door (each margin less the distance it needs). Every wall-hung piece stands
+// 5 mm off its wall, so the walls' margin is 0.005 by design; the clearances' is the one to read.
+// → { pass, worst: {zone: {walls: {margin, piece, what}, clear: {…}}}, violations }
+function backstageFittingsCheck(bf, quiet) {
+  const B = BACKSTAGE, F = B.floor, Z0 = B.roomZ0, Z1 = B.roomZ1, C = B.ceil, E = 1e-6, jog = 10.20;   // jog: Theatre 2's half begins at x 10.2
+  const plan = b => ({ x0: b.min.x, x1: b.max.x, z0: b.min.z, z1: b.max.z });
+  const sep = (a, b) => { const dx = Math.max(a.x0 - b.x1, b.x0 - a.x1), dz = Math.max(a.z0 - b.z1, b.z0 - a.z1); return dx > 0 && dz > 0 ? Math.hypot(dx, dz) : Math.max(dx, dz); };
+  const keep = [];                                              // [area, distance it needs, what] for every piece
+  for (const r of B.rooms) {
+    keep.push([{ x0: r.door.x0 - 0.1, x1: r.door.x1 + 0.1, z0: Z0, z1: Z0 + 1.2 }, 0, `${r.key}'s door swath`]);
+    if (r.street) keep.push([{ x0: r.street.x0 - 0.1, x1: r.street.x1 + 0.1, z0: Z1 - 1.2, z1: Z1 }, 0, `${r.key}'s street door`]);
+  }
+  const hall = [];                                              // the corridor's: the ways in, the room doors
+  for (const s of B.stageDoors.h1) hall.push([{ x0: s.x0, x1: s.x1, z0: B.stageZ.h1 - 0.2, z1: B.stageZ.h1 }, 1.0, `house 1's slot x ${s.x0}…${s.x1}`]);
+  { const s = B.stageDoors.h2; hall.push([{ x0: s.x0, x1: s.x1, z0: 8.9, z1: B.stageZ.h2 }, 1.0, "Theatre 2's doors"]); }
+  for (const r of B.rooms) hall.push([{ x0: r.door.x0, x1: r.door.x1, z0: B.corridorZ, z1: Z0 }, 0.5, `${r.key}'s door`]);
+  const worst = {}, violations = [];
+  if (!bf.group.matrixWorld.equals(new THREE.Matrix4())) violations.push({ piece: 'the group', what: 'not at the identity — the boxes are not world boxes' });
+  for (const it of bf.items) {
+    const b = it.box, p = plan(b), r = B.rooms.find(q => q.key === it.zone);
+    const inner = r ? { x0: r.x0, x1: r.x1, z0: Z0, z1: Z1 }
+      : it.zone === 'h1' ? { x0: B.x0, x1: jog, z0: B.stageZ.h1, z1: B.stageZ.h1 + 0.6 } : { x0: jog, x1: B.x1, z0: B.stageZ.h2, z1: B.stageZ.h2 + 0.6 };
+    const cands = [[Math.min(p.x0 - inner.x0, inner.x1 - p.x1, p.z0 - inner.z0, inner.z1 - p.z1), r ? 'the room\'s walls' : 'the corridor strip', 'walls']];
+    for (const [a, need, what] of r ? keep : hall.concat(keep)) cands.push([sep(p, a) - need, what, 'clear']);
+    const yOk = b.min.y >= F - E && b.max.y <= C + E;
+    if (!yOk) violations.push({ zone: it.zone, piece: it.name, what: `y ${b.min.y.toFixed(3)}…${b.max.y.toFixed(3)} outside floor…ceiling` });
+    for (const [m, what, kind] of cands) {
+      if (m < -E) violations.push({ zone: it.zone, piece: it.name, what, by: +(-m).toFixed(3) });
+      const W = worst[it.zone] = worst[it.zone] || {}, w = W[kind];
+      if (!w || m < w.margin) W[kind] = { margin: +m.toFixed(3), piece: it.name, what };
+    }
+  }
+  const pass = violations.length === 0;
+  if (!quiet || !pass) console[pass ? 'info' : 'error'](`backstage fittings check: ${pass ? 'PASS' : 'FAIL'} — ${bf.items.length} pieces; worst margin per room: `
+    + Object.entries(worst).map(([z, W]) => `${z} walls ${W.walls.margin.toFixed(3)} m, clearances ${W.clear.margin.toFixed(3)} m (${W.clear.piece} ↔ ${W.clear.what})`).join('; ')
+    + (pass ? '' : ` · ${violations.length} violations`));
+  return { pass, worst, violations };
+}
 
 /* ---------------------------------------------------------------- HOUSE WORKS: THE DOORS
    Jack: "add doors to both theaters". A pair of hinged timber doors in each of the four passages (LOBBY.doors), hung
@@ -9009,7 +9864,8 @@ function buildBackstageFittings() { console.warn('backstage: the fittings are no
    colliderMeshes takes): builtHit ray-tests the leaves and the curtains directly (doorsHit), each one's swing or slide
    box first so a ray far from every door costs nothing — a closed pair or a drawn curtain stops the walker, so you
    press E to pass (the curtain blocking is RULING GH, 2026-10-15, Jack: "Keep a closed curtain stopping the walker,
-   like a closed door"). MIDTOWN.doors: state(), check(), toggle(name). */
+   like a closed door"). MIDTOWN.doors: state(), check(), toggle(name). The backstage's leaves — Theatre 2's stage pair and
+   the eight room doors — are entries of the same list (backstageHang, in BACKSTAGE — THE SHELL), kind 'doors' or 'door'. */
 const DOORS = {
   frame: 0.05, headH: 0.06,         // the frame: jambs 5 cm on each reveal's face (through the wall's 20 cm), a 6 cm head under the soffit
   sill: 0.012, sillIn: 0.06,        // the brass threshold under the closed leaves: 12 mm over the lobby floor, from the lobby face to 6 cm into the passage
@@ -9034,7 +9890,8 @@ function doorFloorAt(d, z) {
 }
 // One leaf: a group at its hinge (s = +1 hinged on the house-right reveal at a, the leaf running +x; −1 on the other at
 // b), the leaf in its local frame from the hinge to W across, 0…H up, its lobby face at z −t and its house face at 0.
-function doorLeaf(name, s, W, H) {
+// mats: the wood / glass / brass keys' materials (the backstage's steel and painted leaves); astragal: false for a single leaf.
+function doorLeaf(name, s, W, H, { mats = lobbyMat, astragal = true } = {}) {
   const T = DOORS.t, G = DOORS.glass, P = {};
   const box = (key, x0, x1, y0, y1, z0, z1) => deskBox(P, key, x1 - x0, y1 - y0, z1 - z0, s * (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
   const g0 = (W - G.w) / 2, g1 = g0 + G.w;
@@ -9045,7 +9902,7 @@ function doorLeaf(name, s, W, H) {
   // the house face, so the pair closes the doorway whole (the walk's middle ray went through the 6 mm gap and a walker
   // square on stopped 18 cm off the doors, not a body's radius). Each draws away from the other leaf as the pair swings;
   // open, the house-face one stands 5 mm into the leaf's 12 mm off its reveal.
-  box('wood', W - 0.02, W + 2 * DOORS.meet + 0.02, 0, H, ...(s > 0 ? [-T - 0.005, -T] : [0, 0.005]));
+  if (astragal) box('wood', W - 0.02, W + 2 * DOORS.meet + 0.02, 0, H, ...(s > 0 ? [-T - 0.005, -T] : [0, 0.005]));
   box('brass', 0.03, W - 0.03, 0.02, 0.24, -T - 0.002, -T);                             // the kick plate, lobby face
   box('brass', W - 0.14, W - 0.04, 0.95, 1.30, -T - 0.003, -T);                         // the push plate, lobby face
   box('brass', W - 0.10, W - 0.065, 0.90, 1.25, 0, 0.004);                              // the pull plate, house face (open, it faces the reveal)
@@ -9054,7 +9911,7 @@ function doorLeaf(name, s, W, H) {
   const hit = [];
   for (const [key, geos] of Object.entries(P)) {
     const geo = mergeGeometries(geos, false); geos.forEach(g => g.dispose());
-    const mesh = new THREE.Mesh(geo, lobbyMat[key]);
+    const mesh = new THREE.Mesh(geo, mats[key]);
     mesh.name = name + ': ' + key; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
     leaf.add(mesh);
     if (key !== 'brass') hit.push(mesh);                     // the walk stops on the timber and the glass; the plates lie on them
@@ -9134,7 +9991,7 @@ function doorAim() {
 const doorAimNow = { t: null, label: null };
 function doorAimTick() {
   const t = walking ? doorAim() : null;
-  const label = t ? `E — ${t.want ? 'close' : 'open'} the ${t.kind === 'curtain' ? 'curtain' : 'doors'}` : null;
+  const label = t ? `E — ${t.want ? 'close' : 'open'} the ${t.kind}` : null;   // kind: 'doors' (a pair), 'door' (one leaf, backstage), 'curtain'
   doorAimNow.t = t;
   if (label !== doorAimNow.label) { doorAimNow.label = label; if (walking) walkHint(); }
 }
@@ -9281,7 +10138,7 @@ const DOORS_API = {
     const p = player.pos, go = e => e.u === e.want ? (e.want ? 'open' : 'closed') : e.want ? 'opening' : 'closing';
     const s = DOORS.list.map(e => `${e.name}: ${(e.angle * 180 / Math.PI).toFixed(1)}° ${go(e)}` + (walking ? `, walker ${doorReach(e, p).toFixed(2)} m` : ''))
       .concat(CURTAINS.list.map(c => `${c.name}: ${(c.u * c.u * (3 - 2 * c.u) * 100).toFixed(0)}% ${go(c)}` + (walking ? `, walker ${Math.hypot(p.x - c.cx, p.z - c.cz).toFixed(2)} m` : '')))
-      .join('; ') + (walking ? ` · E: ${doorAimNow.t ? doorAimNow.t.name + (doorAimNow.t.kind === 'curtain' ? '' : ' doors') : 'nothing in reach'}` : '');
+      .join('; ') + (walking ? ` · E: ${doorAimNow.t ? doorAimNow.t.name + (doorAimNow.t.kind === 'curtain' ? '' : ' ' + doorAimNow.t.kind) : 'nothing in reach'}` : '');
     console.info('doors: ' + s); return s;
   },
   // turn one round by name, from the console: a pair ('house right', 'Theatre 2 house left') or a curtain ('house right
@@ -9299,7 +10156,9 @@ const DOORS_API = {
     const L = LOBBY, v = new THREE.Vector3(), out = [];
     let fails = 0;
     for (const e of DOORS.list) {
-      const d = e.spec, a = d.x0 + 0.004, b = d.x1 - 0.004, keep = e.leaves.map(l => l.rotation.y);
+      // the bounds: a backstage entry carries its own (backstageHang); the lobby's come off LOBBY and the passage's ramp
+      const d = e.spec, [a, b] = e.reveal || [d.x0 + 0.004, d.x1 - 0.004], keep = e.leaves.map(l => l.rotation.y);
+      const zlo = e.zlo ?? L.wallZ, zhi = e.zhi ?? L.linZ, floorAt = e.floorAt || (z => doorFloorAt(d, z)), headY = e.headY ?? d.head - 0.004;
       let xin = Infinity, zmin = Infinity, zmax = -Infinity, under = Infinity, over = Infinity, flat = [];
       for (let k = 0; k <= 12; k++) {
         const ang = DOORS.swing * k / 12;
@@ -9312,7 +10171,7 @@ const DOORS_API = {
             for (let j = 0; j < P.count; j++) {
               v.fromBufferAttribute(P, j).applyMatrix4(m.matrixWorld);
               xin = Math.min(xin, v.x - a, b - v.x); zmin = Math.min(zmin, v.z); zmax = Math.max(zmax, v.z);
-              under = Math.min(under, v.y - doorFloorAt(d, v.z)); over = Math.min(over, d.head - 0.004 - v.y);
+              under = Math.min(under, v.y - floorAt(v.z)); over = Math.min(over, headY - v.y);
               if (/wood$/.test(m.name)) { lo = Math.min(lo, v.x); hi = Math.max(hi, v.x); }   // the timber's face (the knuckles stand 8 mm proud of it)
             }
           });
@@ -9320,9 +10179,9 @@ const DOORS_API = {
         });
       }
       e.leaves.forEach((l, i) => { l.rotation.y = keep[i]; l.updateMatrixWorld(true); });
-      const ok = xin > 0 && zmin >= L.wallZ && zmax < L.linZ && under > 0 && over > 0;
+      const ok = xin > 0 && zmin >= zlo && zmax < zhi && under > 0 && over > 0;
       if (!ok) fails++;
-      out.push(`${e.name} ${ok ? 'pass' : 'FAIL'}: closest to a reveal ${(xin * 1000).toFixed(1)} mm, z ${zmin.toFixed(3)}…${zmax.toFixed(3)} (frame ${L.wallZ}, scan end ${L.linZ}), `
+      out.push(`${e.name} ${ok ? 'pass' : 'FAIL'}: closest to a reveal ${(xin * 1000).toFixed(1)} mm, z ${zmin.toFixed(3)}…${zmax.toFixed(3)} (frame ${zlo}, ${e.zhiName || 'scan end'} ${zhi}), `
         + `over the floor ${(under * 1000).toFixed(1)} mm, under the soffit ${(over * 1000).toFixed(1)} mm, open ${flat.map(f => (f * 1000).toFixed(1)).join(' / ')} mm off the reveals`);
     }
     const s = `doors: ${DOORS.list.length - fails} / ${DOORS.list.length} pass — ` + out.join('; ');
@@ -9441,7 +10300,9 @@ function buildHouse2(src) {
     lobby: { group: lobby, spec: LOBBY, measured: lobby.userData.measured, lights: lobby.userData.lights, triangles: lobby.userData.triangles },
     player, walk: { WALK, keys, setMode, step: walkStep, groundAt, rayDown, rayUp, rayH, col, perf: walkPerf, look: (y, p) => { yaw = y; pitch = p; } } };   // a handle for measuring from the console
   MIDTOWN.doors = DOORS_API;                                 // MIDTOWN.doors.state(), .check(), .toggle(name)
+  MIDTOWN.backstage = backstageReport();                     // the block measured as it now stands (the set at real size, the cuts made), one console line
   const [p, t] = VIEWS['v-back']; camera.position.set(...p); orbit.target.set(...t); orbit.update();
+  MIDTOWN.backstageFittings = backstageFittings;             // { group, bulbs, byRoom, items, triangles, check() } (BACKSTAGE — THE FITTINGS)
   // Compile every shader and draw one frame (texture uploads, the shadow maps) behind the loader, so the
   // first visible frame does not freeze for a second.
   loadtxt.textContent = 'Compiling…'; bar.style.width = '100%';
