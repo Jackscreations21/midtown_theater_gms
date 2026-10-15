@@ -4082,7 +4082,7 @@ const SHW_META = new Set(['ref', 'time', 'delay', 'mark', 'blk', 'fx']);   // a 
 const SHW_COLKEYS = ['cmy', 'cto', 'rgb', 'w', 'a', 'lime', 'indigo', 'cyan', 'cw'];
 const SHW_EMIT = { red: p => p.rgb && p.rgb[0], green: p => p.rgb && p.rgb[1], blue: p => p.rgb && p.rgb[2], white: p => p.w, amber: p => p.a, lime: p => p.lime, indigo: p => p.indigo, cyan: p => p.cyan };
 const SHW = { d: null, loading: null, err: null, urls: null, on: false, playing: false, hold: false, houseUp: true, ti: 0, lt: 0, next: 0, cue: -1,
-  ch: new Map(), ut: new Map(), save: null, cm: null, cam: null, haze: null, A: null, fileA: null, stA: null, sound: null, yt: null, ytOn: true, vol: 0.8, files: new Map(), audioOn: false, audioWant: null, soundOff: 0,
+  ch: new Map(), ut: new Map(), save: null, cm: null, cam: null, haze: null, A: null, fileA: null, stA: null, sound: null, yt: null, ytOn: true, vol: 0.8, files: new Map(), st: null, localHandle: null, audioOn: false, audioWant: null, soundOff: 0,
   audioNote: '', silent: false, E: {}, btn: null, el: null, built: false, shown: { cue: -2, ti: -1, sec: -1 }, perf: { fireMs: 0, fireMax: 0, n: 0 } };
 const showKey = c => String(+c);                             // channel keys: 7, "7", "7.0" → "7"; 619.2 → "619.2"
 const showFmt = s => { if (s < 0) return '−' + showFmt(Math.ceil(-s - 1e-9)); const m = Math.floor(s / 60), x = Math.floor(s - m * 60); return `${m}:${String(x).padStart(2, '0')}`; };   // a lead-in counts down: −0:10
@@ -4097,10 +4097,11 @@ async function showLoad(urls = {}) {
     if (SHW.on) showStop();
     SHW.d = showCompile(eos, show); SHW.urls = u;
     SHW.sound = null;                                        // Jack's one-file album, if it is on this machine (git-ignored: absent on Pages)
-    const st = show.soundtrack;
+    const st = SHW.st = show.soundtrack || null;
     if (st && st.url && SHW.d.tracks.every(t => t.file !== null)) {
       try { const r = await fetch(st.url, { method: 'HEAD', cache: 'no-cache' }); if (r.ok) SHW.sound = { url: st.url, seek: st.seek && Array.isArray(st.seek.toc) && st.seek.toc.length === 100 && +st.seek.cell > 0 ? st.seek : null, env: st.envelope && st.envelope.url ? st.envelope : null }; } catch (e) { /* not here: YouTube, then silence */ }
     }
+    if (!SHW.sound && st && st.url) await showLocalSound(false);   // not on the server (Pages): his own copy off this disk, if remembered and allowed
     SHW.ti = 0; SHW.lt = -SHW.d.tracks[0].pre; SHW.next = 0; SHW.cue = -1; SHW.ch.clear(); SHW.ut.clear();
     showMatchAll();
     if (SHW.built) showBuildLists();
@@ -4483,6 +4484,8 @@ function showSettle() { for (let k = 0; k < 4; k++) lxTick(600); lxFlush(); }
 // each track (show file tracks[].yt: the cast's artist and Topic channels, every one matched to the album's length within
 // 2 s and embeddable, checked 2026-10-11). Nothing is downloaded or stored. YouTube's terms want the player seen, so while
 // it plays the music it sits as a small card in the corner (#sh-yt). Neither loaded nor reachable: the silent clock.
+// ON PAGES the file is not on the server, and the fallback was YouTube — with its ads: the panel's "Use your soundtrack
+// file…" picks the same file off his disk and remembers it (THE SOUNDTRACK FROM HIS OWN DISK, below showSoundEl).
 function showAudioEnded() {                                  // an event, not a timer: the track ran out, the next one begins
   if (!SHW.on || !SHW.playing || !SHW.audioOn) return;
   const tr = SHW.d.tracks;
@@ -4608,15 +4611,81 @@ function sndTick(A) {                                        // each frame while
     if (r && r.score > 0.85 && r.margin > 0.1 && Math.abs(r.off - SHW.soundOff) > 0.3) { SHW.soundOff = r.off; SND.note = 'sound re-synced'; }
   }
 }
+/* ---- THE SOUNDTRACK FROM HIS OWN DISK
+   On Pages the one-file album is not on the server (git-ignored, never committed: a commercial recording, and over
+   GitHub's file limit), and the fallback was the album on YouTube — with its ads (Jack, 2026-10-15: "can you just make
+   it play the audio from the file i gave"). So the Show panel offers "Use your soundtrack file…": the File System
+   Access API's picker (Chrome, Edge) hands back a file handle that is kept in IndexedDB, and the next visit reads the
+   file again without asking when the browser still allows it (Chrome keeps the grant when he ticks "allow on every
+   visit"; otherwise the button needs one click). The file plays exactly as the server copy would — the same seek table
+   and loudness envelope from the show file, the same Blob path in showSoundEl, SHW.sound.local marking it. A browser
+   without the picker gets a plain file input, good for the visit. Nothing is uploaded or stored but the handle. */
+const SND_DB = { name: 'midtown', store: 'kv', key: 'soundtrack-handle' };
+function sndDb() {
+  return new Promise((res, rej) => {
+    const r = indexedDB.open(SND_DB.name, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore(SND_DB.store);
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+}
+async function sndKv(op, value) {                            // 'get' | 'set' | 'del' on the one key
+  const db = await sndDb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction(SND_DB.store, op === 'get' ? 'readonly' : 'readwrite'), os = tx.objectStore(SND_DB.store);
+    const q = op === 'get' ? os.get(SND_DB.key) : op === 'set' ? os.put(value, SND_DB.key) : os.delete(SND_DB.key);
+    q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+    tx.oncomplete = () => db.close();
+  });
+}
+// gesture false: at load — a remembered file, only if the browser still allows it without asking. true: the button.
+async function showLocalSound(gesture) {
+  if (!SHW.st) return false;
+  let h = SHW.localHandle;
+  if (!h) { try { h = SHW.localHandle = (await sndKv('get')) || null; } catch (e) { /* no IndexedDB: nothing remembered */ } }
+  if (h && h.queryPermission) {
+    try {
+      let perm = await h.queryPermission({ mode: 'read' });
+      if (perm !== 'granted' && gesture) perm = await h.requestPermission({ mode: 'read' });
+      if (perm === 'granted') { showUseLocalFile(await h.getFile(), h); return true; }
+    } catch (e) {
+      console.warn('show: the remembered soundtrack file could not be read —', e.message || e);
+      SHW.localHandle = null; try { await sndKv('del'); } catch (e2) { /* nothing to forget */ }
+    }
+  }
+  if (!gesture) { showUI(true); return false; }
+  if (window.showOpenFilePicker) {
+    try {
+      const [nh] = await window.showOpenFilePicker({ id: 'midtown-soundtrack', multiple: false,
+        types: [{ description: 'The album, one file', accept: { 'audio/*': ['.mp3', '.m4a', '.aac', '.ogg', '.wav', '.flac'] } }] });
+      SHW.localHandle = nh; try { await sndKv('set', nh); } catch (e) { /* not remembered; it still plays */ }
+      showUseLocalFile(await nh.getFile(), nh); return true;
+    } catch (e) { if (!e || e.name !== 'AbortError') console.warn('show: the file picker failed —', e && (e.message || e.name)); return false; }
+  }
+  if (SHW.E.lin) SHW.E.lin.click();                          // no picker API: a plain file input, for this visit
+  return false;
+}
+// The chosen file becomes THE soundtrack (SHW.sound): the show file's seek table and envelope, the server copy's Blob path.
+function showUseLocalFile(file, handle) {
+  const st = SHW.st; if (!st || !file) return false;
+  if (SHW.stA) { try { SHW.stA.pause(); } catch (e) { /* never started */ } if (SHW.A === SHW.stA) SHW.A = null; SHW.stA = null; }
+  if (SHW.sound && SHW.sound.local && SHW.sound.url) URL.revokeObjectURL(SHW.sound.url);
+  SHW.sound = { url: URL.createObjectURL(file), local: true, name: file.name, handle: handle || null, note: '',
+    seek: st.seek && Array.isArray(st.seek.toc) && st.seek.toc.length === 100 && +st.seek.cell > 0 ? st.seek : null, env: st.envelope && st.envelope.url ? st.envelope : null };
+  SHW.audioNote = ''; SHW.soundOff = 0;
+  console.info(`show: the soundtrack is ${file.name} from this computer (${(file.size / 1048576).toFixed(1)} MB${handle ? ', remembered' : ''})`);
+  if (SHW.on) showTrackAudio();
+  showUI(true);
+  return true;
+}
 function showSoundEl() {
   if (SHW.stA) return SHW.stA;
   const A = SHW.stA = new Audio(); A.preload = 'auto'; A.volume = SHW.vol;
   // loaded whole into a Blob, not streamed from its URL: python's http.server (how this page is served on Jack's machine) has
   // no Range requests, and without them the browser cannot seek in the file — a seek would play from the top
   SHW.sound.note = 'loading the soundtrack…';
-  fetch(SHW.sound.url).then(r => r.blob()).then(bl => { A.src = URL.createObjectURL(bl); SHW.sound.note = ''; if (SHW.on && SHW.A === A && SHW.playing) { A.play().catch(showAudioFail); sndStart(A); } showUI(true); },   // the Play click came before the file landed: its activation still lets the tap start
+  (SHW.sound.local ? Promise.resolve(SHW.sound.url) : fetch(SHW.sound.url).then(r => r.blob()).then(bl => URL.createObjectURL(bl))).then(src => { A.src = src; SHW.sound.note = ''; if (SHW.on && SHW.A === A && SHW.playing) { A.play().catch(showAudioFail); sndStart(A); } showUI(true); },   // the Play click came before the file landed: its activation still lets the tap start
     () => { SHW.sound = null; if (SHW.A === A) showAudioFail({ message: 'the soundtrack file could not be read' }); });
-  A.addEventListener('loadedmetadata', () => { if (SHW.audioWant !== null) { const q = showSoundSeek(SHW.audioWant); try { A.currentTime = q.req; SHW.soundOff = q.off; sndSeeked(SHW.audioWant, q); } catch (e) { SHW.soundOff = 0; /* from the top */ } SHW.audioWant = null; } });
+  A.addEventListener('loadedmetadata', () => { if (SHW.sound && SHW.sound.local && SHW.st && +SHW.st.length > 0 && Math.abs(A.duration - SHW.st.length) > 3) SHW.sound.note = `${SHW.sound.name} is ${showFmt(A.duration)} long; the seek table and envelope were made for a ${showFmt(SHW.st.length)} copy — the sound tap will re-sync, but timing may drift`; if (SHW.audioWant !== null) { const q = showSoundSeek(SHW.audioWant); try { A.currentTime = q.req; SHW.soundOff = q.off; sndSeeked(SHW.audioWant, q); } catch (e) { SHW.soundOff = 0; /* from the top */ } SHW.audioWant = null; } });
   A.addEventListener('ended', () => { if (SHW.A === A && SHW.on) { if (SHW.d.tracks[SHW.ti].post > 0) showTail(); else { showFireTo(SHW.d.end); showEnd(); } } });
   A.addEventListener('error', () => { if (SHW.A === A) { SHW.sound = null; showAudioFail({ message: 'the soundtrack file would not play' }); } });
   return A;
@@ -4806,7 +4875,7 @@ function showBuildPanel() {
 <div class="sh-next"></div>
 <div class="row"><button class="sh-prev" title="The previous track (this one's top, past its first 3 s)">Prev</button><button class="sh-play" aria-pressed="false">Play</button><button class="sh-nexttr" title="The next track">Next</button><button class="sh-stop" title="Stop: the rig, the work light, the haze and the view go back as they were">Stop</button><span class="sh-clock"></span></div>
 <input class="sh-scrub" type="range" min="0" max="1" step="0.1" value="0" aria-label="Position in the track">
-<div class="row"><button class="sh-files">Load album audio…</button><button class="sh-dir" title="A folder of the album (both discs)">Folder…</button><input class="sh-fin" type="file" accept="audio/*" multiple hidden><input class="sh-din" type="file" webkitdirectory multiple hidden></div>
+<div class="row"><button class="sh-files">Load album audio…</button><button class="sh-dir" title="A folder of the album (both discs)">Folder…</button><button class="sh-local" hidden title="The one-file album from this computer, instead of YouTube (remembered for next time)">Use your soundtrack file…</button><input class="sh-lin" type="file" accept="audio/*" hidden><input class="sh-fin" type="file" accept="audio/*" multiple hidden><input class="sh-din" type="file" webkitdirectory multiple hidden></div>
 <label><input class="sh-ytin" type="checkbox" checked> Play the album from YouTube (your own files win)</label>
 <label>Volume <input class="sh-vol" type="range" min="0" max="1" step="0.01" value="0.8"></label>
 <div class="note sh-audio"></div>
@@ -4817,7 +4886,7 @@ function showBuildPanel() {
   document.getElementById('stage').appendChild(el);
   const q = s => el.querySelector(s), E = SHW.E;
   Object.assign(E, { now: q('.sh-now'), next: q('.sh-next'), play: q('.sh-play'), stop: q('.sh-stop'), clock: q('.sh-clock'), scrub: q('.sh-scrub'), audio: q('.sh-audio'),
-    tracks: q('.sh-tracks'), cues: q('.sh-cues'), data: q('.sh-data'), vol: q('.sh-vol') });
+    tracks: q('.sh-tracks'), cues: q('.sh-cues'), data: q('.sh-data'), vol: q('.sh-vol'), local: q('.sh-local'), lin: q('.sh-lin') });
   q('.sh-x').addEventListener('click', () => showPanel(false));
   E.play.addEventListener('click', () => { if (!SHW.d) return; if (!SHW.on) showStart(true); else showPause(); });
   E.stop.addEventListener('click', () => showStop());
@@ -4830,6 +4899,8 @@ function showBuildPanel() {
   q('.sh-files').addEventListener('click', () => fin.click());
   q('.sh-dir').addEventListener('click', () => din.click());
   for (const inp of [fin, din]) inp.addEventListener('change', () => { if (inp.files && inp.files.length) showMatchFiles(inp.files); inp.value = ''; });
+  E.local.addEventListener('click', () => { showLocalSound(true); });
+  E.lin.addEventListener('change', () => { const f = E.lin.files && E.lin.files[0]; if (f) showUseLocalFile(f, null); E.lin.value = ''; });
   E.vol.addEventListener('input', () => { SHW.vol = +E.vol.value; showAudioEl().volume = SHW.vol; if (SHW.yt) SHW.yt.volume = SHW.vol; if (SHW.stA) SHW.stA.volume = SHW.vol; });
   q('.sh-ytin').addEventListener('change', e => { SHW.ytOn = e.target.checked; if (SHW.on) showTrackAudio(); showUI(true); });
   E.tracks.addEventListener('click', e => { const d = e.target.closest('[data-t]'); if (d) showSeek(+d.dataset.t, 0); });
@@ -4907,7 +4978,8 @@ function showUI(force) {
   E.play.textContent = SHW.on && SHW.playing ? 'Pause' : 'Play'; E.play.setAttribute('aria-pressed', String(SHW.on && SHW.playing));
   E.stop.disabled = !SHW.on;
   const f = SHW.files.get(SHW.ti);
-  E.audio.textContent = SHW.audioNote || (!f && SHW.sound ? (SHW.sound.note || 'the album: your soundtrack file (assets/audio/hamilton-soundtrack.mp3)') : !f && SHW.audioOn && SHW.A === SHW.yt ? `the album from YouTube${SHW.yt.ready ? '' : ' (loading the player…)'}` : !SHW.files.size ? (SHW.ytOn ? 'the album from YouTube when the show plays' : 'no audio — silent clock') : f ? `${SHW.files.size} / ${D.tracks.length} tracks have audio · ${SHW.audioOn ? 'playing' : 'ready'}: ${f.name}` : `${SHW.files.size} / ${D.tracks.length} tracks have audio · this one none — silent clock`);
+  if (E.local) { E.local.hidden = !SHW.st || !!SHW.sound; E.local.textContent = SHW.localHandle ? 'Use your soundtrack file (one click to allow)' : 'Use your soundtrack file…'; }
+  E.audio.textContent = SHW.audioNote || (!f && SHW.sound ? (SHW.sound.note || (SHW.sound.local ? `the album: your soundtrack file (${SHW.sound.name}, from this computer)` : 'the album: your soundtrack file (assets/audio/hamilton-soundtrack.mp3)')) : !f && SHW.audioOn && SHW.A === SHW.yt ? `the album from YouTube${SHW.yt.ready ? '' : ' (loading the player…)'}` : !SHW.files.size ? (SHW.ytOn ? 'the album from YouTube when the show plays' : 'no audio — silent clock') : f ? `${SHW.files.size} / ${D.tracks.length} tracks have audio · ${SHW.audioOn ? 'playing' : 'ready'}: ${f.name}` : `${SHW.files.size} / ${D.tracks.length} tracks have audio · this one none — silent clock`);
   if (S.cue !== SHW.cue || force) {
     if (E.cueRows[S.cue]) E.cueRows[S.cue].classList.remove('on');
     const r = E.cueRows[SHW.cue]; if (r) { r.classList.add('on'); if (!SHW.el.hidden) r.scrollIntoView({ block: 'nearest' }); }
@@ -5039,7 +5111,7 @@ buildLightsPanel = () => {
   try {
     SHW.btn.disabled = false; SHW.btn.title = 'The whole show, auto-timed against the cast album (again to hide the panel)';
     if (window.MIDTOWN) window.MIDTOWN.show = {
-      load: urls => showLoad(urls), play: () => showStart(true), pause: () => showPause(true), resume: () => showPause(false), stop: () => showStop(),
+      load: urls => showLoad(urls), useLocalFile: (file, handle) => showUseLocalFile(file, handle || null), pickLocalFile: () => showLocalSound(true), play: () => showStart(true), pause: () => showPause(true), resume: () => showPause(false), stop: () => showStop(),
       seek: (trackId, sec) => showSeek(trackId, sec), gotoCue: q => showGotoCue(q), next: () => showStep(1), prev: () => showStep(-1),
       advance: (sec, step) => SHW.on ? showAdvance(sec, step) : null, settle: showSettle, panel: on => showPanel(on !== false),
       get state() { return showState(); }, get cues() { return SHW.d ? SHW.d.cues.map(c => ({ q: c.q, label: c.label, track: c.track, at: c.at, real: c.real, n: c.n })) : []; },

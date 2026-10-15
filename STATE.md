@@ -113,7 +113,10 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   root; `preview_start` it. **It dies when the Browser pane is closed** — restart before navigating. Pointer lock
   fails inside the pane; a normal Chrome window at the same URL is the better window for him. His Chrome must be
   on the RTX 5060 (set to High performance in Windows), unverified.
-- **His soundtrack is local only** (`assets/audio/hamilton-soundtrack.mp3`, never committed; the one-file album). The
+- **His soundtrack is local only** (`assets/audio/hamilton-soundtrack.mp3`, never committed; the one-file album). **On
+  Pages the Show panel's "Use your soundtrack file…" picks the same file off his disk and remembers it** (a File System
+  Access handle in IndexedDB; `MIDTOWN.show.useLocalFile(file)` / `pickLocalFile()` from the console) — no YouTube, no
+  ads; the fallback to YouTube remains for a visitor with no file. The
   seek table and the loudness envelope (#233) are specific to HIS copy — a different file needs `mp3toc.py` (the
   table) and a new envelope (20 ms RMS, `255·(log10(rms)+4)/4`). Python's `http.server` has no Range requests, so the
   file loads into a Blob. **Pages falls back to the official YouTube uploads**, which seek exactly.
