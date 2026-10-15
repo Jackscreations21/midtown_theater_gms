@@ -229,7 +229,47 @@ compare the *same* production across stages instead.
 
 ---
 
-## NEXT SESSION: **LAND #235 AND #233; HIS EYE ON THEATRE 2'S BOOTH, DESK AND THE DOORS** (2026-10-15)
+## NEXT SESSION: **LAND PR #1 (THE BACKSTAGE); HIS EYE ON IT; THEN THE ACTORS' ACT-1 NOTES** (2026-10-15, late)
+
+Rulings at **GH** (GI next). This is `midtown_theater_gms` now (split from `gms-theater` at its `14af651`; the Palace
+stayed there). `main` is the split commit; **PR #1 `backstage`** is open with the backstage block. STATE.md item 1 has
+the decisions the block raises; item 3a the actors' next round (his act-1 notes); item 3 the cue checklist.
+
+1. **When PR #1 merges:** fast-forward, delete `backstage` both sides, and tidy `gms-theater` (its merged remote
+   branches; the Midtown files' removal is Jack's call — it breaks the old Pages link until Pages is on here).
+2. **Enable Pages on this repository** (Settings → Pages, `main`, root): `index.html` redirects to `midtown.html`.
+3. **His eye on the backstage**, then the actors' act-1 notes (HANDOFF's "HIS ACT-1 NOTES" block below), then the
+   cue checklist.
+
+## DONE — 2026-10-15 (late): the backstage block — one area behind both stages, by two Opus agents (PR #1)
+
+*"add an area behind both stages for dressing rooms and stuff and make it be one big area not 2 separate ones"* — and
+in the same hour *"can you move everything for the midtown theater to that repository."* The lead measured the site off
+the running page (Theatre 2's back brick whole at z 8.90/9.10; house 1's cut away with the set standing through to
+z 10.47; Jack's baked slab box 21 reaching z 40.9 behind it, trimmed to z 11.00) and wrote `BACKSTAGE` — one block
+x −9.8…30, floor at the deck's 0.80, a stage-side wall staggered at z 11.00 (house 1) / 9.30 (Theatre 2) with a jog
+at the gap between the houses, a crossover to z 13.4, eight rooms z 13.6…17.0 along the far wall, the ways in (house
+1's two 1 m slots beside the set; a pair of doors through Theatre 2's brick) — with two stubs three context lines
+apart so two agents could each replace their own. **The shell** (`66dfbf7`): envelope, the jog's return wall (at
+x 10.40, the slab's end), the slots lined (0.95 / 1.15 m: 0.225 / 0.325 m a side past the walker), the brick cut
+(`BACKSTAGE_CUT` in `HOUSE2_CUTS`, z 8.85…9.35 — 8.80 holes the deck; Theatre 2's fills are two triangles each, so
+`wallSplitMesh` splits 4 into 44 first and the cut takes 6: back_brick_lo 4, back_tower 2), the pair and eight
+single leaves on the DOORS machinery (`doorLeaf` takes `{mats, astragal}`, `kind` words the hint, `check()` 13/13),
+the fixed street door with an EXIT sign, 26 battens, 24 running lights, 2 real SpotLights (3 cost 2–6 ms; a
+corridor cone behind house 1 would light the set through the wall), signs (`backstageSigns`, its own canvas), the
+`Backstage` view and button, `MIDTOWN.backstage`; 2,776 triangles, 12 meshes; 2,304 escape rays from inside found no
+hole; from either house's front row the block changes ~790 near-black pixels. **The fittings** (`b3575a4`): 77 pieces
+from primitives in 12 meshes (11 merged + one InstancedMesh of 121 bulbs), 27k triangles — four dressing rooms that
+differ (seats, rail side, colours), the green room (sofas, kitchenette, show relay, callboard), the stage door
+(keeper's desk, pigeonholes, tannoy), wardrobe (machines, ironing, rails), showers/WC, prop tables and extinguishers
+in the corridor; `backstageFittingsCheck` proves every piece inside its room and outside every door's swath (worst
+clearance 0.02 m, the keeper's hatch to the street door) and failed on three planted violations. Both agents'
+worktrees were cut from `main` and reset to `second-house` first; both served their worktrees by hand (the pane gave
+the shell's agent no animation frames at all). Lead: the patches applied in this repo with two conflicts (the GH
+letter in the doors' comment; both TRAPS sections under one heading), the page checked here at localhost:8097. Nine
+traps under "From the backstage round". Decisions for Jack are STATE.md item 1.
+
+## SUPERSEDED (the backstage landed on top; #235 merged): **LAND #235 AND #233; HIS EYE ON THEATRE 2'S BOOTH, DESK AND THE DOORS** (2026-10-15)
 
 Rulings at **GH** (GI next; GG/GH were FF/FG until the split — see STATE.md). `main` is **`5d24188`**. Two PRs open, independent of each other: **#235 `second-house`**
 (now `bb74206`: Theatre 2, its booth and desk, the doors) and **#233 `cue-blackouts`** (the 2026-10-12 cue day; its

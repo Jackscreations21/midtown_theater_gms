@@ -1,4 +1,4 @@
-# STATE — 2026-10-15 (OPEN ITEMS ONLY — `midtown_theater_gms`, split out of `gms-theater` this day; the backstage round in flight)
+# STATE — 2026-10-15 (OPEN ITEMS ONLY — `midtown_theater_gms`, split out of `gms-theater` this day; `backstage` = PR #1 OPEN)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -17,9 +17,17 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 - **What `main` holds:** the house at 1:1 with the Hamilton set and rig, the lighting engine, the whole show
   auto-timed (891 cues), the automatic actors with the show's choreography (dance round 2, RULING GF), the video
   capture pipeline, Theatre 2 beside the first with its own followspot booth and lighting desk, one lobby behind
-  both with E-key doors and a curtain in each passage, and the backstage block's SPEC with two stubs
-  (`buildBackstage`, `buildBackstageFittings`) — the shell and the fittings are being built now by two Opus agents
-  off `gms-theater`'s `second-house` tip (`21d3b09`); their work lands here on a `backstage` branch.
+  both with E-key doors and a curtain in each passage, and the backstage block's SPEC with two stubs.
+- **PR #1 (`backstage`, off `main`) is OPEN:** the backstage block itself — the shell (two Opus agents, cherry-picked
+  from `gms-theater` worktrees as patches `66dfbf7` and `b3575a4`): one block x −10…30.2, z 9.1…17.2, floor level
+  with the stages; house 1's two slots beside the set and a pair of E-key doors cut through Theatre 2's back brick
+  (6 triangles, after splitting its two-triangle fills); a crossover and eight rooms with E-key doors, 26 battens, 24
+  blue running lights, 2 real lights, signs, a `Backstage` view; and the fittings — 77 pieces (dressing rooms with
+  bulb mirrors, the green room, the stage door, wardrobe, showers/WC, prop tables), 27k triangles, 12 meshes, with
+  `MIDTOWN.backstageFittings.check()` proving every piece inside its room and clear of every door. Checked on the
+  new repo's checkout: console clean, `walls`/`lx` (301/313)/`actors`/`doors` (13/13) unchanged, the fittings check
+  PASS. Walk lobby → house → wing → slot → corridor → Theatre 2's doors → its stage is the agents' evidence (driven
+  by hand in the pane); the lead walked none of it live.
 - **Rulings are at GH (GI next).** The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
   the house; **GH** (2026-10-15) a closed curtain stops the walker, like a closed door. FF is the mannequin.
@@ -28,14 +36,16 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Open, in the order it will bite
 
-1. **The backstage round (in flight):** two Opus agents build the shell (`buildBackstage`: envelope, the ways in from
-   both stages — house 1's two slots beside the set, a pair of E-key doors cut through Theatre 2's back brick — the
-   room partitions and E-key doors, lights, signs, a `Backstage` view) and the fittings (`buildBackstageFittings`:
-   four dressing rooms, the green room, the stage door, wardrobe, showers/WC, prop tables). The lead merges both onto
-   `backstage`, checks at the local link, records and opens the PR here. Then the post-merge protocol: in
-   `gms-theater` the remote branches `second-house`, `actors`, `cue-blackouts` and the older landed ones still want
-   deleting (the sandbox refuses remote deletes), and the Midtown files want REMOVING from `gms-theater` once Jack
-   says so (it breaks the old Pages link; his call).
+1. **Land PR #1, then his eye on the backstage** (`Backstage` button; walk from either wing upstage past the set into
+   the corridor; E on the doors). Decisions it raises: the house-1-facing faces of the block are black (seen from the
+   fly gallery over the roof); EXIT signs over all three ways onto the stages; Theatre 2's closed doors are visible
+   from its stalls upstage centre; only 2 real lights (3 cost 2–6 ms); the make-up counters have closed fronts (an
+   open one does not stop the walker — TRAPS); the jog's return wall stands at x 10.40 (box 21's end), not the spec's
+   10.20 — trim the slab to 10.2 or change `stageZ.jog`; `stageDoors.h2.head` was read as a height over the floor
+   (the doors are 4.2 m tall — a real stage door is 2.4–3 m; his call); the brick cut starts at z 8.85 (8.80 would hole
+   the deck). Then the post-merge protocol here, and in `gms-theater`: delete the remote branches `second-house`,
+   `actors`, `cue-blackouts` and the older landed ones (the sandbox refuses remote deletes), and REMOVE the Midtown
+   files from `gms-theater` once Jack says so (it breaks the old Pages link; his call).
 2. **Jack's eye on Theatre 2, its booth and desk, the doors and the long lobby** (PR #235). Decisions it raises, none
    made: Theatre 2's own show, or stays empty (its desk screens are dark until there is one); the doors' swing is
    RULED (GG: into the house); a closed curtain stopping the walker is RULED (GH: it does, like a closed door); whether
