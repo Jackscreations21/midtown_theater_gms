@@ -235,8 +235,8 @@ Rulings at **GH** (GI next). This is `midtown_theater_gms` now (split from `gms-
 stayed there). `main` is the split commit; **PR #1 `backstage`** is open with the backstage block. STATE.md item 1 has
 the decisions the block raises; item 3a the actors' next round (his act-1 notes); item 3 the cue checklist.
 
-1. **When PR #1 merges:** fast-forward, delete `backstage` both sides, and tidy `gms-theater` (its merged remote
-   branches; the Midtown files' removal is Jack's call — it breaks the old Pages link until Pages is on here).
+1. ~~When PR #1 merges~~ Done 2026-10-15: PR #1 merged (`22777e6`), `backstage` deleted both sides; gms-theater's
+   PR #236 removed the Midtown files there and its landed branches are deleted both sides.
 2. **Enable Pages on this repository** (Settings → Pages, `main`, root): `index.html` redirects to `midtown.html`.
 3. **His eye on the backstage**, then the actors' act-1 notes (HANDOFF's "HIS ACT-1 NOTES" block below), then the
    cue checklist.
