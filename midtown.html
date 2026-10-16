@@ -393,7 +393,7 @@ const WALK = {
   // Crouching (hold C). Fitted to the stage, the set's galleries stand 1.48–1.61 m off the deck and shut the
   // wings off from the stage for a 1.75 m walker; crouched, you go under them.
   crouchEye: 1.0, crouchHead: 1.2, crouchRays: [0.46, 0.8, 1.15], crouchSpeed: 1.6,
-  fallY: -3,                        // below the lowest floor: back to where the walk started
+  fallY: -7,                        // below the lowest floor (Theatre 2's lift pits, y −5.40): back to where the walk started
   cell: 0.5,                        // the collision grid's cell, metres
   look: 0.0022, drag: 0.004,        // radians per pixel: pointer-locked mouse (the Palace's), dragging
 };
@@ -499,7 +499,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings)$/.test(o.name)) o.traverse(take);
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|understage)$/.test(o.name)) o.traverse(take);
   baked.traverse(take);
   return list;
 }
@@ -568,7 +568,7 @@ function hitTri(t, ox, oy, oz, dx, dy, dz, far) {
 const builtRay = new THREE.Raycaster(), builtO = new THREE.Vector3(), builtD = new THREE.Vector3();
 function builtHit(ox, oy, oz, dx, dy, dz, far) {
   if (!(far > 0)) return Infinity;
-  const door = doorsHit(ox, oy, oz, dx, dy, dz, far);
+  const door = Math.min(doorsHit(ox, oy, oz, dx, dy, dz, far), underHit(ox, oy, oz, dx, dy, dz, far));   // and Theatre 2's lifts, gates and rails (THE UNDERGROUND)
   if (!built.children.length) return door;
   builtRay.set(builtO.set(ox, oy, oz), builtD.set(dx, dy, dz)); builtRay.far = Math.min(far, door);
   const h = builtRay.intersectObjects(built.children, true);
@@ -9296,7 +9296,7 @@ function buildBackstage() {
   // 2. THE ENVELOPE. The floor behind house 1 from under its wall, behind Theatre 2 from where its deck's fill stops
   // (z 9.00, y 0.796); the ceiling the same; the far wall with the street doors' openings; the end walls from the fly
   // walls' ends (house 1's black where they face its stage)
-  bx('floor', X0, JX0, F - 0.2, F, Z1o, B.farZ); bx('floor', JX0, X1, F - 0.2, F, 9.00, B.farZ);
+  bx('floor', X0, JX0, F - 0.2, F, Z1o, B.farZ); for (const [a, b, c, d] of underRects([JX0, X1, 9.00, B.farZ], [underBackstageHole()])) bx('floor', a, b, F - 0.2, F, c, d);   // round the understage stair's hole (THE UNDERGROUND)
   bx('ceil', X0, JX0, C, R, Z1o + 0.02, B.farZ); bx('ceil', JX0 + 0.02, X1, C, R, BR, B.farZ);   // behind the black skins below
   const streets = B.rooms.filter(r => r.street).map(r => r.street);
   run('wall', X0, X1, F - 0.2, C, B.roomZ1, B.farZ, streets.map(s => [s.x0, s.x1, F + s.head]));
@@ -10689,6 +10689,7 @@ function doorAim() {
   for (const e of D.list) look(e);
   for (const c of CURTAINS.list) look(c);
   for (const w of WORKLIGHT.list) look(w.target);           // the worklights' switch boxes (THE WORKLIGHTS)
+  for (const t of UNDER_TARGETS) look(t);                    // the understage booth's lift switches (THE UNDERGROUND)
   return best;
 }
 // The hint line while walking: what E would do, when something is in reach (walkHint reads doorAimNow.label); written
@@ -10982,6 +10983,7 @@ function buildHouse2(src) {
   buildDoors();                                              // the leaves in the lobby's four door frames (THE DOORS)
   buildCurtains(lobby.userData.measured.curtains);           // a curtain at each passage's house end, measured by buildLobby (THE CURTAINS)
   buildBackstage(); buildBackstageFittings();                // one backstage block behind both stages (BACKSTAGE), then its rooms' furniture
+  buildUnder();                                              // Theatre 2's basement and its two lifts; splits its scan before the cuts (THE UNDERGROUND)
   houseRoot = house.scene;
   gradeSetBrick(root);
   registerModelTextures(root, 'set: ', ['ham_brick', 'ham_plank', 'ham_post', 'ham_rail', 'ham_iron']);
@@ -11009,7 +11011,8 @@ function buildHouse2(src) {
   const [p, t] = VIEWS['v-back']; camera.position.set(...p); orbit.target.set(...t); orbit.update();
   MIDTOWN.backstageFittings = backstageFittings;             // { group, bulbs, byRoom, items, triangles, check() } (BACKSTAGE — THE FITTINGS)
   try { wlBuildAll(house.scene, house2Root); } catch (e) { console.error('worklight: building the worklights failed —', e); }   // one a stage, both off; every material takes their light (THE WORKLIGHTS)
-  MIDTOWN.worklight = WORKLIGHT_API;                         // MIDTOWN.worklight.set(1 | 2, on), .toggle(house), .state(), .check()
+  MIDTOWN.worklight = WORKLIGHT_API;
+  MIDTOWN.under = UNDER_API;                                 // Theatre 2's lifts (CONTRACT: .lifts.front/.back, .bays, .tick), check(), report()                         // MIDTOWN.worklight.set(1 | 2, on), .toggle(house), .state(), .check()
   // Compile every shader and draw one frame (texture uploads, the shadow maps) behind the loader, so the
   // first visible frame does not freeze for a second.
   loadtxt.textContent = 'Compiling…'; bar.style.width = '100%';
@@ -11024,6 +11027,797 @@ function buildHouse2(src) {
   try { buildLightsPanel(); } catch (e) { console.error('lx: the lights panel failed to build —', e); }
   ready = true; requestRender();
 })().catch(fail);
+
+/* ---------------------------------------------------------------- THEATRE 2: THE UNDERGROUND AND THE LIFTS
+   RULING GI (2026-10-16), Jack: "make it so there is a stage lift that is used to bring on and off big sets like the ship.
+   make a front and back one. the front one is used to bring sets on and the back one to take sets off" — "only add the
+   stage lifts to the second stage". RULING GJ: "also make an entire underground area for storage and stuff". The numbers
+   are docs/johnny-tremain/CONTRACT.md's (the lifts' footprints, travel, the API); everything else is UNDER, below.
+   THE BASEMENT. One floor at y −4.40 under Theatre 2's stage house (x 10.6…29.8) from z 1.0 (behind the apron's scanned
+   front face, which reaches z 0.93) back under the backstage block to z 16.95; a ceiling slab 0.20…0.55 (under the scan's
+   deck, 0.80, and the backstage's floor slab, 0.60…0.80) with steel joists under it to 0.02, so 4.42 m clear: a 4.4 m set
+   rides a lift down whole and travels the dock. Theatre 2's own fills are cut where they would cross it (UNDER_CUTS in
+   HOUSE2_CUTS, so reapplyAll keeps them): the scan's ground plane (house_floor, y −0.06) under the stage and the foot of the
+   back wall (back_tower, z 9.10) below the backstage's floor, after both are split along the boxes' faces as the backstage
+   splits the brick. Nothing of it stands above y 0.55 outside the holes, west of x 10.4 (house 1's wall is at 9.78) or
+   in front of z 0.8 — so neither auditorium nor the lobby can see it (check()).
+   THE LIFTS. Two holes in the deck (UNDER_CUTS), a shaft under each from the deck down to a pit 1.0 m under the floor (a
+   scissor stack folds into it), walls on all four sides with a roller gate in the east wall (the side the dock is on),
+   open only while the platform rests at the bottom. The platform (its Object3D's origin the TOP CENTRE, CONTRACT) has a
+   deck top and a steel underframe; two scissor packs under it, drawn as one InstancedMesh a lift and re-posed as it moves;
+   guide rails on the shaft walls; amber beacons by each gate and on the deck rails, flashing while it moves. Safety: the
+   moment a lift leaves the top, yellow rails rise round its hole (in the deck's slots, 1.1 m) and the walker is stopped by
+   them; the gate closes before any travel and opens only at the bottom. A walker standing on a platform RIDES it (the walk
+   finds the platform as its floor: underHit, inside builtHit, ray-tests the platforms, gates and rails as they stand). The
+   rails and the gate HOLD (wait, then carry on) while a walker stands where they would pass through them.
+   THE WAY ROUND: sets go down on the back lift, out of its gate east, and either north into the dock's bays or south down
+   the east lane and west into the front lift's gate, to come up at the front. Painted on the floor.
+   THE ROOMS: the trap room (under the stage-left and downstage open floor, a trap lift under a hatch), the stage manager's
+   lift-control booth (E at its panel sends either lift), prop shelving, furniture storage, the scenery dock with six
+   marked bays (UNDER.bays, ≥ 5.5 × 2.6), a paint shop corner with a paint frame. Two stairs (0.179 m risers, 0.26 m
+   goings, handrails): a dog-leg from Theatre 2's stage-left wing (a hole in the deck, guarded on the deck) and one from the
+   backstage corridor behind Theatre 2 (a hole in the corridor's floor east of its bench, guarded), down to a door into the
+   dock. Lit like the backstage: surfaces that glow a little of their own colour and caged work lamps (glow); no real light.
+   MIDTOWN.under = { lifts: { front, back }, bays, tick, check(), group, ... }. */
+const UNDER = {
+  floor: -4.40, deck: HOUSE.deckY, ceil: 0.20, ceilTop: 0.55, joistY: 0.02, pit: -5.40, t: 0.20,
+  x0: 10.60, x1: 29.80, z0: 1.00, z1: 16.95,         // the basement's inner faces
+  bsFloor: 0.60,                                      // the backstage floor slab's underside (BACKSTAGE.floor − 0.2)
+  going: 0.26, risers: 29,                            // every stair: 29 risers deck → floor (5.20 / 29 = 0.1793)
+  lift: { depth: 0.40, vmax: 0.40, accel: 0.20, tGate: 3.0, tRail: 1.0, rail: 1.10, wall: 0.20, gateTop: 0.0, stages: 4 },
+  // CONTRACT.md: the footprints (world) and roles. gate: the shaft's east wall (+x) opens to the dock.
+  lifts: {
+    front: { x0: 17.00, x1: 23.00, z0: 2.60, z1: 5.00, role: 'SETS ON', arm: 2.6, packs: [-1.5, 1.5] },
+    back:  { x0: 17.50, x1: 22.50, z0: 5.90, z1: 8.30, role: 'SETS OFF', arm: 2.3, packs: [-1.2, 1.2] },
+  },
+  // the stage-left wing stair: flight 1 down +z in the deck's hole, a landing, flight 2 back −z beside it to the floor
+  wing: { f1: { x0: 10.60, x1: 12.00, z: 4.00, n: 11 }, landing: { x0: 10.60, x1: 13.60, z0: 6.86, z1: 8.45 }, f2: { x0: 12.15, x1: 13.60, z: 6.86, n: 16 },
+    hole: { x0: 10.60, x1: 13.75, z0: 4.00, z1: 8.60 } },
+  // the backstage stair: flight A down −x in the corridor floor's hole, a landing, flight B down +z under the corridor to a door
+  bs: { a: { x: 17.91, z0: 9.35, z1: 10.95, n: 11 }, landing: { x0: 13.70, x1: 15.05, z0: 9.35, z1: 10.95 }, b: { x0: 13.70, x1: 15.05, z: 10.95, n: 16 },
+    hole: { x0: 13.70, x1: 17.91, z0: 9.35, z1: 10.95 }, door: { x0: 13.85, x1: 14.90, z0: 15.20, z1: 15.35 } },
+  booth: { x0: 13.75, x1: 16.60, z0: 5.90, z1: 8.20, t: 0.12, door: { x0: 14.30, x1: 15.30 } },
+  // the dock's bays: centre x, z; w along x, d along z (world, on the floor)
+  bays: [
+    { name: 'Bay 1', x: 12.05, z: 14.10 }, { name: 'Bay 2', x: 16.70, z: 14.10 }, { name: 'Bay 3', x: 19.50, z: 14.10 },
+    { name: 'Bay 4', x: 22.30, z: 14.10 }, { name: 'Bay 5', x: 25.10, z: 14.10 }, { name: 'Bay 6', x: 27.90, z: 14.10 },
+  ].map(b => ({ ...b, w: 2.60, d: 5.50, y: -4.40 })),
+  // the sets' travel (world rects x0 x1 z0 z1): out of the back lift's gate, the east lane, into the front lift's gate, the dock's branch
+  paths: [
+    { name: 'back lift out', r: [22.70, 29.60, 5.90, 8.30] }, { name: 'east lane', r: [23.40, 29.60, 2.40, 8.80] },
+    { name: 'front lift in', r: [23.20, 29.60, 2.60, 5.00] }, { name: 'to the dock', r: [23.40, 29.60, 8.30, 11.30] },
+  ],
+  view: [[28.6, -2.7, 15.6], [19.0, -3.4, 4.5]],
+};
+UNDER.riser = (UNDER.deck - UNDER.floor) / UNDER.risers;
+// The holes and fills cut out of Theatre 2's scan (its meshes only), applied by reapplyAll with HOUSE2_CUTS
+const UNDER_CUTS = (() => {
+  const r3 = v => +v.toFixed(3), L = UNDER.lifts, W = UNDER.wing.hole;
+  const box = (name, x0, x1, y0, y1, z0, z1) => ({ name, only: 'house2', p: [(x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2].map(r3), r: [0, 0, 0], s: [x1 - x0, y1 - y0, z1 - z0].map(r3) });
+  return [
+    box('Theatre 2 front lift', L.front.x0, L.front.x1, 0.70, 0.90, L.front.z0, L.front.z1),
+    box('Theatre 2 back lift', L.back.x0, L.back.x1, 0.70, 0.90, L.back.z0, L.back.z1),
+    box('Theatre 2 understage stair', W.x0, W.x1, 0.70, 0.90, W.z0, W.z1),
+    box('Theatre 2 ground fill over the basement', 10.45, 29.95, -0.12, 0.00, 1.00, 9.15),
+    box('Theatre 2 back wall foot over the basement', 10.45, 29.95, -0.12, 0.58, 9.05, 9.15),
+  ];
+})();
+HOUSE2_CUTS.push(...UNDER_CUTS);
+// A rectangle [x0, x1, z0, z1] less some holes, as rectangles (coordinate compression, row runs merged)
+function underRects([x0, x1, z0, z1], holes) {
+  const xs = new Set([x0, x1]), zs = new Set([z0, z1]);
+  for (const h of holes) { for (const x of [h[0], h[1]]) if (x > x0 && x < x1) xs.add(x); for (const z of [h[2], h[3]]) if (z > z0 && z < z1) zs.add(z); }
+  const X = [...xs].sort((a, b) => a - b), Z = [...zs].sort((a, b) => a - b), out = [];
+  for (let j = 0; j + 1 < Z.length; j++) {
+    let run = null;
+    for (let i = 0; i + 1 < X.length; i++) {
+      const cx = (X[i] + X[i + 1]) / 2, cz = (Z[j] + Z[j + 1]) / 2, hole = holes.some(h => cx > h[0] && cx < h[1] && cz > h[2] && cz < h[3]);
+      if (!hole) { if (run) run[1] = X[i + 1]; else run = [X[i], X[i + 1], Z[j], Z[j + 1]]; }
+      else if (run) { out.push(run); run = null; }
+    }
+    if (run) out.push(run);
+  }
+  return out;
+}
+// The backstage corridor floor's hole for the stair (BACKSTAGE — THE SHELL lays its floor round it)
+const underBackstageHole = () => { const h = UNDER.bs.hole; return [h.x0, h.x1, h.z0, h.z1]; };
+const underStd = (color, roughness, glow, extra) => lobbyStd(color, roughness, glow, extra);
+const underMat = {
+  floor:  underStd(0xffffff, 0.85, 0, { emissive: 0x9a9a9a }),     // map and emissiveMap: underConcrete(), at build
+  wall:   underStd(0xa6a7a3, 0.92, 0.20),                         // painted block
+  ceil:   underStd(0x2a2a2d, 0.95, 0.18),                         // the deck's underside, painted black
+  joist:  underStd(0x3c3f44, 0.6, 0.18),
+  steel:  underStd(0x6a7077, 0.45, 0.22),
+  dark:   underStd(0x26282c, 0.6, 0.15),
+  yellow: underStd(0xe2b21c, 0.6, 0.38),
+  white:  underStd(0xe8e8e2, 0.6, 0.40),
+  stair:  underStd(0x8d8d88, 0.9, 0.22),                         // concrete treads
+  nose:   underStd(0xd9a91a, 0.6, 0.40),                          // the treads' yellow nosings
+  timber: underStd(0x8a6a45, 0.7, 0.22),
+  deck:   underStd(0x2c2723, 0.8, 0.30),                          // the lifts' tops: painted masonite, near the scan's deck
+  booth:  underStd(0x58606a, 0.8, 0.20),
+  hatch:  underStd(0xffffff, 0.8, 0, { emissive: 0x8a8a8a }),     // map and emissiveMap: underHatch() (yellow/black)
+  drop:   new THREE.MeshBasicMaterial({ toneMapped: false }),     // the paint frame's cloth: map underDrop()
+  colour: bsColour,                                                // props, bins, cushions: vertex coloured (BACKSTAGE — THE FITTINGS)
+  glass:  lobbyMat.glass,
+  glow:   new THREE.MeshBasicMaterial({ color: 0xfff0d2, toneMapped: false }),   // the work lamps
+  led:    new THREE.MeshBasicMaterial({ color: 0x39ff6a, toneMapped: false }),   // the panel's lamps
+  red:    new THREE.MeshBasicMaterial({ color: 0xff3a2a, toneMapped: false }),
+  screen: deskMat.screen,
+  sign:   new THREE.MeshBasicMaterial({ toneMapped: false }),     // map: underSigns()
+  block:  new THREE.MeshBasicMaterial({ visible: false }),        // collision only (in the walk's grid, never drawn)
+};
+// The signs, one canvas, a row each (BACKSTAGE's recipe)
+const UNDER_SIGNS = [
+  { text: 'UNDERSTAGE ↓', a: 4.5, s: 'way' }, { text: 'STAGE ↑', a: 3, s: 'way' }, { text: 'BACKSTAGE ↑', a: 4, s: 'way' },
+  { text: 'LIFT — KEEP CLEAR', a: 6, s: 'warn' }, { text: 'FRONT LIFT · SETS ON', a: 6.5, s: 'room' }, { text: 'BACK LIFT · SETS OFF', a: 6.5, s: 'room' },
+  { text: 'SCENE DOCK', a: 4.5, s: 'room' }, { text: 'TRAP ROOM', a: 4, s: 'room' }, { text: 'PROPS', a: 3, s: 'room' }, { text: 'FURNITURE', a: 4, s: 'room' },
+  { text: 'PAINT SHOP', a: 4.5, s: 'room' }, { text: 'STAGE MANAGER', a: 5.5, s: 'room' }, { text: 'NO SMOKING', a: 4.5, s: 'quiet' },
+  { text: 'LIFT CONTROL', a: 5, s: 'room' }, { text: 'FRONT', a: 3, s: 'room' }, { text: 'BACK', a: 3, s: 'room' },
+  ...UNDER.bays.map(b => ({ text: b.name.toUpperCase(), a: 2.6, s: 'floor' })),
+  { text: 'TO FRONT LIFT →', a: 5.5, s: 'floor' }, { text: 'KEEP CLEAR', a: 4, s: 'floor' },
+];
+const UN_SIGN = (() => {
+  let y = 0;
+  const rows = UNDER_SIGNS.map(s => { const hpx = 128, w = Math.min(1024, hpx * s.a), r = { ...s, y0: y, hpx, u0: (1024 - w) / 2048, u1: (1024 + w) / 2048 }; y += hpx; return r; });
+  return { rows, W: 1024, H: y };
+})();
+function underSigns() {
+  const c = document.createElement('canvas'); c.width = UN_SIGN.W; c.height = UN_SIGN.H;
+  const g = c.getContext('2d'), tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const font = px => `600 ${px}px "IBM Plex Sans", system-ui, sans-serif`;
+  const STYLE = { room: ['#1b1d21', '#e9ebee', '#5a5f66'], way: ['#101114', '#f2f2f2', '#3c4048'], warn: ['#e2b21c', '#111111', '#111111'],
+    quiet: ['#160606', '#ff3b30', '#5a1410'], floor: ['rgba(0,0,0,0)', '#efe9d8', 'rgba(0,0,0,0)'] };
+  const draw = () => {
+    g.clearRect(0, 0, c.width, c.height);
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    for (const r of UN_SIGN.rows) {
+      const [bg, fg, edge] = STYLE[r.s], x0 = r.u0 * c.width, w = (r.u1 - r.u0) * c.width;
+      g.fillStyle = bg; g.fillRect(x0, r.y0, w, r.hpx);
+      if (r.s !== 'floor') { g.strokeStyle = edge; g.lineWidth = 6; g.strokeRect(x0 + 9, r.y0 + 9, w - 18, r.hpx - 18); }
+      g.fillStyle = fg; g.font = font(r.s === 'floor' ? 92 : 70); g.fillText(r.text, c.width / 2, r.y0 + r.hpx / 2 + 4, w - 40);
+    }
+    tex.needsUpdate = true; requestRender();
+  };
+  draw();
+  if (document.fonts) document.fonts.load(font(70)).then(draw, () => {});   // redrawn once the face is in (a load wait, not game timing)
+  return tex;
+}
+// a sign on a wall face facing ry (0: +z, π: −z, π/2: +x, −π/2: −x); flat on the floor when floor is true (its top toward ry)
+function underSign(P, text, h, x, y, z, ry, floor = false) {
+  const r = UN_SIGN.rows.find(q => q.text === text), w = h * r.a;
+  const g = new THREE.PlaneGeometry(w, h), uv = g.attributes.uv;
+  for (let i = 0; i < uv.count; i++) uv.setXY(i, r.u0 + (r.u1 - r.u0) * uv.getX(i), 1 - (r.y0 + (1 - uv.getY(i)) * r.hpx) / UN_SIGN.H);
+  if (floor) { deskPut(P, 'sign', g, x, y, z, -Math.PI / 2, ry + Math.PI); return; }
+  const nx = Math.sin(ry), nz = Math.cos(ry);
+  deskBox(P, 'dark', w + 0.04, h + 0.04, 0.02, x + nx * 0.01, y, z + nz * 0.01, 0, ry);
+  deskPut(P, 'sign', g, x + nx * 0.021, y, z + nz * 0.021, 0, ry);
+}
+function underCanvasTex(w, h, paint, repeat = true) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  paint(c.getContext('2d'), w, h);
+  const t = new THREE.CanvasTexture(c);
+  if (repeat) t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 8;
+  return t;
+}
+// sealed concrete, 2 m a repeat, a saw cut at the edge
+const underConcrete = () => underCanvasTex(256, 256, (g) => {
+  g.fillStyle = '#76746f'; g.fillRect(0, 0, 256, 256);
+  let s = 11; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 2600; i++) { const v = 96 + Math.floor(rnd() * 46); g.fillStyle = `rgba(${v},${v - 2},${v - 6},0.55)`; g.fillRect(rnd() * 256, rnd() * 256, 2, 2); }
+  for (let i = 0; i < 14; i++) { g.fillStyle = 'rgba(40,38,34,0.10)'; g.beginPath(); g.arc(rnd() * 256, rnd() * 256, 10 + rnd() * 30, 0, 7); g.fill(); }
+  g.strokeStyle = '#4a4844'; g.lineWidth = 2; g.strokeRect(1, 1, 254, 254);
+});
+const underHatch = () => underCanvasTex(128, 128, (g) => {
+  g.fillStyle = '#e2b21c'; g.fillRect(0, 0, 128, 128); g.fillStyle = '#141414';
+  for (let k = -2; k < 4; k++) { g.beginPath(); g.moveTo(k * 64, 0); g.lineTo(k * 64 + 32, 0); g.lineTo(k * 64 + 160, 128); g.lineTo(k * 64 + 128, 128); g.fill(); }
+});
+// the cloth on the paint frame: a Boston harbour backcloth half painted (a dusk sky, a skyline, the water; the rest primed)
+const underDrop = () => underCanvasTex(512, 256, (g, w, h) => {
+  g.fillStyle = '#d8d1c0'; g.fillRect(0, 0, w, h);
+  const sky = g.createLinearGradient(0, 0, 0, h * 0.7); sky.addColorStop(0, '#2d3b66'); sky.addColorStop(0.6, '#c9805a'); sky.addColorStop(1, '#e8c79a');
+  g.fillStyle = sky; g.fillRect(0, 0, w * 0.68, h * 0.7);
+  g.fillStyle = '#2b2a33';
+  const roofs = [[0, 0.52], [40, 0.46], [70, 0.5], [95, 0.3], [105, 0.5], [140, 0.44], [175, 0.38], [190, 0.47], [230, 0.42], [270, 0.5], [300, 0.36], [312, 0.5], [348, 0.45]];
+  g.beginPath(); g.moveTo(0, h * 0.7);
+  for (const [x, y] of roofs) { g.lineTo(x, h * y); g.lineTo(x + 26, h * y); }
+  g.lineTo(w * 0.68, h * 0.7); g.fill();
+  g.fillStyle = '#304a5c'; g.fillRect(0, h * 0.7, w * 0.68, h * 0.3);
+  g.strokeStyle = 'rgba(60,60,60,0.5)'; g.lineWidth = 1; for (let x = w * 0.68; x < w; x += 24) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, h); g.stroke(); }
+}, false);
+
+let underBuilt = null;
+const UNDER_TARGETS = [];                                      // E at the booth's panel (doorAim takes them with the doors)
+function buildUnder() {
+  const U = UNDER, t0 = performance.now(), F = U.floor, D = U.deck, C = U.ceil, T = U.t, r = U.riser, g = U.going, LS = U.lift;
+  // 1. SPLIT Theatre 2's meshes along the cut boxes' faces before any cut (as buildBackstage splits the brick)
+  const boxes = UNDER_CUTS.map(c => cutAABB(c)), split = { split: 0, made: 0, meshes: [] };
+  if (house2Root) {
+    scene.updateMatrixWorld(true);
+    house2Root.traverse(o => {
+      if (!o.isMesh || !o.geometry.attributes.position) return;
+      const gm = o.geometry; if (!gm.boundingBox) gm.computeBoundingBox();
+      const wb = gm.boundingBox.clone().applyMatrix4(o.matrixWorld), hit = boxes.filter(b => b.intersectsBox(wb));
+      if (!hit.length) return;
+      if (originals.has(o)) { console.warn(`understage: ${o.name} was cut before it could be split — its holes stay ragged`); return; }
+      const res = wallSplitMesh(o, hit, []);
+      if (res.split) { split.split += res.split; split.made += res.made; split.meshes.push(`${o.name} ${res.split}→${res.made}`); }
+    });
+  }
+  const P = {}, items = [];
+  const bx = (key, x0, x1, y0, y1, z0, z1) => deskBox(P, key, Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0), (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+  const tint = (gm, hex) => { const c = new THREE.Color(hex), n = gm.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([c.r, c.g, c.b], i * 3); gm.setAttribute('color', new THREE.BufferAttribute(a, 3)); return gm; };
+  const cbx = (hex, ...a) => tint(bx('colour', ...a), hex);
+  const cyl = (key, rad, y0, y1, x, z, seg = 12) => deskPut(P, key, new THREE.CylinderGeometry(rad, rad, y1 - y0, seg), x, (y0 + y1) / 2, z);
+  const rod = (key, a, b, rad = 0.02) => deskRod(P, key, new THREE.Vector3(...a), new THREE.Vector3(...b), rad, 8);
+  // a wall along x (z0…z1 thick) from y0 to y1, open where holes [a, b, bottom, top]
+  const wallX = (key, x0, x1, y0, y1, z0, z1, holes = []) => {
+    let x = x0;
+    for (const [a, b, lo, hi] of [...holes].sort((p, q) => p[0] - q[0])) { if (a > x) bx(key, x, a, y0, y1, z0, z1); if (lo > y0) bx(key, a, b, y0, lo, z0, z1); if (hi < y1) bx(key, a, b, hi, y1, z0, z1); x = b; }
+    if (x < x1) bx(key, x, x1, y0, y1, z0, z1);
+  };
+  const wallZ = (key, z0, z1, y0, y1, x0, x1, holes = []) => {
+    let z = z0;
+    for (const [a, b, lo, hi] of [...holes].sort((p, q) => p[0] - q[0])) { if (a > z) bx(key, x0, x1, y0, y1, z, a); if (lo > y0) bx(key, x0, x1, y0, lo, a, b); if (hi < y1) bx(key, x0, x1, hi, y1, a, b); z = b; }
+    if (z < z1) bx(key, x0, x1, y0, y1, z, z1);
+  };
+  const LF = U.lifts.front, LB = U.lifts.back, W = LS.wall;
+  const shaft = L => [L.x0 - W, L.x1 + W, L.z0 - W, L.z1 + W];
+  const shF = shaft(LF), shB = [LB.x0 - W, LB.x1 + W, LF.z1 + W, LB.z1 + W];   // the back shaft's south wall runs to the front's (no slot between)
+  // 2. THE ENVELOPE: the floor (less the pits), the outer walls, the ceiling (less the shafts and the stairs) and its joists
+  for (const [a, b, c, d] of underRects([U.x0, U.x1, U.z0, U.z1], [shF, shB])) bx('floor', a, b, F - 0.2, F, c, d);
+  const Y0 = F - 0.2, YC = U.ceilTop;
+  bx('wall', U.x0 - T, U.x0, Y0, YC, U.z0 - T, U.z1 + T); bx('wall', U.x1, U.x1 + T, Y0, YC, U.z0 - T, U.z1 + T);
+  bx('wall', U.x0, U.x1, Y0, YC, U.z0 - T, U.z0); bx('wall', U.x0, U.x1, Y0, YC, U.z1, U.z1 + T);
+  const WH = U.wing.hole, BH = U.bs.hole;
+  const ceilHoles = [shF, shB, [WH.x0 - 0.01, WH.x1, WH.z0, WH.z1], [13.50, 17.95, 9.15, 11.25]];
+  for (const [a, b, c, d] of underRects([U.x0, U.x1, U.z0, U.z1], ceilHoles)) bx('ceil', a, b, C, YC, c, d);
+  let joists = 0;
+  for (let x = U.x0 + 0.6; x < U.x1 - 0.3; x += 1.2)
+    for (const [a, b, c, d] of underRects([x - 0.06, x + 0.06, U.z0, U.z1], ceilHoles)) { bx('joist', a, b, U.joistY, C, c, d); bx('joist', a - 0.05, b + 0.05, U.joistY, U.joistY + 0.02, c, d); joists++; }
+  // two columns where nothing travels, a yellow foot on each
+  for (const [x, z] of [[16.70, 5.55], [23.10, 5.45]]) { bx('steel', x - 0.12, x + 0.12, F, U.joistY, z - 0.12, z + 0.12); bx('yellow', x - 0.14, x + 0.14, F, F + 1.2, z - 0.14, z + 0.14); }
+  // 3. THE SHAFTS: walls from the pit's floor to just under the deck, the east one open to the dock (the gate's way) from the
+  // floor to the gate's top; a pit floor; guide rails on the walls; the lettering
+  const DT = D - 0.01, PY = U.pit;
+  for (const [k, L] of [['front', LF], ['back', LB]]) {
+    const zS = k === 'back' ? LF.z1 + W : L.z0 - W;
+    bx('wall', L.x0 - W, L.x0, PY - 0.2, DT, zS, L.z1 + W);                                   // west
+    wallZ('wall', zS, L.z1 + W, PY - 0.2, DT, L.x1, L.x1 + W, [[L.z0, L.z1, F, LS.gateTop]]);  // east, with the gate's opening
+    bx('wall', L.x0, L.x1, PY - 0.2, DT, zS, L.z0); bx('wall', L.x0, L.x1, PY - 0.2, DT, L.z1, L.z1 + W);
+    bx('dark', L.x0, L.x1, PY - 0.2, PY, L.z0, L.z1);                                          // the pit's floor
+    for (const z of [L.z0 + 0.005, L.z1 - 0.005]) for (const dx of [-0.35, 0.35].map(v => v * (L.x1 - L.x0))) {
+      const xc = (L.x0 + L.x1) / 2 + dx; bx('steel', xc - 0.06, xc + 0.06, PY, DT, Math.min(z, z + (z < L.z0 + 1 ? 0.01 : -0.01)), Math.max(z, z + (z < L.z0 + 1 ? 0.01 : -0.01)));
+    }
+    // the gate's frame on the dock side and its drum housing over the opening (in the lintel's height, above the sets' 4.4 m)
+    bx('steel', L.x1 + W, L.x1 + W + 0.06, F, LS.gateTop + 0.2, L.z0 - 0.1, L.z0); bx('steel', L.x1 + W, L.x1 + W + 0.06, F, LS.gateTop + 0.2, L.z1, L.z1 + 0.1);
+    bx('steel', L.x1 + W, L.x1 + W + 0.25, LS.gateTop, LS.gateTop + 0.19, L.z0 - 0.1, L.z1 + 0.1);
+    // hatched KEEP CLEAR in front of the gate
+    bx('hatch', L.x1 + W, L.x1 + W + 1.0, F, F + 0.004, L.z0, L.z1);
+    underSign(P, 'KEEP CLEAR', 0.4, L.x1 + W + 1.35, F + 0.006, (L.z0 + L.z1) / 2, -Math.PI / 2, true);
+  }
+  underSign(P, 'FRONT LIFT · SETS ON', 0.36, 20.0, -2.0, shF[2], Math.PI); underSign(P, 'LIFT — KEEP CLEAR', 0.30, 20.0, -2.6, shF[2], Math.PI);
+  underSign(P, 'BACK LIFT · SETS OFF', 0.36, 20.0, -2.0, shB[3], 0); underSign(P, 'LIFT — KEEP CLEAR', 0.30, 20.0, -2.6, shB[3], 0);
+  // 4. THE STAGE-LEFT WING STAIR (from the deck): flight 1 (+z) on a solid mass that is also flight 2's west wall, the
+  // landing, flight 2 (−z) to the floor; its walls to the deck; a balustrade on flight 1's open side; handrails
+  const WS = U.wing, f1 = WS.f1, f2 = WS.f2, lzA = WS.landing;
+  const LY = D - (f1.n + 1) * r;                                                                // the landing: −1.352
+  bx('stair', f1.x0, f2.x0, F, DT, 2.70, f1.z);                                                 // the mass's front, under the deck
+  for (let k = 1; k <= f1.n; k++) {
+    const top = D - k * r, z0 = f1.z + (k - 1) * g, z1 = f1.z + k * g;
+    bx('stair', f1.x0, f2.x0, F, top, z0, z1); bx('nose', f1.x0, f1.x1, top - 0.003, top + 0.002, z0, z0 + 0.04);
+    bx('steel', f1.x1, f1.x1 + 0.06, top, top + 1.0, z0, z1);                                     // the balustrade over flight 2
+  }
+  bx('stair', lzA.x0, lzA.x1, F, LY, lzA.z0, lzA.z1);
+  for (let k = 1; k <= f2.n; k++) {
+    const top = LY - k * r, z1 = f2.z - (k - 1) * g, z0 = f2.z - k * g;
+    bx('stair', f2.x0, f2.x1, F, top, z0, z1); bx('nose', f2.x0, f2.x1, top - 0.003, top + 0.002, z1 - 0.04, z1);
+  }
+  const f2foot = f2.z - f2.n * g;                                                                // 2.70
+  bx('wall', f2.x1, WH.x1, F, DT, f2foot, WH.z1); bx('wall', WH.x0, WH.x1, F, DT, lzA.z1, WH.z1);
+  rod('steel', [f2.x1 - 0.06, LY + 0.9, f2.z], [f2.x1 - 0.06, LY - f2.n * r + 0.9, f2foot]);
+  rod('steel', [f1.x0 + 0.06, D + 0.9 - r, f1.z], [f1.x0 + 0.06, LY + 0.9, f1.z + f1.n * g]);
+  rod('steel', [f1.x1 - 0.03, D + 1.0, f1.z], [f1.x1 - 0.03, LY + 1.0 + r, f1.z + f1.n * g]);
+  // the deck's guards round the hole (solid mesh panels, yellow posts and top rail), the sign
+  const guard = (x0, x1, z0, z1) => {
+    bx('steel', x0, x1, D, D + 1.05, z0, z1); bx('yellow', x0 - 0.01, x1 + 0.01, D + 1.05, D + 1.10, z0 - 0.01, z1 + 0.01);
+    const along = x1 - x0 > z1 - z0, n = Math.max(1, Math.ceil((along ? x1 - x0 : z1 - z0) / 1.5));
+    for (let i = 0; i <= n; i++) { const t = i / n, x = along ? x0 + (x1 - x0) * t : (x0 + x1) / 2, z = along ? (z0 + z1) / 2 : z0 + (z1 - z0) * t; bx('yellow', x - 0.03, x + 0.03, D, D + 1.10, z - 0.03, z + 0.03); }
+  };
+  guard(WH.x1, WH.x1 + 0.05, WH.z0 - 0.05, WH.z1 + 0.05); guard(WH.x0, WH.x1, WH.z1, WH.z1 + 0.05); guard(f1.x1, WH.x1, WH.z0 - 0.05, WH.z0);
+  underSign(P, 'UNDERSTAGE ↓', 0.22, (f1.x1 + WH.x1) / 2 + 0.3, D + 0.75, WH.z0 - 0.051, Math.PI);
+  underSign(P, 'STAGE ↑', 0.22, (f1.x0 + f2.x0) / 2, F + 2.3, 2.70, Math.PI);
+  // 5. THE BACKSTAGE STAIR: flight A (−x) on its mass, the landing, flight B (+z) to a door into the dock; walls to the
+  // backstage floor's underside; guards on the corridor round the hole
+  const BS = U.bs, A = BS.a, Bf = BS.b, LZB = BS.landing, YB = U.bsFloor - 0.01;
+  for (let k = 1; k <= A.n; k++) {
+    const top = D - k * r, x1 = A.x - (k - 1) * g, x0 = A.x - k * g;
+    bx('stair', x0, x1, F, top, A.z0, A.z1); bx('nose', x1 - 0.04, x1, top - 0.003, top + 0.002, A.z0, A.z1);
+  }
+  bx('stair', LZB.x0, LZB.x1, F, LY, LZB.z0, LZB.z1);
+  for (let k = 1; k <= Bf.n; k++) {
+    const top = LY - k * r, z0 = Bf.z + (k - 1) * g, z1 = Bf.z + k * g;
+    bx('stair', Bf.x0, Bf.x1, F, top, z0, z1); bx('nose', Bf.x0, Bf.x1, top - 0.003, top + 0.002, z0, z0 + 0.04);
+  }
+  const bfoot = Bf.z + Bf.n * g, dr = BS.door;                                                    // 15.11; the door's wall 15.20…15.35
+  bx('wall', 13.50, 17.95, F, YB, 9.15, A.z0); bx('wall', Bf.x1, 17.95, F, YB, A.z1, 11.10);
+  bx('wall', 13.50, Bf.x0, F, YB, 9.15, dr.z1); bx('wall', Bf.x1, Bf.x1 + 0.15, F, YB, 11.10, dr.z1);
+  wallX('wall', Bf.x0, Bf.x1, F, YB, dr.z0, dr.z1, [[dr.x0, dr.x1, F, F + 2.1]]);
+  for (const x of [dr.x0, dr.x1 - 0.05]) bx('steel', x, x + 0.05, F, F + 2.1, dr.z0, dr.z1);
+  bx('steel', dr.x0, dr.x1, F + 2.04, F + 2.1, dr.z0, dr.z1);
+  rod('steel', [Bf.x0 + 0.06, LY + 0.9, Bf.z], [Bf.x0 + 0.06, LY - Bf.n * r + 0.9, bfoot]);
+  rod('steel', [Bf.x1 - 0.06, LY + 0.9, Bf.z], [Bf.x1 - 0.06, LY - Bf.n * r + 0.9, bfoot]);
+  rod('steel', [A.x, D + 0.9 - r, A.z0 + 0.06], [A.x - A.n * g, LY + 0.9, A.z0 + 0.06]);
+  guard(BH.x0, BH.x1, BH.z1, BH.z1 + 0.05); guard(BH.x0 - 0.05, BH.x0, BH.z0, BH.z1 + 0.05);
+  underSign(P, 'UNDERSTAGE ↓', 0.2, 16.4, D + 1.55, 9.30, 0);
+  underSign(P, 'BACKSTAGE ↑', 0.2, (dr.x0 + dr.x1) / 2, F + 2.45, dr.z1, 0);
+  underSign(P, 'SCENE DOCK', 0.3, 16.5, -1.6, 11.10, 0);
+  // 6. THE STAGE MANAGER'S BOOTH: block walls to the ceiling, a door (E) on the trap room side, a window onto the back
+  // lift; a control desk under it with the lift panel; monitors, a chair, the cue light
+  const BO = U.booth, bt = BO.t, bY = C;
+  wallX('booth', BO.x0, BO.x1, F, bY, BO.z0, BO.z0 + bt, [[BO.door.x0, BO.door.x1, F, F + 2.1]]);
+  bx('booth', BO.x0, BO.x1, F, bY, BO.z1 - bt, BO.z1);
+  bx('booth', BO.x0, BO.x0 + bt, F, bY, BO.z0, BO.z1);
+  wallZ('booth', BO.z0, BO.z1, F, bY, BO.x1 - bt, BO.x1, [[6.40, 7.90, F + 1.0, F + 2.0]]);
+  deskPut(P, 'glass', new THREE.PlaneGeometry(1.5, 1.0), BO.x1 - bt / 2, F + 1.5, 7.15, 0, Math.PI / 2);
+  bx('steel', BO.x1 - bt - 0.02, BO.x1 + 0.02, F + 0.97, F + 1.0, 6.40, 7.90);
+  for (const x of [BO.door.x0, BO.door.x1 - 0.05]) bx('steel', x, x + 0.05, F, F + 2.1, BO.z0, BO.z0 + bt);
+  bx('steel', BO.door.x0, BO.door.x1, F + 2.04, F + 2.1, BO.z0, BO.z0 + bt);
+  const dX0 = BO.x1 - bt - 0.62, dX1 = BO.x1 - bt;
+  bx('dark', dX0, dX1, F, F + 0.74, 6.25, 8.05); bx('timber', dX0 - 0.02, dX1, F + 0.74, F + 0.77, 6.25, 8.05);
+  deskPut(P, 'dark', new THREE.BoxGeometry(0.34, 0.05, 1.6), dX1 - 0.25, F + 0.86, 7.15, 0, 0, -0.5);        // the sloped panel
+  const panel = (z, key) => {                                                                   // a lift's buttons: up, down, stop, the lamp
+    deskPut(P, 'dark', new THREE.BoxGeometry(0.2, 0.02, 0.5), dX1 - 0.26, F + 0.89, z, 0, 0, -0.5);
+    deskPut(P, 'led', new THREE.CylinderGeometry(0.025, 0.025, 0.02, 10), dX1 - 0.27, F + 0.905, z - 0.15, 0, 0, -0.5);
+    deskPut(P, 'yellow', new THREE.CylinderGeometry(0.025, 0.025, 0.02, 10), dX1 - 0.27, F + 0.905, z, 0, 0, -0.5);
+    deskPut(P, 'red', new THREE.CylinderGeometry(0.035, 0.035, 0.03, 10), dX1 - 0.27, F + 0.905, z + 0.15, 0, 0, -0.5);
+    underSign(P, key, 0.05, dX1 - 0.13, F + 0.99, z, -Math.PI / 2);
+  };
+  panel(6.75, 'FRONT'); panel(7.55, 'BACK');
+  underSign(P, 'LIFT CONTROL', 0.07, dX1 - 0.02, F + 1.08 - 0.14, 7.15, -Math.PI / 2);
+  for (const z of [6.45, 7.85]) { bx('dark', dX0 + 0.05, dX0 + 0.09, F + 0.77, F + 1.15, z - 0.2, z + 0.2); deskPut(P, 'screen', new THREE.PlaneGeometry(0.36, 0.22), dX0 + 0.095, F + 1.02, z, 0, Math.PI / 2); }
+  cbx(0x222326, dX0 - 0.55, dX0 - 0.1, F, F + 0.48, 6.95, 7.4); cbx(0x2b3a52, dX0 - 0.55, dX0 - 0.1, F + 0.48, F + 0.55, 6.95, 7.4); cbx(0x2b3a52, dX0 - 0.6, dX0 - 0.55, F + 0.55, F + 1.05, 6.95, 7.4);
+  underSign(P, 'STAGE MANAGER', 0.2, (BO.door.x0 + BO.door.x1) / 2, F + 2.4, BO.z0, Math.PI);
+  // 7. THE TRAP ROOM: a hatch in the ceiling under the stage-left open floor and a trap lift under it, a ladder, the crash
+  // mat, rolling bins; prop shelving along the south wall and the west front corner
+  bx('timber', 15.80, 16.60, C - 0.02, C, 3.20, 4.40); bx('yellow', 15.76, 16.64, C - 0.03, C - 0.01, 3.16, 3.24); bx('yellow', 15.76, 16.64, C - 0.03, C - 0.01, 4.36, 4.44);
+  bx('steel', 15.85, 16.55, F, F + 0.12, 3.25, 4.35); bx('yellow', 15.80, 16.60, F + 1.10, F + 1.18, 3.20, 4.40); bx('block', 15.80, 16.60, F, F + 1.18, 3.20, 4.40);
+  for (const zz of [3.35, 4.25]) { deskRod(P, 'steel', new THREE.Vector3(15.9, F + 0.12, zz), new THREE.Vector3(16.5, F + 1.1, zz), 0.025, 6); deskRod(P, 'steel', new THREE.Vector3(16.5, F + 0.12, zz), new THREE.Vector3(15.9, F + 1.1, zz), 0.025, 6); }
+  for (const zz of [4.62, 5.02]) bx('yellow', 16.62, 16.66, F, C, zz - 0.02, zz + 0.02);
+  for (let y = F + 0.3; y < C; y += 0.3) bx('steel', 16.62, 16.66, y - 0.015, y + 0.015, 4.6, 5.04);
+  cbx(0x2d58a8, 14.00, 15.40, F, F + 0.28, 2.65, 3.85);
+  const bin = (x, z, hex) => { cbx(hex, x - 0.3, x + 0.3, F + 0.12, F + 0.85, z - 0.35, z + 0.35); for (const [dx, dz] of [[-0.24, -0.29], [0.24, -0.29], [-0.24, 0.29], [0.24, 0.29]]) cyl('dark', 0.05, F, F + 0.12, x + dx, z + dz, 8);
+    cbx(0x8a6a45, x - 0.25, x + 0.1, F + 0.85, F + 0.95, z - 0.2, z + 0.1); cbx(0xb03030, x, x + 0.2, F + 0.85, F + 1.0, z + 0.05, z + 0.25); };
+  bin(14.35, 4.55, 0x3a6d3a); bin(15.15, 4.55, 0x6a5a3a);
+  underSign(P, 'TRAP ROOM', 0.22, WH.x1, -2.0, 3.30, Math.PI / 2);
+  // shelving: a rack along a wall is uprights, five shelves and what is on them (vertex coloured), a blocker for the walk
+  let racks = 0, propsN = 0;
+  let seed = 23; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const PROP_HEX = [0x8a3b2a, 0x3a5a8a, 0xb08a3a, 0x5a7a3a, 0x6a4a6a, 0xa8a090, 0x3a3a3a, 0xc06a2a, 0x7a2a2a, 0x2a6a6a, 0xd0c8b0, 0x5a4030];
+  const rack = (x0, x1, z0, z1, h = 2.4) => {                                                  // long axis whichever is longer
+    const alongX = x1 - x0 >= z1 - z0, len = alongX ? x1 - x0 : z1 - z0, dep = alongX ? z1 - z0 : x1 - x0, n = Math.max(1, Math.round(len / 1.5));
+    for (let i = 0; i <= n; i++) { const t = x => alongX ? [x0 + len * i / n, z0, z1] : [z0 + len * i / n, x0, x1];
+      const [u, a, b] = t(); for (const w of [a + 0.02, b - 0.02]) { if (alongX) bx('steel', u - 0.025, u + 0.025, F, F + h, w - 0.025, w + 0.025); else bx('steel', w - 0.025, w + 0.025, F, F + h, u - 0.025, u + 0.025); } }
+    for (const y of [0.12, 0.62, 1.12, 1.62, 2.12].map(v => F + v)) {
+      bx('yellow', x0, x1, y - 0.02, y, z0, z1);
+      // what is on the shelf: boxes, crates, bundles, lamps — a random run along it
+      for (let s = 0.05; s < len - 0.15;) {
+        const w = 0.18 + rnd() * 0.45, hh = 0.12 + rnd() * 0.32, d = dep * (0.5 + rnd() * 0.4); if (s + w > len - 0.03) break;
+        if (rnd() < 0.85) { const hex = PROP_HEX[Math.floor(rnd() * PROP_HEX.length)];
+          if (alongX) cbx(hex, x0 + s, x0 + s + w, y, y + hh, (z0 + z1) / 2 - d / 2, (z0 + z1) / 2 + d / 2);
+          else cbx(hex, (x0 + x1) / 2 - d / 2, (x0 + x1) / 2 + d / 2, y, y + hh, z0 + s, z0 + s + w); propsN++; }
+        s += w + 0.03 + rnd() * 0.12;
+      }
+    }
+    bx('block', x0, x1, F, F + h, z0, z1); racks++;
+  };
+  rack(16.95, 22.95, 1.05, 1.55); rack(10.65, 11.15, 1.10, 2.60); rack(11.20, 12.10, 1.05, 1.55);
+  rack(29.25, 29.75, 11.50, 16.85);
+  underSign(P, 'PROPS', 0.24, U.x0, -1.5, 1.85, Math.PI / 2);
+  underSign(P, 'PROPS', 0.24, U.x1, -1.4, 14.2, -Math.PI / 2);
+  // 8. FURNITURE STORAGE (x 10.6…13.5, z 8.65…11.3): flats against the west wall, stacked chairs, tables upended, an armchair, crates
+  for (let i = 0; i < 6; i++) cbx([0xcfc4a8, 0xb8ad94, 0xd6cdb4][i % 3], U.x0 + 0.02 + i * 0.05, U.x0 + 0.06 + i * 0.05, F, F + 3.66 - i * 0.12, 8.85 + i * 0.03, 11.1 - i * 0.05);
+  const chairStack = (x, z, n) => { for (let i = 0; i < n; i++) { const y = F + 0.45 + i * 0.09; cbx(0x6b4a2e, x - 0.22, x + 0.22, y, y + 0.04, z - 0.22, z + 0.22); cbx(0x6b4a2e, x - 0.22, x + 0.22, y, y + 0.45, z + 0.18, z + 0.22); }
+    for (const [dx, dz] of [[-0.2, -0.2], [0.2, -0.2], [-0.2, 0.2], [0.2, 0.2]]) bx('timber', x + dx - 0.02, x + dx + 0.02, F, F + 0.45, z + dz - 0.02, z + dz + 0.02); bx('block', x - 0.24, x + 0.24, F, F + 0.45 + n * 0.09 + 0.45, z - 0.24, z + 0.24); };
+  chairStack(11.55, 9.30, 6); chairStack(12.15, 9.30, 5); chairStack(11.55, 9.90, 4);
+  cbx(0x5a3e26, 12.55, 13.40, F, F + 0.75, 9.00, 10.40); cbx(0x5a3e26, 12.60, 13.35, F + 0.75, F + 1.50, 9.05, 10.35);   // two tables, one upended on the other
+  cbx(0x7a2a2a, 11.20, 12.10, F, F + 0.45, 10.35, 11.20); cbx(0x7a2a2a, 11.20, 12.10, F + 0.45, F + 1.1, 11.05, 11.20); cbx(0x7a2a2a, 11.20, 11.32, F + 0.45, F + 0.75, 10.35, 11.20); cbx(0x7a2a2a, 11.98, 12.10, F + 0.45, F + 0.75, 10.35, 11.20);
+  bx('block', 11.20, 12.10, F, F + 1.1, 10.35, 11.20);
+  for (const [x, z, n] of [[12.85, 10.85, 3], [13.15, 10.85, 2]]) for (let i = 0; i < n; i++) cbx(0x8a6a45, x - 0.25, x + 0.12, F + i * 0.4, F + i * 0.4 + 0.38, z - 0.2, z + 0.2);
+  underSign(P, 'FURNITURE', 0.22, U.x0, -2.4, 10.2, Math.PI / 2);
+  // 9. THE DOCK: the bays painted (white outline, the number), the way round (yellow chevrons, the legend)
+  const LINE = 0.08, lineY = F + 0.003;
+  const outline = (key, x0, x1, z0, z1) => { bx(key, x0, x1, F, lineY, z0, z0 + LINE); bx(key, x0, x1, F, lineY, z1 - LINE, z1); bx(key, x0, x0 + LINE, F, lineY, z0, z1); bx(key, x1 - LINE, x1, F, lineY, z0, z1); };
+  for (const b of U.bays) { outline('white', b.x - b.w / 2, b.x + b.w / 2, b.z - b.d / 2, b.z + b.d / 2); underSign(P, b.name.toUpperCase(), 0.42, b.x, lineY + 0.002, b.z - b.d / 2 + 0.5, 0, true); }
+  const chevron = (x, z, ang) => {                                                              // ang: the travel direction (0: +x)
+    for (const s of [1, -1]) { const gm = new THREE.BoxGeometry(0.55, 0.004, 0.09); gm.translate(-0.24, 0, 0); deskPut(P, 'yellow', gm, x, lineY, z, 0, -ang + s * 0.75); }
+  };
+  const lane = (xa, za, xb, zb) => { const L = Math.hypot(xb - xa, zb - za), ang = Math.atan2(zb - za, xb - xa), n = Math.floor(L / 1.1);
+    for (let i = 1; i < n; i++) chevron(xa + (xb - xa) * i / n, za + (zb - za) * i / n, ang); };
+  lane(23.3, 7.1, 26.5, 7.1); lane(26.5, 7.1, 26.5, 3.8); lane(26.5, 3.8, 23.5, 3.8); lane(26.5, 7.6, 26.5, 11.0);
+  underSign(P, 'TO FRONT LIFT →', 0.36, 28.6, lineY + 0.002, 5.6, -Math.PI / 2, true);
+  for (const [z0, z1] of [[2.40, 2.48], [8.72, 8.80]]) bx('yellow', 23.40, 29.60, F, lineY, z0, z1);   // the lane's edges
+  bx('yellow', 29.52, 29.60, F, lineY, 2.40, 11.30);
+  underSign(P, 'NO SMOKING', 0.2, U.x1, -2.5, 9.6, -Math.PI / 2);
+  // 10. THE PAINT SHOP (x 23.4…29.8, z 1.0…2.3): a paint frame on the south wall with a backcloth half painted, a long
+  // table, buckets, a sink
+  bx('timber', 23.60, 29.40, F + 0.10, F + 0.18, 1.02, 1.12); bx('timber', 23.60, 29.40, F + 4.0, F + 4.08, 1.02, 1.12);
+  for (const x of [23.60, 29.32]) bx('timber', x, x + 0.08, F + 0.1, F + 4.08, 1.02, 1.12);
+  deskPut(P, 'drop', new THREE.PlaneGeometry(5.64, 3.82), 26.50, F + 2.09, 1.125);
+  bx('dark', 23.5, 29.5, F + 4.1, F + 4.25, 1.0, 1.25);                                         // the frame's winch beam
+  bx('timber', 24.20, 26.80, F + 0.74, F + 0.78, 1.60, 2.20); for (const [x, z] of [[24.25, 1.65], [26.75, 1.65], [24.25, 2.15], [26.75, 2.15]]) bx('timber', x - 0.03, x + 0.03, F, F + 0.74, z - 0.03, z + 0.03);
+  bx('block', 24.20, 26.80, F, F + 0.78, 1.60, 2.20);
+  for (let i = 0; i < 7; i++) { const x = 24.4 + i * 0.32, hex = [0xc84a2a, 0x2a5ac8, 0xe8d8b0, 0x2a2a2a, 0x3a8a4a, 0xd8a83a, 0x8a5a9a][i]; cyl('steel', 0.1, F + 0.78, F + 0.98, x, 1.9); tint(cyl('colour', 0.095, F + 0.97, F + 0.985, x, 1.9), hex); }
+  for (const [x, z] of [[27.3, 1.7], [27.6, 1.9], [27.9, 1.6], [28.2, 2.0]]) { cyl('steel', 0.15, F, F + 0.35, x, z); }
+  bx('white', 29.20, 29.80, F + 0.7, F + 0.92, 1.40, 2.20); bx('dark', 29.25, 29.80, F, F + 0.7, 1.45, 2.15); bx('block', 29.20, 29.80, F, F + 0.92, 1.40, 2.20);
+  underSign(P, 'PAINT SHOP', 0.24, U.x1, -1.6, 1.80, -Math.PI / 2);
+  // 11. THE WORK LAMPS: caged bulkheads on the joists' undersides, a lamp every ~3.6 m where there is ceiling, two in the booth
+  let lamps = 0;
+  const lamp = (x, z) => { bx('dark', x - 0.16, x + 0.16, U.joistY - 0.05, U.joistY, z - 0.1, z + 0.1); deskPut(P, 'glow', new THREE.SphereGeometry(0.07, 10, 6), x, U.joistY - 0.1, z);
+    for (const s of [-1, 1]) bx('steel', x + s * 0.09 - 0.006, x + s * 0.09 + 0.006, U.joistY - 0.18, U.joistY - 0.05, z - 0.006, z + 0.006); lamps++; };
+  const lit = (x, z) => !ceilHoles.some(h => x > h[0] - 0.3 && x < h[1] + 0.3 && z > h[2] - 0.3 && z < h[3] + 0.3);
+  for (let x = U.x0 + 0.6 + 1.2; x < U.x1 - 0.3; x += 3.6) for (let z = 2.2; z < U.z1 - 0.5; z += 3.4) if (lit(x, z)) lamp(x, z);
+  lamp(15.0, 6.9); lamp(14.4, 1.75); lamp(12.0, 1.75); lamp(12.0, 9.9);
+  // 12. One mesh per material into 'understage' (in the walk's grid by that name); the floor's uv in world metres
+  underMat.floor.map = underMat.floor.emissiveMap = underConcrete();
+  underMat.hatch.map = underMat.hatch.emissiveMap = underHatch();
+  underMat.drop.map = underDrop(); underMat.sign.map = underSigns();
+  const group = new THREE.Group(); group.name = 'understage';
+  let tris = 0;
+  for (const [key, geos] of Object.entries(P)) {
+    const geo = mergeGeometries(geos.map(gm => gm.index ? gm.toNonIndexed() : gm), false);
+    if (!geo) { console.warn(`understage: the ${key} pieces did not merge — left out`); continue; }
+    if (key === 'floor' || key === 'hatch') { const p = geo.attributes.position, uv = geo.attributes.uv, k = key === 'floor' ? 2 : 0.5; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / k, -p.getZ(i) / k); }
+    const mesh = new THREE.Mesh(geo, underMat[key]);
+    mesh.name = 'understage: ' + key; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    tris += geo.attributes.position.count / 3;
+    group.add(mesh);
+  }
+  scene.add(group); group.updateMatrixWorld(true);
+  // 13. THE LIFTS (their own group, NOT in the grid: underHit ray-tests them as they stand)
+  const liftGroup = new THREE.Group(); liftGroup.name = 'understage lifts'; scene.add(liftGroup);
+  const lifts = {};
+  for (const [k, L] of Object.entries(U.lifts)) lifts[k] = underLift(k, L, liftGroup);
+  // 14. THE DOORS (E): the booth's, the backstage stair's foot
+  const doors = [
+    underHang({ name: 'stage manager', x0: BO.door.x0 + 0.05, x1: BO.door.x1 - 0.05, zlo: BO.z0 + bt, zhi: BO.z0 + bt + 1.2, floor: F, head: F + 2.04 }),
+    underHang({ name: 'understage stair', x0: dr.x0 + 0.05, x1: dr.x1 - 0.05, zlo: dr.z1, zhi: dr.z1 + 1.3, floor: F, head: F + 2.04 }),
+  ];
+  // 15. E AT THE PANEL: one switch a lift
+  UNDER_TARGETS.length = 0;
+  for (const [k, z] of [['front', 6.75], ['back', 7.55]]) {
+    const L = lifts[k];
+    UNDER_TARGETS.push({ name: `${k} lift control`, kind: 'switch', cx: dX1 - 0.27, cz: z, fy: F,
+      label: () => L.state === 'moving' ? `E — send the ${k} lift ${L.target === 'up' ? 'down' : 'up'} (moving ${L.target})` : `E — send the ${k} lift ${L.state === 'up' ? 'down' : 'up'}`,
+      use: () => { L.go(L.state === 'moving' ? (L.target === 'up' ? 'down' : 'up') : L.state === 'up' ? 'down' : 'up'); } });
+  }
+  underBuilt = { group, liftGroup, lifts, doors, split, triangles: tris, joists, lamps, racks, props: propsN, ms: performance.now() - t0 };
+  underUI();
+  requestRender();
+  return underBuilt;
+}
+// One door leaf (DOORS.list, the backstage rooms' shape: kind 'door', hinged at x0, swinging +z) on a floor of its own
+function underHang(o) {
+  const D = DOORS, F = o.floor, a = o.x0, b = o.x1;
+  const W = b - a - 2 * D.gap, hz = o.zlo + 0.006 + D.t, y0 = F + D.under, y1 = o.head - 0.004 - D.top;
+  const l = doorLeaf(`door: ${o.name}, leaf`, 1, W, y1 - y0, { mats: { wood: underMat.booth, glass: backstageMat.panel, brass: backstageMat.kick }, astragal: false });
+  l.leaf.position.set(a + D.gap, y0, hz); (D.group || scene).add(l.leaf); l.leaf.updateMatrixWorld(true);
+  const e = { name: o.name, kind: 'door', spec: o, cx: (a + b) / 2, cz: hz - D.t / 2, fy: F, leaves: [l.leaf], hit: l.hit, W, H: y1 - y0, y0, hinges: [a + D.gap], hz,
+    box: [a, b, y0, y1, o.zlo, hz + W + 0.02], z0: o.zlo, z1: hz + W, reveal: [a - 0.004, b + 0.004], zlo: o.zlo, zhi: o.zhi, zhiName: 'sweep limit', floorAt: () => F, headY: o.head - 0.004,
+    u: 0, want: 0, angle: 0 };
+  D.list.push(e);
+  return e;
+}
+// A lift: the platform (origin its top centre), the scissor packs (one InstancedMesh), the gate, the deck's rails, beacons
+const UNDER_AMBER = { on: new THREE.Color(0xffa21a), off: new THREE.Color(0x3a2606) };
+function underLift(key, L, parent) {
+  const U = UNDER, S = U.lift, w = L.x1 - L.x0, d = L.z1 - L.z0, cx = (L.x0 + L.x1) / 2, cz = (L.z0 + L.z1) / 2, W = S.wall;
+  const meshes = (P, name, into) => {
+    for (const [k, geos] of Object.entries(P)) { const geo = mergeGeometries(geos.map(gm => gm.index ? gm.toNonIndexed() : gm), false); const m = new THREE.Mesh(geo, k === 'amber' ? beacon : underMat[k]); m.name = `${name}: ${k}`; m.userData.rig = true; into.add(m); }
+  };
+  const beacon = new THREE.MeshBasicMaterial({ color: UNDER_AMBER.off.clone(), toneMapped: false });
+  // the platform
+  const platform = new THREE.Group(); platform.name = `understage: ${key} lift platform`;
+  platform.position.set(cx, U.deck, cz);
+  const P = {};
+  deskBox(P, 'deck', w - 0.004, 0.05, d - 0.004, 0, -0.025, 0);
+  for (const s of [-1, 1]) { deskBox(P, 'steel', w - 0.01, 0.30, 0.10, 0, -0.20, s * (d / 2 - 0.06)); deskBox(P, 'steel', 0.10, 0.30, d - 0.01, s * (w / 2 - 0.06), -0.20, 0); }
+  for (let x = -w / 2 + 0.8; x < w / 2 - 0.4; x += 0.8) deskBox(P, 'steel', 0.08, 0.22, d - 0.2, x, -0.16, 0);
+  for (const z of [-d / 4, d / 4]) deskBox(P, 'steel', w - 0.2, 0.18, 0.08, 0, -0.14, z);
+  deskBox(P, 'dark', w - 0.02, 0.02, d - 0.02, 0, -S.depth + 0.01, 0);                      // the underside's sheet
+  for (const s of [-1, 1]) deskBox(P, 'yellow', w - 0.02, 0.06, 0.012, 0, -0.08, s * (d / 2 - 0.007));   // the edges' warning stripe
+  meshes(P, platform.name, platform);
+  parent.add(platform);
+  // the scissors: arms and pivot tubes, posed by pose(y)
+  const ARMS = 2 * L.packs.length * 2 * S.stages, TUBES = L.packs.length * 2 * (S.stages + 1);
+  const sc = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), underMat.steel, ARMS + TUBES + L.packs.length * 2);
+  sc.name = `understage: ${key} lift scissors`; sc.frustumCulled = false; sc.userData.rig = true; parent.add(sc);
+  const base = new THREE.Mesh(new THREE.BoxGeometry(w - 0.3, 0.15, d - 0.3), underMat.dark); base.position.set(cx, U.pit + 0.075, cz); base.name = `understage: ${key} lift base`; parent.add(base);
+  const M = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), V = new THREE.Vector3(), SC = new THREE.Vector3();
+  const pose = y => {
+    const yb = U.pit + 0.15, h = Math.max(0.05, y - S.depth - yb), s = h / S.stages, span = Math.sqrt(Math.max(0.01, L.arm * L.arm - s * s)), ang = Math.atan2(s, span);
+    let i = 0;
+    const put = (x, yy, z, rz, sx, sy, sz) => { M.compose(V.set(x, yy, z), Q.setFromEuler(E.set(0, 0, rz)), SC.set(sx, sy, sz)); sc.setMatrixAt(i++, M); };
+    for (const px of L.packs) for (const sz of [-1, 1]) {
+      const z = cz + sz * (d / 2 - 0.35);
+      for (let k = 0; k < S.stages; k++) { const yc = yb + (k + 0.5) * s; put(cx + px, yc, z - 0.05, ang, L.arm, 0.10, 0.06); put(cx + px, yc, z + 0.05, -ang, L.arm, 0.10, 0.06); }
+    }
+    for (const px of L.packs) for (let k = 0; k <= S.stages; k++) for (const e of [-1, 1]) put(cx + px + e * span / 2, yb + k * s, cz, 0, 0.07, 0.07, d - 0.6);
+    for (const px of L.packs) for (const e of [-1, 1]) {                                        // the two rams of a pack, base to the first pivot
+      const x0 = cx + px + e * span / 2, x1 = cx + px, y1 = yb + s * 0.5, len = Math.hypot(x1 - x0, y1 - yb);
+      put((x0 + x1) / 2, (yb + y1) / 2, cz, Math.atan2(y1 - yb, x1 - x0), len, 0.12, 0.12);
+    }
+    sc.instanceMatrix.needsUpdate = true;
+  };
+  // the gate: a roller shutter in the east wall's opening (bottom at the floor closed, rolled into its drum open)
+  const gate = new THREE.Mesh(new THREE.BoxGeometry(0.05, 1, d), underMat.hatch.clone()); gate.name = `understage: ${key} lift gate`; gate.userData.rig = true;
+  gate.material.map = gate.material.emissiveMap = underMat.hatch.map; parent.add(gate);
+  const gateAt = u => { const y0 = U.floor + u * (S.gateTop - U.floor), hh = Math.max(0.02, S.gateTop - y0); gate.scale.set(1, hh, 1); gate.position.set(L.x1 + W * 0.5, y0 + hh / 2, cz); gate.visible = u < 0.995; };
+  // the rails round the hole on the deck: posts, two rails, a toe board, a mesh panel; slide up out of the deck
+  const rails = new THREE.Group(); rails.name = `understage: ${key} lift rails`; parent.add(rails);
+  const RP = {}, o = 0.05, H = S.rail;
+  const side = (x0, x1, z0, z1) => {
+    const along = x1 - x0 > z1 - z0, len = along ? x1 - x0 : z1 - z0, n = Math.ceil(len / 1.5);
+    deskBox(RP, 'steel', x1 - x0, H - 0.1, z1 - z0, (x0 + x1) / 2, (H - 0.1) / 2, (z0 + z1) / 2);
+    deskBox(RP, 'yellow', x1 - x0 + 0.02, 0.05, z1 - z0 + 0.02, (x0 + x1) / 2, H - 0.025, (z0 + z1) / 2);
+    deskBox(RP, 'yellow', x1 - x0 + 0.01, 0.12, z1 - z0 + 0.01, (x0 + x1) / 2, 0.06, (z0 + z1) / 2);
+    for (let i = 0; i <= n; i++) { const t = i / n, x = along ? x0 + (x1 - x0) * t : (x0 + x1) / 2, z = along ? (z0 + z1) / 2 : z0 + (z1 - z0) * t; deskBox(RP, 'yellow', 0.05, H, 0.05, x, H / 2, z); }
+  };
+  const R = [L.x0 - o, L.x1 + o, L.z0 - o, L.z1 + o];
+  side(R[0], R[1], R[2] - 0.02, R[2]); side(R[0], R[1], R[3], R[3] + 0.02); side(R[0] - 0.02, R[0], R[2], R[3]); side(R[1], R[1] + 0.02, R[2], R[3]);
+  for (const [x, z] of [[R[0], R[2]], [R[1], R[2]], [R[0], R[3]], [R[1], R[3]]]) { deskPut(RP, 'amber', new THREE.SphereGeometry(0.06, 10, 6), x, H + 0.06, z); }
+  meshes(RP, rails.name, rails);
+  const railAt = u => { rails.position.set(0, U.deck - (H + 0.14) * (1 - u), 0); rails.visible = u > 0.001; };
+  // the basement's beacons, either side of the gate over the dock
+  const BP = {};
+  for (const z of [L.z0 - 0.35, L.z1 + 0.35]) { deskBox(BP, 'dark', 0.14, 0.08, 0.14, L.x1 + W + 0.1, S.gateTop - 0.12, z); deskPut(BP, 'amber', new THREE.SphereGeometry(0.07, 12, 8), L.x1 + W + 0.1, S.gateTop - 0.2, z); }
+  const bgrp = new THREE.Group(); bgrp.name = `understage: ${key} lift beacons`; meshes(BP, bgrp.name, bgrp); parent.add(bgrp);
+  const lift = {
+    key, spec: L, platform, footprint: { x: [L.x0, L.x1], z: [L.z0, L.z1] }, top: U.deck, bottom: U.floor,
+    state: 'up', target: 'up', y: U.deck, v: 0, gateU: 0, railU: 0, hold: null, flash: 0, waiters: [], runs: 0,
+    beacon, pose, gateAt, railAt, rect: R,
+    go(to) {
+      if (to !== 'up' && to !== 'down') return Promise.reject(new Error(`under: ${key} lift — go('up' | 'down'), not ${to}`));
+      return new Promise(res => {
+        if (lift.state === to && lift.target === to) { res(to); return; }
+        lift.waiters.push(res);
+        if (lift.target !== to) { lift.target = to; lift.state = 'moving'; lift.runs++; underUIState(); }
+        requestRender();
+      });
+    },
+  };
+  pose(lift.y); gateAt(0); railAt(0);
+  return lift;
+}
+// Is the walker where a gate or a rail would pass through them? → the reason, or null
+function underBlocked(L, what) {
+  if (!walking) return null;
+  const p = player.pos, R = WALK.radius, S = UNDER.lift;
+  if (what === 'gate') {
+    if (Math.abs(p.y - UNDER.floor) > 0.6) return null;
+    const x0 = L.spec.x1 - R - 0.05, x1 = L.spec.x1 + S.wall + R + 0.05;
+    return p.x > x0 && p.x < x1 && p.z > L.spec.z0 - 0.05 && p.z < L.spec.z1 + 0.05 ? 'someone in the gateway' : null;
+  }
+  if (Math.abs(p.y - UNDER.deck) > 0.5) return null;
+  const s = L.spec, dx = Math.max(s.x0 - p.x, 0, p.x - s.x1), dz = Math.max(s.z0 - p.z, 0, p.z - s.z1), out = Math.hypot(dx, dz);
+  return out > 0 && out < R + 0.10 ? 'someone at the edge' : null;
+}
+// One frame of a lift: rails up and gate shut before it travels; travel (eased, off dt); at the bottom the gate opens, at
+// the top the rails go down. → whether anything moved
+function underLiftTick(L, dt) {
+  const S = UNDER.lift, eps = 1e-4;
+  const atTop = L.y >= L.top - eps, atBot = L.y <= L.bottom + eps;
+  let ready = true, moved = false;
+  L.hold = null;
+  const railWant = L.target === 'up' && atTop ? 0 : 1;
+  if (L.railU !== railWant) {
+    const why = underBlocked(L, 'rail');
+    if (why) L.hold = why; else { L.railU = railWant ? Math.min(1, L.railU + dt / S.tRail) : Math.max(0, L.railU - dt / S.tRail); L.railAt(L.railU); moved = true; }
+    if (railWant === 1 && L.railU < 1) ready = false;
+  }
+  const gateWant = L.target === 'down' && atBot ? 1 : 0;
+  if (L.gateU !== gateWant) {
+    const why = gateWant === 0 ? underBlocked(L, 'gate') : null;
+    if (why) L.hold = why; else { L.gateU = gateWant ? Math.min(1, L.gateU + dt / S.tGate) : Math.max(0, L.gateU - dt / S.tGate); L.gateAt(L.gateU); moved = true; }
+    if (gateWant === 0 && L.gateU > 0) ready = false;
+  }
+  const goal = L.target === 'up' ? L.top : L.bottom, dir = Math.sign(goal - L.y);
+  if (ready && Math.abs(goal - L.y) > eps) {
+    if (L.v * dir < 0) L.v -= Math.sign(L.v) * Math.min(Math.abs(L.v), S.accel * dt);               // reversing: stop first
+    else {
+      const rem = Math.abs(goal - L.y), stop = Math.sqrt(2 * S.accel * rem);
+      const sp = Math.max(0.03, Math.min(S.vmax, Math.abs(L.v) + S.accel * dt, stop));
+      L.v = dir * sp;
+    }
+    L.y += L.v * dt;
+    if ((goal - L.y) * dir <= eps) { L.y = goal; L.v = 0; }
+    L.platform.position.y = L.y; L.platform.updateMatrixWorld(true); L.pose(L.y); moved = true;
+  } else if (!ready) L.v = 0;
+  const was = L.state;
+  L.state = L.target === 'up' && L.y >= L.top - eps && L.railU === 0 ? 'up' : L.target === 'down' && L.y <= L.bottom + eps && L.gateU === 1 ? 'down' : 'moving';
+  // the beacons: amber at 1.5 Hz while it moves
+  if (L.state === 'moving') { L.flash += dt; L.beacon.color.copy((L.flash * 1.5) % 1 < 0.5 ? UNDER_AMBER.on : UNDER_AMBER.off); moved = true; }
+  else if (was === 'moving') { L.flash = 0; L.beacon.color.copy(UNDER_AMBER.off); moved = true; }
+  if (L.state !== was && L.state !== 'moving') { const ws = L.waiters.splice(0); ws.forEach(res => res(L.state)); underUIState(); }
+  return moved;
+}
+// The frame's call (the animation loop, off its dt). → whether anything moved (the frame then draws)
+function underTick(dt) {
+  if (!underBuilt) return false;
+  let moved = false;
+  for (const L of Object.values(underBuilt.lifts)) if (L.state === 'moving' || L.target !== L.state) moved = underLiftTick(L, dt) || moved;
+  return moved;
+}
+// The platforms, gates and rails as they stand, along a ray (builtHit calls it): the nearest entry within far, or Infinity.
+// A ray starting inside a box misses it (as a door leaf's FrontSide faces do), so nothing traps a walker.
+function underHit(ox, oy, oz, dx, dy, dz, far) {
+  if (!underBuilt || !(far > 0)) return Infinity;
+  let best = Infinity;
+  const test = (x0, x1, y0, y1, z0, z1) => {
+    let tn = -Infinity, tf = Infinity;
+    for (const [o, dd, a, b] of [[ox, dx, x0, x1], [oy, dy, y0, y1], [oz, dz, z0, z1]]) {
+      if (Math.abs(dd) < 1e-12) { if (o < a || o > b) return; continue; }
+      let t1 = (a - o) / dd, t2 = (b - o) / dd; if (t1 > t2) [t1, t2] = [t2, t1];
+      if (t1 > tn) tn = t1; if (t2 < tf) tf = t2; if (tn > tf) return;
+    }
+    if (tn >= 0 && tn <= far && tn < best) best = tn;
+  };
+  const S = UNDER.lift, H = S.rail;
+  for (const L of Object.values(underBuilt.lifts)) {
+    const s = L.spec;
+    test(s.x0 + 0.002, s.x1 - 0.002, L.y - S.depth, L.y, s.z0 + 0.002, s.z1 - 0.002);
+    if (L.gateU < 0.999) test(s.x1, s.x1 + S.wall, UNDER.floor + L.gateU * (S.gateTop - UNDER.floor), S.gateTop, s.z0, s.z1);
+    if (L.railU > 0.2) {
+      const [a, b, c, e] = L.rect, top = UNDER.deck + H * L.railU;
+      test(a - 0.02, b + 0.02, UNDER.deck, top, c - 0.02, c); test(a - 0.02, b + 0.02, UNDER.deck, top, e, e + 0.02);
+      test(a - 0.02, a, UNDER.deck, top, c, e); test(b, b + 0.02, UNDER.deck, top, c, e);
+    }
+  }
+  return best;
+}
+// The header's group: Lifts (front and back, up and down) and the Understage view
+function underUI() {
+  const head = document.querySelector('header'), views = head && head.querySelector('.views'), mv = head && head.querySelector('[aria-label="Movement"]');
+  if (!head || document.getElementById('u-group')) return;
+  VIEWS['v-under'] = UNDER.view;
+  const vb = document.createElement('button'); vb.id = 'v-under'; vb.textContent = 'Understage'; vb.title = 'Under Theatre 2: the lifts, the dock, the trap room';
+  vb.addEventListener('click', () => go('v-under')); views.appendChild(vb);
+  const g = document.createElement('div'); g.className = 'mode'; g.id = 'u-group'; g.setAttribute('role', 'group'); g.setAttribute('aria-label', 'Theatre 2 stage lifts');
+  g.innerHTML = '<span class="wl-label" aria-hidden="true">Lifts</span>'
+    + [['front', 'up', 'Front ▲'], ['front', 'down', 'Front ▼'], ['back', 'up', 'Back ▲'], ['back', 'down', 'Back ▼']]
+      .map(([k, to, t]) => `<button id="u-${k}-${to}" data-lift="${k}" data-to="${to}" aria-pressed="${to === 'up'}" title="${k === 'front' ? 'The front lift (brings sets ON)' : 'The back lift (takes sets OFF)'}: ${to === 'up' ? 'up to the deck' : 'down to the basement'}">${t}</button>`).join('');
+  head.insertBefore(g, mv);
+  g.addEventListener('click', e => { const b = e.target.closest('button[data-lift]'); if (b && underBuilt) underBuilt.lifts[b.dataset.lift].go(b.dataset.to); });
+}
+function underUIState() {
+  if (!underBuilt) return;
+  for (const [k, L] of Object.entries(underBuilt.lifts)) for (const to of ['up', 'down']) {
+    const b = document.getElementById(`u-${k}-${to}`); if (b) b.setAttribute('aria-pressed', String(L.target === to));
+  }
+}
+// THE CHECK: the lifts against CONTRACT.md, the holes, the pits closed, the bays, the stairs walked by the walk's own floor
+// test, nothing of it reaching house 1, the lobby or either auditorium. PASS / FAIL lines; → the text
+function underCheck() {
+  if (!underBuilt) return 'under: not built';
+  if (col.stale) buildCollider();
+  scene.updateMatrixWorld(true);
+  const U = UNDER, out = [], f2 = v => v === null || !Number.isFinite(v) ? '—' : v.toFixed(2), f3 = v => v === null || !Number.isFinite(v) ? '—' : v.toFixed(3);
+  let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  const CONTRACT = { front: { x: [17.00, 23.00], z: [2.60, 5.00] }, back: { x: [17.50, 22.50], z: [5.90, 8.30] } };
+  const ray = new THREE.Raycaster(), scan = []; if (house2Root) house2Root.traverse(o => { if (o.isMesh) scan.push(o); });
+  // 1. footprints, travel, the platform's box, the hole in the scan's deck
+  for (const [k, L] of Object.entries(underBuilt.lifts)) {
+    const c = CONTRACT[k], fp = L.footprint, same = ['x', 'z'].every(a => Math.abs(fp[a][0] - c[a][0]) < 1e-9 && Math.abs(fp[a][1] - c[a][1]) < 1e-9);
+    const top = L.platform.children.find(m => /: deck$/.test(m.name)), b = new THREE.Box3().setFromObject(top);
+    const fits = Math.abs(b.min.x - c.x[0]) < 0.01 && Math.abs(b.max.x - c.x[1]) < 0.01 && Math.abs(b.min.z - c.z[0]) < 0.01 && Math.abs(b.max.z - c.z[1]) < 0.01 && Math.abs(b.max.y - L.y) < 1e-3;
+    line(same && fits && L.top === 0.80 && L.bottom === -4.40, `${k} lift footprint x ${fp.x.join('…')} z ${fp.z.join('…')} (CONTRACT ${c.x.join('…')} / ${c.z.join('…')}); its deck top x ${f3(b.min.x)}…${f3(b.max.x)} z ${f3(b.min.z)}…${f3(b.max.z)} at y ${f3(b.max.y)}; travel ${L.top} → ${L.bottom}; now ${L.state}`);
+    let left = 0, n = 0;
+    for (let x = c.x[0] + 0.1; x < c.x[1] - 0.05; x += 0.5) for (let z = c.z[0] + 0.1; z < c.z[1] - 0.05; z += 0.4) {
+      ray.set(new THREE.Vector3(x, 3, z), new THREE.Vector3(0, -1, 0)); ray.far = 2.4; n++;
+      if (ray.intersectObjects(scan, false).some(h => h.point.y > 0.70)) left++;
+    }
+    line(!left, `${k} lift hole: ${n} rays down through the footprint, ${left} meet Theatre 2's deck (the cut "${UNDER_CUTS.find(q => q.name.includes(k)).name}" took ${underCutTook(k)} triangles)`);
+  }
+  // 2. the pits closed on all sides (the lifts up, their gates shut): level rays from each pit's middle under the platform
+  for (const [k, L] of Object.entries(underBuilt.lifts)) {
+    const s = L.spec, cx = (s.x0 + s.x1) / 2, cz = (s.z0 + s.z1) / 2, far = Math.hypot(s.x1 - s.x0, s.z1 - s.z0) / 2 + 0.3;
+    if (L.state !== 'up') { line(false, `${k} pit: the lift is ${L.state} — send both up and check again`); continue; }
+    let open = 0, rays = 0;
+    for (const y of [U.pit + 0.3, U.floor + 0.2, U.floor + 1.0, U.floor + 2.5, U.floor + 4.0]) for (let a = 0; a < 360; a += 10) {
+      const t = rayH(cx, y, cz, Math.cos(a * Math.PI / 180), Math.sin(a * Math.PI / 180), far); rays++; if (t === Infinity) open++;
+    }
+    line(!open, `${k} pit closed: ${rays} level rays from its middle at five heights, ${open} leave it (the gate shut, the walls to the pit's floor)`);
+  }
+  // 3. the bays: on the floor, inside the basement, ≥ 5.5 × 2.6, clear of the sets' paths, the shafts and one another
+  const shafts = Object.values(U.lifts).map(s => [s.x0 - 0.2, s.x1 + 0.2, s.z0 - 0.2, s.z1 + 0.2]), over = (a, b) => a[0] < b[1] && b[0] < a[1] && a[2] < b[3] && b[2] < a[3];
+  U.bays.forEach((b, i) => {
+    const r = [b.x - b.w / 2, b.x + b.w / 2, b.z - b.d / 2, b.z + b.d / 2], ys = [];
+    for (const [x, z] of [[b.x, b.z], [r[0] + 0.15, r[2] + 0.15], [r[1] - 0.15, r[2] + 0.15], [r[0] + 0.15, r[3] - 0.15], [r[1] - 0.15, r[3] - 0.15]]) ys.push(groundAt(x, z, U.floor + 0.05));
+    const flat = ys.every(y => y !== null && Math.abs(y - U.floor) < 0.02), inside = r[0] >= U.x0 && r[1] <= U.x1 && r[2] >= U.z0 && r[3] <= U.z1;
+    const hits = [...U.paths.filter(p => over(r, p.r)).map(p => p.name), ...shafts.filter(sh => over(r, sh)).map(() => 'a shaft'), ...U.bays.filter((q, j) => j !== i && over(r, [q.x - q.w / 2, q.x + q.w / 2, q.z - q.d / 2, q.z + q.d / 2])).map(q => q.name)];
+    line(flat && inside && b.w * b.d >= 5.5 * 2.6 - 1e-9 && Math.max(b.w, b.d) >= 5.5 && Math.min(b.w, b.d) >= 2.6 && !hits.length,
+      `${b.name} x ${f2(r[0])}…${f2(r[1])} z ${f2(r[2])}…${f2(r[3])} (${b.w} × ${b.d} m): the floor under it ${ys.map(f3).join(' / ')}${hits.length ? ' — overlaps ' + hits.join(', ') : ', clear of the paths and the shafts'}`);
+  });
+  // 4. the stairs walked: along each one's middle line every 5 cm, the walk's own floor test — no rise over a step, room
+  // for the head everywhere, from the upper floor to the basement's
+  const stairs = underStairLines();
+  for (const s of stairs) {
+    let y = null, worst = 0, head = Infinity, n = 0, bad = null;
+    for (const [x, z] of s.pts) {
+      const g = groundAt(x, z, y === null ? s.from + 0.05 : y);
+      if (g === null) { bad = `no floor at ${f2(x)}, ${f2(z)}`; break; }
+      if (y !== null) worst = Math.max(worst, Math.abs(g - y));
+      y = g; n++;
+      head = Math.min(head, rayUp(x, g + WALK.step, z, 6) + WALK.step);
+    }
+    const ok = !bad && worst <= Math.min(WALK.step, WALK.snap) && head >= WALK.head;
+    const y0 = groundAt(s.pts[0][0], s.pts[0][1], s.from + 0.05), y1 = y;
+    line(ok && Math.abs(y0 - s.from) < 0.05 && Math.abs(y1 - U.floor) < 0.02, `${s.name}: ${n} points, floor ${f3(y0)} → ${f3(y1)}, the biggest change between points ${f3(worst)} m (a step is ${WALK.step}), the least headroom ${f2(head)} m (the body ${WALK.head})${bad ? ' — ' + bad : ''}`);
+  }
+  // 5. nothing reaches house 1, the lobby or the stalls: every vertex of it (the lifts at their rest) inside x 10.3…30.05 and
+  // z 0.75…17.2, and above y 0.56 only over the holes (their guards, the rails); and lines of sight from both houses' stalls
+  // to the basement are all stopped by the scan first
+  const bad = [];
+  const okHigh = (x, y, z) => {
+    const hs = [[U.wing.hole.x0 - 0.1, U.wing.hole.x1 + 0.1, U.wing.hole.z0 - 0.1, U.wing.hole.z1 + 0.1, 2.0], [U.bs.hole.x0 - 0.1, U.bs.hole.x1 + 0.1, U.bs.hole.z0 - 0.1, U.bs.hole.z1 + 0.1, 2.5],
+      ...Object.values(U.lifts).map(s => [s.x0 - 0.3, s.x1 + 0.3, s.z0 - 0.3, s.z1 + 0.3, 2.2])];
+    return y <= 0.8 + 1e-3 || hs.some(h => x >= h[0] && x <= h[1] && z >= h[2] && z <= h[3] && y <= h[4]);
+  };
+  const v = new THREE.Vector3();
+  let verts = 0;
+  for (const root of [underBuilt.group, underBuilt.liftGroup]) root.traverse(m => {
+    if (!m.isMesh) return;
+    const p = m.geometry.attributes.position, mats = [];
+    if (m.isInstancedMesh) for (let k = 0; k < m.count; k++) { const im = new THREE.Matrix4(); m.getMatrixAt(k, im); mats.push(im.premultiply(m.matrixWorld)); }
+    else mats.push(m.matrixWorld);
+    for (const mw of mats) for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p, i).applyMatrix4(mw); verts++;
+      if (v.x < 10.3 || v.x > 30.05 || v.z < 0.75 || v.z > 17.2 || (v.y > 0.56 && !okHigh(v.x, v.y, v.z))) { if (bad.length < 4) bad.push(`${m.name} (${f2(v.x)}, ${f2(v.y)}, ${f2(v.z)})`); else bad.n = (bad.n || 4) + 1; }
+    }
+  });
+  line(!bad.length, `extent: ${verts} vertices, all within x 10.3…30.05, z 0.75…17.2 and under y 0.56 but at the holes${bad.length ? ' — out: ' + bad.join(', ') + (bad.n ? ` and ${bad.n - 4} more` : '') : ''}`);
+  const both = []; if (houseRoot) houseRoot.traverse(o => { if (o.isMesh) both.push(o); }); both.push(...scan);
+  const eyes = [[0, 1.3, -3.5], [-4, 2.2, -8], [4, 3.5, -12], [20, 1.3, -3.5], [16, 2.2, -8], [24, 3.5, -12], [20, 2.4, -20.5]];
+  const targets = [[12, -2, 2], [20, -2, 1.5], [28, -2, 2], [20, -4.3, 10], [14, -1, 6], [26, -1, 6], [12, 0.3, 1.2], [28, 0.3, 1.2], [20, 0.3, 1.1]];
+  let seen = 0, lines = 0; const seenBy = [];
+  for (const e of eyes) for (const t of targets) {
+    const o = new THREE.Vector3(...e), d = new THREE.Vector3(...t).sub(o), L = d.length(); d.normalize();
+    ray.set(o, d); ray.far = L - 0.05; lines++;
+    if (!ray.intersectObjects(both, false).length) { seen++; if (seenBy.length < 3) seenBy.push(`${e} → ${t}`); }
+  }
+  line(!seen, `sight lines: ${lines} from both houses' stalls and the lobby to points in the basement, ${seen} reach one${seen ? ' (' + seenBy.join('; ') + ')' : ''}`);
+  const s = `under: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
+  console.info(s); return s;
+}
+function underCutTook(k) {
+  const c = house2Cut.find(q => q.cut === UNDER_CUTS.find(u => u.name.includes(k)));
+  return c ? Object.values(c.removed).reduce((a, n) => a + n, 0) : 0;
+}
+// Each stair's middle line, top to bottom, every 5 cm: [{ name, from (the upper floor's y), pts }]
+function underStairLines() {
+  const U = UNDER, g = U.going, W = U.wing, B = U.bs, pts = (seq) => { const p = []; for (let i = 0; i + 1 < seq.length; i++) { const [a, b] = [seq[i], seq[i + 1]], n = Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 0.05); for (let k = 0; k < n; k++) p.push([a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n]); } p.push(seq[seq.length - 1]); return p; };
+  const xa = (W.f1.x0 + W.f1.x1) / 2, xb = (W.f2.x0 + W.f2.x1) / 2, zl = (W.landing.z0 + W.landing.z1) / 2;
+  const zA = (B.a.z0 + B.a.z1) / 2, xB = (B.b.x0 + B.b.x1) / 2;
+  return [
+    { name: 'the stage-left wing stair', from: U.deck, pts: pts([[xa, W.f1.z - 0.5], [xa, zl], [xb, zl], [xb, W.f2.z - W.f2.n * g - 0.4]]) },
+    { name: 'the backstage stair', from: BACKSTAGE.floor, pts: pts([[B.a.x + 0.5, zA], [(B.landing.x0 + B.landing.x1) / 2, zA], [xB, zA], [xB, B.b.z + B.b.n * g + 0.05]]) },
+  ];
+}
+const UNDER_API = {
+  get lifts() { return underBuilt ? underBuilt.lifts : null; },
+  bays: UNDER.bays, spec: UNDER, cuts: UNDER_CUTS, tick: underTick, hit: underHit, check: underCheck,
+  get group() { return underBuilt && underBuilt.group; },
+  view: () => go('v-under'),
+  // what was built, one line
+  report() {
+    const b = underBuilt; if (!b) return null;
+    const s = `under: the basement x ${UNDER.x0}…${UNDER.x1} z ${UNDER.z0}…${UNDER.z1} floor ${UNDER.floor} — ${b.group.children.length} meshes, ${b.triangles} triangles (${b.racks} racks, ${b.props} props, ${b.lamps} work lamps, ${b.joists} joist runs); `
+      + `lifts ${Object.values(b.lifts).map(L => `${L.key} ${L.state}`).join(', ')}; Theatre 2's scan split ${b.split.split} → ${b.split.made} (${b.split.meshes.join(', ') || 'none'}); cut ${UNDER_CUTS.map(c => { const q = house2Cut.find(h => h.cut === c); return `"${c.name}" ${q ? Object.values(q.removed).reduce((a, n) => a + n, 0) : 0}`; }).join(', ')} · ${b.ms.toFixed(0)} ms`;
+    console.info(s); return s;
+  },
+};
 
 /* ---------------------------------------------------------------- BUILD MODE
    Jack: "make something where i can add geometries and use a dropdown to choose their texture and i
@@ -11452,6 +12246,7 @@ renderer.setAnimationLoop(() => {
   else if (orbit.update()) moving = true;                    // true while the camera moved: input, or damping still settling
   if (ready && lxTick(dt)) moving = true;                    // the lights' fades, movers travelling, gobos turning: off this frame's dt
   if (ready && doorsTick(dt)) moving = true;                 // the auditorium doors and curtains moving on E, and what E would reach: off this frame's dt
+  if (ready && underTick(dt)) moving = true;                 // Theatre 2's lifts travelling, their gates and rails: off this frame's dt (THE UNDERGROUND)
   if (ready && wlTick(dt)) moving = true;                    // the worklights coming up or going out: off this frame's dt (THE WORKLIGHTS)
   if (ready && lxPanelTick(dt)) moving = true;               // the lights panel: Step through's Play (off this frame's dt), the selection's outline
   drewLast = ready && (needsRender || moving);               // render on demand: an idle page draws nothing
