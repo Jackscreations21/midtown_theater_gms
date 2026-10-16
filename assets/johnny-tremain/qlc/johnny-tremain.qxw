@@ -527,7 +527,7 @@
    <Model>ColorSource PAR</Model>
    <Mode>5-channel</Mode>
    <ID>51</ID>
-   <Name>E3-01 Top light LOFT, SL half (S11)</Name>
+   <Name>E3-01 Top light LOFT, downstage half and the ladder head (S11)</Name>
    <Universe>0</Universe>
    <Address>397</Address>
    <Channels>5</Channels>
@@ -537,7 +537,7 @@
    <Model>ColorSource PAR</Model>
    <Mode>5-channel</Mode>
    <ID>52</ID>
-   <Name>E3-02 Top light LOFT, SR half and the ladder head (S11)</Name>
+   <Name>E3-02 Top light LOFT, upstage half (S11)</Name>
    <Universe>0</Universe>
    <Address>402</Address>
    <Channels>5</Channels>
@@ -1412,7 +1412,7 @@
    <Head X="13" Y="0" Fixture="105">0</Head>
   </FixtureGroup>
   <FixtureGroup ID="10">
-   <Name>Position: Floor (behind the bellows)</Name>
+   <Name>Position: Floor (under the loft, beside the bellows)</Name>
    <Size X="1" Y="1"/>
    <Head X="0" Y="0" Fixture="65">0</Head>
   </FixtureGroup>
@@ -1485,7 +1485,7 @@
    <Head X="5" Y="0" Fixture="111">0</Head>
   </FixtureGroup>
   <FixtureGroup ID="20">
-   <Name>Position: SL wing, upstage (floor)</Name>
+   <Name>Position: SL wing, downstage of the understage stair (floor)</Name>
    <Size X="1" Y="1"/>
    <Head X="0" Y="0" Fixture="112">0</Head>
   </FixtureGroup>

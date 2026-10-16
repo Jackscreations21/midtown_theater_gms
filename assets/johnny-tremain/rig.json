@@ -348,18 +348,18 @@
    "floor": 0
   },
   "SHOP": {
-   "x": -2.6,
-   "z": 4.9,
+   "x": -2.4,
+   "z": 5.0,
    "floor": 0
   },
   "LOFT": {
-   "x": -2.4,
-   "z": 5.3,
+   "x": -3.55,
+   "z": 4.65,
    "floor": 2.4
   },
   "WHARF": {
-   "x": 2.7,
-   "z": 4.9,
+   "x": 3.55,
+   "z": 4.7,
    "floor": 0.45
   },
   "PATH": {
@@ -380,11 +380,11 @@
     -3.15
    ],
    "aim": [
-    17.6,
+    16.45,
     4.8,
-    7.6
+    6.95
    ],
-   "field": 18.4,
+   "field": 19.7,
    "purpose": "Loft isolation, front (S11)",
    "system": "special",
    "area": null,
@@ -575,9 +575,9 @@
     -3.15
    ],
    "aim": [
-    17.6,
+    17.4,
     1.4,
-    3.0
+    3.1
    ],
    "field": 5.5,
    "purpose": "Cup at the gravestone (S7)",
@@ -731,8 +731,8 @@
     -3.15
    ],
    "aim": [
-    19.6,
-    1.7,
+    19.3,
+    1.65,
     5.3
    ],
    "field": 5.2,
@@ -1127,9 +1127,9 @@
     -5.2
    ],
    "aim": [
-    17.4,
+    17.6,
     2.4,
-    7.2
+    7.3
    ],
    "field": 26,
    "purpose": "Front light SHOP",
@@ -1205,9 +1205,9 @@
     -5.2
    ],
    "aim": [
-    17.6,
+    16.45,
     4.8,
-    7.6
+    6.95
    ],
    "field": 26,
    "purpose": "Front light LOFT",
@@ -1322,9 +1322,9 @@
     -5.2
    ],
    "aim": [
-    22.7,
+    23.55,
     2.85,
-    7.2
+    7.0
    ],
    "field": 26,
    "purpose": "Front light WHARF",
@@ -2501,9 +2501,9 @@
     4.7
    ],
    "aim": [
-    23.4,
+    23.6,
     1.8,
-    5.0
+    4.2
    ],
    "field": 7.7,
    "purpose": "Lantern reveal: the dressing table (S24)",
@@ -2621,12 +2621,12 @@
     6.5
    ],
    "aim": [
-    16.7,
+    16.45,
     4.8,
-    7.6
+    6.05
    ],
    "field": 40,
-   "purpose": "Top light LOFT, SL half (S11)",
+   "purpose": "Top light LOFT, downstage half and the ladder head (S11)",
    "system": "top",
    "area": "LOFT",
    "row": null,
@@ -2660,12 +2660,12 @@
     6.5
    ],
    "aim": [
-    18.5,
+    16.45,
     4.8,
-    7.6
+    7.85
    ],
    "field": 40,
-   "purpose": "Top light LOFT, SR half and the ladder head (S11)",
+   "purpose": "Top light LOFT, upstage half (S11)",
    "system": "top",
    "area": "LOFT",
    "row": null,
@@ -2818,9 +2818,9 @@
    "aim": [
     22.6,
     4.5,
-    8.75
+    8.35
    ],
-   "field": 9.5,
+   "field": 9.7,
    "purpose": "Steeple lanterns pin (S22)",
    "system": "special",
    "area": null,
@@ -2855,9 +2855,9 @@
     6.5
    ],
    "aim": [
-    22.7,
+    23.55,
     2.85,
-    7.2
+    7.0
    ],
    "field": 40,
    "purpose": "Top light WHARF",
@@ -3014,9 +3014,9 @@
     8.0
    ],
    "aim": [
-    17.6,
+    16.45,
     4.8,
-    7.6
+    6.95
    ],
    "field": 40,
    "purpose": "Back light LOFT",
@@ -3053,11 +3053,11 @@
     8.0
    ],
    "aim": [
-    18.0,
+    16.7,
     5.0,
-    7.6
+    6.95
    ],
-   "field": 12.7,
+   "field": 12.8,
    "purpose": "Otis at the rafters (S12)",
    "system": "special",
    "area": null,
@@ -3332,9 +3332,9 @@
     8.0
    ],
    "aim": [
-    22.7,
+    23.55,
     2.85,
-    7.2
+    7.0
    ],
    "field": 40,
    "purpose": "Back light WHARF",
@@ -3642,7 +3642,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.8,
+    14.45,
     1.2,
     5.6
    ],
@@ -3681,7 +3681,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.8,
+    14.45,
     2.2,
     5.6
    ],
@@ -3720,7 +3720,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.8,
+    14.45,
     3.4,
     5.6
    ],
@@ -3759,16 +3759,16 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.8,
+    14.45,
     4.0,
     5.6
    ],
    "aim": [
-    17.0,
+    17.7,
     1.6,
-    6.7
+    7.5
    ],
-   "field": 34.8,
+   "field": 32.5,
    "purpose": "Bucket, boy and furnace isolation (S10)",
    "system": "special",
    "area": null,
@@ -3798,7 +3798,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.8,
+    14.45,
     4.8,
     5.6
    ],
@@ -3807,7 +3807,7 @@
     1.6,
     4.8
    ],
-   "field": 23.8,
+   "field": 26.0,
    "purpose": "Window light through the window flat (S16)",
    "system": "special",
    "area": null,
@@ -3837,7 +3837,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.8,
+    14.45,
     1.2,
     7.6
    ],
@@ -3876,7 +3876,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.8,
+    14.45,
     2.2,
     7.6
    ],
@@ -3915,7 +3915,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.8,
+    14.45,
     3.4,
     7.6
    ],
@@ -3954,16 +3954,16 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.8,
+    14.45,
     1.8,
     7.6
    ],
    "aim": [
-    17.0,
+    17.4,
     1.8,
-    6.9
+    7.4
    ],
-   "field": 17.4,
+   "field": 19.2,
    "purpose": "The crucible pour: hot low snap (S9)",
    "system": "special",
    "area": null,
@@ -4613,18 +4613,18 @@
   },
   {
    "id": "FL-1",
-   "position": "Floor (behind the bellows)",
+   "position": "Floor (under the loft, beside the bellows)",
    "type": "cs-par",
    "fixture": "ETC ColorSource PAR",
    "pos": [
-    16.2,
+    15.8,
     0.8,
-    5.85
+    7.3
    ],
    "aim": [
-    17.0,
+    17.8,
     2.3,
-    6.9
+    7.7
    ],
    "field": 40,
    "purpose": "Furnace glow on Johnny's face (S8)",
@@ -4769,13 +4769,13 @@
   },
   {
    "id": "HZ-1",
-   "position": "SL wing, upstage (floor)",
+   "position": "SL wing, downstage of the understage stair (floor)",
    "type": "hazer",
    "fixture": "MDG ATMe hazer",
    "pos": [
     11.3,
     0.8,
-    8.3
+    3.65
    ],
    "aim": null,
    "field": 0,
@@ -4843,14 +4843,14 @@
    "type": "practical",
    "fixture": "practical on a dimmer",
    "pos": [
-    16.6,
+    17.6,
     1.4,
-    7.3
+    8.1
    ],
    "aim": [
-    16.6,
+    17.6,
     1.4,
-    7.3
+    8.1
    ],
    "field": 0,
    "purpose": "Furnace glow (orange LED, flicker)",
@@ -4923,12 +4923,12 @@
    "pos": [
     22.35,
     4.25,
-    8.75
+    8.35
    ],
    "aim": [
     22.35,
     4.25,
-    8.75
+    8.35
    ],
    "field": 0,
    "purpose": "Church lantern 1 (steeple)",
@@ -4961,13 +4961,13 @@
    "fixture": "practical on a dimmer",
    "pos": [
     22.85,
-    4.7,
-    8.75
+    4.25,
+    8.35
    ],
    "aim": [
     22.85,
-    4.7,
-    8.75
+    4.25,
+    8.35
    ],
    "field": 0,
    "purpose": "Church lantern 2 (steeple)",
@@ -5233,14 +5233,14 @@
    "type": "practical",
    "fixture": "practical on a dimmer",
    "pos": [
-    22.8,
+    21.8,
     2.4,
-    4.1
+    3.9
    ],
    "aim": [
-    22.8,
+    21.8,
     2.4,
-    4.1
+    3.9
    ],
    "field": 0,
    "purpose": "Coach lamps ×2",
@@ -32551,12 +32551,12 @@
    "kind": "boom",
    "name": "SL boom 2 (in 2)",
    "a": [
-    13.5,
+    14.15,
     0.8,
     5.6
    ],
    "b": [
-    13.5,
+    14.15,
     5.05,
     5.6
    ],
@@ -32566,12 +32566,12 @@
    "kind": "base",
    "name": "SL boom 2 (in 2) base",
    "a": [
-    13.5,
+    14.15,
     0.8,
     5.6
    ],
    "b": [
-    13.5,
+    14.15,
     0.83,
     5.6
    ],
@@ -32581,12 +32581,12 @@
    "kind": "arm",
    "name": "SL boom 2 (in 2) side arm",
    "a": [
-    13.5,
+    14.15,
     1.2200000000000002,
     5.6
    ],
    "b": [
-    13.8,
+    14.450000000000001,
     1.2200000000000002,
     5.6
    ],
@@ -32596,12 +32596,12 @@
    "kind": "arm",
    "name": "SL boom 2 (in 2) side arm",
    "a": [
-    13.5,
+    14.15,
     2.22,
     5.6
    ],
    "b": [
-    13.8,
+    14.450000000000001,
     2.22,
     5.6
    ],
@@ -32611,12 +32611,12 @@
    "kind": "arm",
    "name": "SL boom 2 (in 2) side arm",
    "a": [
-    13.5,
+    14.15,
     3.4200000000000004,
     5.6
    ],
    "b": [
-    13.8,
+    14.450000000000001,
     3.4200000000000004,
     5.6
    ],
@@ -32626,12 +32626,12 @@
    "kind": "arm",
    "name": "SL boom 2 (in 2) side arm",
    "a": [
-    13.5,
+    14.15,
     4.02,
     5.6
    ],
    "b": [
-    13.8,
+    14.450000000000001,
     4.02,
     5.6
    ],
@@ -32641,12 +32641,12 @@
    "kind": "arm",
    "name": "SL boom 2 (in 2) side arm",
    "a": [
-    13.5,
+    14.15,
     4.819999999999999,
     5.6
    ],
    "b": [
-    13.8,
+    14.450000000000001,
     4.819999999999999,
     5.6
    ],
@@ -32656,12 +32656,12 @@
    "kind": "boom",
    "name": "SL boom 3 (in 3)",
    "a": [
-    13.5,
+    14.15,
     0.8,
     7.6
    ],
    "b": [
-    13.5,
+    14.15,
     3.6500000000000004,
     7.6
    ],
@@ -32671,12 +32671,12 @@
    "kind": "base",
    "name": "SL boom 3 (in 3) base",
    "a": [
-    13.5,
+    14.15,
     0.8,
     7.6
    ],
    "b": [
-    13.5,
+    14.15,
     0.83,
     7.6
    ],
@@ -32686,12 +32686,12 @@
    "kind": "arm",
    "name": "SL boom 3 (in 3) side arm",
    "a": [
-    13.5,
+    14.15,
     1.2200000000000002,
     7.6
    ],
    "b": [
-    13.8,
+    14.450000000000001,
     1.2200000000000002,
     7.6
    ],
@@ -32701,12 +32701,12 @@
    "kind": "arm",
    "name": "SL boom 3 (in 3) side arm",
    "a": [
-    13.5,
+    14.15,
     2.22,
     7.6
    ],
    "b": [
-    13.8,
+    14.450000000000001,
     2.22,
     7.6
    ],
@@ -32716,12 +32716,12 @@
    "kind": "arm",
    "name": "SL boom 3 (in 3) side arm",
    "a": [
-    13.5,
+    14.15,
     3.4200000000000004,
     7.6
    ],
    "b": [
-    13.8,
+    14.450000000000001,
     3.4200000000000004,
     7.6
    ],
@@ -32731,12 +32731,12 @@
    "kind": "arm",
    "name": "SL boom 3 (in 3) side arm",
    "a": [
-    13.5,
+    14.15,
     1.82,
     7.6
    ],
    "b": [
-    13.8,
+    14.450000000000001,
     1.82,
     7.6
    ],

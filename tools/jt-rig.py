@@ -91,7 +91,7 @@ AREAS = {  # stage x, z, floor y
     'APR': (3.5, -1.3, 0), 'APC': (0, -1.3, 0), 'APL': (-3.5, -1.3, 0),
     'DSR': (2.85, 0.85, 0), 'DSC': (0, 0.85, 0), 'DSL': (-2.85, 0.85, 0),
     'MSR': (2.85, 2.5, 0), 'MSC': (0, 2.5, 0), 'MSL': (-2.85, 2.5, 0),
-    'SHOP': (-2.6, 4.9, 0), 'LOFT': (-2.4, 5.3, 2.4), 'WHARF': (2.7, 4.9, 0.45), 'PATH': (0.2, 5.0, 0),
+    'SHOP': (-2.4, 5.0, 0), 'LOFT': (-3.55, 4.65, 2.4), 'WHARF': (3.55, 4.7, 0.45), 'PATH': (0.2, 5.0, 0),
 }
 ROWS = {'AP': ['APL', 'APC', 'APR'], 'DS': ['DSL', 'DSC', 'DSR'], 'MS': ['MSL', 'MSC', 'MSR'], 'US': ['SHOP', 'LOFT', 'WHARF', 'PATH']}
 
@@ -105,16 +105,16 @@ def A(area, h=1.6):
 # A pipe on the bridge's stage-side rail: y 6.95, z -3.15 (the rail's face is at z -3.30, its top 7.23), x 15.6…24.4.
 BR_Y, BR_Z = 6.95, -3.15
 bridge = [  # (x, what) SL → SR
-    (15.70, ('S11', 'Loft isolation, front (S11)', W(-2.4, 2.4 + 1.6, 5.3), 3.6)),
+    (15.70, ('S11', 'Loft isolation, front (S11)', W(-3.55, 2.4 + 1.6, 4.65), 3.6)),
     (16.10, ('S2', 'Narrator DSL (S2)', W(-3.6, 1.6, -1.6), 2.0)),
     (16.50, ('APL', None, None, None)),
     (16.90, ('S27a', 'Shop door 1 slice (S27)', W(-3.6, 1.2, -1.2), 1.0)),
     (17.30, ('DSL', None, None, None)),
-    (17.70, ('S7', 'Cup at the gravestone (S7)', W(-2.4, 0.6, 0.7), 0.8)),
+    (17.70, ('S7', 'Cup at the gravestone (S7)', W(-2.6, 0.6, 0.8), 0.8)),
     (18.10, ('S13', 'Lavinia, rosy lift (S13)', W(-1.25, 1.6, 1.8), 1.8)),
     (18.50, ('S27b', 'Shop door 2 slice (S27)', W(-1.2, 1.2, -1.2), 1.0)),
     (18.90, ('APC', None, None, None)),
-    (19.40, ('S6', 'Cups on the courtroom table (S6)', W(-0.4, 0.9, 3.0), 0.9)),
+    (19.40, ('S6', 'Cups on the courtroom table (S6)', W(-0.7, 0.85, 3.0), 0.9)),
     (20.60, ('DSC', None, None, None)),
     (21.00, ('S27c', 'Shop door 3 slice (S27)', W(1.2, 1.2, -1.2), 1.0)),
     (21.40, ('S4', 'Cup pin, the wharf\'s lip (S4)', W(1.6, 0.4, -2.35), 0.5)),
@@ -198,24 +198,24 @@ E(2, 18.25, 'cs-spot', W(0, 1.5, 1.6), 'The sheet, backlit (S32)', 'special', sp
 E(2, 21.4, 'cs-par', A('DSC'), 'Back light DSC', 'back', area='DSC')
 E(2, 22.0, 'cs-spot', W(0.9, 0.6, 3.0), 'Lantern reveal: the tipped chair (S24)', 'special', special='S24c', pool=0.9)
 E(2, 22.7, 'cs-par', A('DSR'), 'Back light DSR', 'back', area='DSR')
-E(2, 23.4, 'cs-spot', W(3.4, 1.0, 2.7), 'Lantern reveal: the dressing table (S24)', 'special', special='S24a', pool=0.9)
+E(2, 23.4, 'cs-spot', W(3.6, 1.0, 1.9), 'Lantern reveal: the dressing table (S24)', 'special', special='S24a', pool=0.9)
 E(2, 24.0, 'cs-par', A('MSR'), 'Top light MSR', 'top', area='MSR')
 E(2, 25.0, 'encore', W(2.5, 0, 3.0), 'Mover: moon breakup / the ride (S18, S29)', 'mv2', gobo='moon', beam=True)
 # 3rd (stage z 4.2): upstage top, MS back, the loft from over it, the steeple pin
-E(3, 15.6, 'cs-par', W(-3.3, 2.4 + 1.6, 5.3), 'Top light LOFT, SL half (S11)', 'top', area='LOFT')
-E(3, 16.6, 'cs-par', W(-1.5, 2.4 + 1.6, 5.3), 'Top light LOFT, SR half and the ladder head (S11)', 'top', area='LOFT')
+E(3, 15.6, 'cs-par', W(-3.55, 2.4 + 1.6, 3.75), 'Top light LOFT, downstage half and the ladder head (S11)', 'top', area='LOFT')
+E(3, 16.6, 'cs-par', W(-3.55, 2.4 + 1.6, 5.55), 'Top light LOFT, upstage half (S11)', 'top', area='LOFT')
 E(3, 17.4, 'cs-par', A('MSL'), 'Back light MSL', 'back', area='MSL')
 E(3, 18.9, 'cs-par', A('PATH'), 'Top light PATH', 'top', area='PATH')
 E(3, 21.4, 'cs-par', A('MSC'), 'Back light MSC', 'back', area='MSC')
-E(3, 22.2, 'cs-spot', W(2.6, 3.7, 6.45), 'Steeple lanterns pin (S22)', 'special', special='S22', pool=1.0, beam=True)
+E(3, 22.2, 'cs-spot', W(2.6, 3.7, 6.05), 'Steeple lanterns pin (S22)', 'special', special='S22', pool=1.0, beam=True)
 E(3, 22.9, 'cs-par', A('WHARF'), 'Top light WHARF', 'top', area='WHARF')
 E(3, 23.8, 'cs-par', A('MSR'), 'Back light MSR', 'back', area='MSR')
 # 4th (stage z 5.8): the back wall from above, upstage back light, Otis, Rab, the volley flash, four wash movers
 for x, sx in ((14.6, -4.5), (17.4, -1.8), (22.6, 1.8), (25.4, 4.5)):
     E(4, x, 'cyc', W(sx, 7.0, 6.6), 'Back brick wash from above (the sky)', 'sky', colour='LED RGBAL')
 E(4, 15.0, 'aura', W(-3.0, 0, 3.5), 'Wash mover: back light colour, the ride', 'aura', beam=True)
-E(4, 16.0, 'cs-par', W(-2.4, 2.4 + 1.6, 5.3), 'Back light LOFT', 'back', area='LOFT')
-E(4, 16.8, 'cs-spot', W(-2.0, 4.2, 5.3), 'Otis at the rafters (S12)', 'special', special='S12', pool=1.5, beam=True)
+E(4, 16.0, 'cs-par', A('LOFT'), 'Back light LOFT', 'back', area='LOFT')
+E(4, 16.8, 'cs-spot', W(-3.3, 4.2, 4.65), 'Otis at the rafters (S12)', 'special', special='S12', pool=1.5, beam=True)
 E(4, 18.2, 'aura', W(-1.0, 0, 2.0), 'Wash mover: back light colour, the ride', 'aura', beam=True)
 E(4, 18.9, 'cs-spot', W(0.2, 1.6, 5.0), 'Rab at the back: soft cool backlight (S33)', 'special', special='S33', pool=1.8, beam=True)
 E(4, 21.4, 'cs-par', A('PATH'), 'Back light PATH', 'back', area='PATH')
@@ -252,11 +252,11 @@ def side(h, sx, sz, row, frm):
 
 boom('SL1', 'SL boom 1 (in 1)', 13.5, 1.1, [side(0.4, -6.5, 1.1, 'DS', 'SL'), side(1.4, -6.5, 1.1, 'DS', 'SL'), side(2.6, -6.5, 1.1, 'DS', 'SL'),
      (3.4, 'cs-spot', W(-4.4, 1.6, 0.9), 'The SL in-1 doorway (S14)', 'special', dict(special='S14b', pool=1.6, beam=True))])
-boom('SL2', 'SL boom 2 (in 2)', 13.5, 3.3, [side(0.4, -6.5, 3.3, 'MS', 'SL'), side(1.4, -6.5, 3.3, 'MS', 'SL'), side(2.6, -6.5, 3.3, 'MS', 'SL'),
-     (3.2, 'cs-spot', W(-3.0, 0.8, 4.4), 'Bucket, boy and furnace isolation (S10)', 'special', dict(special='S10', pool=2.6)),
+boom('SL2', 'SL boom 2 (in 2)', 14.15, 3.3, [side(0.4, -6.5, 3.3, 'MS', 'SL'), side(1.4, -6.5, 3.3, 'MS', 'SL'), side(2.6, -6.5, 3.3, 'MS', 'SL'),
+     (3.2, 'cs-spot', W(-2.3, 0.8, 5.2), 'Bucket, boy and furnace isolation (S10)', 'special', dict(special='S10', pool=2.6)),
      (4.0, 'cs-spot', W(-1.0, 0.8, 2.5), 'Window light through the window flat (S16)', 'special', dict(special='S16', pool=2.6, gobo='window', beam=True))])
-boom('SL3', 'SL boom 3 (in 3)', 13.5, 5.3, [side(0.4, -6.5, 5.3, 'US', 'SL'), side(1.4, -6.5, 5.3, 'US', 'SL'), side(2.6, -6.5, 5.3, 'US', 'SL'),
-     (1.0, 'cs-spot', W(-3.0, 1.0, 4.6), 'The crucible pour: hot low snap (S9)', 'special', dict(special='S9', pool=1.0))])
+boom('SL3', 'SL boom 3 (in 3)', 14.15, 5.3, [side(0.4, -6.5, 5.3, 'US', 'SL'), side(1.4, -6.5, 5.3, 'US', 'SL'), side(2.6, -6.5, 5.3, 'US', 'SL'),
+     (1.0, 'cs-spot', W(-2.6, 1.0, 5.1), 'The crucible pour: hot low snap (S9)', 'special', dict(special='S9', pool=1.0))])
 boom('SR1', 'SR boom 1 (in 1, the pocket)', 25.75, 0.8, [side(1.4, 5.75, 0.8, 'DS', 'SR'), side(2.6, 5.75, 0.8, 'DS', 'SR')])
 boom('SR2', 'SR boom 2 (in 2)', 26.5, 3.3, [side(0.4, 6.5, 3.3, 'MS', 'SR'), side(1.4, 6.5, 3.3, 'MS', 'SR'), side(2.6, 6.5, 3.3, 'MS', 'SR'),
      (4.0, 'cs-spot', W(-3.0, 0.6, 2.0), 'Long low light from SR: dawn, sunset (S19, S20)', 'long', dict(row='MS'))])
@@ -268,26 +268,26 @@ for i, x in enumerate([15.5, 16.8, 18.1, 21.9, 23.2, 24.5], 1):    # round the s
     add(f'GR-{i}', 'Ground row (the back brick)', 'cyc-floor', [x, 0.80, 8.65], [x, 4.5, 8.90], 'Back brick from below (the sky)', 'ground', colour='LED RGBAL')
 
 # ---------------------------------------------------------------- floor, through the doors, the booth, haze
-add('FL-1', 'Floor (behind the bellows)', 'cs-par', W(-3.8, 0.0, 3.55), W(-3.0, 1.5, 4.6), 'Furnace glow on Johnny\'s face (S8)', 'special', special='S8')
+add('FL-1', 'Floor (under the loft, beside the bellows)', 'cs-par', W(-4.2, 0.0, 5.0), W(-2.2, 1.5, 5.4), 'Furnace glow on Johnny\'s face (S8)', 'special', special='S8')
 add('DR-1', 'Backstage corridor, through the stage doors', 'cs-spot', [20.0, 3.0, 10.5], W(0.2, 1.5, 3.3), 'The doorway backlight (S14)', 'special', special='S14', pool=2.4, beam=True)
 for i, x in enumerate([17.8, 22.2], 1):
     add(f'FS-{i}', "Theatre 2's followspot booth", 'follow', [x, 3.28, -14.90], W(3.6, 1.6, -1.6), 'Followspot (S3): Johnny anywhere, the aisle', 'follow', special='S3', pool=1.6, beam=True)
-add('HZ-1', 'SL wing, upstage (floor)', 'hazer', [11.30, 0.80, 8.30], None, 'Haze', 'haze')
+add('HZ-1', 'SL wing, downstage of the understage stair (floor)', 'hazer', [11.30, 0.80, 3.65], None, 'Haze', 'haze')
 add('HZ-2', 'SR wing, upstage (floor)', 'hazer', [28.80, 0.80, 8.30], None, 'Haze', 'haze')
 
 # ---------------------------------------------------------------- practicals (each its own dimmer channel)
 PRACTICALS = [
-    ('P-01', 'Furnace glow (orange LED, flicker)', W(-3.4, 0.6, 5.0), 'fire', 1.8),
+    ('P-01', 'Furnace glow (orange LED, flicker)', W(-2.4, 0.6, 5.8), 'fire', 1.8),
     ('P-02', 'Hand lantern (radio dimmer)', W(0.6, 1.0, 0.3), 'lantern', 0.6),
-    ('P-03', 'Church lantern 1 (steeple)', W(2.35, 3.45, 6.45), 'candle', 0.5),
-    ('P-04', 'Church lantern 2 (steeple)', W(2.85, 3.90, 6.45), 'candle', 0.5),
+    ('P-03', 'Church lantern 1 (steeple)', W(2.35, 3.45, 6.05), 'candle', 0.5),
+    ('P-04', 'Church lantern 2 (steeple)', W(2.85, 3.45, 6.05), 'candle', 0.5),
     ('P-05', 'Candelabra, candles 1', W(0.0, 1.1, 1.8), 'candle', 0.35),
     ('P-06', 'Candelabra, candles 2', W(0.2, 1.1, 1.8), 'candle', 0.35),
     ('P-07', 'Candelabra, candles 3', W(0.4, 1.1, 1.8), 'candle', 0.35),
     ('P-08', 'Sideboard candlesticks (pair)', W(-2.6, 1.3, 3.3), 'candle', 0.35),
     ('P-09', 'Candlesticks: the judge\'s, the Green Dragon\'s, Buckman\'s', W(-0.4, 1.0, 3.0), 'candle', 0.35),
     ('P-10', 'Torches ×2 (flicker)', W(-3.0, 1.9, 1.0), 'fire', 0.9),
-    ('P-11', 'Coach lamps ×2', W(2.8, 1.6, 1.8), 'lantern', 0.4),
+    ('P-11', 'Coach lamps ×2', W(1.8, 1.6, 1.6), 'lantern', 0.4),
     ('P-12', 'Campfires ×2 (flicker)', W(-0.6, 0.3, 1.2), 'fire', 0.9),
     ('P-13', 'Distant lights, SR string (S30)', W(2.5, 1.0, 6.5), 'twinkle', 0.15),
     ('P-14', 'Distant lights, SL string (S30)', W(-2.5, 1.0, 6.5), 'twinkle', 0.15),

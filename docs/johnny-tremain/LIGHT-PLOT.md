@@ -37,18 +37,18 @@ World metres (stage → world: x + 20.00, y + 0.80, z + 2.30). "Stage" columns a
 | 3rd Electric | x 15.60…23.80, y 10.10, z 6.50 | 8 | 7 × ETC ColorSource PAR, 1 × ETC ColorSource Spot |
 | 4th Electric | x 14.60…25.40, y 11.60, z 8.00 | 14 | 4 × Chauvet Ovation CYC 1 FC, 4 × Martin MAC Aura, 4 × ETC ColorSource PAR, 2 × ETC ColorSource Spot |
 | SL boom 1 (in 1) | x 13.80, y 1.20…4.20, z 3.40 | 4 | 4 × ETC ColorSource Spot |
-| SL boom 2 (in 2) | x 13.80, y 1.20…4.80, z 5.60 | 5 | 5 × ETC ColorSource Spot |
-| SL boom 3 (in 3) | x 13.80, y 1.20…3.40, z 7.60 | 4 | 4 × ETC ColorSource Spot |
+| SL boom 2 (in 2) | x 14.45, y 1.20…4.80, z 5.60 | 5 | 5 × ETC ColorSource Spot |
+| SL boom 3 (in 3) | x 14.45, y 1.20…3.40, z 7.60 | 4 | 4 × ETC ColorSource Spot |
 | SR boom 1 (in 1, the pocket) | x 25.45, y 2.20…3.40, z 3.10 | 2 | 2 × ETC ColorSource Spot |
 | SR boom 2 (in 2) | x 26.20, y 1.20…4.80, z 5.60 | 4 | 4 × ETC ColorSource Spot |
 | SR boom 3 (in 3) | x 26.20, y 1.20…4.80, z 7.60 | 4 | 4 × ETC ColorSource Spot |
 | Ground row (the back brick) | x 15.50…24.50, y 0.80, z 8.65 | 6 | 6 × Chauvet Ovation CYC 1 FC (ground row) |
-| Floor (behind the bellows) | x 16.20, y 0.80, z 5.85 | 1 | 1 × ETC ColorSource PAR |
+| Floor (under the loft, beside the bellows) | x 15.80, y 0.80, z 7.30 | 1 | 1 × ETC ColorSource PAR |
 | Backstage corridor, through the stage doors | x 20.00, y 3.00, z 10.50 | 1 | 1 × ETC ColorSource Spot |
 | Theatre 2's followspot booth | x 17.80…22.20, y 3.28, z -14.90 | 2 | 2 × Robert Juliat D'Artagnan 934SNX followspot |
-| SL wing, upstage (floor) | x 11.30, y 0.80, z 8.30 | 1 | 1 × MDG ATMe hazer |
+| SL wing, downstage of the understage stair (floor) | x 11.30, y 0.80, z 3.65 | 1 | 1 × MDG ATMe hazer |
 | SR wing, upstage (floor) | x 28.80, y 0.80, z 8.30 | 1 | 1 × MDG ATMe hazer |
-| Practicals | x 16.60…22.85, y 1.10…4.70, z 2.60…8.80 | 14 | 14 × practical on a dimmer |
+| Practicals | x 17.00…22.85, y 1.10…4.25, z 2.60…8.80 | 14 | 14 × practical on a dimmer |
 
 The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3rd) and 11.6 (4th): over the venue's iron (5.9–6.2) and high enough that the front row does not see them through the arch, under the header or over the masking border (`MIDTOWN.jtLights.check()` proves it from six seats). No unit hangs over the iron's centre walkway (x 19.2…21.1). Nothing stands in either lift's travel (front x 17…23, z 2.6…5.0; back x 17.5…22.5, z 5.9…8.3; y −4.4…5.2).
 
@@ -107,8 +107,8 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | 1 | 383–387 | 49 | E2-09 | 2nd Electric | ETC ColorSource PAR | 5-channel | Back light DSR | LED colour mix |
 | 1 | 388–392 | 50 | E2-10 | 2nd Electric | ETC ColorSource Spot | 5-Channel | Lantern reveal: the dressing table (S24) | LED colour mix |
 | 1 | 393–397 | 51 | E2-11 | 2nd Electric | ETC ColorSource PAR | 5-channel | Top light MSR | LED colour mix |
-| 1 | 398–402 | 52 | E3-01 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light LOFT, SL half (S11) | LED colour mix |
-| 1 | 403–407 | 53 | E3-02 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light LOFT, SR half and the ladder head (S11) | LED colour mix |
+| 1 | 398–402 | 52 | E3-01 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light LOFT, downstage half and the ladder head (S11) | LED colour mix |
+| 1 | 403–407 | 53 | E3-02 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light LOFT, upstage half (S11) | LED colour mix |
 | 1 | 408–412 | 54 | E3-03 | 3rd Electric | ETC ColorSource PAR | 5-channel | Back light MSL | LED colour mix |
 | 1 | 413–417 | 55 | E3-04 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light PATH | LED colour mix |
 | 1 | 418–422 | 56 | E3-05 | 3rd Electric | ETC ColorSource PAR | 5-channel | Back light MSC | LED colour mix |
@@ -121,7 +121,7 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | 1 | 453–457 | 63 | E4-08 | 4th Electric | ETC ColorSource PAR | 5-channel | Back light PATH | LED colour mix |
 | 1 | 458–462 | 64 | E4-11 | 4th Electric | ETC ColorSource PAR | 5-channel | Back light WHARF | LED colour mix |
 | 1 | 463–467 | 65 | E4-12 | 4th Electric | ETC ColorSource PAR | 5-channel | The volley flash behind Johnny (S28), strobe | LED colour mix |
-| 1 | 468–472 | 66 | FL-1 | Floor (behind the bellows) | ETC ColorSource PAR | 5-channel | Furnace glow on Johnny's face (S8) | LED colour mix |
+| 1 | 468–472 | 66 | FL-1 | Floor (under the loft, beside the bellows) | ETC ColorSource PAR | 5-channel | Furnace glow on Johnny's face (S8) | LED colour mix |
 | 1 | 473–477 | 67 | DR-1 | Backstage corridor, through the stage doors | ETC ColorSource Spot | 5-Channel | The doorway backlight (S14) | LED colour mix |
 | 1 | 478–478 | 68 | FS-1 | Theatre 2's followspot booth | Robert Juliat D'Artagnan 934SNX followspot | 1 (1 channel) | Followspot (S3): Johnny anywhere, the aisle | LED colour mix |
 | 1 | 479–479 | 69 | FS-2 | Theatre 2's followspot booth | Robert Juliat D'Artagnan 934SNX followspot | 1 (1 channel) | Followspot (S3): Johnny anywhere, the aisle | LED colour mix |
@@ -168,7 +168,7 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | 2 | 449–455 | 110 | GR-4 | Ground row (the back brick) | Chauvet Ovation CYC 1 FC (ground row) | 7 Channel | Back brick from below (the sky) | LED RGBAL |
 | 2 | 456–462 | 111 | GR-5 | Ground row (the back brick) | Chauvet Ovation CYC 1 FC (ground row) | 7 Channel | Back brick from below (the sky) | LED RGBAL |
 | 2 | 463–469 | 112 | GR-6 | Ground row (the back brick) | Chauvet Ovation CYC 1 FC (ground row) | 7 Channel | Back brick from below (the sky) | LED RGBAL |
-| 2 | 470–472 | 113 | HZ-1 | SL wing, upstage (floor) | MDG ATMe hazer | 3 Channel | Haze | LED colour mix |
+| 2 | 470–472 | 113 | HZ-1 | SL wing, downstage of the understage stair (floor) | MDG ATMe hazer | 3 Channel | Haze | LED colour mix |
 | 2 | 473–475 | 114 | HZ-2 | SR wing, upstage (floor) | MDG ATMe hazer | 3 Channel | Haze | LED colour mix |
 | 2 | 476–476 | 115 | P-01 | Practicals | practical on a dimmer | 1 Channel | Furnace glow (orange LED, flicker) | fire |
 | 2 | 477–477 | 116 | P-02 | Practicals | practical on a dimmer | 1 Channel | Hand lantern (radio dimmer) | lantern |
@@ -200,9 +200,9 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | MSR | +2.85, +2.50 | F2-07 (ch 24) | BBHR-3 (ch 27) | E2-11 (ch 51) | E3-08 (ch 59) |
 | MSC | +0.00, +2.50 | F2-04 (ch 21) | — | E2-06 (ch 46) | E3-05 (ch 56) |
 | MSL | -2.85, +2.50 | F2-02 (ch 19) | BBHL-3 (ch 30) | E2-02 (ch 42) | E3-03 (ch 54) |
-| SHOP | -2.60, +4.90 | F2-01 (ch 18) | — | — | — |
-| LOFT | -2.40, +5.30 (floor 2.4) | F2-03 (ch 20) | — | E3-01 (ch 52), E3-02 (ch 53) | E4-03 (ch 60) |
-| WHARF | +2.70, +4.90 (floor 0.45) | F2-06 (ch 23) | — | E3-07 (ch 58) | E4-11 (ch 64) |
+| SHOP | -2.40, +5.00 | F2-01 (ch 18) | — | — | — |
+| LOFT | -3.55, +4.65 (floor 2.4) | F2-03 (ch 20) | — | E3-01 (ch 52), E3-02 (ch 53) | E4-03 (ch 60) |
+| WHARF | +3.55, +4.70 (floor 0.45) | F2-06 (ch 23) | — | E3-07 (ch 58) | E4-11 (ch 64) |
 | PATH | +0.20, +5.00 | F2-05 (ch 22) | — | E3-04 (ch 55) | E4-08 (ch 63) |
 
 | system | units |
@@ -230,20 +230,20 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | S3 Followspot (S3): Johnny anywhere, the aisle | FS-2 | 69 | Theatre 2's followspot booth | +3.60, 1.60, -1.60 | 5.8 | — |
 | S4 Cup pin, the wharf's lip (S4) | BR-13 | 13 | FOH 1 — the bridge | +1.60, 0.40, -2.35 | 4.4 | — |
 | S5 The cups on the sideboard, shuttered strip (S5) | E2-03 | 43 | 2nd Electric | -2.60, 1.10, +3.30 | 15.4 | strip |
-| S6 Cups on the courtroom table (S6) | BR-10 | 10 | FOH 1 — the bridge | -0.40, 0.90, +3.00 | 5.2 | — |
-| S7 Cup at the gravestone (S7) | BR-06 | 6 | FOH 1 — the bridge | -2.40, 0.60, +0.70 | 5.5 | — |
-| S8 Furnace glow on Johnny's face (S8) | FL-1 | 66 | Floor (behind the bellows) | -3.00, 1.50, +4.60 | 40 | — |
-| S9 The crucible pour: hot low snap (S9) | SL3-4 | 82 | SL boom 3 (in 3) | -3.00, 1.00, +4.60 | 17.4 | — |
-| S10 Bucket, boy and furnace isolation (S10) | SL2-4 | 77 | SL boom 2 (in 2) | -3.00, 0.80, +4.40 | 34.8 | — |
-| S11 Loft isolation, front (S11) | BR-01 | 1 | FOH 1 — the bridge | -2.40, 4.00, +5.30 | 18.4 | — |
-| S12 Otis at the rafters (S12) | E4-04 | 61 | 4th Electric | -2.00, 4.20, +5.30 | 12.7 | — |
+| S6 Cups on the courtroom table (S6) | BR-10 | 10 | FOH 1 — the bridge | -0.70, 0.85, +3.00 | 5.2 | — |
+| S7 Cup at the gravestone (S7) | BR-06 | 6 | FOH 1 — the bridge | -2.60, 0.60, +0.80 | 5.5 | — |
+| S8 Furnace glow on Johnny's face (S8) | FL-1 | 66 | Floor (under the loft, beside the bellows) | -2.20, 1.50, +5.40 | 40 | — |
+| S9 The crucible pour: hot low snap (S9) | SL3-4 | 82 | SL boom 3 (in 3) | -2.60, 1.00, +5.10 | 19.2 | — |
+| S10 Bucket, boy and furnace isolation (S10) | SL2-4 | 77 | SL boom 2 (in 2) | -2.30, 0.80, +5.20 | 32.5 | — |
+| S11 Loft isolation, front (S11) | BR-01 | 1 | FOH 1 — the bridge | -3.55, 4.00, +4.65 | 19.7 | — |
+| S12 Otis at the rafters (S12) | E4-04 | 61 | 4th Electric | -3.30, 4.20, +4.65 | 12.8 | — |
 | S13 Lavinia, rosy lift (S13) | BR-07 | 7 | FOH 1 — the bridge | -1.25, 1.60, +1.80 | 12.0 | — |
 | S14 The doorway backlight (S14) | DR-1 | 67 | Backstage corridor, through the stage doors | +0.20, 1.50, +3.30 | 27.2 | — |
 | S14b The SL in-1 doorway (S14) | SL1-4 | 73 | SL boom 1 (in 1) | -4.40, 1.60, +0.90 | 34.8 | — |
 | S15 Jail bars (S15) | E1-03 | 34 | 1st Electric | -2.80, 0.50, +1.60 | 15.7 | bars |
-| S16 Window light through the window flat (S16) | SL2-5 | 78 | SL boom 2 (in 2) | -1.00, 0.80, +2.50 | 23.8 | window |
-| S22 Steeple lanterns pin (S22) | E3-06 | 57 | 3rd Electric | +2.60, 3.70, +6.45 | 9.5 | — |
-| S24a Lantern reveal: the dressing table (S24) | E2-10 | 50 | 2nd Electric | +3.40, 1.00, +2.70 | 7.7 | — |
+| S16 Window light through the window flat (S16) | SL2-5 | 78 | SL boom 2 (in 2) | -1.00, 0.80, +2.50 | 26.0 | window |
+| S22 Steeple lanterns pin (S22) | E3-06 | 57 | 3rd Electric | +2.60, 3.70, +6.05 | 9.7 | — |
+| S24a Lantern reveal: the dressing table (S24) | E2-10 | 50 | 2nd Electric | +3.60, 1.00, +1.90 | 7.7 | — |
 | S24b Lantern reveal: the wig (S24) | E1-08 | 39 | 1st Electric | +3.00, 1.40, +1.20 | 8.0 | — |
 | S24c Lantern reveal: the tipped chair (S24) | E2-08 | 48 | 2nd Electric | +0.90, 0.60, +3.00 | 7.1 | — |
 | S27a Shop door 1 slice (S27) | BR-04 | 4 | FOH 1 — the bridge | -3.60, 1.20, -1.20 | 8.7 | slice |
@@ -259,17 +259,17 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 
 | unit | ch | U / address | what | where (stage x, y, z) |
 |---|---|---|---|---|
-| P-01 | 115 | 2 / 476 | Furnace glow (orange LED, flicker) | -3.40, 0.60, +5.00 |
+| P-01 | 115 | 2 / 476 | Furnace glow (orange LED, flicker) | -2.40, 0.60, +5.80 |
 | P-02 | 116 | 2 / 477 | Hand lantern (radio dimmer) | +0.60, 1.00, +0.30 |
-| P-03 | 117 | 2 / 478 | Church lantern 1 (steeple) | +2.35, 3.45, +6.45 |
-| P-04 | 118 | 2 / 479 | Church lantern 2 (steeple) | +2.85, 3.90, +6.45 |
+| P-03 | 117 | 2 / 478 | Church lantern 1 (steeple) | +2.35, 3.45, +6.05 |
+| P-04 | 118 | 2 / 479 | Church lantern 2 (steeple) | +2.85, 3.45, +6.05 |
 | P-05 | 119 | 2 / 480 | Candelabra, candles 1 | +0.00, 1.10, +1.80 |
 | P-06 | 120 | 2 / 481 | Candelabra, candles 2 | +0.20, 1.10, +1.80 |
 | P-07 | 121 | 2 / 482 | Candelabra, candles 3 | +0.40, 1.10, +1.80 |
 | P-08 | 122 | 2 / 483 | Sideboard candlesticks (pair) | -2.60, 1.30, +3.30 |
 | P-09 | 123 | 2 / 484 | Candlesticks: the judge's, the Green Dragon's, Buckman's | -0.40, 1.00, +3.00 |
 | P-10 | 124 | 2 / 485 | Torches ×2 (flicker) | -3.00, 1.90, +1.00 |
-| P-11 | 125 | 2 / 486 | Coach lamps ×2 | +2.80, 1.60, +1.80 |
+| P-11 | 125 | 2 / 486 | Coach lamps ×2 | +1.80, 1.60, +1.60 |
 | P-12 | 126 | 2 / 487 | Campfires ×2 (flicker) | -0.60, 0.30, +1.20 |
 | P-13 | 127 | 2 / 488 | Distant lights, SR string (S30) | +2.50, 1.00, +6.50 |
 | P-14 | 128 | 2 / 489 | Distant lights, SL string (S30) | -2.50, 1.00, +6.50 |
