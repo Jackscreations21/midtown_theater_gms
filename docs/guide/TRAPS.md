@@ -2005,3 +2005,24 @@ restores.
 clips with the uniforms `uWlBox0/1`; a uniform stretched into the backstage lit the corridor and the check passed. A
 check of a GPU-side value must read the GPU-side value (or prove the record equals it), and its pixel views must
 include the place a failure would show — the corridor behind the house, not only the stage.
+
+## From his act-1 and act-2 notes round (2026-10-15)
+
+- **A `y` on a waypoint does not stand a body on a prop.** `y` is only where the page's floor ray STARTS (`actFloor`: the
+  path height + 0.6 m, cast down through the walk's collider), and the collider is built from the set's static meshes:
+  props are not in it. Lafayette's waypoint with `y` 0.8 (gs-table's top) passed the merge without a word (any number
+  over 0.1 is kept, and only gallery heights are checked against the map), and the page still posed him at y 0.045,
+  inside the table. "On top of a piece" needs the page to treat a placed prop's top as floor; until then, check
+  `MIDTOWN.actors.pose(id, T).y`, not the file.
+- **"After the blackout" can be in the next segment.** 1-17's button fade ends at exactly the track's end (175.3 + 2.7 =
+  178.0), and the next track has no lead-in or tail, so 1-17 178.0 and 1-18 0.0 are the SAME instant on the global clock: a
+  waypoint at each is "time does not increase". An exit after the fade is written as a dwell on the last waypoint in one
+  generator and the `off` in the next one's; both generators' "starts / ends offstage" self-checks then need the actor
+  exempted (`CARRIED` in `seg3gen.py` and `gen4.py`).
+- **`MIDTOWN.set` is not the blocking's frame.** It is turned 180° from `MIDTOWN.actors.group` (same origin): a camera
+  placed at a set-local (0, 3.5, 9) through `MIDTOWN.set` landed backstage. Aim in `MIDTOWN.actors.group`'s frame
+  (`localToWorld`), the frame of `assets/hamilton-blocking.json`.
+- **Moving one formation's centre reshuffles everything after it.** 1-20's rally arc was centred on Mulligan; moving him
+  moved the arc, `assign_ring` gave the drill block different bodies, and the battle, the night pools and the furniture
+  carriers after it all changed (props.py's hard-coded `YT4` carriers no longer matched). Keep a formation's anchor where it
+  was unless the note is about the formation, and diff the generator's own prints (`FURN`) before and after.
