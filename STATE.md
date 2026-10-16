@@ -1,4 +1,4 @@
-# STATE — 2026-10-16 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#6 merged; public, Pages live; nothing is local-only)
+# STATE — 2026-10-16, evening (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#7 merged; the Johnny Tremain PR open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -42,13 +42,34 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   each stage house; the show takes Stage 1's out at every Play and Stop puts it back. Built by one Opus agent, checked by
   a second, its one bug fixed by the lead (HANDOFF.md's newest block). Record files in the PR. Post-merge: fast-forward
   `main`, delete `worklight` both sides, remove the worktree `.claude/worktrees/worklight`.
-- **Rulings are at GH (GI next).** The second-house line used FF and FG on 2026-10-15 while the actors line had
+- **Johnny Tremain on Theatre 2 (branch `johnny-tremain`, PR open):** his own play, two acts, 26 scenes — the set as
+  sized stand-ins with model slots, two stage lifts and an underground under Theatre 2 (RULINGS GI, GJ), a 128-unit rig
+  with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's newest DONE block.
+- **Rulings are at GJ (GK next).** GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
+  them off. GJ (2026-10-16): an underground under Theatre 2 for storage. Earlier: **GH**. The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
   the house; **GH** (2026-10-15) a closed curtain stops the walker, like a closed door. FF is the mannequin.
 - Local server: any static server over the repository root, e.g. `python -m http.server 8080`, then
   `http://localhost:8080/midtown.html` (Jack's Chrome for pointer lock; the Claude Browser pane for checks only).
 
 ## Open, in the order it will bite
+
+00. **Land the Johnny Tremain PR, then his eye on it** — the "Johnny Tremain" button (Next/Prev or PageDown/PageUp,
+   Auto), "Lifts", "Understage", "T2 rig". Post-merge: delete `johnny-tremain`, `jt-sets`, `jt-under`, `jt-lights`
+   both sides and the three worktrees under `.claude/worktrees/`. **His models** are in `Downloads\jt-models\` (25
+   Sketchfab GLBs, 4 CGTrader, his 4 .blend/.zip; Blender 5.2 is installed for conversions): fit each into
+   `assets/johnny-tremain/models/<id>.glb` + a `manifest.json` line (`models/README.md`), decimating the press (2.3M
+   faces), saddle, goblets and lantern; still to get: Brass Candleholders (Poly Haven API, he has not said yes), Old
+   lumber stack (Fab), Pewter Tankard (RenderHub). Colonial House is EDITORIAL-only (ask the author before a show).
+   21 CGTrader `.tmp` copies sit in his Downloads — delete only on his word. Decisions it raises: the loft and wharf
+   turned up/downstage at the sides; a second border (the 8 m masts show their lowest 3 m at out-trim; the 3rd/4th
+   electrics could come down to ~8.5); the masking legs and the SL wing lost to the understage stair; backstage-stored
+   pieces hidden, wagons jump bay↔lift out of sight (not driven round the loop); Dove's hatch (13.3) could use the trap
+   room; the booth window faces the back shaft; E works through the booth wall; the lift tops' seams; the basement on a
+   camera layer (−43 draw calls at boot); the movers' pan/tilt and gobo slots are placeholders; specials at 0 inside
+   their looks need their own cues (6 pour, 20 volley/eyes, 19 Otis, 8 shop-door slices); wing booms not solid to the
+   walker (SL boom 1 stands in the worklight walkway); a look costs ~15 ms on Intel UHD (`JTL.N` 32 → 16 saves ~5 ms);
+   the furnace glow is drawn twice (the set's flame + the rig's practical). His script stays OUT of the repository.
 
 0a. **His eye on the notes round** (PR #6, merged): watch both acts again with the checklist open — every row he marked has a
    "— Claude (10-16)" reply under his note; he flips the status. Decisions it raises: **2-07's switch** to Hamilton's
@@ -118,6 +139,15 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
    page, not the second build target. Rulings letter from FF.
 
 ## Facts you need to work on the Midtown page (not history)
+
+- **Johnny Tremain (Theatre 2).** Three sections before BUILD MODE, in order: `THEATRE 2: THE UNDERGROUND AND THE LIFTS`
+  (`MIDTOWN.under`: `.lifts.front/.back` `{platform, footprint, top 0.80, bottom −4.40, state, go(to) → Promise}`, `.bays`,
+  `.check()`), `… — THE SET` (`MIDTOWN.jt`: `scene(n, seg)`, `next/prev`, `check()`, `materials`; data `assets/johnny-
+  tremain/set.json`, checker `tools/jt-set-check.py`), `… — THE LIGHTS` (`MIDTOWN.jtLights`: `look(n, seg)` seg 1-based,
+  `check()`; data `rig.json` from `tools/jt-rig.py`; QLC+ from `tools/jt-qlc.py` — regenerate the .qxw after any rig
+  change). The contract between them is `docs/johnny-tremain/CONTRACT.md`. Keep-outs: the SL wing stair hole (world x
+  10.6–13.75, z 4.0–8.6) and the worklight walkway (stage x −9.4…−4.3, z 0.65…1.45). The collider regex ends
+  `…|understage|jt set)$/`.
 
 - **Theatre 2's works and the doors (PR #235, 2026-10-15).** `buildSpotBooth(root, {dx, mesh, props})` and
   `buildDeskPosition(root, {dx, scan, live})` build both houses' booths and desks; Theatre 2's cuts are `HOUSE2_CUTS`
