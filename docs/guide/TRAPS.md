@@ -2005,3 +2005,29 @@ restores.
 clips with the uniforms `uWlBox0/1`; a uniform stretched into the backstage lit the corridor and the check passed. A
 check of a GPU-side value must read the GPU-side value (or prove the record equals it), and its pixel views must
 include the place a failure would show — the corridor behind the house, not only the stage.
+
+## From his act-1 and act-2 notes round (2026-10-15)
+
+- **`dance.py`'s `at=` snaps to the nearest DOWNBEAT, not the nearest beat.** Satisfied's rewind was written `at=46.74`
+  (the cue) and has started at 47.33 since round 2 (the next bar), 0.6 s after the stage began to rewind; the merge's
+  "more than 0.1 s off a beat" warning cannot catch it, because the snapped time it receives is on a beat. For anything
+  that must start inside a bar, give `bar=` and `beat=` (`beats.py <track> <seconds>` names them).
+- **Moving an exit in one song moves the entrance in the next.** An actor walks on from wherever her last waypoint left
+  her, offstage or not. Sending Lafayette off DSR in 1-08 (he used to wait in his MSL wing all song) made him walk on in
+  1-09 from DSR, straight through Burr. After changing an exit, park her again in the wing her next entrance expects
+  (an `off` waypoint there: off-to-off legs are not seen), and run the proximity check on the NEXT song too.
+- **A rewind that retraces the forward paths keeps their crossings and adds the ones the forward walk never had.**
+  Forward, the bodies walked into the toast one after another; run backwards all at once over the same 6 s, five pairs
+  met at 0.1-0.3 m. Also, anyone who does NOT rewind (Laurens, glass up) is a fixed obstacle standing on someone's way
+  back. Lafayette's way back crossed Laurens's spot, and no timing fixes that. Stagger who leaves when (a small search
+  over leave / arrive offsets worked), and route round the bodies that hold still.
+- **Segment 2 (`gen_seg2.py`) has no proximity check of its own** (segment 1's `lib.check()` has one). `seg1/lib.py`'s
+  `sim()` works on any segment file once the waypoints are put on one clock (track starts from `hamilton-show.json`
+  `tracks[].len`). Compare against the committed file's list rather than reading the list cold: 1-09 to 1-11 already
+  have dozens of sub-0.4 m passes (couples, dancing).
+- **Hand-placing `MIDTOWN.camera` in set-local metres: the set's frame is turned 180 degrees in the world.** Set-local +z
+  (the house) is world -z, and `MIDTOWN.set.position` is not that frame's transform: `MIDTOWN.actors.group.localToWorld`
+  is. A camera placed with the set's offset alone looked out of the stage into the house's seating, a grey wall. With
+  the Claude window behind, the pane's screenshot timed out. What worked: `MIDTOWN.frame()`, then in the same task
+  `drawImage` the WebGL canvas onto a 2D canvas, then POST `toDataURL()` to a tiny local receiver (a scratch Python
+  server on another port, `mode: 'no-cors'`), which saves PNGs that the Read tool can open.
