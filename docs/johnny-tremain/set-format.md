@@ -51,8 +51,8 @@ piece's BASE** over the deck (0 on the floor, 0.45 on the wharf deck, 2.40 on th
 | `credit` | the programme credit line (CC BY / BY-SA), or `null` |
 | `licenceNote` | the licence in a line: editorial-only, no-AI-use, share-alike, Fab, CC0, "no model yet" |
 | `home` | an array of `count` placements: where each copy stands when it is on and nothing says otherwise |
-| `storage` | where it is when off: `{where, x, y, z, rotY, note?, fits}`; `where` is a `parks` key; `fits` says whether its narrow side fits that place, measured |
-| `trim` | flown pieces only: `{in, out, lane, deadHung?}` — `in`/`out` are the piece's BOTTOM over the deck at its in- and out-trim; `lane` is the gap between the iron's pipes it flies in |
+| `storage` | where it is when off: `{where, x, y, z, rotY, note?, fits, at?}`; `where` is a `parks` key; `fits` says whether its narrow side fits that place, measured. `at` (a wing piece with several copies): one spot per copy, packed apart by the re-lay (2026-10-16). **`where: "lift"`** (a BIG SET, RULING GI): `{where: "lift", wagon, bay, fits, note}` — `wagon` names the pieces that travel together as one rigid layout (every piece with the same `wagon`), `bay` the basement bay it parks in (`MIDTOWN.under.bays`, matched by name, else the first free one it fits); it comes up the FRONT lift and goes down the BACK lift, so no x/y/z |
+| `trim` | flown pieces only: `{in, out, lane, deadHung?, outSeen?}` — `in`/`out` are the piece's BOTTOM over the deck at its in- and out-trim; `lane` is the gap between the iron's pipes it flies in; `outSeen` (the masts): what some rows still see at out-trim, recorded because the fly roof leaves no higher trim — the checker passes it as INFO, not silently |
 | `scenes` | when it is on (below) |
 | `notes` | the designer's notes |
 
@@ -84,8 +84,26 @@ piece's BASE** over the deck (0 on the floor, 0.45 on the wharf deck, 2.40 on th
 - Flown pieces fly in the two **lanes between the venue's hanging-iron pipes**: SL lane x −4.30…−0.80, SR lane
   x +1.05…+4.60. The iron runs up/downstage at y 5.10–5.44 over the deck (world 5.90–6.24), with a walkway in the
   centre (x −0.80…+1.10). Anything wider crosses a pipe.
-- An out-trim hides a piece only above the front row's sightline: `y = 0.32 + 0.559 (z + 4.30)` upstage of the
-  masking border (z 3.0), `y = 0.32 + 0.949 (z + 4.30)` without it. The fly roof is 15.20 over the deck.
+- An out-trim hides a piece only where NO row sees it: under the arch's header (the line from each eye through the header,
+  y 4.40 at z 0) or behind the masking border — between the lines through its bottom (4.40) AND its top (5.00) at z 3.0.
+  The phase-1 rule counted only the border's bottom edge, so a piece upstage of it showed over its top (the out-trims
+  were raised 2026-10-16). Its top stays under the fly roof (15.20 over the deck). `tools/jt-set-check.py` computes it
+  for seven eyes down the centre of the stalls (front row 0.32 at z −4.30 to the back 3.10 at z −16.30).
 - The centre path (x −0.60…+1.00, between the loft's SR posts and the wharf) is kept clear to the stage doors
   (x −1.0…+1.0, 3.40 high, in the back brick at z 6.60).
 - No two pieces on in the same segment overlap (checked by a script on every placement; hand props excluded).
+- **The lifts (RULING GI; CONTRACT.md):** front x −3.00…+3.00, z 0.30…2.70 (brings big sets ON); back x −2.50…+2.50,
+  z 3.60…6.00 (takes them OFF). The unit set never stands on either. A wagon's layout fits the back lift (5.0 × 2.4, 5 cm
+  a side) and so the front. In a change where a lift moves (a wagon leaves: the back; one arrives: the front), nothing that
+  stays on stage through the change stands on that lift's footprint (hand props excepted: actors carry them).
+- **Keep-outs:** the underground's stair hole in the SL wing (x −9.40…−6.25, z 1.70…6.30, guard-railed; RULING GJ):
+  nothing stands on it, parks on it, or glides across it between its wing spot and the stage. The SL wing's parks are
+  therefore `parks['SL wing']`'s rects (behind the legs, and the strip downstage of the hole).
+- **A shift** (the page) runs strike → re-set → big sets off (back lift → bay) → big sets on (bay → front lift) → set →
+  lights; `MIDTOWN.jt.check()` proves for every shift in show order that no re-set or wagon glide sweeps through what is
+  standing, that nothing shares a footprint after the set, and that each big set leaves only from the stage and arrives
+  only from its bay.
+- **The checker:** `python tools/jt-set-check.py` (`-v` lists the changes that move a lift) — overlaps, support (a raised
+  piece stands on something on), the deck, heights and trims, storage (the wings' spots never collide while parked
+  together; backstage pieces pass the centre doors), the lifts, and the sightlines from the stalls' extreme seats. The page
+  has its own: `MIDTOWN.jt.check()`.

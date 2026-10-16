@@ -320,7 +320,7 @@
   ]
  },
  "parks": {
-  "SL wing": "x -9.30...-6.30, z 0.2...6.4 (behind the legs; keep the switch box at x -9.45, z 1.0 clear)",
+  "SL wing": "x -6.20...-4.65 behind the legs, between them (z 0.65...2.55, 2.65...4.55; upstage of z 4.65 only x -6.20...-5.65, lumber pile b beside it) and x -9.30...-6.30, z 0.20...1.60 downstage of the underground's stair hole (x -9.40...-6.25, z 1.70...6.30: nothing parks on it or glides across it)",
   "SR wing": "x +6.30...+9.40, z 1.7...6.4 (behind the legs)",
   "props table SL": "x -8.0, z 0.3 (a 1.8 x 0.6 table)",
   "props table SR": "x +7.0, z 2.0 (a 1.8 x 0.6 table)",
@@ -1522,9 +1522,9 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -8.975,
+    "x": -5.875,
     "y": 0,
-    "z": 5.9,
+    "z": 1.45,
     "rotY": 0,
     "fits": true
    },
@@ -1613,9 +1613,9 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -7.05,
+    "x": -5.8,
     "y": 0,
-    "z": 4.5,
+    "z": 3.55,
     "rotY": 90,
     "fits": true
    },
@@ -1720,23 +1720,23 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -6.45,
+    "x": -5.05,
     "y": 0,
-    "z": 4.4,
+    "z": 1.45,
     "rotY": 90,
     "fits": true,
     "at": [
      {
-      "x": -6.45,
+      "x": -5.05,
       "y": 0,
-      "z": 4.4,
+      "z": 1.45,
       "rotY": 90
      },
      {
-      "x": -8.5,
+      "x": -5.2,
       "y": 0,
-      "z": 5.4,
-      "rotY": 0
+      "z": 3.45,
+      "rotY": 90
      }
     ]
    },
@@ -1844,22 +1844,22 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -6.825,
+    "x": -5.975,
     "y": 0,
-    "z": 1.475,
+    "z": 0.875,
     "rotY": 90,
     "fits": true,
     "at": [
      {
-      "x": -6.825,
+      "x": -5.975,
       "y": 0,
-      "z": 1.475,
+      "z": 0.875,
       "rotY": 90
      },
      {
-      "x": -8.375,
+      "x": -5.475,
       "y": 0,
-      "z": 5.825,
+      "z": 0.875,
       "rotY": 90
      }
     ]
@@ -2020,12 +2020,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -8.4,
-    "y": 0,
-    "z": 4.2,
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
     "rotY": 0,
-    "fits": true
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     3,
@@ -2120,9 +2121,9 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -7.25,
+    "x": -5.8,
     "y": 0,
-    "z": 5.75,
+    "z": 2.1,
     "rotY": 0,
     "fits": true
    },
@@ -2454,26 +2455,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -6.8,
-    "y": 0,
-    "z": 2.65,
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
     "rotY": 0,
     "fits": true,
-    "at": [
-     {
-      "x": -6.8,
-      "y": 0,
-      "z": 2.65,
-      "rotY": 0
-     },
-     {
-      "x": -8.4,
-      "y": 0,
-      "z": 3.35,
-      "rotY": 90
-     }
-    ]
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -2581,12 +2569,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -8.4,
-    "y": 0,
-    "z": 4.9,
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
     "rotY": 0,
-    "fits": true
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -2922,13 +2911,50 @@
     }
    ],
    "storage": {
-    "where": "backstage",
-    "x": 0.0,
-    "y": 0.0,
-    "z": 9.0,
-    "rotY": 0,
+    "where": "SL wing",
+    "x": -5.95,
+    "y": 0,
+    "z": 4.9,
+    "rotY": 90,
     "fits": true,
-    "note": "the SL wing park is full: through the centre doors to the crossover"
+    "at": [
+     {
+      "x": -5.95,
+      "y": 0,
+      "z": 4.9,
+      "rotY": 90
+     },
+     {
+      "x": -5.95,
+      "y": 0,
+      "z": 5.45,
+      "rotY": 90
+     },
+     {
+      "x": -5.95,
+      "y": 0,
+      "z": 6.0,
+      "rotY": 90
+     },
+     {
+      "x": -7.2,
+      "y": 0,
+      "z": 0.45,
+      "rotY": 90
+     },
+     {
+      "x": -6.65,
+      "y": 0,
+      "z": 0.45,
+      "rotY": 90
+     },
+     {
+      "x": -7.2,
+      "y": 0,
+      "z": 1.0,
+      "rotY": 90
+     }
+    ]
    },
    "scenes": [
     {
@@ -2978,9 +3004,9 @@
       ],
       "4": [
        {
-        "x": 0.9,
+        "x": 1.9,
         "y": 0,
-        "z": 3.0,
+        "z": 2.9,
         "rotY": 0,
         "tipped": true
        }
@@ -3444,9 +3470,9 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -7.925,
+    "x": -4.825,
     "y": 0,
-    "z": 5.775,
+    "z": 2.825,
     "rotY": 90,
     "fits": true
    },
@@ -3538,12 +3564,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -8.3,
-    "y": 0,
-    "z": 2.3,
-    "rotY": 90,
-    "fits": true
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
+    "rotY": 0,
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     9,
@@ -3595,12 +3622,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -8.2,
-    "y": 0,
-    "z": 0.95,
-    "rotY": 90,
-    "fits": true
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
+    "rotY": 0,
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -3635,12 +3663,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -6.8,
-    "y": 0,
-    "z": 0.7,
-    "rotY": 90,
-    "fits": true
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
+    "rotY": 0,
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     9
@@ -3676,7 +3705,7 @@
     "z": 9.0,
     "rotY": 0,
     "fits": true,
-    "note": "the SL wing park is full: through the centre doors to the crossover"
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     9
@@ -3712,7 +3741,7 @@
     "z": 9.0,
     "rotY": 0,
     "fits": true,
-    "note": "the SL wing park is full: through the centre doors to the crossover"
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -3786,12 +3815,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -6.55,
-    "y": 0,
-    "z": 5.9,
-    "rotY": 90,
-    "fits": true
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
+    "rotY": 0,
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -3827,10 +3857,10 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 9.2,
+    "x": 6.95,
     "y": 0,
-    "z": 2.35,
-    "rotY": 90,
+    "z": 1.85,
+    "rotY": 0,
     "fits": true
    },
    "scenes": [
@@ -3969,10 +3999,10 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 7.0,
+    "x": 8.15,
     "y": 0,
-    "z": 2.85,
-    "rotY": 90,
+    "z": 1.75,
+    "rotY": 0,
     "fits": true
    },
    "scenes": [
@@ -4108,9 +4138,9 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 7.4,
+    "x": 8.1,
     "y": 0,
-    "z": 2.41,
+    "z": 1.91,
     "rotY": 0,
     "fits": true
    },
@@ -4154,9 +4184,9 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 6.6,
+    "x": 9.0,
     "y": 0,
-    "z": 2.575,
+    "z": 1.925,
     "rotY": 0,
     "fits": true
    },
@@ -4682,9 +4712,9 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 8.4,
+    "x": 6.75,
     "y": 0,
-    "z": 2.15,
+    "z": 2.5,
     "rotY": 90,
     "fits": true
    },
@@ -5247,9 +5277,9 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 8.95,
+    "x": 7.7,
     "y": 0,
-    "z": 3.9,
+    "z": 4.05,
     "rotY": 90,
     "fits": true
    },
@@ -5406,13 +5436,12 @@
     }
    ],
    "storage": {
-    "where": "backstage",
-    "x": 0.0,
-    "y": 0.0,
-    "z": 9.0,
-    "rotY": 0,
-    "fits": true,
-    "note": "the SR wing park is full: through the centre doors to the crossover"
+    "where": "SR wing",
+    "x": 8.9,
+    "y": 0,
+    "z": 2.45,
+    "rotY": 90,
+    "fits": true
    },
    "scenes": [
     {
@@ -5853,10 +5882,10 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 7.1,
+    "x": 8.1,
     "y": 0,
-    "z": 2.0,
-    "rotY": 0,
+    "z": 2.85,
+    "rotY": 90,
     "fits": true
    },
    "scenes": [

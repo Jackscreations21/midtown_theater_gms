@@ -37,10 +37,16 @@ PAIRS_OK = {frozenset(p) for p in [('furnace', 'loft'), ('furnace', 'loft-rafter
 DECK = {'x': (-9.45, 9.60), 'z': (-2.65, 6.60)}
 SR_ROOM = {'x': (6.00, 9.60), 'z': (-2.65, 1.60)}       # the SR side room fills the SR wing downstage of z 1.6
 APRON_X = (-5.60, 5.95)
-PARKS = {                                   # the wings' parks (offstage of the legs), stage frame
-    'SL wing': {'x': (-9.30, -6.30), 'z': (0.20, 6.40)},
-    'SR wing': {'x': (6.30, 9.40), 'z': (1.70, 6.40)},
+PARKS = {                                   # the wings' parks, stage frame: rects a stored piece stands wholly inside
+    # stage left since the underground's stair hole (below): behind the legs between them (x -6.20...-4.65, the legs at z
+    # 0.6 / 2.6 / 4.6, lumber pile b upstage), and the strip downstage of the hole
+    'SL wing': [{'x': (-6.20, -4.65), 'z': (0.65, 2.55)}, {'x': (-6.20, -4.65), 'z': (2.65, 4.55)},
+                {'x': (-6.20, -5.65), 'z': (4.65, 6.40)}, {'x': (-9.30, -6.30), 'z': (0.20, 1.60)}],
+    'SR wing': [{'x': (6.30, 9.40), 'z': (1.70, 6.40)}],
 }
+KEEP_OUT = [                                # nothing stands, parks or travels here
+    ('the stair hole in the SL wing (the underground, RULING GJ)', {'x': (-9.40, -6.25), 'z': (1.70, 6.30)}),
+]
 DOORS = {'w': 2.0, 'h': 3.40}
 LANES = {'SL': (-4.30, -0.80), 'SR': (1.05, 4.60)}
 SEATS = {                                   # plan-view eyes (stage frame): the stalls' extremes and the centre
@@ -173,6 +179,8 @@ def check(d, verbose=False):
             if not inside(fa, *DECK['x'], *DECK['z']): deck.append(f'{tag} {ida}#{ia} off the deck: x {x0:.2f}…{x1:.2f} z {z0:.2f}…{z1:.2f}')
             elif z0 < 0 - E and not inside(fa, *APRON_X, -2.65, 6.6): deck.append(f'{tag} {ida}#{ia} on the apron but past its walls: x {x0:.2f}…{x1:.2f}')
             elif sat(fa, rect(*SR_ROOM['x'], *SR_ROOM['z'])): deck.append(f'{tag} {ida}#{ia} in the SR side room')
+            for name, r in KEEP_OUT:
+                if sat(fa, rect(*r['x'], *r['z'])): deck.append(f'{tag} {ida}#{ia} stands on {name}')
             # 2: support
             base = ya[0]
             if base > E and pa['kind'] not in ('flown', 'hand'):
@@ -248,7 +256,18 @@ def check(d, verbose=False):
             locs = s.get('at') or [s] * 1
             for i, loc in enumerate(locs):
                 poly = P.foot(p, {**loc, 'rotY': loc.get('rotY', 0)})
-                if not inside(poly, *k['x'], *k['z']): st.append(f'{pid}#{i} sticks out of the {where} park: {tuple(round(v, 2) for v in bbox(poly))}')
+                if not any(inside(poly, *r['x'], *r['z']) for r in k): st.append(f'{pid}#{i} is in none of the {where} parks: {tuple(round(v, 2) for v in bbox(poly))}')
+                for name, r in KEEP_OUT:
+                    if sat(poly, rect(*r['x'], *r['z'])): st.append(f'{pid}#{i} is parked on {name}')
+                # its walk on and off: the hull of the parked and every on-stage footprint it glides between
+                for e in p['scenes']:
+                    n_ = e if isinstance(e, int) else e['n']
+                    for seg_ in [g['seg'] for sc in P.d['scenes'] if sc['n'] == n_ for g in sc['segments']]:
+                        pls = P.placements(pid, n_, seg_)
+                        if i < len(pls) and pls[i].get('y', 0) <= 0.3:
+                            hull = convex(poly + P.foot(p, pls[i]))
+                            for name, r in KEEP_OUT:
+                                if sat(hull, rect(*r['x'], *r['z'])): st.append(f'{pid}#{i} glides across {name} on its way to {n_}.{seg_}')
                 parked.setdefault(where, []).append((pid, i, poly))
             if len(locs) < n and p['kind'] != 'hand':
                 st.append(f'{pid}: {n} copies but {len(locs)} storage spot(s) in the {where}')
@@ -375,6 +394,17 @@ def seen_flown(z, y0, y1):
         vis = [(a, b) for a, b in vis if b - a > 0.02]
         if vis: out.append((name, vis[0][0], vis[-1][1]))
     return out
+
+
+def convex(pts):
+    P_ = sorted(set(pts)); cr = lambda o, a, b: (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]); lo, up = [], []
+    for q in P_:
+        while len(lo) >= 2 and cr(lo[-2], lo[-1], q) <= 0: lo.pop()
+        lo.append(q)
+    for q in reversed(P_):
+        while len(up) >= 2 and cr(up[-2], up[-1], q) <= 0: up.pop()
+        up.append(q)
+    return lo[:-1] + up[:-1]
 
 
 def seg_x(ax, az, bx, bz, cx, cz, dx, dz):
