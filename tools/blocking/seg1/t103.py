@@ -19,7 +19,8 @@ H5 = ['ens1', 'ens4', 'ens5', 'ens8', 'ens10']     # REVIEW2: half the company
 # (0.27, 2.53)); it is up nearly the whole song, so the four stand about it
 H0 = (0.05, 2.4)
 FOUR_AT = [(-1.3, 2.9), (-0.1, 2.55), (1.1, 2.75), (2.3, 3.0)]
-TABLE = (-2.4, -1.0)          # NOTES2: the picnic table UR: x -3.3 .. -1.5, z -1.78 .. -0.22 (benches included)
+TABLE = (-1.2, 0.3)           # NOTES3 (Jack): the picnic table, farther toward centre (was NOTES2's (-2.4, -1.0) UR):
+                              # x -2.1 .. -0.3, z -0.48 .. 1.08 (benches included); t102.TABLE
 BURR_SEAT = (-3.3, -2.2)      # Burr in his chair UR (props.py 'burr-chair', 0.7 m behind him)
 
 # the five: where they come on from, and their places (Q106 and Q131), then Q137
@@ -90,7 +91,8 @@ def build():
     # ---- Q100 0.1 the room falls away to Hamilton behind the table; the friends fall back
     move('lafayette', M(0.1), M(2.6), (-2.6, 2.0), f=40)
     move('laurens', M(0.1), M(2.4), (2.4, 1.8), f=-40)
-    move('mulligan', M(1.4), M(3.6), (2.9, 3.6), f=-50)
+    move('mulligan', M(0.4), M(1.6), (0.05, -0.5), d=0)                  # NOTES3: round the table's SL end (he was behind it)
+    put('mulligan', M(5.2), (2.9, 3.6), f=-50)
     # Burr goes up to his chair UR and reads until his verse (fan staging account)
     move('burr', M(0.4), M(1.6), (-3.3, 2.6), d=0)
     via('burr', M(4.2), (-3.95, 0.0))                          # NOTES2: round the table's SR end
@@ -143,9 +145,11 @@ def build():
     # NOTES2 (Jack: "the table should come off about halfway through"): in the blue of Q119, ens1 and ens4 carry the
     # picnic table off USR between them (RULING FU), then come back to their places for chorus 2 (Q121 168.2)
     move('ens1', M(159.8), M(160.8), (TABLE[0] - 1.15, TABLE[1]), f=90)
-    move('ens4', M(159.8), M(160.8), (TABLE[0] + 1.15, TABLE[1]), f=-90)
-    pair_carry('ens1', 'ens4', 1.8, [(M(161.0), TABLE, 0, 'from'), (M(163.0), (-4.6, -1.4), -90, None),
-                                     (M(166.2), (-9.0, -1.4), -90, 'off')])
+    move('ens4', M(159.8), M(160.4), (-0.15, -0.65), d=0)                  # NOTES3: round the table's SL corner
+    put('ens4', M(161.0), (TABLE[0] + 1.15, TABLE[1]), f=-90)
+    # NOTES3: from the table's new spot, off USR turning in two steps (the SR carrier clear of the SR stair)
+    pair_carry('ens1', 'ens4', 1.8, [(M(161.0), TABLE, 0, 'from'), (M(162.4), (-2.9, -0.9), -45, None),
+                                     (M(163.8), (-4.6, -1.9), -90, None), (M(166.6), (-9.0, -1.9), -90, 'off')])
     for e, t in (('ens1', 166.8), ('ens4', 167.2)):
         put(e, M(t), WINGS['W_USR'], off=True); W[e][-1]['d'] = 0
         put(e, M(t + dist(WINGS['W_USR'], AT106[e]) / 1.5), AT106[e], f=face_to(AT106[e], H0, 60))
@@ -176,10 +180,15 @@ def build():
     turn(['lafayette', 'laurens', 'mulligan'], M(228.0), 0)
 
     # ---- Q127 231.9 the death verse: Hamilton alone in the centre shaft (ch13 at (0, 1.15)); the friends freeze apart
-    move('hamilton', M(231.9), M(234.4), (0.0, 1.15), f=0)
-    move('lafayette', M(231.9), M(234.6), (-3.2, 4.2), f=30)
-    move('laurens', M(231.9), M(234.6), (3.0, 4.3), f=-30)
-    move('mulligan', M(231.9), M(234.6), (4.4, 3.0), f=-40)
+    move('hamilton', M(231.9), M(233.4), (0.0, 1.15), f=0)       # NOTES3: in by 233.4, for imagine-death (dance.py)
+    # NOTES3 (Jack: "there are a lot of parts where they should be dancing and they are just standing still"): the friends
+    # no longer freeze in the corners. Q127 is "slow motion, cold": they walk a slow-motion ring round him (r 2.8 about the
+    # disc's centre, a step a beat of dance.py's slow-walk), 60 degrees counter-clockwise in 19 s -- the show's "falling
+    # left" (Blankenbuehler, BroadwayWorld) -- facing him; the snap back (Q129) takes them to their places as before
+    for a, th in (('lafayette', 240), ('laurens', 180), ('mulligan', 120)):
+        p = ring(2.8, th)
+        move(a, M(231.9), M(234.6), p, f=face_to(p, C, 135))
+    revolve(['lafayette', 'laurens', 'mulligan'], M(235.0), M(254.4), -60, step=15, face_in=True, r=2.8)
     # ---- Q129 255.0 the snap back
     move('hamilton', M(255.0), M(256.6), H0, f=0)   # SPOT: ch13 back at (0, 2.40)
     move('lafayette', M(255.0), M(257.0), (-2.0, 3.6), f=20)

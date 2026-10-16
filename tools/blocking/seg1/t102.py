@@ -4,6 +4,9 @@ from lib import *
 def B(at): return S('1-02', at)
 
 TAVERN = []   # REVIEW2 (Jack): no ensemble in Aaron Burr, Sir (was eight of the company filling the tavern)
+TABLE = (-1.2, 0.3)    # NOTES3 (Jack): the picnic table, farther toward centre (t103.py and props.py use the same spot)
+LAU_V, LAF_V, MUL_V = (-0.5, 1.45), (-1.85, 1.45), (-1.2, -0.85)   # NOTES3: the three verse places, at the table
+HAM_L = (0.75, 2.3)    # NOTES3: where Hamilton listens to the verses from
 
 def build():
     # ---- the street at night (Q80 0.5): Burr alone, strolling SR to centre
@@ -37,42 +40,54 @@ def build():
     # ---- Q86 83.4 the friends burst in; the street becomes the tavern
     # REVIEW2 (Jack): the friends carry on a picnic table and the ensemble does NOT come on.
     # NOTES2 (Jack): "the bench should go onto upstage right. two people should carry the table on": Mulligan and
-    # Laurens carry it BETWEEN them (RULING FU) from the USR wing, Lafayette a step ahead; it stands UPSTAGE RIGHT
-    # at (-2.4, -1.0) (x -3.3..-1.5, z -1.78..-0.22, the benches included) and they come down to their pools.
+    # Laurens carry it BETWEEN them (RULING FU) from the USR wing, Lafayette a step ahead.
+    # NOTES3 (Jack, 2026-10-14): "the table should come in a little farther towards center and the three guys are at
+    # the table when they do their parts": it stands at TABLE (-1.2, 0.3) (was (-2.4, -1.0)): x -2.1..-0.3, z -0.48..1.08,
+    # the benches included. The carry comes in further upstage (z -1.9) and turns in two steps, so the outer carrier
+    # stays clear of the SR stair (x -4.8..-4.2, z -0.25..1.8). Each friend sings his verse AT it: Laurens at the front
+    # bench's SL end, Lafayette at its SR end, Mulligan behind it at the centre; Hamilton listens from the DSL diagonal.
+    # SPOT: the verse specials (ch51 (2.41, 3.26), ch48 (-2.41, 3.06), ch50 (0.39, 2.44)) no longer land on them: the cue
+    # pass re-aims them to the three verse places below.
     move('hamilton', B(84.0), B(85.8), (-0.9, 2.1), f=20)
     move('burr', B(84.0), B(88.0), (-3.6, 3.6), f=45)
     put('lafayette', B(82.4), WINGS['W_USR'], off=True); W['lafayette'][-1]['d'] = 0
-    via('lafayette', B(85.0), (-4.2, -1.3))                                # upstage of the stair top, ahead of the table
-    put('lafayette', B(88.6), (-1.55, 3.3), f=60)
-    pair_carry('mulligan', 'laurens', 1.8, [(B(83.2), (-9.0, -1.4), -90, 'off'), (B(86.4), (-4.6, -1.4), -90, None),
-                                            (B(88.6), (-2.4, -1.0), 0, 'stop')])
-    move('mulligan', B(89.2), B(92.6), (0.6, 2.3), f=-10)                  # down to the centre
-
-    # ---- Q87 90.9 Laurens' verse, his pool SL (ch51 (2.41, 3.26)): straight down from the table
-    move('laurens', B(88.8), B(92.0), (1.75, 3.35), f=-30)
-    # ---- Q88 102.8 Lafayette's verse SR (ch48 (-2.41, 3.06)), at the table's SR end
-    move('lafayette', B(102.4), B(103.6), (-1.75, 3.2), f=30)
-    move('laurens', B(102.8), B(104.4), (1.15, 2.7), f=-45)
-    # ---- Q89 115.6 Mulligan's verse, behind the table centre
-    move('hamilton', B(113.6), B(115.2), (-0.8, 1.9), f=30)
-    move('mulligan', B(114.6), B(116.2), (0.4, 2.45), f=0)   # SPOT: his pool centre (ch50 at (0.39, 2.44))
-    move('lafayette', B(115.0), B(117.0), (-1.5, 2.45), f=60)
+    via('lafayette', B(85.0), (-4.0, -1.2))                                # ahead of the table, clear of the stair
+    put('lafayette', B(88.4), LAF_V, f=60)                                 # the front bench, SR end: his verse place
+    pair_carry('mulligan', 'laurens', 1.8, [(B(83.2), (-9.0, -1.9), -90, 'off'), (B(86.0), (-4.6, -1.9), -90, None),
+                                            (B(87.6), (-2.8, -1.0), -45, None), (B(89.4), TABLE, 0, 'stop')])
+    move('hamilton', B(89.6), B(91.0), HAM_L, f=-45)                       # to the DSL diagonal, watching the table
+    # ---- Q87 90.9 Laurens' verse, at the front bench's SL end (round the table's SL corner)
+    move('laurens', B(89.6), B(90.3), (0.1, 1.25), d=0)
+    put('laurens', B(91.0), LAU_V, f=-10)
+    turn(['lafayette'], B(91.2), 75)
+    # Mulligan goes round the SR end to the back of the table
+    move('mulligan', B(89.8), B(90.9), (-2.45, -0.7), d=0)
+    put('mulligan', B(92.2), (-1.55, -0.95), f=50)
+    # ---- Q88 102.8 Lafayette's verse, at the front bench's SR end
+    turn(['lafayette'], B(102.8), 5)
+    turn(['laurens'], B(103.0), -75)
+    turn(['mulligan'], B(103.2), -20)
+    # ---- Q89 115.6 Mulligan's verse, behind the table at its centre
+    move('mulligan', B(115.0), B(115.8), MUL_V, f=0)
+    turn(['laurens'], B(115.8), -150)
+    turn(['lafayette'], B(115.8), 150)
+    turn(['hamilton'], B(115.8), -60)
     # ---- Q90 127.6 the toast: the four round the table
-    move('hamilton', B(127.6), B(129.0), (0.0, 2.35), f=0)
-    move('mulligan', B(127.4), B(128.8), (0.9, 2.4), f=-20)
-    move('laurens', B(127.6), B(129.4), (1.35, 3.0), f=-80)
-    move('lafayette', B(127.6), B(129.4), (-1.35, 3.0), f=80)
+    move('hamilton', B(127.6), B(129.2), (0.1, 0.45), f=-80)               # the SL end
+    move('lafayette', B(127.6), B(128.8), (-2.5, 0.45), f=80)              # the SR end
+    turn(['laurens'], B(128.0), -20)
+    turn(['mulligan'], B(128.0), 0)
     # ---- Q91 133.7 they turn on Burr
     move('burr', B(133.7), B(135.4), (-1.85, 4.15), f=45)   # SPOT: into his AF (ch2)
     turn(['hamilton', 'laurens', 'lafayette', 'mulligan'], B(134.6),
          lambda a, p: face_to(p, (-1.85, 4.15), 120))
     # ---- Q92 139.6 Burr sits it out: back to his corner
     move('burr', B(139.6), B(141.6), (-4.2, 4.1), f=40)
-    turn(['laurens', 'lafayette', 'mulligan'], B(141.8), lambda a, p: face_to(p, (0.0, 2.35), 110))
+    turn(['laurens', 'lafayette', 'mulligan'], B(141.8), lambda a, p: face_to(p, TABLE, 110))
     turn(['hamilton'], B(141.8), 0)
     # ---- Q93 151.6 Hamilton steps up: the vamp into My Shot
-    # SPOT: his DSC special is ch13 at (0, 2.40): he steps back among the friends on Q92 and forward into it on Q93
-    # (just upstage of the picnic table)
+    # SPOT: his DSC special is ch13 at (0, 2.40): he steps down from the table's SL end on Q92 and forward into it on
+    # Q93 (just downstage of the picnic table)
     move('hamilton', B(142.4), B(143.6), (0.0, 1.7), f=0)
     move('hamilton', B(151.6), B(152.8), (0.05, 2.35), f=0)
     turn(['laurens', 'lafayette', 'mulligan'], B(152.4), lambda a, p: face_to(p, (0.05, 2.35), 120))

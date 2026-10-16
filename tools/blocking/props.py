@@ -173,7 +173,9 @@ def STRIKE(pid, who, track0, t0, track1, t1, wing, note=None):                 #
 # the tavern: 1-04 the four by candlelight round their chairs DSC (seg1/t104.py); 1-12 the table DC (seg3gen.py).
 # 1-06 Seabury's box (seg1/t106.py BOX (1.4, 2.4); "the soapbox goes on in the dark", cue 174.7)
 FOUR = [('lafayette', (-1.26, 3.47), 20), ('hamilton', (-0.39, 3.78), 5), ('laurens', (0.49, 3.79), -5), ('mulligan', (1.37, 3.48), -20)]
-EXIT4 = {'lafayette': ('W-MSR', 97.0), 'mulligan': ('W-MSL', 97.0), 'laurens': ('W-DSL', 95.0), 'hamilton': ('W-DSL', 95.0)}
+# NOTES3 (Jack): the chairs are taken off by four of the company (seg1/t104.py STRIKERS) while the four stand DS: per chair
+# (FOUR's order) who, the pick-up (1-04) and when she is off with it (1-05: her exit's arrival, rounded up)
+CHAIR_OFF = [('ens9', 88.2, 1.3, 'W-DSR'), ('ens10', 88.4, 2.1, 'W-DSR'), ('ens6', 88.6, 2.3, 'W-DSL'), ('ens7', 88.8, 1.9, 'W-DSL')]
 SEGMENT_1 = [
     # REVIEW2 (Jack's notes, 2026-10-13). 1-01: the cousin's chair (fan account) stands preset UC by the SL stair foot;
     # the cousin (ens3) sets it at centre for Washington's verse; right before Q51 ens7 carries a table on to the centre
@@ -205,19 +207,19 @@ SEGMENT_1 = [
     STRIKE('street-lamp', 'ens10', '1-02', 80.0, '1-02', 83.2, 'W-MSL',
            note='NOTES2 (Jack): "the street light should come off right before the table comes on"'),
     P('picnic-table', 'table', 'Picnic table', '#5a2a1f', size=[1.8, 0.75, 1.56], model='assets/props/picnic-table.glb'),
-    BRING('picnic-table', ['mulligan', 'laurens'], '1-02', 83.0, '1-02', 88.6, -2.4, -1.0, 0, wing='W-USR',
-          note='1-02 Q86: Mulligan and Laurens carry it on between them to UPSTAGE RIGHT (Jack, NOTES2; RULING FU)'),
-    STRIKE('picnic-table', ['ens1', 'ens4'], '1-03', 161.0, '1-03', 166.4, 'W-USR',
+    BRING('picnic-table', ['mulligan', 'laurens'], '1-02', 83.0, '1-02', 89.4, -1.2, 0.3, 0, wing='W-USR',
+          note='1-02 Q86: Mulligan and Laurens carry it on between them (RULING FU); NOTES3 (Jack): "a little farther towards center" (was (-2.4, -1.0)), the three sing their verses at it'),
+    STRIKE('picnic-table', ['ens1', 'ens4'], '1-03', 161.0, '1-03', 166.6, 'W-USR',
            note='NOTES2 (Jack): "the table should come off about halfway through": in the blue of Q119 (159.8)'),
     STRIKE('burr-chair', 'ens4', '1-03', 331.4, '1-04', 1.0, 'W-USR', note='struck in the My Shot blackout'),
     P('tavern-table', 'table', 'Tavern table', WALNUT, size=[0.8, 0.75, 0.5]),
     DARK('tavern-table', '1-03', 331.4, 0.0, 2.7, 0, note='1-04: set in the blackout at the end of My Shot (cue 139.5); the candle table upstage of their chairs'),
-    HIDE('tavern-table', '1-04', 89.2, (0.0, 2.7), note='struck in the 1-04 blackout (cue 149)'),
+    STRIKE('tavern-table', 'ens3', '1-04', 88.6, '1-05', 1.9, 'D-UC', note='NOTES3 (Jack): one of the company takes it off up the centre while the four stand DS (was: vanished at 89.2)'),
     *[P(f'tavern-chair-{k + 1}', 'chair', f'Chair ({who.capitalize()})', PINE) for k, (who, p, f) in enumerate(FOUR)],
     *[DARK(f'tavern-chair-{k + 1}', '1-03', 331.4, *behind(p, f, 0.7), f, note="1-04: his chair, behind his pool (chair pools ch48-51); set in the blackout")
       for k, (who, p, f) in enumerate(FOUR)],
-    *[STRIKE(f'tavern-chair-{k + 1}', who, '1-04', 89.1, '1-05', EXIT4[who][1] - 91.0, EXIT4[who][0], note='he takes his own chair off in the blackout (cue 149)')
-      for k, (who, p, f) in enumerate(FOUR)],
+    *[STRIKE(f'tavern-chair-{k + 1}', e, '1-04', t0, '1-05', t1, wg, note='NOTES3 (Jack): "ensemble members go and take the chairs off" while the four stand DS in their specials (Q147)')
+      for k, (e, t0, t1, wg) in enumerate(CHAIR_OFF)],
     # REVIEW 3: the Schuyler Sisters' "book guy" -- "their dad's dancing with a book", "that guy with the book is going
     # wild with his dance moves" (Disney+ clip comments; of the 2016 Tonys number: "where's book guy appreciation"):
     # the sisters' father's actor, so ens4 (Philip Schuyler's body), dances the number with a book in his hands
@@ -234,7 +236,7 @@ SEGMENT_1 = [
 # ===== END SEGMENT 1 =====
 
 # ===== SEGMENT 2 (1-07..1-11) =====
-# Washington's desk: 1-08 the tent and 1-09 (gen_seg2.py). The tavern table comes back for 1-12 (carried on at the end of 1-11).
+# Washington's desk: 1-08 the tent, struck at 277 (NOTES3; gen_seg2.py). The tavern table comes back for 1-12 (carried on at the end of 1-11).
 SEGMENT_2 = [
     P('washington-desk', 'desk', "Washington's desk", OAK),
     BRING('washington-desk', 'ens4', '1-08', 167.0, '1-08', 174.0, -0.35, 0.85, 0, wing='W-USR',
@@ -242,8 +244,10 @@ SEGMENT_2 = [
     P('washington-tent-chair', 'chair', 'Chair (Washington, the tent)', PINE),
     BRING('washington-tent-chair', 'ens10', '1-08', 167.5, '1-08', 174.5, -0.35, -0.45, 0, wing='W-USR',
           note='1-08: a second soldier sets his chair behind the desk; in 1-09 he stands at it (seated) at (-0.3, 0.2)'),
-    HIDE('washington-tent-chair', '1-09', 0.2, (-0.35, -0.45), note='struck in the blackout after Right Hand Man (Q289.5); 1-09 has him behind the desk'),
-    STRIKE('washington-desk', 'washington', '1-09', 20.3, '1-09', 27.5, 'W-USR', note='1-09: Washington takes it with him once Hamilton is hired (REVIEW 3: the Disney+ clip has him going at 0:21)'),
+    # NOTES3 (Jack, 2026-10-14): "washington's desk should come off around 4:37" (277; was: taken off by Washington in 1-09,
+    # the chair in the blackout after Q289.5): two of the company who are free come on from MSR and take both off
+    STRIKE('washington-desk', 'ens1', '1-08', 277.0, '1-08', 283.6, 'W-MSR', note="NOTES3 (Jack): \"washington's desk should come off around 4:37\"; ens1 (free since the spy's exit) takes it off MSR"),
+    STRIKE('washington-tent-chair', 'ens9', '1-08', 277.2, '1-08', 284.7, 'W-MSR', note='NOTES3: and ens9 (not otherwise in 1-08) the chair with it'),
     P('sisters-bench', 'bench', 'Bench (the sisters)', OAK, size=[1.5, 0.45, 0.4]),
     BRING('sisters-bench', 'ens1', '1-10', 108.6, '1-10', 114.0, 0.0, 3.0, 180, wing='W-DSR',
           note='1-10 Two weeks (Q302; hamilton-lyrics: the sisters sit on a bench on the turntable; photo 302: the three at the disc\'s downstage edge, backs to the house): set as the letters end'),
