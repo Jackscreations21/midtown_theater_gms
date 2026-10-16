@@ -11134,7 +11134,7 @@ const underMat = {
   stair:  underStd(0x8d8d88, 0.9, 0.22),                         // concrete treads
   nose:   underStd(0xd9a91a, 0.6, 0.40),                          // the treads' yellow nosings
   timber: underStd(0x8a6a45, 0.7, 0.22),
-  deck:   underStd(0x2c2723, 0.8, 0.30),                          // the lifts' tops: painted masonite, near the scan's deck
+  deck:   underStd(0x3a332c, 0.85, 0.25),                          // the lifts' tops: painted masonite, near the scan's deck
   booth:  underStd(0x58606a, 0.8, 0.20),
   hatch:  underStd(0xffffff, 0.8, 0, { emissive: 0x8a8a8a }),     // map and emissiveMap: underHatch() (yellow/black)
   drop:   new THREE.MeshBasicMaterial({ toneMapped: false }),     // the paint frame's cloth: map underDrop()
@@ -11207,7 +11207,7 @@ const underConcrete = () => underCanvasTex(256, 256, (g) => {
   g.fillStyle = '#76746f'; g.fillRect(0, 0, 256, 256);
   let s = 11; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
   for (let i = 0; i < 2600; i++) { const v = 96 + Math.floor(rnd() * 46); g.fillStyle = `rgba(${v},${v - 2},${v - 6},0.55)`; g.fillRect(rnd() * 256, rnd() * 256, 2, 2); }
-  for (let i = 0; i < 14; i++) { g.fillStyle = 'rgba(40,38,34,0.10)'; g.beginPath(); g.arc(rnd() * 256, rnd() * 256, 10 + rnd() * 30, 0, 7); g.fill(); }
+  for (let i = 0; i < 14; i++) { g.fillStyle = 'rgba(40,38,34,0.05)'; g.beginPath(); g.arc(rnd() * 256, rnd() * 256, 8 + rnd() * 18, 0, 7); g.fill(); }
   g.strokeStyle = '#4a4844'; g.lineWidth = 2; g.strokeRect(1, 1, 254, 254);
 });
 const underHatch = () => underCanvasTex(128, 128, (g) => {
@@ -11272,13 +11272,13 @@ function buildUnder() {
   bx('wall', U.x0 - T, U.x0, Y0, YC, U.z0 - T, U.z1 + T); bx('wall', U.x1, U.x1 + T, Y0, YC, U.z0 - T, U.z1 + T);
   bx('wall', U.x0, U.x1, Y0, YC, U.z0 - T, U.z0); bx('wall', U.x0, U.x1, Y0, YC, U.z1, U.z1 + T);
   const WH = U.wing.hole, BH = U.bs.hole;
-  const ceilHoles = [shF, shB, [WH.x0 - 0.01, WH.x1, WH.z0, WH.z1], [13.50, 17.95, 9.15, 11.25]];
+  const ceilHoles = [shF, shB, [WH.x0 - 0.01, WH.x1, WH.z0, WH.z1], [13.50, 17.95, 9.15, 11.75]];   // the backstage stair: no ceiling over its first treads (the walker's head)
   for (const [a, b, c, d] of underRects([U.x0, U.x1, U.z0, U.z1], ceilHoles)) bx('ceil', a, b, C, YC, c, d);
   let joists = 0;
   for (let x = U.x0 + 0.6; x < U.x1 - 0.3; x += 1.2)
     for (const [a, b, c, d] of underRects([x - 0.06, x + 0.06, U.z0, U.z1], ceilHoles)) { bx('joist', a, b, U.joistY, C, c, d); bx('joist', a - 0.05, b + 0.05, U.joistY, U.joistY + 0.02, c, d); joists++; }
-  // two columns where nothing travels, a yellow foot on each
-  for (const [x, z] of [[16.70, 5.55], [23.10, 5.45]]) { bx('steel', x - 0.12, x + 0.12, F, U.joistY, z - 0.12, z + 0.12); bx('yellow', x - 0.14, x + 0.14, F, F + 1.2, z - 0.14, z + 0.14); }
+  // a column between the two shafts' gates, where nothing travels, a yellow foot on it
+  for (const [x, z] of [[23.10, 5.45]]) { bx('steel', x - 0.12, x + 0.12, F, U.joistY, z - 0.12, z + 0.12); bx('yellow', x - 0.14, x + 0.14, F, F + 1.2, z - 0.14, z + 0.14); }
   // 3. THE SHAFTS: walls from the pit's floor to just under the deck, the east one open to the dock (the gate's way) from the
   // floor to the gate's top; a pit floor; guide rails on the walls; the lettering
   const DT = D - 0.01, PY = U.pit;
@@ -11749,8 +11749,9 @@ function underCheck() {
       const g = groundAt(x, z, y === null ? s.from + 0.05 : y);
       if (g === null) { bad = `no floor at ${f2(x)}, ${f2(z)}`; break; }
       if (y !== null) worst = Math.max(worst, Math.abs(g - y));
+      const base = y === null ? g : Math.max(y, g);                 // the walk's own test (stepTo): the body from the higher of the two
       y = g; n++;
-      head = Math.min(head, rayUp(x, g + WALK.step, z, 6) + WALK.step);
+      head = Math.min(head, rayUp(x, base + WALK.step, z, 6) + WALK.step);
     }
     const ok = !bad && worst <= Math.min(WALK.step, WALK.snap) && head >= WALK.head;
     const y0 = groundAt(s.pts[0][0], s.pts[0][1], s.from + 0.05), y1 = y;
