@@ -2075,3 +2075,38 @@ include the place a failure would show — the corridor behind the house, not on
   the Claude window behind, the pane's screenshot timed out. What worked: `MIDTOWN.frame()`, then in the same task
   `drawImage` the WebGL canvas onto a 2D canvas, then POST `toDataURL()` to a tiny local receiver (a scratch Python
   server on another port, `mode: 'no-cors'`), which saves PNGs that the Read tool can open.
+- **A re-aimed mover keeps its new focus in every later cue that does not set one, across songs.** Cues track. Moving
+  Burr's AF (ch2) to centre for 1-01 Q65 also moved it in 1-02, 1-03 and 1-05's top. Viper 6, marked onto Washington's
+  balcony, lit the balcony rail through 1-02 and 1-03. The fix: give the unit its old landing back as `focus` in the first
+  later cue where it is dark (a move in the dark). Then re-dump and run `tools/pool-dump-diff.py` against a dump made before
+  the edit. Every line should be a cue you meant. `tools/spot-audit.py --fix` does the restore itself.
+- **A restore must give back the colour, gobo and zoom too, not just the focus.** The 2-06 gallery keys were set to gobo
+  Open, and 2-07's construction wash came up Open. Burr's DSR key changed the AF's colour into 1-06. The diff shows
+  these as `g1>0` and `#ffe8b5>#fff6dd`. Take the old values from the cue file at the commit before.
+- **"Set a key, then pop it" loses the value that was there before.** A script set `"i": 0` on 1-20 Q589's 1 / 5 (they were
+  at 100). A later "undo" popped the key, which left them at the tracked 55. To undo an edit, restore from the old file;
+  never delete a key.
+- **A reach test on a balcony or gallery passes or fails by the head's starting pose.** A mover has two pan / tilt solutions
+  for one point, and the lens is off-axis. Viper 6 reached Washington's SR balcony from three starting cues and hit the rail
+  from the fourth. 5 cm further on, it cleared from all of them. Test with `REACH` (`tools/pool-dump.js`) after seeking to the
+  cue BEFORE the one that aims it. Then confirm in the dump.
+- **The `"*"` channel key means every Eos channel, including the 72 that have no unit.** A fade-to-black written as
+  `{"*": {"i": 0}}` sent `show.check()`'s "channels without units" from 16 to 88. Zero the rig's channels by name
+  (`assets/hamilton-rig.json`).
+- **A follower at the same moment as a parted real cue makes the real cue a zero-length hold in the dump.** The dump reads
+  each cue just before the next one's GO. The real cue is therefore read at its own GO, before its delayed parts fire.
+  In 2-05, 866's part 2 brings 13 / 18 up 2 s in, so the dump said 1% for them. The page has them at 70%.
+- **A track's last cue was dumped past the track's end, so it showed the next song's first cue.** The bug was
+  `until = max(len, at + 1)`. `tools/pool-dump.js` now reads a last cue at the track's end, and only the open tail of 2-23
+  gets the extra second.
+- **Where a beam lands is not who it lights.** Lafayette on a piece at 0.8 m, and Eacker in his box, are lit by beams that land
+  on the deck behind them. A pool-centre test at the deck says nobody. Follow the beam's axis down to the person's own floor
+  height (`tools/spot-audit.py`), and count nobody below the point where the beam stopped (a rail).
+- **A cue that names someone may be the cue that takes her away.** "Lee goes - his key out" and "Burr exits - warm collapses"
+  name the person who is leaving. A named-miss test must skip exits, or it re-lights the person on her way out.
+- **Python inside a Bash heredoc can turn `\b` into a backspace.** A `str.replace` written as `"r'\b(...)"` inside a
+  heredoc'd Python program put a 0x08 byte into the source. The exit regex then matched nothing, and nothing failed. Check a
+  regex line with `repr()`, or edit it with the Edit tool.
+- **`show.check()` plus a whole-show dump in one `javascript_tool` call runs past its 45 s limit.** The page keeps working, so
+  the files land late and partly. The audit that ran meanwhile read half a show. Split the dump (`DUMPALL(0, 23)`,
+  `DUMPALL(23, 46)`) and count the files before reading them.
