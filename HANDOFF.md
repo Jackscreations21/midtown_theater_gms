@@ -229,6 +229,55 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-15 (later): a worklight on each stage, switched three ways (PR #5)
+
+*"make a worklight i can turn on for both stages"* — *"use opus agents"*. One Opus agent built it in a worktree off
+`main` (`346f6de`); a second checked it independently in the pane (verdict: ship with one fix — below). **The fixture** (`wlBuild({i,
+house, name, dx, root, archZ, box})`, called twice like the booth and desk): a caged work flood from primitives —
+enamelled housing with fins, bezel, a lens that glows when on with an additive halo, a wire guard, handle, yoke with
+tilt knobs, wall plate, arm and brace — hung on each house's stage-left fly wall at the same local spot (pivot
+(−9.30, 11.40, 4.60), +20 in x for Theatre 2), aimed at (0, deck, 5.5): 10.4 m over the deck, 1.0 m clear of the
+set's bounds (top 10.17), 3.3 m clear of the rig. **The switch**: a grey steel box at 1.30 m on the stage-left wall
+1.0 m upstage of each house's OWN proscenium (z 1.20 house 1, z 3.30 Theatre 2 — the prosceniums differ, 0.20 vs
+2.30), a lever (up = on), a red pilot lamp, a "WORK LIGHT" label, and a conduit up the wall and along the fly wall to
+the lamp, routed off each scan's collision triangles. **Switching**, one state per stage through `wlSet`: a `Worklight`
+group in the header (`Stage 1` / `Theatre 2`, `aria-pressed`; two header rows at 1280 and 1366 px, three at 1024); E
+while walking at the switch you face (the switches are `doorAim` targets; hint `E — worklight on` / `… off`);
+`MIDTOWN.worklight.set(1|2, on, fade)`, `.toggle(house)`, `.state()`, `.check()`. A 0.3 s fade off `dt` (`wlTick`).
+Both OFF on load. **The show**: Start fades Stage 1's out over `SHW_WORK_FADE` (3 s) from the same call as the engine's
+work look; Stop puts it back if it was on and was not switched during the show; Theatre 2's is untouched; no cue, show
+file or engine work-look code changed. **No real light at all**: a SpotLight cannot work here — the backstage corridor
+lies right behind each back wall at deck height, within 1–2° of the upstage deck from any lamp position, and three.js
+has no per-object light mask, so a real cone lit the corridor through the brick at about half the backstage's own
+light. Instead the light is a term in the materials' shaders clipped to each stage house's box: on the scan, colour ×
+(1 + gain·k) plus a small lift (the deck texture averages ~0.9 %, so a multiplier alone showed nothing; a scan face is
+lit only when lamp and viewer are on the same side of it); on lit materials (set, rig, actors, built and baked pieces,
+Theatre 2's stage doors) the lamp's Lambert irradiance. At level 0 the term is skipped. The House light slider writes
+colour, the worklight a uniform, so they multiply and neither wipes the other; 194 materials take it, and a sweep once
+a second (~0.6 ms, off dt) patches the 24 actor and prop materials that load after compile. Warm 0xffe4bc, gain 8,
+lift 0.08. **Checked (builder)**: `lx.check` 301/313, `doors.check` 13/13, walls, actors, backstage fittings
+byte-identical before and after; console only the soundtrack HEAD 404 as before; draw calls On stage 305 → 306,
+Theatre 2 568 → 578/579, Back of house 1291 → 1309/1311 (the fixtures' 9 meshes each in view plus a glow per lit
+lamp), frame medians unchanged within the pane's drift; a real E press at Theatre 2's switch turned it on (fade began,
+header button pressed, hint flipped); `check()` proves both fixtures inside their stage box and above the deck, clear of
+the set's bounds, the rig (triangle test), the walk's triangles and every door and curtain swath, the light box short
+of the backstage wall, each switch reachable from a walkable spot by the walk's own rays, off → on → slider → off
+restoring all 84 scan colours, the uniforms, the lamps and both views' pixels exactly, and one stage's light changing
+none of the other's pixels; negative-checked twice (a lamp in the set, a level stuck at 0.2). Not proved by the
+builder: E at Stage 1's switch (simulated walk only), the engine's work level read beside the fade (`lx.work()` sets,
+never reads). **The checker** (second Opus agent, the page served beside `main` on
+another port): every claim above CONFIRMED with its own measurements (0 % of house 1's, the stalls', the lobby's and
+the corridor's pixels change when Theatre 2 is lit; 87 pixels outside Theatre 2's opening by at most 24/765; a real E
+at BOTH switches; the slider exact at 0.8/1.4/2.2; +1/+9/+18 calls; GPU-synced frame 18.0 vs 18.0 ms), and ONE bug:
+a worklight switched on after the Show panel was open stayed on through Play — the hook was only in `showStart`, and
+the Play that follows the preshow goes through `showPause`. Also: `check()` compared `r.box`, a record, while the shader
+clips with `WL_U.uWlBox0/1` — a stretched uniform lit the corridor and still passed; and the walker's 0.25 m body
+passes through the switch box (its centre stands 0.25 m off the wall; invisible in first person). **The lead's fix**
+(`b0a2306`, re-checked in the pane): `wlShow` is idempotent and `showPause` calls it on both paths that start playing —
+on after panel-open → Play fades it 1 → 0 linear over exactly 3.0 s, Pause / Play again keep it out, Stop brings it
+back; Theatre 2's never moves; the check proves the uniforms equal the record and tests the reach on the uniform (the
+stretched plant now fails twice). `lx.check` 301/313, `doors.check` 13/13, walls, actors PASS after the fix. Nine traps under "From the worklight round". Decisions for Jack are STATE.md item 0.
+
 ## DONE — 2026-10-15 (night): the soundtrack from his own disk on Pages, instead of YouTube (PR #4)
 
 *"can you just make it play the audio from the file i gave becuase it started playing from youtube and i got an ad."*

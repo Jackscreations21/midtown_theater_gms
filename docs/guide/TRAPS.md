@@ -1994,3 +1994,14 @@ against this list before opening a PR; **add new traps as you hit them.**
 - **The pane's screenshot can be a frame behind `MIDTOWN.frame()`.** A toggle, a frame and a screenshot showed the state
   (once the view) before; take it twice. And the hidden pane throttles timers as well as frames: a `setInterval` sampler
   never finished inside the tool's 45 s — read state across separate calls instead.
+
+**The show has two ways to start playing.** `showStart` runs at the Show panel's OPEN (the preshow), and the Play that
+follows goes through `showPause`, never `showStart`. A hook only in `showStart` (the worklight's, at first) misses
+every Play from the preshow or a pause: switched on with the panel open, the light burned through the act. Hook what
+"the show is playing" means, in both places, and make the hook idempotent so a second Play does not overwrite what Stop
+restores.
+
+**A check that reads the record, not the thing.** `wlCheck` tested `r.box` (the JavaScript copy) while the shader
+clips with the uniforms `uWlBox0/1`; a uniform stretched into the backstage lit the corridor and the check passed. A
+check of a GPU-side value must read the GPU-side value (or prove the record equals it), and its pixel views must
+include the place a failure would show — the corridor behind the house, not only the stage.
