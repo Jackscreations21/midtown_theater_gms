@@ -95,12 +95,10 @@ GS = (5.49, 2.36)
 # patrons (2016) - Burr gives the opening of Guns and Ships from the stage-left balcony. He comes along the gallery
 # from the back way while he starts (the album gives no lead-in), sings the intro there, and goes back the same way in
 # the build while the company's attention goes to Lafayette on the deck.
-off('burr', T(tr, 0.0), 'G-UC')
-g('burr', T(tr, 0.8), 0.6, -3.35, dwell=0)
-g('burr', T(tr, 3.0), 4.75, -3.2, dwell=0)
-g('burr', T(tr, 3.6), 4.9, -2.2, dwell=0)
-g('burr', T(tr, 5.8), 4.9, 1.9, dwell=0)
-g('burr', T(tr, 6.3), GS[0], GS[1], face=-40)
+# NOTES3 (Jack, 2026-10-14/15): "burr should already be on the balcony by the time the light goes to him" (cue 560, 0.0):
+# he walks on in 1-17's fade from the SL wing (seg3gen.py) and is on the G&S spot from 1-17 177.8; he holds it here.
+g('burr', T(tr, 0.5), GS[0], GS[1], face=-40)
+CARRIED = {'burr'}   # his path comes in from segment 3 already on stage
 # REVIEW 3 (video): Burr does NOT leave after the intro. Comments on the Disney+ clip (0D3zz6byFT4): "everyone upstairs
 # is dancing except for Burr" and "the guy that comes up to him is the one who played Lee" (clip 1:04, album ~62);
 # "we see him glaring angrily from above while Lafayette tells Washington he needs his right-hand man back"
@@ -183,11 +181,14 @@ wp('laurens', T(tr, 71.0), *SLF, face=facing_to(SLF, (1.7, -1.9)))   # at the fo
 hold_until('laurens', T(tr, 72.3))
 wp('laurens', T(tr, 76.8), *SLT, dwell=0, y='top')
 g('laurens', T(tr, 77.5), 4.6, -3.2, face=-90)
-off('hamilton', T(tr, 0.0), 'G-UC')
+# NOTES3 (Jack): "make hamilton and eliza wait to come off till the lights are fully out" - 1-17's button is black at its
+# last second (178.0), so they walk off DR in the dark of 1-18's top (seg3gen.py holds them to 1-18 0.5 / 0.2); he takes
+# his bench (props.py SEGMENT 4)
+wp('hamilton', T(tr, 7.0), ENT['W-DSR'][0], ENT['W-DSR'][1] - 0.4, off=True)
 off('hamilton', T(tr, 83.5), 'G-UC')
 g('hamilton', T(tr, 84.7), 0.6, -3.35, dwell=0)
 g('hamilton', T(tr, 85.3), 1.2, -3.35, face=0)
-off('eliza', T(tr, 0.0), 'G-UC', label='Eliza')
+off('eliza', T(tr, 5.9), 'W-DSR', label='Eliza')     # NOTES3: off DR in the dark at the top (above)
 off('eliza', T(tr, 84.6), 'G-UC')
 g('eliza', T(tr, 85.8), 0.6, -3.35, dwell=0)
 g('eliza', T(tr, 86.4), 0.3, -3.65, face=0)
@@ -225,10 +226,13 @@ wp('lafayette', T(tr, 28.0), -0.8, 1.6, face=20)   # REVIEW 3: SR of the table e
 # comments: "jump from a table, land on the ground, and STILL keep the same momentum", "0:38 ... when he jumped and
 # when he landed"; clip 0:38-0:39 = album ~36.5). The page has no raised standing: he stands inside the table's
 # footprint (props.py 'gs-table' at LAFC), as Burr does on the Room's table in 2-05; the jump is the 'jump' move.
-wp('lafayette', T(tr, 31.3), LAFC[0], LAFC[1], face=0)
-hold_until('lafayette', T(tr, 36.4))
-wp('lafayette', T(tr, 37.0), 0.0, 3.0, face=0)      # landed, downstage of the table
+# NOTES3 (Jack, 2026-10-14/15): "lafayette is on top of the table till 40 seconds in then he jumps off. he was inside the
+# table." His waypoint on it carries the table's TOP as his floor, y = the deck 0.05 + its height 0.75 (props.py gs-table);
+# he jumps down on bar 23 (39.98; dance.py) and lands in front of it.
+GS_TOP = 0.8
+wp('lafayette', T(tr, 31.3), LAFC[0], LAFC[1], face=0, y=GS_TOP)
 hold_until('lafayette', T(tr, 40.0))
+wp('lafayette', T(tr, 40.8), 0.0, 3.0, face=0)      # landed, downstage of the table
 wp('lafayette', T(tr, 42.3), -1.0, 2.8, face=15)
 wp('lafayette', T(tr, 45.7), 1.0, 2.8, face=-15)
 wp('lafayette', T(tr, 48.8), 0.0, 1.8, face=0)
@@ -249,8 +253,11 @@ exit_to('lafayette', T(tr, 120.2), 'W-DSL', speed=1.5, via=[(5.8, 4.75)])
 
 # Washington: through the deck door to the centre for the plan, his anthem DC, back to centre for the button
 off('washington', T(tr, 0.0), 'D-UC')
-off('washington', T(tr, 50.0), 'D-UC')
-wp('washington', T(tr, 54.5), 0.3, -2.0, dwell=0)
+# NOTES3 (Jack): "washington should come on at around 46 seconds" - out of the deck door at 46.2 (cue 564, the ships), he
+# stands up centre watching Lafayette (clear of Lee's walk to the SL stair, which passes 1 m downstage of him at ~49.8),
+# then comes down into his special for 59.2
+off('washington', T(tr, 45.5), 'D-UC')
+wp('washington', T(tr, 48.0), 0.6, -2.6, face=facing_to((0.6, -2.6), (0.0, 1.8)))
 wp('washington', T(tr, 59.2), 0.0, 0.95, face=0)
 # SPOT: cues 568-572 hold Washington's special (Viper 93) at (0, 1.54) under the anthem: he sings in it, not DC
 wp('washington', T(tr, 80.0), 0.0, 1.65, face=0)
@@ -282,7 +289,7 @@ wp('hamilton', T(tr, 52.9), -0.8, 3.8, face=60)
 # (clip ~ album + 4 s: album ~64, the verse-2 build, cue 581): Hamilton comes up beside him, at the edge of his special
 wp('hamilton', T(tr, 64.5), -1.1, 2.45, face=80)
 wp('hamilton', T(tr, 74.7), -1.2, 3.2, face=30)
-# into Yorktown: onto the box near the lip
+# into Yorktown: to the lip (NOTES3: the box comes later, for his verse)
 hold_until('hamilton', T(tr, 95.0))
 wp('hamilton', T('1-20', 0.0), 0.0, 4.7, face=0)
 
@@ -292,15 +299,11 @@ wp('hamilton', T('1-20', 0.0), 0.0, 4.7, face=0)
 # transition (cue 584, 94.5: "the cold column ... troops in line", under the drum count-in) to form the Yorktown line.
 LINE = [(-4.0 + 0.8 * k, -1.4) for k in range(11)]
 YC = ['ens1', 'ens2', 'ens3', 'ens4', 'laurens', 'ens5', 'ens6', 'ens7', 'ens8', 'ens9', 'ens10']   # SR -> SL
+# NOTES3 (Jack, 2026-10-14/15): "the box doesn't come on till later" - ens10 no longer brings it on here; he walks on
+# with the line, and brings it on in 1-20 for Hamilton's solo verse (below)
 for a, p in zip(YC, LINE):
-    if a == 'ens10': continue
     off(a, T(tr, 94.5), nearest(p, ['W-USR', 'W-MSR', 'D-UC', 'W-USL', 'W-MSL']))
     wp(a, T('1-20', 2.5), p[0], p[1], face=0)
-# the Yorktown box (Joan Marcus photo: Hamilton on a box near the lip): ens10 brings it on from W-DSL in the dark at
-# the lip (cue 583 has pulled the stage in to Washington), sets it down, and takes the SL end of the line
-off('ens10', T(tr, 90.0), 'W-DSL')
-wp('ens10', T(tr, 94.5), 0.5, 4.55, face=-90, dwell=0.3)
-wp('ens10', T('1-20', 2.5), LINE[10][0], LINE[10][1], face=0)
 W1s = sorted([(-4.0, -3.1), (-3.2, -3.1), (-2.4, -3.1), (-1.6, -3.1), (-0.8, -3.1), (0.0, -3.1), (0.8, -3.1), (1.6, -3.1),
               (-3.6, -2.2), (-2.0, -2.2), (-0.4, -2.2), (1.2, -2.2)])
 
@@ -313,11 +316,16 @@ place(YC, [(x, 1.2) for x, _ in LINE], T(tr, 12.0), face=0)
 place(YC, [(x, 0.2) for x, _ in LINE], T(tr, 22.4), face=0)   # SPOT2: back by 22.4, clear of the centre pool
 place(YC, [(x, 2.4) for x, _ in LINE], T(tr, 34.5), face=0)
 # Lafayette and Hamilton, the farewell exchange DSC
-off('lafayette', T(tr, 12.0), 'W-DSL')
+# NOTES3 (Jack, 2026-10-14/15): "lafayette comes on to talk with hamilton at 10. lafayette goes off at 32." He walks on from
+# DL to Hamilton at the lip by 10.0 (the two in profile), they go up into the centre pool for the farewell (22.4), and he
+# leaves DL on 32.0 as the company's Shot reprise starts (cue 590); he is back for the night attack (72-73.5, below).
+off('lafayette', T(tr, 4.0), 'W-DSL')
+wp('lafayette', T(tr, 10.0), 0.9, 4.75, face=facing_to((0.9, 4.75), (0.0, 4.7)))
+wp('hamilton', T(tr, 10.0), 0.0, 4.7, face=facing_to((0.0, 4.7), (0.9, 4.75)))
 # SPOT2: cue 589 is preset 402 "3 pools" (Eos): the farewell is played in its centre pool, Viper 13 at (-0.04, 1.84)
 wp('lafayette', T(tr, 22.4), 0.4, 1.9, face=-60)
 wp('hamilton', T(tr, 22.4), -0.45, 1.9, face=60)
-wp('lafayette', T(tr, 32.2), 0.6, 3.6, face=0)
+exit_to('lafayette', T(tr, 32.0), 'W-DSL', speed=1.6)
 wp('hamilton', T(tr, 32.2), -0.6, 3.6, face=0)
 def assign_ring(actors, pts):
     out, free = {}, list(range(len(pts)))
@@ -326,8 +334,11 @@ def assign_ring(actors, pts):
     return out
 # REVIEW2: the first title phrase (43.6) no longer turns the line into a walking ring (invented from cue 591's turning
 # GOBOS). The line holds at the front of the stage, then falls back into the upstage dark for Hamilton alone (51.2).
-RING_Y = YC + ['lafayette']
-wp('hamilton', T(tr, 43.6), 0.0, 4.6, face=0)
+RING_Y = YC
+# NOTES3: the box comes on for his solo verse (cue 592, 51.2): he waits just behind its spot through the first title phrase
+# and steps up onto it as ens10 sets it (49.4)
+wp('hamilton', T(tr, 43.6), 0.0, 4.0, face=0)
+wp('hamilton', T(tr, 50.8), 0.0, 4.6, face=0)
 wp('hamilton', T(tr, 52.0), 0.0, 4.55, face=0)   # SPOT: cue 592's centre shaft (Viper 98) crosses the lip at (0, 5.55)
 REC = [a for a in RING_Y if a != 'ens10']
 srt = sorted(REC, key=lambda a: pos(a)[0])
@@ -335,9 +346,13 @@ srt = sorted(REC, key=lambda a: pos(a)[0])
 # Yorktown ... his group of marching troops sort of freeze and they bring to life this lyric", "I'm in marching
 # formation behind him". So the company is IN its formation behind him when his verse starts (cue 592, bar 21 =
 # 51.36), and dances it standing (dance.py); it no longer walks upstage during the phrase (it arrived at 56.0).
-place(srt, [p for p in W1s if p != (1.6, -3.1)], T(tr, 51.0), face=0)
-# ens10 (the SL end of the line) goes off DL instead, to come back for the box
-exit_to('ens10', T(tr, 46.5), 'W-DSL', speed=1.4)
+# (NOTES3: Lafayette is off from 32; the point he took, (-0.8, -3.1), is left out, so the others keep theirs)
+place(srt, [p for p in W1s if p not in ((1.6, -3.1), (-0.8, -3.1))], T(tr, 51.0), face=0)
+# ens10 (the SL end of the line) goes off DL at the end of the Shot phrase (41.6) and brings the box on (props.py)
+exit_to('ens10', T(tr, 41.6), 'W-DSL', speed=1.4)
+off('ens10', T(tr, 44.6), 'W-DSL')
+wp('ens10', T(tr, 49.4), 0.55, 4.55, face=-90, dwell=0.3)
+exit_to('ens10', T(tr, 49.7), 'W-DSL', speed=1.4)
 # REVIEW 3 (video): the heartbeat (bar 25, cue 593): "this thought is way over here, we grab it, we put it down, and
 # Eliza is right over our head on the balcony, we turn home" (WSJ). Eliza on the USG right above the company's rows;
 # they turn to her for the heartbeat and back out for the march.
@@ -369,7 +384,8 @@ pk = assign_ring(NIGHT, npools)
 for a in NIGHT:
     p = npools[pk[a]]; wp(a, T(tr, 72.0), p[0], p[1] - 0.3, face=0)
 wp('laurens', T(tr, 72.0), TAB[6][0], TAB[6][1] - 0.3, face=0)
-wp('lafayette', T(tr, 72.0), TAB[7][0], TAB[7][1] - 0.3, face=0)
+off('lafayette', T(tr, 69.0), 'W-DSR')      # NOTES3: back on (off since 32) into his DSR pool as the night attack starts
+wp('lafayette', T(tr, 73.5), TAB[7][0], TAB[7][1] - 0.3, face=0)
 wp('hamilton', T(tr, 72.5), TAB[9][0], TAB[9][1] - 0.05, face=0)
 DECKY = NIGHT + ['laurens', 'lafayette']
 for a in DECKY:   # the creep: a slow advance inside each pool
@@ -390,15 +406,21 @@ wp('ens1', T(tr, 99.5), *P_ENS1, face=0)
 wp('laurens', T(tr, 97.0), 2.75, 1.7, face=-20)
 wp('lafayette', T(tr, 100.1), -3.5, 3.4, face=20)
 # Mulligan bursts in from upstage
+# NOTES3 (Jack, 2026-10-14/15): "mulligan is in front of ham at his solo" - his verse (cues 599-600, 109.9-129.9):
+# Hamilton steps up out of his narrator's key as Mulligan bursts in, and Mulligan comes down past him (SL of him) to
+# stand straight downstage of him, (0, 3.6) to Hamilton's (0, 2.5); the rally gathers round the two
 off('mulligan', T(tr, 100.0), 'D-UC')
 wp('mulligan', T(tr, 108.5), 0.4, -1.0, dwell=0)
-wp('mulligan', T(tr, 111.0), 0.3, 2.0, face=0)
-M = (0.3, 2.0)
+wp('hamilton', T(tr, 110.5), 0.0, 2.5, face=0)
+wp('mulligan', T(tr, 110.6), 0.9, 2.3, dwell=0)
+wp('mulligan', T(tr, 111.6), 0.0, 3.6, face=0)
+M = (0.0, 3.6)
 for a in NIGHT:   # every soldier turns to him
     wp(a, T(tr, 111.5), *pos(a), face=facing_to(pos(a), M))
 # the rally: the nearest gather round him (cue 600, full stage)
 rallyers = ['ens2', 'ens3', 'ens4', 'ens5', 'laurens', 'lafayette']
-rpts = arc(6, 1.8, -95, 95, M)
+rpts = arc(6, 1.8, -95, 95, (0.3, 2.0))   # NOTES3: the arc stays where it was (round the spot Mulligan had): now it is
+                                          # behind the two of them, and the drill / battle / furniture after it are unchanged
 rk = assign_ring(rallyers, rpts)
 for a in rallyers:
     p = rpts[rk[a]]; wp(a, T(tr, 120.1), p[0], p[1], face=facing_to(p, M))
@@ -493,21 +515,35 @@ wp('hamilton', T(tr, 198.4), 0.0, 0.95, face=0)
 # (LSA: "the company on the turntable, each brandishing a weapon, isolated in his own pool") is then already made.
 OUT9 = ['ens1', 'ens2', 'ens3', 'ens4', 'ens5', 'ens6', 'ens7', 'ens8', 'laurens']
 IN4 = ['ens9', 'ens10', 'mulligan', 'lafayette']
-tab_bodies = OUT9 + IN4
-tab_free = [k for k in range(len(TAB)) if k != 4]
+# NOTES3 (Jack, 2026-10-14/15): "at the end laurens hamilton mulligan lafayette and washington are at the front not the
+# ensemble". The tableau's twelve pools (cue 609.7) have five downstage (z 3.2-4.0): the five take them, SR to SL in the
+# order he named them (house left to right); Washington comes down from the back to the SL end after the walk (222-229.5).
+# The ten of the company take the seven pools behind; the three left over stand in the dark upstage (r 4.0, the
+# upstage half), clear of every pool.
+FRONT5 = {'laurens': 7, 'hamilton': 8, 'mulligan': 9, 'lafayette': 10, 'washington': 11}
+tab_bodies = [a for a in OUT9 + IN4 if a not in FRONT5]
+tab_free = list(range(7))
 TABK = {}
-for group in (['lafayette', 'laurens', 'mulligan'], tab_bodies):     # the principals first, then the company
-    for d_, a, k in sorted((dist(pos(a), TAB[k]), a, k) for a in group for k in tab_free):
-        if a in TABK or k in TABK.values(): continue
-        TABK[a] = k
+for d_, a, k in sorted((dist(pos(a), TAB[k]), a, k) for a in tab_bodies for k in tab_free):
+    if a in TABK or k in TABK.values(): continue
+    TABK[a] = k
+DARK_TH = {}
 for a in tab_bodies:
+    if a in TABK: continue
+    x, z = pos(a); th = math.degrees(math.atan2(x, -(z - C[1])))
+    DARK_TH[a] = max(-80.0, min(80.0, th))
+SLOTS = [-75.0, -35.0, 35.0, 75.0]     # the dark upstage slots: clear of the pools and of Washington at (0, -3.1) till 222
+for a in sorted(DARK_TH, key=lambda a: abs(DARK_TH[a]), reverse=True):    # the widest first, each to the nearest free slot
+    s = min(SLOTS, key=lambda s: abs(s - DARK_TH[a])); SLOTS.remove(s); DARK_TH[a] = s
+for a in tab_bodies + ['laurens', 'mulligan', 'lafayette', 'hamilton']:
     hold_until(a, T(tr, 204.2))
-    if a in TABK:
-        p = TAB[TABK[a]]
-    else:   # left over (thirteen bodies, eleven pools): back out into the dark, clear of every pool
-        x, z = pos(a); th = math.degrees(math.atan2(x, -(z - C[1]))); p = polar(4.0, th)
+    if a in FRONT5: p = TAB[FRONT5[a]]
+    elif a in TABK: p = TAB[TABK[a]]
+    else: p = polar(4.0, DARK_TH[a])
     wp(a, T(tr, 217.1), p[0], p[1], face=0)
-wp('hamilton', T(tr, 235.4), TAB[4][0], TAB[4][1], face=0)
+hold_until('washington', T(tr, 222.0))
+wp('washington', T(tr, 229.5), TAB[11][0], TAB[11][1], face=0)
+TABK.update(FRONT5)
 # blackout: everyone off in the dark, upstage and mid wings (the King comes on DSL)
 # REVIEW 3 (video): What Comes Next? clip comments (ERYukmba5Vg): "at the beginning, when the other actors are walking
 # off stage, Groff is looking around as if to say 'Get off! My stage!'" - they WALK off (1.3 m/s, was a 1.7 run) and
@@ -518,7 +554,7 @@ for a in OUT9 + IN4 + ['hamilton', 'washington']:
     e = nearest(p, ['W-MSR', 'W-USR', 'W-MSL', 'W-USL', 'D-UC'])
     FURN_OFF[a] = (e, round(exit_to(a, T(tr, 240.3), e, speed=1.3) - OFFS[tr], 2), p)
 for a in FURN:   # for props.py SEGMENT 4 (the six carriers): escort wing, off time, spot; tableau spot, blackout wing, off
-    print('FURN', a, FURN_WING[a], 'tableau', TAB[TABK[a]] if a in TABK else 'dark', 'out', FURN_OFF[a])
+    print('FURN', a, FURN_WING[a], 'tableau', TAB[TABK[a]] if a in TABK else ('dark', tuple(round(v, 2) for v in polar(4.0, DARK_TH[a]))), 'out', FURN_OFF[a])
 
 # ====================================================================================
 # 1-21 WHAT COMES NEXT?  - the King alone at the lip
@@ -903,7 +939,7 @@ for a, L in W.items():
         if w['label']: o['label'] = w['label']
         res.append(o)
     out[a] = res
-    if not L[0]['off']: problems.append('%s does not start off' % a)
+    if not L[0]['off'] and a not in CARRIED: problems.append('%s does not start off' % a)
     if not L[-1]['off']: problems.append('%s does not end off' % a)
     if L[-1]['t'] > T('1-23', 384.5): problems.append('%s ends too late' % a)
 

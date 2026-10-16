@@ -317,7 +317,7 @@ SEGMENT_4 = [
     dict(who=GS_DECK, track='1-18', bar=18, move='two-step', until=48.8, note='Lafayette\'s rap: the company dances round him (clip comments: "0:34 ... just dancing", "0:46 the Farmer Refuted dude at the back ... having the time of his life"); the move is a general hip-hop step, not seen'),
     dict(who=['ens3'], track='1-18', bar=18, move='two-step', until=46.0, note='as the deck company, until Lee leaves for the stair'),
     dict(who=['ens6'], track='1-18', bar=18, move='two-step', until=43.5, note='as the deck company, until she goes back for the table'),
-    dict(who=['lafayette'], track='1-18', bar=21, move='jump', counts=2, note='he jumps down off the table mid-rap (clip 0:38-0:39 = album ~36.5)'),
+    dict(who=['lafayette'], track='1-18', bar=23, move='jump', counts=2, note='he jumps down off the table mid-rap - NOTES3 (Jack): "on top of the table till 40 seconds in then he jumps off" (bar 23 = 39.98; was bar 21, clip 0:38-0:39 = album ~36.5)'),
     dict(who=['angelica', 'peggy', 'ens3'], track='1-18', bar=34, move='bounce', until=80.0, note='"everyone upstairs is dancing except for Burr" (clip 1:04); "Peggy and Angelica jamming on the rafter"; "1:16 Angelica\'s feeling it"'),
     dict(who=GS_DECK + ['ens6'], track='1-18', bar=40, move='two-step', until=80.0, note='the company chant (cue 567): the deck company dances it (a general step: the clips name no move)'),
     dict(who=['hamilton'], track='1-18', bar=55, move='coat-on', counts=4, note='on the gallery Eliza gives him his coat (95; Disney+ clip 1:50 "Eliza gives him his coat"; seg4.md Review 3)'),
