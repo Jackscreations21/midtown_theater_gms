@@ -229,7 +229,25 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-15 (later): his act-1 and act-2 notes, the worklight, and the spotlight audit — five Opus agents, one of them twice (PR #6)
+## NEXT SESSION: **HIS EYE ON THE NOTES ROUND, HIS FOUR RULINGS; THEN THE NEXT ROUND OF NOTES** (2026-10-16; PRs #1–#6 merged)
+
+Rulings at **GH** (GI next). `main` is **`6d65226`** (PR #6: his act-1 and act-2 notes, standing on a prop, his lighting
+notes, the spotlight audit). STATE.md item 0a has the decisions. Read the blocking checklist
+(https://claude.ai/artifact/4Q5Xh37ZmSinhtsJbVhAub, `songs`) first thing: every row he marked carries a
+"— Claude (10-16): …" reply under his note, and his status is his to flip — a row still "fix" after he has watched
+again is the brief for the next round; a row he flips to good is closed. The cue checklist
+(https://claude.ai/artifact/FpiGBBW8LicWbaRb1nTUjg) is all green; lighting notes come through the blocking checklist now.
+
+1. **His four rulings** (STATE item 0a): 2-07's switch time (77.27 built; 79.19 / 81.11 / 82.1 the alternatives);
+   Eacker's box in 2-16; pins on Binkley's real cues where a named person stands in no narrow light; the seven
+   "standing inside a piece" candidates with the `y` each needs.
+2. **The next round of notes**, by the same method: three blocking agents on disjoint segments in their own worktrees,
+   an engine agent only if a note needs the page, a cue agent LAST (the hand-offs and `tools/spot-audit.py` need the
+   final blocking), the lead merging into one branch. Regenerate with the chain in `docs/hamilton-blocking-format.md`
+   and NEVER with `--check` alone (it validates and does not write); cut worktrees from the repository root.
+3. **The older open items** stay below: the worklight decisions (item 0), the backstage (item 1), Theatre 2 (item 2).
+
+## DONE — 2026-10-15/16: his act-1 and act-2 notes, the worklight, and the spotlight audit — five Opus agents, one of them twice (PR #6)
 
 *"can you work on all the notes i put for the first and second half of hamilton using opus agents … also for the stuff
 there are a bunch of spotlights that are off because of the choreo changing so fix the spotlights."* His verdicts in the
@@ -364,7 +382,7 @@ copy renamed away: the button appeared, a File handed to `MIDTOWN.show.useLocalF
 played from 0:30 off it, the YouTube player was never created. The picker and the remembered handle were not driven
 (a native dialog); their code is the browser API's documented path.
 
-## NEXT SESSION: **HIS EYE ON THE BACKSTAGE; THEN THE ACTORS' ACT-1 NOTES** (2026-10-15, late; PRs #1 and #2 merged, Pages LIVE)
+## SUPERSEDED (the notes round landed as PR #6; see the block above): **HIS EYE ON THE BACKSTAGE; THEN THE ACTORS' ACT-1 NOTES** (2026-10-15, late)
 
 Rulings at **GH** (GI next). This is `midtown_theater_gms` now (split from `gms-theater` at its `14af651`; the Palace
 stayed there). `main` is the split commit; **PR #1 `backstage`** is open with the backstage block. STATE.md item 1 has
