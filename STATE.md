@@ -48,9 +48,12 @@ then *"pause by 10:15"*. **Where it stands:** the three blocking agents' branche
 `37e0c69`, `notes-act2` `5bbb746`) and the engine fix (`prop-standing` `2c179e7`: an explicit `y` at a placed prop's top
 stands the body on it) are MERGED into `his-notes` (`af46423`; merge 0/0, 7,323 waypoints, `actors.check()` green per the
 agents; the lead has NOT rendered the merged page himself). The cue agent (branch `his-notes-cues`, worktree
-`.claude/.claude/worktrees/cues` — one folder too deep, a lead's `cd` slip) was mid-way through his LIGHTING notes
-(1-01, 1-04, 1-14, 2-06, 2-07, 2-23) and the hand-offs when paused; it was told to commit a WIP and write
-`docs/WIP-cues-2026-10-15.md` saying where it stopped. The show-wide spotlight audit (`tools/spot-audit.py`, re-aiming
+`.claude/.claude/worktrees/cues` — one folder too deep, a lead's `cd` slip) committed its WIP as `95e0c76`: his six lighting
+notes and the six hand-offs are APPLIED in `assets/hamilton-show.json` (1-01 Q38/61–65, 1-04 new 147.5, 1-05 new
+164.5, 1-14 440–443.5 + Viper 95 on the gallery, 2-06 Vipers 17/19, 2-07 mirrored + the switch at 77.27 — a beat-grid
+guess for Jack to confirm — no blackout, 2-23 new 1299/1300) but UNCHECKED by eye, `lx.check()` not re-run, and with
+SIX KNOWN FAULTS (re-aimed ch1/ch2/ch6 keep their new aim into later cues; a restore wrongly lights 261–269 in 1-05
+Q150) listed with their fixes in `docs/WIP-cues-2026-10-15.md`; its scripts are in `tools/wip-cues-2026-10-15/`. The show-wide spotlight audit (`tools/spot-audit.py`, re-aiming
 every person light to where the actors now stand) was NOT started. **Not done:** the cue work, the lead's own check of
 the merged page, the one-line replies into his checklist rows, the PR, HANDOFF's DONE block (a draft is in the lead
 session's scratchpad `worklight/notes-handoff.md`). **Resume:** read `docs/WIP-cues-2026-10-15.md` on `his-notes-cues`,
