@@ -54,6 +54,11 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Open, in the order it will bite
 
+000. **The models + live QLC+ PR (open), then his first real QLC+ run:** run `python tools/artnet-relay.py`, in QLC+
+   tick Art-Net output on 127.0.0.1 for universes 1 and 2, open localhost:8080/midtown.html, press "T2 rig" — the panel
+   should read "Desk: QLC+ live". Unverified with real QLC+ (not installed here). If it reads "relay up, no Art-Net",
+   QLC+ holds port 6454: bind the relay to the NIC address. His models: 45 fitted (10 local-only, CGTrader); left: a real
+   press model, crates/tea chests, the signs, candelabra/candlesticks/tankards/lumber (not downloaded). HANDOFF's newest block.
 00. **His eye on Johnny Tremain (PR #8, merged)** — the "Johnny Tremain" button (Next/Prev or PageDown/PageUp,
    Auto), "Lifts", "Understage", "T2 rig"; Pages serves it. **His models** are in `Downloads\jt-models\` (25
    Sketchfab GLBs, 4 CGTrader, his 4 .blend/.zip; Blender 5.2 is installed for conversions): fit each into
