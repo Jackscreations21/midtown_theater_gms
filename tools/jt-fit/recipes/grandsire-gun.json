@@ -1,0 +1,2 @@
+{"id":"grandsire-gun","src":"musket_replica.glb","rot":[90,-83.4,0],"size":[0.06,1.5,0.12],"fit":"h","faces":15000,
+ "notes":"the replica musket (one mesh, no stand in the source) stood muzzle up; rot = the source's 6.6 deg tilt straightened, then muzzle up with the lock side to stage left/right; decimated 95k -> 15k; height fitted (the lock and stock make it 0.12 x 0.23, more than the 0.06 x 0.12 box)"}

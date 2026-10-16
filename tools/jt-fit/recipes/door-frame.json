@@ -1,0 +1,29 @@
+{
+ "id": "door-frame",
+ "src": "colonial-house_3d-model.fbx.zip",
+ "inner": "3d-model.fbx",
+ "keep": [
+  "^Layer0_001$",
+  "^Second Floor_001$",
+  "DoorKnob_06[0-3]"
+ ],
+ "crop": [
+  [
+   0.41473,
+   0.10773,
+   0.07413
+  ],
+  [
+   0.57935,
+   0.13644,
+   0.54855
+  ]
+ ],
+ "size": [
+  1.3,
+  2.4,
+  0.3
+ ],
+ "fit": "stretch",
+ "notes": "EDITORIAL-ONLY source. The front door of the Colonial House (Layer0_001 + Second Floor_001 cropped to x -1.06..1.06, y -8.2..-7.6, z 0.45..3.33 m in the source; knobs DoorKnob_060-063): the double six-panel door, its jambs and the flat entablature over it (the source has no fanlight). Stretched to the box: the crop is 2.1 x 2.9 m, so the width is squeezed to 0.8 of uniform and the depth doubled."
+}

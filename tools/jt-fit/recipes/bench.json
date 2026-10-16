@@ -1,0 +1,28 @@
+{
+  "id": "bench",
+  "src": "table-with-benches_WoodenTableWithBench_fbx.fbx",
+  "keep": [
+    "^Bench$"
+  ],
+  "rot": [
+    0,
+    0,
+    90
+  ],
+  "size": [
+    1.6,
+    0.45,
+    0.35
+  ],
+  "fit": "stretch",
+  "notes": "Wooden table with benches: one of its two (identical) benches (the unit set third bench), turned lengthwise; stretched to the box (uniform on w it would be 0.31 high and 0.34 deep). Its WoodFine22 textures are not in the download (the .blend links them, unpacked, and its material is a node group paint cannot reach), so the FBX of the same model is used and painted a plain scrubbed pine.",
+  "paint": {
+    "color": [
+      0.72,
+      0.58,
+      0.4
+    ],
+    "roughness": 0.8,
+    "metallic": 0.0
+  }
+}

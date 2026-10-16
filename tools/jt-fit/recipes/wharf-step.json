@@ -1,0 +1,9 @@
+{
+  "id": "wharf-step",
+  "src": "rustic_wooden_dock.glb",
+  "drop": ["^defaultMaterial$", "^defaultMaterial[.]001$"],
+  "crop": [[0, 0.5427, 0.5938], [1, 0.5881, 0.6939]],
+  "size": [2.0, 0.22, 0.3],
+  "fit": "w",
+  "notes": "Rustic Wooden Dock: a one-plank slice across the walkway (with one pair of posts as its ends), cut 0.9 m below the plank tops: a 22 cm step at the deck's scale."
+}

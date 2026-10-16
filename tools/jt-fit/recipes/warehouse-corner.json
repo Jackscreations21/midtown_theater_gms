@@ -1,0 +1,30 @@
+{
+ "id": "warehouse-corner",
+ "src": "colonial-house_3d-model.fbx.zip",
+ "inner": "3d-model.fbx",
+ "keep": [
+  "^Layer0_001$",
+  "^Second Floor_001$",
+  "^Third Floor_001$",
+  "^Roof_001$"
+ ],
+ "crop": [
+  [
+   0.84738,
+   0.0886,
+   0.21153
+  ],
+  [
+   0.9709,
+   0.15079,
+   0.55256
+  ]
+ ],
+ "size": [
+  1.6,
+  3.6,
+  0.6
+ ],
+ "fit": "h",
+ "notes": "EDITORIAL-ONLY source. The front-right corner of the main block, upper storey (Second/Third Floor_001, Roof_001; source x 4.5..6.1, y -8.6..-7.3, z 2.45..6.4 m): an L of plain wall (front face plus the return going upstage on the right) under the eaves cornice. Height fitted: 1.46 wide (box 1.6), 1.04 deep (box 0.6: the eave overhangs the front by about 0.4). No windows (the plain wall of a warehouse)."
+}

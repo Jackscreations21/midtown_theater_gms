@@ -1,0 +1,9 @@
+{
+  "id": "steeple",
+  "src": "steeple-src.glb",
+  "crop": [[0, 0, 0], [1, 1, 0.826]],
+  "size": [1.8, 5.0, 0.1],
+  "fit": "h",
+  "paint": {"color": [0.9, 0.9, 0.88], "roughness": 0.8, "metallic": 0.0},
+  "notes": "src is NOT a download: build it first with tools/jt-fit/prep_a.py (job steeple) from steeple.glb into a scratch dir and pass that dir as the src dir (it squashes the depth to make a cut-out). The cross (with its spike) cropped off above the ball; no vane added. Painted white (it has no textures). Fitted on h: the onion steeple is broader than the box, 5.0 high comes out ~2.4 wide."
+}

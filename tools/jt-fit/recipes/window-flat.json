@@ -1,0 +1,27 @@
+{
+ "id": "window-flat",
+ "src": "colonial-house_3d-model.fbx.zip",
+ "inner": "3d-model.fbx",
+ "keep": [
+  "^Layer0_001$"
+ ],
+ "crop": [
+  [
+   0.18022,
+   0.11238,
+   0.14046
+  ],
+  [
+   0.26952,
+   0.13435,
+   0.92081
+  ]
+ ],
+ "size": [
+  1.0,
+  2.0,
+  0.1
+ ],
+ "fit": "h",
+ "notes": "EDITORIAL-ONLY source. The ground-floor front window left of the door (Layer0_001; source x -4.08..-2.93, y -8.15..-7.7, z 0.45..2.95 m): a twelve-over-twelve sash window with casing, head and sill, shutters left off. Height fitted, so 0.92 wide (box 1.0) and 0.26 deep (box 0.1)."
+}

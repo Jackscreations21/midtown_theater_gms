@@ -1,0 +1,8 @@
+{
+  "id": "loft",
+  "src": "loft-src.glb",
+  "size": [2.0, 3.5, 3.6],
+  "fit": "auto",
+  "faces": 30000,
+  "notes": "src is NOT a download: build it first with tools/jt-fit/prep_a.py (job loft) from scaffolding.glb (Free Wooden Scaffolding Set) into a scratch dir and pass that dir as the src dir. The kit has no loft, so it is assembled from its parts: two of its X-braced towers stretched to a 2.0 x 3.6 deck at 2.40 on posts (~0.2 square), the kit's X-braced rail 1.10 high along both sides and the back, its two-bar rail along the front with a 0.60 gap at the middle where the ladder arrives. Decimated 37k -> 30k."
+}

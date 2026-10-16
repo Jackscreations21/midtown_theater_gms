@@ -1,5 +1,245 @@
 {
  "format": "jt-models/1",
- "about": "The 3D models dropped in for Johnny Tremain's set pieces. One line per model in \"models\": \"<piece id>\": {\"file\": \"<piece id>.glb\", \"rotY\": 0, \"fit\": \"auto\"}. README.md beside this file says how. Empty: every piece is its stand-in.",
- "models": {}
+ "about": "The 3D models dropped in for Johnny Tremain's set pieces. One line per model in \"models\": \"<piece id>\": {\"file\": \"<piece id>.glb\", \"rotY\": 0, \"fit\": \"auto\"}. README.md beside this file says how. Empty: every piece is its stand-in. \"local\": true marks a model made from a CGTrader download (royalty-free or editorial licences do not allow passing the model file on): its GLB is kept out of git (.gitignore) and the page only tries it when served from localhost; on Pages that piece keeps its stand-in.",
+ "models": {
+  "armchair": {
+   "file": "armchair.glb",
+   "rotY": 180,
+   "fit": "h",
+   "local": true
+  },
+  "bar-rail": {
+   "file": "bar-rail.glb",
+   "rotY": 180,
+   "fit": "w"
+  },
+  "bellows": {
+   "file": "bellows.glb",
+   "rotY": 180,
+   "fit": "auto"
+  },
+  "bench": {
+   "file": "bench.glb",
+   "rotY": 180,
+   "fit": "auto",
+   "local": true
+  },
+  "church-lanterns": {
+   "file": "church-lanterns.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "clerk-desks": {
+   "file": "clerk-desks.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "clerk-stools": {
+   "file": "clerk-stools.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "door-frame": {
+   "file": "door-frame.glb",
+   "rotY": 180,
+   "fit": "h",
+   "licence": "editorial-only (previs; ask the author before a show)",
+   "local": true
+  },
+  "drum": {
+   "file": "drum.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "feather-bed": {
+   "file": "feather-bed.glb",
+   "rotY": 180,
+   "fit": "d"
+  },
+  "furnace": {
+   "file": "furnace.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "grandsire-gun": {
+   "file": "grandsire-gun.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "judge-bench": {
+   "file": "judge-bench.glb",
+   "rotY": 180,
+   "fit": "w"
+  },
+  "kitchen-benches": {
+   "file": "kitchen-benches.glb",
+   "rotY": 180,
+   "fit": "auto",
+   "local": true
+  },
+  "kitchen-table": {
+   "file": "kitchen-table.glb",
+   "rotY": 180,
+   "fit": "auto",
+   "local": true
+  },
+  "ladder": {
+   "file": "ladder.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "lantern": {
+   "file": "lantern.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "laundry-basket": {
+   "file": "laundry-basket.glb",
+   "rotY": 180,
+   "fit": "w"
+  },
+  "loft": {
+   "file": "loft.glb",
+   "rotY": 180,
+   "fit": "auto"
+  },
+  "loft-rafters": {
+   "file": "loft-rafters.glb",
+   "rotY": 180,
+   "fit": "auto"
+  },
+  "low-stool": {
+   "file": "low-stool.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "lyte-chairs": {
+   "file": "lyte-chairs.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "lyte-cup": {
+   "file": "lyte-cup.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "lyte-table": {
+   "file": "lyte-table.glb",
+   "rotY": 180,
+   "fit": "w"
+  },
+  "plank-run": {
+   "file": "plank-run.glb",
+   "rotY": 180,
+   "fit": "d"
+  },
+  "powder-horn": {
+   "file": "powder-horn.glb",
+   "rotY": 180,
+   "fit": "w"
+  },
+  "rab-musket": {
+   "file": "rab-musket.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "redcoat-muskets": {
+   "file": "redcoat-muskets.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "ruby-coach": {
+   "file": "ruby-coach.glb",
+   "rotY": 180,
+   "fit": "d"
+  },
+  "saddle-stand": {
+   "file": "saddle-stand.glb",
+   "rotY": 180,
+   "fit": "w"
+  },
+  "ship-masts": {
+   "file": "ship-masts.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "ship-rail": {
+   "file": "ship-rail.glb",
+   "rotY": 180,
+   "fit": "w"
+  },
+  "shop-doors": {
+   "file": "shop-doors.glb",
+   "rotY": 180,
+   "fit": "h",
+   "licence": "editorial-only (previs; ask the author before a show)",
+   "local": true
+  },
+  "stacked-arms": {
+   "file": "stacked-arms.glb",
+   "rotY": 180,
+   "fit": "w"
+  },
+  "steeple": {
+   "file": "steeple.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "tents": {
+   "file": "tents.glb",
+   "rotY": 180,
+   "fit": "h"
+  },
+  "three-boy-bed": {
+   "file": "three-boy-bed.glb",
+   "rotY": 180,
+   "fit": "w"
+  },
+  "trestle-table": {
+   "file": "trestle-table.glb",
+   "rotY": 180,
+   "fit": "auto",
+   "local": true
+  },
+  "truckle-beds": {
+   "file": "truckle-beds.glb",
+   "rotY": 180,
+   "fit": "d"
+  },
+  "warehouse-corner": {
+   "file": "warehouse-corner.glb",
+   "rotY": 180,
+   "fit": "h",
+   "licence": "editorial-only (previs; ask the author before a show)",
+   "local": true
+  },
+  "wharf-deck": {
+   "file": "wharf-deck.glb",
+   "rotY": 180,
+   "fit": "auto"
+  },
+  "wharf-piles": {
+   "file": "wharf-piles.glb",
+   "rotY": 180,
+   "fit": "w"
+  },
+  "wharf-step": {
+   "file": "wharf-step.glb",
+   "rotY": 180,
+   "fit": "auto"
+  },
+  "window-flat": {
+   "file": "window-flat.glb",
+   "rotY": 180,
+   "fit": "h",
+   "licence": "editorial-only (previs; ask the author before a show)",
+   "local": true
+  },
+  "workbench": {
+   "file": "workbench.glb",
+   "rotY": 180,
+   "fit": "w",
+   "local": true
+  }
+ }
 }

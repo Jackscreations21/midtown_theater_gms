@@ -1,0 +1,9 @@
+{
+  "id": "bellows",
+  "src": "bellows.glb",
+  "rot": [0, 0, 180],
+  "crop": [[0.496, 0, 0], [0.898, 1, 0.552]],
+  "size": [0.4, 0.5, 1.1],
+  "fit": "d",
+  "notes": "Arkikon Bellows: the great bellows with its nozzle post and the low base of its stand; the tall gallows frame, the lever pole and the chains above the body are cropped off (so it is a bellows on a low stand, 0.4 wide). Turned so the nozzle points upstage (+Z in the set: into the fire, the hearth's downstage side as set.json first laid it)."
+}

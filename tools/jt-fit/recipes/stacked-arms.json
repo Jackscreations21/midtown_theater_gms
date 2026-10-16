@@ -1,0 +1,2 @@
+{"id":"stacked-arms","src":"stacked-arms-src.glb","size":[0.9,1.6,0.9],"fit":"w","faces":20000,
+ "notes":"src is NOT a download: build it first with tools/jt-fit/stack_arms.py (three Brown Bess copies, bayonets fixed, leaned 15 deg into a tripod meeting at the muzzles) into a scratch dir and pass that dir as the src dir. Decimated 38k -> 20k. Fitted by width (0.9 footprint) so each musket stays near its real 1.58 m; the stand is then taller than the 1.6 box (bayonets up)."}

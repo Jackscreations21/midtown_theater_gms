@@ -1,0 +1,26 @@
+{
+  "id": "wharf-piles",
+  "src": "the_wharf_fishing_harbor_wood_39_mb.glb",
+  "keep": [
+    "^Object_[45]$"
+  ],
+  "crop": [
+    [
+      0.5377,
+      0.4147,
+      0
+    ],
+    [
+      0.7183,
+      0.4482,
+      1
+    ]
+  ],
+  "size": [
+    2.0,
+    1.4,
+    0.2
+  ],
+  "fit": "stretch",
+  "notes": "The Wharf - Fishing Harbor Wood: the fenders (Object_2) and the life rings (Object_3) deleted as modern; a 4.3 m slice of one edge of the main arm, full height (piles, deck edge, rail). Fit stretch (2026-10-16, lead): the slice is 0.24 deep and reached 2 cm into the back brick at a uniform fit."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "loft-rafters",
+  "src": "loft-rafters-src.glb",
+  "size": [
+    2.0,
+    2.0,
+    3.6
+  ],
+  "fit": "stretch",
+  "notes": "src is NOT a download: build it first with tools/jt-fit/prep_a.py (job loft-rafters) from scaffolding.glb into a scratch dir and pass that dir as the src dir. The kit has no rafters: an open A-frame built from copies of its plain square post (14 cm timbers): four corner posts 1.20 high (eaves at 3.60 on the 2.40 deck), an eave beam along each side, a ridge along the depth at 2.0 (4.40), four pairs of rafters, a tie across each gable. Fit stretch (2026-10-16, lead): the timbers' thickness took it to 2.03 high, 4.42 over the deck, past the 4.40 arch."
+}

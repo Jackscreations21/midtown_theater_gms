@@ -1,0 +1,9 @@
+{
+  "id": "furnace",
+  "src": "forge.glb",
+  "rot": [0, 0, -90],
+  "crop": [[0.69, 0.325, 0], [1, 1, 1]],
+  "size": [1.0, 4.4, 0.8],
+  "fit": "h",
+  "notes": "Forge And Bellow: one mesh, so its own bellows (and the tongs poking out of the mouth) are cropped away (one set of bellows: the Arkikon). Kept: the brick hearth (coals in it), the hood and the chimney. Turned so the working mouth (the side with the arched ash pit) faces front; set.json's rotY -90 then turns it to stage right. Fitted on h so the chimney top is at 4.4: the hearth comes out ~1.07 wide x 1.02 deep (box 1.0 x 0.8) and ~1.7 high to the hood (the worklist's 0.9 hearth is not this model's proportion)."
+}

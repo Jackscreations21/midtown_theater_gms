@@ -1,0 +1,3 @@
+{"id": "tents", "src": "tent.glb", "drop": ["^Rope"], "rot": [0, 0, 180], "size": [2.1, 2.0, 2.1], "fit": "stretch",
+ "paint": {"color": [0.62, 0.58, 0.48], "roughness": 0.9, "metallic": 0.0},
+ "notes": "Tent cloth, cover, floor, entrance tie, crossed end poles and pegs; the six rope meshes (49k of its 61k faces: guy ropes and entrance ties) dropped, which brings it to ~4.6k faces with no decimate. No pennants or flags in this file. Entrance turned to face the house. STRETCHED to the 2.1 x 2.0 x 2.1 box (the source is a longer, lower ridge tent). Painted off-white linen all over: the poles and pegs are off-white too (paint is one colour); no dirty hem."}

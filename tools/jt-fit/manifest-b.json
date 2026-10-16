@@ -1,0 +1,16 @@
+{
+  "armchair": {"file": "armchair.glb", "rotY": 180, "fit": "h"},
+  "three-boy-bed": {"file": "three-boy-bed.glb", "rotY": 180, "fit": "w"},
+  "feather-bed": {"file": "feather-bed.glb", "rotY": 180, "fit": "d"},
+  "truckle-beds": {"file": "truckle-beds.glb", "rotY": 180, "fit": "d"},
+  "lyte-table": {"file": "lyte-table.glb", "rotY": 180, "fit": "w"},
+  "lyte-chairs": {"file": "lyte-chairs.glb", "rotY": 180, "fit": "h"},
+  "clerk-desks": {"file": "clerk-desks.glb", "rotY": 180, "fit": "h"},
+  "clerk-stools": {"file": "clerk-stools.glb", "rotY": 180, "fit": "h"},
+  "low-stool": {"file": "low-stool.glb", "rotY": 180, "fit": "h"},
+  "judge-bench": {"file": "judge-bench.glb", "rotY": 180, "fit": "w"},
+  "bar-rail": {"file": "bar-rail.glb", "rotY": 180, "fit": "w"},
+  "ruby-coach": {"file": "ruby-coach.glb", "rotY": 180, "fit": "d"},
+  "tents": {"file": "tents.glb", "rotY": 180, "fit": "h"},
+  "saddle-stand": {"file": "saddle-stand.glb", "rotY": 180, "fit": "w"}
+}

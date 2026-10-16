@@ -1,0 +1,32 @@
+{
+  "id": "ship-masts",
+  "src": "ship-masts-src.glb",
+  "crop": [
+    [
+      0.5456,
+      0,
+      0.36
+    ],
+    [
+      1,
+      1,
+      1
+    ]
+  ],
+  "size": [
+    3.1,
+    8.0,
+    0.1
+  ],
+  "fit": "h",
+  "paint": {
+    "color": [
+      0.16,
+      0.1,
+      0.06
+    ],
+    "roughness": 0.85,
+    "metallic": 0.0
+  },
+  "notes": "src is NOT a download: build it first with tools/jt-fit/prep_a.py (job ship-masts) from GalleonOGA.blend into a scratch dir and pass that dir as the src dir (it gives the untextured ship a material, turns it broadside and squashes it front to back). The hull, castles, bowsprit and foremast cropped away: what is left is the main and mizzen masts with their pennants and (set, not furled - the source has no furled sails) sails seen edge-on, painted dark wood. Fitted on h: 8.0 high comes out 5.7 wide (two masts at the galleon's spacing cannot fit 3.1; the main mast alone would be 1.4)."
+}

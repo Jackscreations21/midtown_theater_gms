@@ -1,0 +1,2 @@
+{"id":"laundry-basket","src":"laundry_baskets.glb","crop":[[0,0,0],[1,1,0.31]],"size":[0.65,0.3,0.45],"fit":"w","faces":10000,
+ "notes":"the source has no oval two-handled basket: it is one tall round wicker hamper (Circle_Material.001_0) plus its wooden rim ring. Kept the hamper's bottom 31% (floor and walls; the rim ring is cut away, the top edge is the open cut) as a low round basket; decimated 59k -> 10k; width fitted, so it is round (0.65 deep, not 0.45) and has no handles"}

@@ -1,0 +1,9 @@
+{
+  "id": "plank-run",
+  "src": "rustic_wooden_dock.glb",
+  "keep": ["^defaultMaterial[.]0(0[89]|1[0-4])$"],
+  "crop": [[0.06, 0, 0], [0.94, 1, 1]],
+  "size": [1.2, 0.08, 5.2],
+  "fit": "d",
+  "notes": "Rustic Wooden Dock: the deck planks only (no stringers, no posts), the whole 25 m length, trimmed across to 88% of the plank length so the run comes out 1.2 x 5.2; planks ~23 cm at that scale, 6.5 cm thick."
+}

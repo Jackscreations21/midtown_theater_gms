@@ -12180,7 +12180,10 @@ async function jtModels() {
   let man = null;
   try { const r = await fetch(JT.models + 'manifest.json', { cache: 'no-cache' }); if (r.ok) man = await r.json(); } catch (e) { /* no manifest: stand-ins only */ }
   JT.manifest = (man && man.models) || {};
-  const ids = Object.keys(JT.manifest).filter(id => JT.pieces[id]);
+  // a model marked "local" was made from a download whose licence does not allow passing the file on: it is not in git, so
+  // only a page served from this machine tries it (on Pages the piece keeps its stand-in, and nothing 404s)
+  const here = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  const ids = Object.keys(JT.manifest).filter(id => JT.pieces[id] && (here || !JT.manifest[id].local));
   for (const id of Object.keys(JT.manifest)) if (!JT.pieces[id]) console.warn(`jt set: models/manifest.json lists "${id}", which is no piece in set.json — skipped`);
   await Promise.all(ids.map(id => jtModel(id, JT.manifest[id]).catch(e => console.warn(`jt set: ${id}'s model (${(JT.manifest[id] && JT.manifest[id].file) || id + '.glb'}) did not load — its stand-in stays (${e && e.message || e})`))));
   jtPanelDraw();

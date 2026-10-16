@@ -1,0 +1,7 @@
+{
+  "id": "ladder",
+  "src": "ladder.glb",
+  "size": [0.45, 2.9, 0.8],
+  "fit": "h",
+  "notes": "Wooden Ladder (CC BY-SA 4.0): the whole model, already leaned in the file (top toward +Y, upstage, so it leans onto the loft's front edge with its rungs to the house). Fitted on h: 2.9 high comes out 0.45 wide and ~0.83 deep, the 75-degree lean set.json wants. Textures to 1K JPEG."
+}
