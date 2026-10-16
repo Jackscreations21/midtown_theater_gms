@@ -1,4 +1,4 @@
-# STATE — 2026-10-15 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#4 merged, #5 open; public, Pages live; nothing is local-only)
+# STATE — 2026-10-15 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#5 merged, #6 open; public, Pages live; nothing is local-only)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -29,7 +29,14 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   new repo's checkout: console clean, `walls`/`lx` (301/313)/`actors`/`doors` (13/13) unchanged, the fittings check
   PASS. Walk lobby → house → wing → slot → corridor → Theatre 2's doors → its stage is the agents' evidence (driven
   by hand in the pane); the lead walked none of it live.
-- **PR #5 (`worklight`, off `main`) is OPEN** (2026-10-15): https://github.com/Jackscreations21/midtown_theater_gms/pull/5 —
+- **PR #6 (`his-notes`, off `main`) is OPEN** (2026-10-16): https://github.com/Jackscreations21/midtown_theater_gms/pull/6 —
+  *"work on all the notes i put for the first and second half of hamilton using opus agents … fix the spotlights"*:
+  every note in his blocking checklist (act 1 and act 2) applied by three Opus agents, standing on a prop by a fourth,
+  his lighting notes, the hand-offs and a show-wide spotlight audit (`tools/spot-audit.py`, 84 re-aims, 17 swaps) by a
+  fifth; the replies are in his checklist rows (status left for him to flip). HANDOFF.md's newest block. Post-merge:
+  fast-forward `main`, delete `his-notes` both sides, remove the worktrees under `.claude/worktrees/` (and the deep
+  `.claude/.claude/worktrees/cues`).
+- **PR #5 (`worklight`) MERGED** (2026-10-15, `badd196`) (2026-10-15): https://github.com/Jackscreations21/midtown_theater_gms/pull/5 —
   *"make a worklight i can turn on for both stages"*: a caged work flood on each stage's stage-left fly wall with a wall
   switch (E while walking), `Worklight` header buttons and `MIDTOWN.worklight`; no real light, a shader term clipped to
   each stage house; the show takes Stage 1's out at every Play and Stop puts it back. Built by one Opus agent, checked by
@@ -41,32 +48,18 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 - Local server: any static server over the repository root, e.g. `python -m http.server 8080`, then
   `http://localhost:8080/midtown.html` (Jack's Chrome for pointer lock; the Claude Browser pane for checks only).
 
-## PAUSED 2026-10-15 22:15 — his act-1 and act-2 notes round, mid-flight (branch `his-notes`, no PR yet)
-
-Jack: *"work on all the notes i put for the first and second half of hamilton using opus agents … fix the spotlights"*,
-then *"pause by 10:15"*. **Where it stands:** the three blocking agents' branches (`notes-seg12` `205150c`, `notes-seg34`
-`37e0c69`, `notes-act2` `5bbb746`) and the engine fix (`prop-standing` `2c179e7`: an explicit `y` at a placed prop's top
-stands the body on it) are MERGED into `his-notes` (`af46423`; merge 0/0, 7,323 waypoints, `actors.check()` green per the
-agents; the lead has NOT rendered the merged page himself). The cue agent (branch `his-notes-cues`, worktree
-`.claude/.claude/worktrees/cues` — one folder too deep, a lead's `cd` slip) committed its WIP as `95e0c76`: his six lighting
-notes and the six hand-offs are APPLIED in `assets/hamilton-show.json` (1-01 Q38/61–65, 1-04 new 147.5, 1-05 new
-164.5, 1-14 440–443.5 + Viper 95 on the gallery, 2-06 Vipers 17/19, 2-07 mirrored + the switch at 77.27 — a beat-grid
-guess for Jack to confirm — no blackout, 2-23 new 1299/1300) but UNCHECKED by eye, `lx.check()` not re-run, and with
-SIX KNOWN FAULTS (re-aimed ch1/ch2/ch6 keep their new aim into later cues; a restore wrongly lights 261–269 in 1-05
-Q150) listed in `docs/WIP-cues-2026-10-15.md` and PATCHED in a second WIP `4085191` (`tools/wip-cues-2026-10-15/fixA.py`:
-ch2 back to its usual spot in 1-01 Q42/Q67 and 1-05 Q168, Viper 6 re-marked in Q65, 1-20 Q589's 1/5 lit again, the
-Q150 side-light restore removed; 898 cues parse) — none of it reloaded, dumped, diffed, `lx.check`ed or seen; Q168 may
-still need ch2's colour and gobo back. The WIP doc has the next steps in order. The show-wide spotlight audit (`tools/spot-audit.py`, re-aiming
-every person light to where the actors now stand) was NOT started. **Not done:** the cue work, the lead's own check of
-the merged page, the one-line replies into his checklist rows, the PR, HANDOFF's DONE block (a draft is in the lead
-session's scratchpad `worklight/notes-handoff.md`). **Resume:** read `docs/WIP-cues-2026-10-15.md` on `his-notes-cues`,
-merge it into `his-notes` (regenerate the blocking file WITHOUT `--check` if the generators moved — `--check` does not
-write), finish the cue notes and the audit (the brief is in HANDOFF's next DONE block once written; until then the
-agents' reports are in the lead session), check the page, reply per row, open the PR. Worktrees to remove after: the
-five under `.claude/worktrees/` and the deep one.
-
 ## Open, in the order it will bite
 
+0a. **His eye on the notes round** (PR #6): watch both acts again with the checklist open — every row he marked has a
+   "— Claude (10-16)" reply under his note; he flips the status. Decisions it raises: **2-07's switch** to Hamilton's
+   lights is at 77.27 (the first downbeat after Washington's call), alternatives 79.19 / 81.11 / the old 82.1;
+   **Eacker's box** (2-16: every unit stops on the SL gallery rail — move his mark, or rule him onto the deck where
+   Viper 13 lands); **Binkley's real cues** with a named person in no narrow light (1-01 36, 1-15 459/468, 1-23 638,
+   2-05 864.01/882, 2-22 1256/1259) — add a pin on the person, or leave his washes; **standing on a piece**: an explicit
+   `y` at a prop's top now stands the body on it (Lafayette, 1-18) — the other seven "inside the piece" cases are
+   candidates: Seabury's box 1-06 (y 0.5), Yorktown's box 1-20 (0.5), the Room's table 2-05 (0.8), Hamilton's desk 2-14
+   (0.8), the burn bench 2-15 (0.5), Philip's table 2-17/2-18 (0.8), the duel box 2-22 (0.5); 1-11's ball couples are
+   re-paired by nearest place; 1-20's rally arc was kept where it was so the drill and battle after it stand.
 0. **His eye on the worklights** (PR #5, 2026-10-15): the `Worklight` header buttons, or walk to the grey switch box
    on either stage's stage-left wall just upstage of the proscenium and press E. Decisions it raises: both OFF on load
    (or Theatre 2 on by default?); the lamp high on the stage-left fly wall, mostly out of sight from the stalls and the

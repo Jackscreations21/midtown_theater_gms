@@ -229,6 +229,78 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-15 (later): his act-1 and act-2 notes, the worklight, and the spotlight audit — five Opus agents, one of them twice (PR #6)
+
+*"can you work on all the notes i put for the first and second half of hamilton using opus agents … also for the stuff
+there are a bunch of spotlights that are off because of the choreo changing so fix the spotlights."* His verdicts in the
+blocking checklist (https://claude.ai/artifact/4Q5Xh37ZmSinhtsJbVhAub, `songs`): act 1 — 7 fix, 2 notes with no verdict
+(1-08, 1-18), 14 good; act 2 — 6 fix, 17 good. The cue checklist is all green (he cleared 1-18, 2-08 and 2-23 the same
+evening). Three Opus agents on the blocking at once in their own worktrees (`notes-seg12`, `notes-seg34`, `notes-act2`,
+disjoint generators and their own SEGMENT sections of `props.py` / `dance.py`), then an engine agent (`prop-standing`) and
+a cue agent (`his-notes-cues`), the lead merging into `his-notes`. The chain reproduced the committed file byte for byte
+before every agent's first edit. **Act 1, 1-02…1-11** (`205150c`): the picnic table to (−1.2, 0.3) with each friend
+singing his verse AT it; My Shot a full dance track (~50 NOTES3 entries from the library: grooves, stamps before every
+phrase, the shot snapped down on every hit, the rise-up ripple, the chant's march and clap, the death verse's slow ring);
+1-04's four sit back down, stand on the last line and come forward to a DS line at 84.2–86.0, four of the company take the
+chairs (ens6/7/9/10) and ens3 the candle table at 88.2–88.8, the four hold to the end and leave DSL at 1-05 0.0–0.6 as
+Burr runs on; 1-05 re-checked — Burr USL → his AF DSR by 4.4, backs to the DSR corner on Q164 and stays to the end
+(dark there 94.6–115.7: a lighting hand-off); 1-08 all of his note (the friends and Burr on for the verse, Hamilton off
+54.8 and back with Mulligan at 125, Washington at the back of the file at (0, −3.05) until his line then a zig-zag
+side-step and down to (−0.1, 3.5) by 69, desk and chair off at 277 by ens1/ens9, the 302 file Washington–Hamilton–3
+ensemble–Burr–5 ensemble at x 0); 1-11's rewind retraces the toast backwards to 1-10's last marks (`rewind` at speed 3, a
+reversed `spin-full` on the flash), then on into the ball, Angelica turning out at 57.62. **Act 1, 1-12…1-23**
+(`37e0c69`): 1-14 the desk off at 50 by ens2 (no blackout there); 1-17 Hamilton and Eliza hold through Q501's 2.7 s fade
+(black at 178.0 = the track's end) and leave at 1-18 0.2/0.5 — the same instant on the clock, so a dwell in one generator
+and the `off` in the next (TRAPS); 1-18 Burr onto the SL gallery during 1-17's fade (4.3 m, the back way is 11.5 m), lit
+in Q560 before the light reaches him; Lafayette ON the table 31.3–40.0 (`y` 0.8) and off its far edge at 40.35;
+Washington on at 46.2; 1-20 the box brought on 44.5–49.4 by ens10 for his solo verse (on it 50.8–60), Lafayette on at 10
+to Hamilton at the lip and off DL at 32, Mulligan at (0, 3.6) straight downstage of Hamilton for his verse, the final
+picture's five DS tableau pools Laurens, Hamilton, Mulligan, Lafayette, Washington SR→SL with the company behind. **Act 2**
+(`5bbb746`): 2-01 Jefferson on the upstage balcony at top centre by 44 (was 57.9); 2-02 his walk to centre at 35.6 cut;
+2-11 (The Adams Administration — the lead's brief called it Washington on Your Side; the row id rules) Jefferson on at
+19.1 (was 39); 2-21 the desk hidden at 44.3 inside the snap to black (nobody free to carry it; 6.1 s of dark); 2-23 the
+curtain call — hold through the blackout, face the house at 212.6, bow 1 where they stand 216.13–219.69 (the library's
+`bow`), walk into one line of 20 at z 4.2 by 226.0 (Hamilton centre, Eliza SR of him, ensemble at the ends, King George
+on from DSL), bows 2 and 3 to 233.91, peel off from the ends into the DS wings, the last in the wings at 239.8; the lights
+up were already Q1298 at 214.8. **The engine** (`2c179e7`): an explicit `y` at a placed, visible prop's top now stands the
+body ON it (`actGround`: the floor ray's result, overridden when a written `y` is > 0.25 m above it and (x, z) is inside
+the prop's footprint whose top is within 0.1 m; placed props cached per show time; `ACT_ONPROP` in `actors.tune`); a
+whole-show sweep of 343,720 poses changed only Lafayette 1-18 31–40; the seven other "inside the piece" cases (Seabury's
+box, Yorktown's box, the Room's table, Hamilton's desk, the burn bench, Philip's table, the duel box) are candidates with
+the `y` each needs (STATE.md). Merge 0/0 (7,323 waypoints), `props.py --check` 0, `actors.check()` green at every step.
+**The cues** (the cue agent, `eb008c6` `af84e80` `5723145` `4329718`, after two paused WIPs): his six lighting notes —
+1-01 the roll-call singers lit where they now stand (the friends on the upstage gallery, Washington on the SR balcony, the
+sisters in one pool on the SL balcony, Burr at centre; Burr's spot follows him in verse 2); 1-04 the four specials walk
+forward with them and a new 147.5 (86.0) drops everything else to a faint blue; 1-14 Lee's light follows him along the lip
+through his orders (440–443, new 443.5) and Viper 95 takes him on the SL gallery (his old unit cannot reach it); 2-06
+Eliza and Philip a warm key each on the upstage gallery (Vipers 17/19; the front units are blocked by the house ceiling);
+2-07 a full mirror of 944–958 to the ruled sides, the switch at 77.27 (the first downbeat after Washington's call —
+Jack's to confirm: 79.19, 81.11 or the old 82.1 are the alternatives), no blackout at the button (the keys drop to 35 %
+and 2-08 fades in over them); 2-23 a warm full stage for the first bow, a warm front across the line at the lip with the
+upstage out (new 1299), the show ending on a 4 s fade to black at 239.8 (new 1300) — and the seven hand-offs (1-02's
+three specials, 1-05's low key on Burr in the corner (new 164.5), 1-08's finale keys, 1-20's lip keys (587, new 587.5),
+2-01's gallery key up at 44 (new 723.5), 2-02's 745 on Jefferson, 2-11's Viper 18). Every re-aimed unit gets its old
+aim, colour and gobo back before its next use (a whole-show light dump diffed against the pre-edit one shows only the
+cues meant). **The spotlight audit** — *"a bunch of spotlights are off because of the choreo changing"* — is a committed
+tool, `tools/spot-audit.py`: every narrow light in every cue against the actors posed at 25/60/95 % of its hold, the table
+in `docs/hamilton-spot-audit.md`. 9,615 person lights checked; a named person in none of her cue's lights 82 → 17;
+specials on nobody 5,547 → 5,476; 84 re-aims and 17 swaps (a free Viper for the one cue, on reconstructed cues only; 12
+new reconstructed cues right after real ones carry the fixes there; no real cue edited), 5 corrected by hand after
+looking, 0 nudges to actors' marks, three taken back whose beam stopped on a rail. Left: 12 of the 17 named misses are on
+Binkley's real cues (the people stand in his washes, no narrow light of his to re-aim), 3 are Eacker's box in 2-16 (every
+unit stops on the SL gallery rail), 2 walk through their hold; of the empty specials 3,813 are fixed units, 1,233 movers
+in fans, rings and textures, 427 movers with no principal within 1.5 m. `tools/pool-dump.js`, `pool-dump-serve.py` and
+`pool-dump-diff.py` are the page dump and its diff, committed; `assets/hamilton-pools.json` regenerated. Checks before →
+after: `show.check()` pass:false with 16 channels without units, 2 pan/tilt without focus, 0 problems → the same;
+`lx.check()` 301/313 → 301/313 (show stopped); `actors.check()` pass; console the soundtrack 404 only. Rendered and
+checked beam-landing against pose at ~45 moments across both acts plus a 15-moment audit sample. Open items are in
+`docs/hamilton-blocking-cue-notes.md` "Settled by…". **The lead** rendered the merged page himself (1-02 95, 1-04 87,
+1-18 35 — Lafayette on the table —, 2-07 83, 2-23 228; `lx.check` 301/313, `show.check` at its baseline, 910 cues,
+console the soundtrack 404 and the favicon).
+Two merge traps of the lead's own: `blocking-merge.py --check` validates and does NOT write (a merge commit carried
+conflict markers in the JSON until regenerated), and two agents adding the same TRAPS heading conflict every time.
+Traps: 25 under "From his act-1 and act-2 notes round". One line per row written back into his checklist.
+
 ## DONE — 2026-10-15 (later): a worklight on each stage, switched three ways (PR #5)
 
 *"make a worklight i can turn on for both stages"* — *"use opus agents"*. One Opus agent built it in a worktree off
