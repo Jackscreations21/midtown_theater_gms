@@ -52,7 +52,8 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 - **Johnny Tremain on Theatre 2 — PR #8 MERGED (2026-10-16, `main` `daa9bcd`), post-merge done (branches deleted both sides, worktrees removed):** his own play, two acts, 26 scenes — the set as
   sized stand-ins with model slots, two stage lifts and an underground under Theatre 2 (RULINGS GI, GJ), a 128-unit rig
   with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's newest DONE block.
-- **Rulings are at GJ (GK next).** GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
+- **Rulings are at GK (GL next).** GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
+  rails stay down in the deck, so nothing guards the hole while a lift is away (branch `lift-no-rails`). GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
   them off. GJ (2026-10-16): an underground under Theatre 2 for storage. Earlier: **GH**. The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
   the house; **GH** (2026-10-15) a closed curtain stops the walker, like a closed door. FF is the mannequin.
