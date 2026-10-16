@@ -649,7 +649,7 @@ SEGMENT_8 = [
     dict(who=['hamilton'], track='2-20', bar=35, beat=2, move='sit', until=147.5, note='Hamilton takes the desk and writes his list (gen_seg8.py; props desk-chair) until the blackout (cue 1206)'),
     dict(who=['ens1', 'ens6', 'ens7', 'ens8', 'ens9', 'ens10'], track='2-20', bar=52, move='lean-in', counts=3, note='the editor\'s "lean thing": the country leans in toward the two men as it escalates (seg8.md Review 3)'),
     dict(who=['hamilton'], track='2-21', bar=1, beat=2, move='sit', until=46.5, note='at his desk near SR, writing (ironinkpen; "He sits in a chair writing", clip; props desk-chair)'),
-    dict(who=['hamilton'], track='2-22', bar=0, beat=4, move='sit', until=3.6, note='still at the desk; he rises from it at the top (hamilton-lyrics)'),
+    dict(who=['hamilton'], track='2-22', bar=0, beat=4, move='sit', until=3.6, note='still in his chair (the desk was struck in the 2-21 FTB, NOTES3); he rises from it at the top (hamilton-lyrics)'),
     dict(who=['ens5', 'ens6', 'ens7', 'ens8', 'ens9', 'ens10'], track='2-22', bar=26, move='heartbeat', counts=8, note='Burr\'s confession: the ensemble pats their hearts, his pulse rising (hamilton-lyrics)'),
     dict(who=['ens2', 'ens3'], track='2-22', bar=32, beat=3, move='kneel', counts=8, note='the seconds kneel as Burr cuts through them (hamilton-lyrics)'),
     dict(who=['burr'], track='2-22', bar=33, move='point', counts=4, note='he points and shouts at Hamilton (hamilton-lyrics)'),
@@ -669,7 +669,11 @@ SEGMENT_8 = [
     dict(who=['ens8', 'ens9'], track='2-22', bar=89, beat=3, move='row', until=213.0, mirror='alt', note='the rowers either side of him while the platform turns him (clockwise)'),
     dict(who=['hamilton'], track='2-22', at=222.0, move='rise', counts=2, note='"Hamilton slowly stands, facing upstage" (hamilton-lyrics)'),
     dict(who=['eliza'], track='2-23', bar=65, beat=3, move='gasp', counts=2, note='the gasp (cue 1296, 210.98): both hands to her heart (the official upload\'s comments; seg8.md Review 3), held into the blackout'),
-    dict(who=EVERYONE + ['king'], track='2-23', bar=66, beat=4, move='bow', counts=2, note='the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)'),
+    # NOTES3 (Jack, 2026-10-15): the curtain call (gen_seg8.py BOWS) - they hold through the blackout (211.8), bow where they
+    # stand when the lights come back (cue 1298, 214.8), walk into one line, bow twice together, and leave both sides
+    dict(who=EVERYONE, track='2-23', bar=67, move='bow', counts=4, note='NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)'),
+    dict(who=EVERYONE + ['king'], track='2-23', bar=70, move='bow', counts=4, note='NOTES3: bow 2, together in the line (formed by 225.0)'),
+    dict(who=EVERYONE + ['king'], track='2-23', bar=71, move='bow', counts=4, note='NOTES3: bow 3, together in the line; they file off both sides from 234.2'),
 ]
 # ===== END SEGMENT 8 =====
 

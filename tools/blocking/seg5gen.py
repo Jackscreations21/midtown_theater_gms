@@ -71,8 +71,12 @@ m8 = form(E8, W8, t_end=t(222.0))
 # rolling stair, so he takes the fixed SL stair, the parked unit's place), strides along the gallery, down the
 # SL stair and through an aisle in the scrubbing company to DSC
 J = 'lafayette'
-add(J, t(53.0), *GUC[0][:2], 'g', off=True, label='Jefferson')
-go(J, [(0.6, -3.35, 'g')], t_end=t(57.9), facing=0)
+# NOTES3 (Jack, 2026-10-15): "jefferson come out onto the balcony at 44" - he comes out of the gallery door at top centre
+# and is up there by 44.0 (was 57.9), in cue 723's top-centre Lustr pin (ch187 at (-0.23, -3.57)), and waits there for
+# his descent at 60.8 (cue 725's "Jefferson appears up top" key is still at 57.9: the cue agent's)
+add(J, t(42.0), *GUC[0][:2], 'g', off=True, label='Jefferson')
+go(J, [(0.6, -3.35, 'g'), (0.0, -3.45, 'g')], t_end=t(44.0), facing=0)
+stand(J, t(57.9), facing=0)
 go(J, [(4.75, -3.3, 'g'), (4.75, -2.6, 'g'), (4.5, -2.45, 'g'), (2.2, -2.45)], t_start=t(60.8), speed=1.7)
 last(J)['dwell'] = 0
 go(J, [(2.0, 0.4), (0.6, 2.8), (0.0, 4.2)], t_end=t(73.0), facing=0, hold=False, speed=1.7)
@@ -167,8 +171,10 @@ leave(WA, 'D-UC', t_start=c(211.2), speed=1.6)
 go(J, [(-1.6, 3.0)], t_start=T('2-01', 234.2), facing=45)
 go(J, [(-1.3, 3.7)], t_end=c(13.0), facing=75)
 stand(J, c(22.2), facing=15)
-go(J, [(-0.2, 1.2)], t_start=c(35.6), facing=0)        # works the room, crosses to C
-stand(J, c(45.4), facing=face((-0.2, 1.2), (0.8, 3.3)))
+# NOTES3 (Jack, 2026-10-15): "somewhere around 40 jefferson walks to the center when he should stay in his spot" - the
+# cross to C at 35.6 (cue 745) is cut: he works the room from his spot SR and turns on Hamilton's interjection
+stand(J, c(35.6), facing=0)
+stand(J, c(45.4), facing=face((-1.3, 3.7), (0.8, 3.3)))
 go(J, [(-1.8, 2.9)], t_end=c(53.0), facing=30)        # SPOT: near his key (747, mirrored ch94)
 go(J, [(-0.6, 2.9)], t_end=c(60.0), facing=0)
 go(J, [(-2.4, 3.4)], t_end=c(68.0), facing=-40)        # rallies his side of the room
@@ -192,7 +198,7 @@ leave(M, 'W-DSR', t_start=c(167.3))
 
 go(H, [(2.4, 2.0), (1.3, 3.7)], t_start=c(4.0), t_end=c(13.0), facing=-75)
 stand(H, c(22.4), facing=-60)
-go(H, [(0.8, 3.3)], t_end=c(45.5), facing=face((0.8, 3.3), (-0.2, 1.2)))   # the interjection
+go(H, [(0.8, 3.3)], t_end=c(45.5), facing=face((0.8, 3.3), (-1.3, 3.7)))   # the interjection (NOTES3: at Jefferson in his spot)
 go(H, [(1.4, 3.6)], t_end=c(49.5), facing=-60)
 go(H, [(1.3, 3.7)], t_end=c(80.0), facing=-45)
 stand(H, c(86.0), facing=0)
@@ -553,7 +559,11 @@ NOTES = (
  "replayed twice (97-118 Jefferson's account, 152-179 Madison's) and each ends with the three walking into the room the "
  "same way (46.6, 118.4, 179.3), Jefferson's approach to Madison DSR the same both times, Burr walks round the lit circle "
  "196.4-209.6 without crossing it, Hamilton goes DR on his banks line (213.6, not 198.9), two of the company shout the "
- "city names from the gallery (149-157)."
+ "city names from the gallery (149-157). "
+ "NOTES3 (Jack, 2026-10-15): 2-01 Jefferson comes out onto the upstage gallery at top centre by 44.0 (was 57.9), in the "
+ "lit top-centre pin, and waits there for his descent at 60.8. "
+ "NOTES3 (Jack, 2026-10-15): 2-02 Jefferson no longer crosses to centre at 35.6: he stays at his spot SR (-1.3, 3.7) "
+ "until 53, and Hamilton's interjection (45.5) is aimed at him there."
 )
 if __name__ == '__main__':
     import os

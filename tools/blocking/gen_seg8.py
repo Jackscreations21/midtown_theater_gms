@@ -22,7 +22,7 @@ def TR(abs_t):
 A = {}          # actor -> list of waypoints (with '_T')
 
 def wp(a, tr, at, x, z, y=None, dwell=None, facing=None, off=False, label=None):
-    assert 0 <= at <= LEN[tr], (a, tr, at)
+    assert 0 <= at and (at <= LEN[tr] or tr == ORDER[-1]), (a, tr, at)   # 2-23: the OPEN tail (RULING FQ)
     w = {'track': tr, 'at': round(at, 2), 'x': round(x, 3), 'z': round(z, 3)}
     if y is not None: w['y'] = y
     if dwell is not None: w['dwell'] = dwell
@@ -709,8 +709,9 @@ enter('ens2', 'W-MSL', (3.85, 1.3), T('2-22', 11.4), -60, label='Ensemble 2')
 hold('hamilton', T('2-22', 3.6), 0, dwell=0.6)
 walk('hamilton', T('2-22', 6.0), (-2.0, 1.95), facing=-150)
 walk('hamilton', T('2-22', 17.0), (-2.6, -1.2), facing=160)
-enter('ens4', 'W-DSR', (-2.8, 3.75), T('2-22', 6.6), 0, speed=1.6, label='Ensemble 4')
-leave('ens4', 'W-DSR', T('2-22', 7.0), speed=1.6)
+# NOTES3 (Jack, 2026-10-15): "the ham desk should come off during the blackout at the end of this [2-21]" - the desk is
+# struck in the 2-21 FTB (props.py), so the Doctor (ens4) no longer walks on at 6.6 to take it; Pendleton (ens3) still
+# takes the chair
 enter('ens3', 'W-DSR', (-3.45, 2.15), T('2-22', 8.6), 90, speed=1.6, label='Ensemble 3')
 leave('ens3', 'W-DSR', T('2-22', 9.0), speed=1.6, via=[(-4.0, 3.2)])
 enter('ens3', 'W-USR', (-3.3, -0.85), T('2-22', 18.6), 160, label='Ensemble 3')
@@ -1120,18 +1121,49 @@ walk('hamilton', T('2-23', 204.04), (0.85, 2.75), facing=-15)
 walk('washington', T('2-23', 204.5), (-0.85, 2.75), facing=15)
 hold('eliza', T('2-23', 204.04), 0)                               # to the house
 hold('eliza', T('2-23', 210.98), 0)                               # the gasp
-# BOWS: the lights come back 3 s after the blackout on the company in two rows, ensemble among the leads,
-# Hamilton and Eliza at the centre; King George (in cream, not in the finale) walks on SL beside Jefferson
-FRONT = ['mulligan', 'ens9', 'angelica', 'burr', 'hamilton', 'eliza', 'washington', 'ens1', 'lafayette', 'king']
-BACK = ['ens2', 'ens3', 'peggy', 'ens4', 'ens5', 'ens6', 'laurens', 'ens7', 'ens8', 'ens10']
-BOWP = {a: (-4.05 + 0.9 * i, 4.15) for i, a in enumerate(FRONT)}
-BOWP.update({a: (-4.5 + 0.9 * i, 3.05) for i, a in enumerate(BACK)})
-for a in FRONT + BACK:
+# BOWS - NOTES3 (Jack, 2026-10-15): "after the blackout everyone stays where they are and when the lights come back up they
+# bow then they go in the line and bow twice then they leave the stage." (Replaces the two rows walked into in the dark.)
+#  211.8   the blackout (cue 1297): everyone holds where the finale left them, and turns to the house in the dark (212.6)
+#  214.8   the lights come back (cue 1298, up 3 s: Jack's revision 5)
+#  216.13  bow 1 where they stand (dance.py: `bow`, bar 67, 4 counts, to 219.69)
+#  219.8-226.0  into ONE line downstage at z 4.2, 0.58 m apart (x -5.22 .. 5.8): the ensemble at the ends, the principals
+#          in the middle, Hamilton at centre (0, 4.2) with Eliza beside him SL; King George (not in the
+#          finale) walks on from DSL into his place in the line, downstage of the others' arrivals
+#  226.80  bow 2, 230.36 bow 3, together (dance.py: bars 70 and 71, 4 counts each, to 233.91)
+#  234.2   the line splits at the centre and files off both sides into the downstage wings, peeling from the ends
+#          (Hamilton and the SR half W-DSR, the SL half W-DSL); Eliza and then Hamilton are the last off, SR (in the wing by 239.8)
+# The `at`s past 217 are 2-23's OPEN tail (RULING FQ).
+# The line's 20 places, SR to SL: 4 ensemble, 5 principals, HAMILTON (centre, (0, 4.2)), 4 principals, 6 ensemble (the
+# finale leaves more bodies SR, so the principals' block is shifted one place SR to keep Hamilton in the middle). Within
+# each group the places go in the order of where the finale left them, SR to SL, and everyone leaves together and arrives
+# together, so nobody walks through anybody (an order-keeping walk; a nearest-place assignment crossed 16 pairs).
+# Eliza, just SR of Hamilton, is beside him; King George (not in the finale) walks on from DSL into the last
+# principals' place.
+LINE_Z, LINE_DX, HAM_I = 4.2, 0.58, 9
+SLOT = [(round(LINE_DX * (i - HAM_I), 3), LINE_Z) for i in range(20)]
+PRIN = sorted(['laurens', 'lafayette', 'washington', 'burr', 'angelica', 'peggy', 'mulligan', 'eliza'], key=lambda a: pos(a)[0])
+PRIN = PRIN[:5] + ['hamilton'] + PRIN[5:] + ['king']
+LINEP = dict(zip(PRIN, SLOT[4:14]))
+LINEP.update(zip(sorted(ENS, key=lambda a: pos(a)[0]), SLOT[0:4] + SLOT[14:20]))
+assert LINEP['hamilton'] == (0.0, LINE_Z) and abs(LINEP['eliza'][0]) < 0.6, LINEP
+LINE = sorted(LINEP, key=lambda a: LINEP[a][0])
+BOW_DARK, BOW_TURN, BOW_GO, LINE_AT, EXIT_AT = 211.9, 212.6, 219.8, 226.0, 234.2
+for a in LINE:
     if a == 'king':
-        enter('king', 'W-DSL', BOWP[a], T('2-23', 214.6), 0, speed=1.3, label='King George')
         continue
-    hold(a, T('2-23', 211.9), last(a).get('facing', 0))
-    walk(a, T('2-23', 214.6), BOWP[a], facing=0)
+    hold(a, T('2-23', BOW_DARK), last(a).get('facing', 0))       # stays where she is through the dark
+    hold(a, T('2-23', BOW_TURN), 0)                                 # turns to the house in the dark
+    hold(a, T('2-23', BOW_GO), 0, dwell=0.05)                       # bow 1 (dance.py), then all into the line together
+    assert math.hypot(LINEP[a][0] - last(a)['x'], LINEP[a][1] - last(a)['z']) <= 1.4 * (LINE_AT - BOW_GO), a
+    walk(a, T('2-23', LINE_AT), LINEP[a], facing=0)
+enter('king', 'W-DSL', LINEP['king'], T('2-23', LINE_AT - 0.6), 0, speed=1.3, label='King George', via=[(LINEP['king'][0] + 0.05, 4.85)])
+for a in LINE:                                                      # off both sides, the line filing into the wings
+    (ox, oz), _, wts = ENT['W-DSR' if LINEP[a][0] <= 0 else 'W-DSL']   # Hamilton (x 0) goes off SR, behind Eliza
+    turn = wts[0]
+    k = sorted([b for b in LINE if (LINEP[b][0] <= 0) == (LINEP[a][0] <= 0)], key=lambda b: -abs(LINEP[b][0])).index(a)
+    t1 = T('2-23', EXIT_AT) + (0.55 + LINE_DX * k) / 1.3          # the k-th from the end reaches the turn k places behind
+    wpa(a, t1, turn[0], turn[1], dwell=0)
+    wpa(a, t1 + math.hypot(ox - turn[0], oz - turn[1]) / 1.3, ox, oz, off=True)
 # =====================================================================================
 out = {'segment': 8, 'tracks': ORDER, 'waypoints': {}, 'notes': ''}
 for a in ['hamilton', 'burr', 'eliza', 'angelica', 'peggy', 'washington', 'lafayette', 'mulligan', 'laurens', 'king'] + ENS:

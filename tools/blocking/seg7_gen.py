@@ -236,7 +236,12 @@ b.exit('2-14', 126.86, 'W-DSL', speed=1.5, via=[(6.0, 4.7)])               # the
 
 # ================================================================ JEFFERSON (lafayette)
 j = actor('lafayette').start('W-DSR', 'Jefferson')
-j.enter('W-DSR', '2-11', 39.0, (-0.8, 2.2), 20, speed=1.7)
+# NOTES3 (Jack, 2026-10-15): "jefferson come on at 19" - he walks on DSR at 19 (was 39.0: 20 s earlier; he crosses the
+# wing's sight line at ~19.0 and reaches his spot by 23.1), upstage of Burr in his DSR key, and watches Hamilton fired up
+# on the gallery before the gloat (37.63)
+j.enter('W-DSR', '2-11', 23.1, (-0.8, 2.2), 20, speed=1.7, via=[(-6.0, 4.7), (-4.0, 2.6)])
+j.face('2-11', 25.6, facing_to((-0.8, 2.2), (0.0, -3.2)))                 # Adams fires Hamilton (25.37): up at him
+j.face('2-11', 37.63, 20)                                                  # the three gloat
 j.at('2-11', 48.0, -0.4, 4.0, f=0)
 j.at('2-12', 6.5, 0.2, 1.4, f=60)                                          # closes on him at the desk (SR of it)
 j.at('2-12', 21.08, 0.7, 1.9, f=45)                                        # the accusation

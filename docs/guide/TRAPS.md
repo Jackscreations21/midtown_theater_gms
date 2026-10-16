@@ -2005,3 +2005,26 @@ restores.
 clips with the uniforms `uWlBox0/1`; a uniform stretched into the backstage lit the corridor and the check passed. A
 check of a GPU-side value must read the GPU-side value (or prove the record equals it), and its pixel views must
 include the place a failure would show — the corridor behind the house, not only the stage.
+
+## From his act-1 and act-2 notes round (2026-10-15)
+
+- **A brief's song title can name the wrong track; the checklist row is keyed by the track id.** The act-2 brief said
+  "2-11 Washington on Your Side"; 2-11 is The Adams Administration (Washington on Your Side is 2-08). Jack's note
+  ("jefferson come on at 19") sits on the `2-11` row of his blocking checklist. Read the row by id
+  (`ArtifactData get songs/2-11`) and the title from `assets/hamilton-show.json` before you edit a generator.
+- **Walking a scattered company into a line by NEAREST place makes them walk through each other.** For the 2-23 curtain
+  call, a hungarian (least total distance) assignment into a 20-place line crossed 16 pairs (down to 0.04 m). Two fixes,
+  and they work together. First, give each group its places in the order of where they stand (sort by x). Second, make
+  them all leave together and arrive together (a stop with a small `dwell`, then one leg). Both ends of every path are
+  then in order, and with one shared ease the order holds the whole way. What is left is the pairs that change order
+  between groups. Sample the poses (0.05 s) and look at the minimum distance; do not trust the assignment.
+- **A line filing off through one turn point squeezes its two end bodies together.** The two end bodies are 0.55 and
+  0.80 m from the turn and reach it 0.25 m apart. Time each body's arrival at the turn by her PLACE in the file
+  (0.55 + 0.58 k metres at 1.3 m/s, `k` from the end), not by her own distance; the page's "leave just in time" then
+  peels the line from the end.
+- **`MIDTOWN.set` is not the blocking's frame.** A camera helper built on `MIDTOWN.set.localToWorld` looked at the
+  wrong end of the stage. Use the Group named `actors` in `MIDTOWN.scene` (`traverse` for `name === 'actors'`): its
+  children sit at the blocking's set-local x / y / z, so `actors.localToWorld(new THREE.Vector3(x, y, z))` is right.
+- **A generator's own range assert can forbid what the format allows.** `gen_seg8.py`'s `wp()` asserted `at <= LEN[track]`.
+  But 2-23 has an OPEN tail (RULING FQ), so the curtain call after the music (2-23 211.8 to 240) could not be written.
+  The assert now exempts the last track. Look for the same assert in any generator that writes into a lead-in or tail.

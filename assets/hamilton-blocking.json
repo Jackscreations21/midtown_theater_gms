@@ -355,8 +355,8 @@
    {"track": "2-02", "at": 13.0, "x": 1.3, "z": 3.7, "facing": -75.0},
    {"track": "2-02", "at": 22.4, "x": 1.3, "z": 3.7, "facing": -60.0},
    {"track": "2-02", "at": 45.01, "x": 1.3, "z": 3.7, "facing": -60.0},
-   {"track": "2-02", "at": 45.5, "x": 0.8, "z": 3.3, "facing": -154.5},
-   {"track": "2-02", "at": 48.98, "x": 0.8, "z": 3.3, "facing": -154.5},
+   {"track": "2-02", "at": 45.5, "x": 0.8, "z": 3.3, "facing": -79.2},
+   {"track": "2-02", "at": 48.98, "x": 0.8, "z": 3.3, "facing": -79.2},
    {"track": "2-02", "at": 49.5, "x": 1.4, "z": 3.6, "facing": -60.0},
    {"track": "2-02", "at": 79.89, "x": 1.4, "z": 3.6, "facing": -60.0},
    {"track": "2-02", "at": 80.0, "x": 1.3, "z": 3.7, "facing": -45.0},
@@ -729,7 +729,11 @@
    {"track": "2-23", "at": 199.4, "x": 0.55, "z": 3.85, "facing": -30.0},
    {"track": "2-23", "at": 204.04, "x": 0.85, "z": 2.75, "facing": -15.0},
    {"track": "2-23", "at": 211.9, "x": 0.85, "z": 2.75, "facing": -15.0},
-   {"track": "2-23", "at": 214.6, "x": -0.45, "z": 4.15, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": 0.85, "z": 2.75, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": 0.85, "z": 2.75, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": 0.0, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 238.64, "x": -5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 239.8, "x": -7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 99.65, "move": "sit", "counts": 11.0, "note": "sick in the cousin's chair (set behind him at 99.4) until he recovers (seg1.md Review 3: the clip has him in a chair, standing up where he recovers)"},
    {"track": "1-01", "at": 131.74, "move": "sit", "counts": 19.0, "note": "Q51: at his table on the cousin's chair, writing (t101; props cousin-chair), until he leaves it for Q52"},
@@ -774,12 +778,14 @@
    {"track": "2-14", "at": 0.38, "move": "sit", "counts": 21.0, "note": "at his desk, his chair behind it (hamilton-lyrics), until he climbs onto the desk (19.5)"},
    {"track": "2-20", "at": 75.5, "move": "sit", "counts": 100.0, "note": "Hamilton takes the desk and writes his list (gen_seg8.py; props desk-chair) until the blackout (cue 1206)"},
    {"track": "2-21", "at": 1.24, "move": "sit", "counts": 54.0, "note": "at his desk near SR, writing (ironinkpen; \"He sits in a chair writing\", clip; props desk-chair)"},
-   {"track": "2-22", "at": 0.55, "move": "sit", "counts": 5.0, "note": "still at the desk; he rises from it at the top (hamilton-lyrics)"},
+   {"track": "2-22", "at": 0.55, "move": "sit", "counts": 5.0, "note": "still in his chair (the desk was struck in the 2-21 FTB, NOTES3); he rises from it at the top (hamilton-lyrics)"},
    {"track": "2-22", "at": 130.44, "move": "legacy", "counts": 8.0, "note": "\"Legacy\" (cue 1248): the My Shot phrase, the shot thrown up"},
    {"track": "2-22", "at": 188.07, "move": "aim-up", "counts": 5.0, "note": "he aims upward, away from Burr (hamilton-lyrics; seg8.md Review 3)"},
    {"track": "2-22", "at": 191.53, "move": "fold", "counts": 50.0, "note": "hit: he folds at the waist and hangs there (hamilton-lyrics; seg8.md Review 3)"},
    {"track": "2-22", "at": 222.98, "move": "rise", "counts": 2.0, "note": "\"Hamilton slowly stands, facing upstage\" (hamilton-lyrics)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "burr", "name": "Burr", "color": "#c9a23a", "path": [
    {"track": "1-01", "at": -10.0, "x": -7.3, "z": 4.6, "dwell": 2.0, "off": true, "label": "Burr"},
@@ -1218,7 +1224,11 @@
    {"track": "2-23", "at": 124.95, "x": 2.457, "z": 2.679, "facing": -27.5},
    {"track": "2-23", "at": 153.78, "x": 2.3, "z": 0.95, "facing": -29.0},
    {"track": "2-23", "at": 211.9, "x": 2.3, "z": 0.95, "facing": -29.0},
-   {"track": "2-23", "at": 214.6, "x": -1.35, "z": 4.15, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": 2.3, "z": 0.95, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": 2.3, "z": 0.95, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": 1.16, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 238.19, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 239.35, "x": 7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
    {"track": "1-03", "at": 7.01, "move": "sit", "counts": 176.0, "note": "reading in his tavern chair UR (props burr-chair, burr-book; \"just reading a book in the background\", seg1.md Review 3) until he goes at Q118"},
@@ -1248,7 +1258,9 @@
    {"track": "2-20", "at": 32.84, "move": "sit", "counts": 47.0, "note": "Burr seated at the desk centre (cue 1193; gen_seg8.py; props desk-chair), until he gives it up"},
    {"track": "2-22", "at": 74.98, "move": "point", "counts": 4.0, "note": "he points and shouts at Hamilton (hamilton-lyrics)"},
    {"track": "2-22", "at": 100.95, "move": "aim", "counts": 161.0, "note": "FIRE (cue 1242): at his place facing Hamilton, the pistol levelled; frozen in the aim through his ride to the shot (gen_seg8.py \"the frozen Burr\")"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "eliza", "name": "Eliza", "color": "#5a8fd8", "path": [
    {"track": "1-01", "at": 0.0, "x": 8.0, "z": -0.5, "off": true, "label": "Eliza"},
@@ -1570,7 +1582,11 @@
    {"track": "2-23", "at": 204.04, "x": 0.0, "z": 4.2, "facing": 0.0},
    {"track": "2-23", "at": 210.98, "x": 0.0, "z": 4.2, "facing": 0.0},
    {"track": "2-23", "at": 211.9, "x": 0.0, "z": 4.2, "facing": 0.0},
-   {"track": "2-23", "at": 214.6, "x": 0.45, "z": 4.15, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": 0.0, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": 0.0, "z": 4.2, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": -0.58, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 238.19, "x": -5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 239.35, "x": -7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
    {"track": "1-05", "at": 41.32, "move": "slow-walk", "counts": 16.0, "speed": 2.0, "note": "the street walk: walking on the spot against the turning floor, a step a beat (\"the characters walk in place\", clip comments)"},
@@ -1589,7 +1605,9 @@
    {"track": "2-15", "at": 137.72, "move": "sit", "counts": 17.0, "note": "she withdraws to the bench"},
    {"track": "2-15", "at": 190.38, "move": "sit", "counts": 33.0, "note": "quieter, the bench, until she takes the lantern"},
    {"track": "2-23", "at": 210.8, "move": "gasp", "counts": 2.0, "note": "the gasp (cue 1296, 210.98): both hands to her heart (the official upload's comments; seg8.md Review 3), held into the blackout"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "angelica", "name": "Angelica", "color": "#e0789e", "path": [
    {"track": "1-01", "at": 0.0, "x": 0.6, "z": -4.8, "y": 2.743, "off": true, "label": "Angelica"},
@@ -1792,7 +1810,11 @@
    {"track": "2-23", "at": 124.8, "x": -2.457, "z": 2.679, "facing": 27.5},
    {"track": "2-23", "at": 153.66, "x": -1.992, "z": 2.1, "facing": 39.4},
    {"track": "2-23", "at": 211.9, "x": -1.992, "z": 2.1, "facing": 39.4},
-   {"track": "2-23", "at": 214.6, "x": -2.25, "z": 4.15, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": -1.992, "z": 2.1, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": -1.992, "z": 2.1, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": -1.74, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 237.3, "x": -5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 238.46, "x": -7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
    {"track": "1-05", "at": 41.32, "move": "slow-walk", "counts": 16.0, "speed": 2.0, "note": "the street walk: walking on the spot against the turning floor, a step a beat (\"the characters walk in place\", clip comments)"},
@@ -1801,7 +1823,9 @@
    {"track": "1-05", "at": 146.22, "move": "equals", "counts": 4.0, "note": "the counterpoint: the same declaration again (the gesture goes with the line)"},
    {"track": "1-10", "at": 116.3, "move": "sit", "counts": 31.0, "note": "Q302: on the bench, SR end (hamilton-lyrics; props sisters-bench)"},
    {"track": "1-18", "at": 59.11, "move": "bounce", "counts": 48.0, "note": "\"everyone upstairs is dancing except for Burr\" (clip 1:04); \"Peggy and Angelica jamming on the rafter\"; \"1:16 Angelica's feeling it\""},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "peggy", "name": "Peggy", "color": "#e8d24a", "path": [
    {"track": "1-01", "at": 0.0, "x": 0.6, "z": -4.8, "y": 2.743, "off": true, "label": "Peggy"},
@@ -1967,7 +1991,11 @@
    {"track": "2-23", "at": 125.1, "x": -1.721, "z": 1.943, "facing": 17.5},
    {"track": "2-23", "at": 153.9, "x": -2.3, "z": 0.95, "facing": 29.0},
    {"track": "2-23", "at": 211.9, "x": -2.3, "z": 0.95, "facing": 29.0},
-   {"track": "2-23", "at": 214.6, "x": -2.7, "z": 3.05, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": -2.3, "z": 0.95, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": -2.3, "z": 0.95, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": -2.32, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 236.85, "x": -5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 238.01, "x": -7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
    {"track": "1-05", "at": 41.32, "move": "slow-walk", "counts": 16.0, "speed": 2.0, "note": "the street walk: walking on the spot against the turning floor, a step a beat (\"the characters walk in place\", clip comments)"},
@@ -1981,7 +2009,9 @@
    {"track": "1-11", "at": 47.33, "move": "rewind", "counts": 22.0, "note": "the rewind (cues 366.2 to 366.8); Angelica and Laurens keep their glasses up and do not go backwards"},
    {"track": "1-11", "at": 228.02, "move": "shoulder-pop", "counts": 8.0, "note": "Peggy's little dance again (the side-by-side: \"the same\" in both songs)"},
    {"track": "1-18", "at": 59.11, "move": "bounce", "counts": 48.0, "note": "\"everyone upstairs is dancing except for Burr\" (clip 1:04); \"Peggy and Angelica jamming on the rafter\"; \"1:16 Angelica's feeling it\""},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "washington", "name": "Washington", "color": "#ece6da", "path": [
    {"track": "1-01", "at": 0.0, "x": 1.25, "z": -4.9, "dwell": 105.6, "off": true, "label": "Washington"},
@@ -2240,7 +2270,11 @@
    {"track": "2-23", "at": 183.36, "x": -0.5, "z": 1.45, "facing": 0.0},
    {"track": "2-23", "at": 204.5, "x": -0.85, "z": 2.75, "facing": 15.0},
    {"track": "2-23", "at": 211.9, "x": -0.85, "z": 2.75, "facing": 15.0},
-   {"track": "2-23", "at": 214.6, "x": 1.35, "z": 4.15, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": -0.85, "z": 2.75, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": -0.85, "z": 2.75, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": -1.16, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 237.75, "x": -5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 238.91, "x": -7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
    {"track": "1-08", "at": 311.92, "move": "sword-draw", "counts": 4.0, "note": "the last line: he draws his sword and raises it (the clip's comments; seg2.md Review 3)"},
@@ -2248,7 +2282,9 @@
    {"track": "2-02", "at": 13.94, "move": "sit", "counts": 94.0, "note": "in his chair at the SL vertex of the V (cue 742 \"chair SL\"; ironinkpen: seated with them; props washington-chair)"},
    {"track": "2-02", "at": 84.16, "move": "sit", "counts": 90.0, "note": "back in his chair after the break"},
    {"track": "2-22", "at": 159.8, "move": "sabre", "counts": 4.0, "note": "Washington beside him, \"swordfighting the air\" (hamilton-lyrics; seg8.md Review 3)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "lafayette", "name": "Lafayette", "color": "#4fc1c1", "path": [
    {"track": "1-01", "at": 0.0, "x": -8.5, "z": 0.0, "dwell": 29.0, "off": true, "label": "Lafayette"},
@@ -2416,14 +2452,16 @@
    {"track": "1-20", "at": 217.1, "x": 2.69, "z": 1.66, "dwell": 23.2, "facing": 0.0},
    {"track": "1-21", "at": 1.16, "x": 6.2, "z": 0.4, "dwell": 0.0},
    {"track": "1-21", "at": 2.71, "x": 8.0, "z": -0.5, "off": true},
-   {"track": "2-01", "at": 53.0, "x": 0.6, "z": -4.8, "y": 2.743, "off": true, "label": "Jefferson"},
-   {"track": "2-01", "at": 56.78, "x": 0.6, "z": -4.8, "y": 2.743, "off": true},
-   {"track": "2-01", "at": 57.9, "x": 0.6, "z": -3.35, "y": 2.743, "facing": 0.0},
-   {"track": "2-01", "at": 60.8, "x": 0.6, "z": -3.35, "y": 2.743, "facing": 0.0},
-   {"track": "2-01", "at": 63.24, "x": 4.75, "z": -3.3, "y": 2.743, "dwell": 0.0},
-   {"track": "2-01", "at": 63.65, "x": 4.75, "z": -2.6, "y": 2.743, "dwell": 0.0},
-   {"track": "2-01", "at": 63.82, "x": 4.5, "z": -2.45, "y": 2.743, "dwell": 0.0},
-   {"track": "2-01", "at": 68.42, "x": 2.2, "z": -2.45, "dwell": 0.0},
+   {"track": "2-01", "at": 42.0, "x": 0.6, "z": -4.8, "y": 2.743, "off": true, "label": "Jefferson"},
+   {"track": "2-01", "at": 42.42, "x": 0.6, "z": -4.8, "y": 2.743, "off": true},
+   {"track": "2-01", "at": 43.53, "x": 0.6, "z": -3.35, "y": 2.743, "dwell": 0.0},
+   {"track": "2-01", "at": 44.0, "x": 0.0, "z": -3.45, "y": 2.743, "facing": 0.0},
+   {"track": "2-01", "at": 57.9, "x": 0.0, "z": -3.45, "y": 2.743, "facing": 0.0},
+   {"track": "2-01", "at": 60.8, "x": 0.0, "z": -3.45, "y": 2.743, "facing": 0.0},
+   {"track": "2-01", "at": 63.6, "x": 4.75, "z": -3.3, "y": 2.743, "dwell": 0.0},
+   {"track": "2-01", "at": 64.01, "x": 4.75, "z": -2.6, "y": 2.743, "dwell": 0.0},
+   {"track": "2-01", "at": 64.18, "x": 4.5, "z": -2.45, "y": 2.743, "dwell": 0.0},
+   {"track": "2-01", "at": 68.78, "x": 2.2, "z": -2.45, "dwell": 0.0},
    {"track": "2-01", "at": 70.47, "x": 2.0, "z": 0.4, "dwell": 0.0},
    {"track": "2-01", "at": 72.1, "x": 0.6, "z": 2.8, "dwell": 0.0},
    {"track": "2-01", "at": 73.0, "x": 0.0, "z": 4.2, "facing": 0.0},
@@ -2461,10 +2499,9 @@
    {"track": "2-02", "at": 12.41, "x": -1.6, "z": 3.0, "facing": 45.0},
    {"track": "2-02", "at": 13.0, "x": -1.3, "z": 3.7, "facing": 75.0},
    {"track": "2-02", "at": 22.2, "x": -1.3, "z": 3.7, "facing": 15.0},
-   {"track": "2-02", "at": 35.6, "x": -1.3, "z": 3.7, "facing": 15.0},
-   {"track": "2-02", "at": 37.7, "x": -0.2, "z": 1.2, "facing": 0.0},
-   {"track": "2-02", "at": 45.4, "x": -0.2, "z": 1.2, "facing": 25.5},
-   {"track": "2-02", "at": 51.2, "x": -0.2, "z": 1.2, "facing": 25.5},
+   {"track": "2-02", "at": 35.6, "x": -1.3, "z": 3.7, "facing": 0.0},
+   {"track": "2-02", "at": 45.4, "x": -1.3, "z": 3.7, "facing": 100.8},
+   {"track": "2-02", "at": 52.27, "x": -1.3, "z": 3.7, "facing": 100.8},
    {"track": "2-02", "at": 53.0, "x": -1.8, "z": 2.9, "facing": 30.0},
    {"track": "2-02", "at": 59.08, "x": -1.8, "z": 2.9, "facing": 30.0},
    {"track": "2-02", "at": 60.0, "x": -0.6, "z": 2.9, "facing": 0.0},
@@ -2569,8 +2606,11 @@
    {"track": "2-09", "at": 6.81, "x": 4.9, "z": -0.2, "dwell": 0.0},
    {"track": "2-09", "at": 9.2, "x": 8.0, "z": -0.5, "off": true},
    {"track": "2-11", "at": 0.0, "x": -7.3, "z": 4.6, "off": true, "label": "Jefferson"},
-   {"track": "2-11", "at": 35.61, "x": -6.0, "z": 4.7, "dwell": 0.0},
-   {"track": "2-11", "at": 39.0, "x": -0.8, "z": 2.2, "facing": 20.0},
+   {"track": "2-11", "at": 19.5, "x": -6.0, "z": 4.7, "dwell": 0.0},
+   {"track": "2-11", "at": 21.2, "x": -4.0, "z": 2.6, "dwell": 0.0},
+   {"track": "2-11", "at": 23.1, "x": -0.8, "z": 2.2, "facing": 20.0},
+   {"track": "2-11", "at": 25.6, "x": -0.8, "z": 2.2, "facing": 171.6},
+   {"track": "2-11", "at": 37.63, "x": -0.8, "z": 2.2, "facing": 20.0},
    {"track": "2-11", "at": 48.0, "x": -0.4, "z": 4.0, "facing": 0.0},
    {"track": "2-12", "at": 6.5, "x": 0.2, "z": 1.4, "facing": 60.0},
    {"track": "2-12", "at": 21.08, "x": 0.7, "z": 1.9, "dwell": 8.82, "facing": 45.0},
@@ -2633,7 +2673,11 @@
    {"track": "2-23", "at": 124.5, "x": -2.898, "z": 3.624, "facing": 37.5},
    {"track": "2-23", "at": 153.42, "x": -2.404, "z": 3.354, "facing": 59.0},
    {"track": "2-23", "at": 211.9, "x": -2.404, "z": 3.354, "facing": 59.0},
-   {"track": "2-23", "at": 214.6, "x": 3.15, "z": 4.15, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": -2.404, "z": 3.354, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": -2.404, "z": 3.354, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": -2.9, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 236.41, "x": -5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 237.57, "x": -7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
    {"track": "1-03", "at": 79.53, "move": "my-shot", "counts": 8.0, "note": "chorus 1, first half: the signature phrase on the downbeat after the pickup (words at 79.2 = bar 30 beat 4.5)"},
@@ -2688,7 +2732,9 @@
    {"track": "2-14", "at": 35.88, "move": "make-it-rain", "counts": 6.0, "speed": 2.0, "note": "bouncing on the desk, making it rain (ClownOwO comments; seg7.md Review 3)"},
    {"track": "2-14", "at": 89.14, "move": "make-it-rain", "counts": 31.0, "speed": 2.0, "note": "chorus 2: the three DS, bopping and hurling pages"},
    {"track": "2-19", "at": 169.32, "move": "jump", "counts": 2.0, "note": "Jefferson's little jump of joy at the endorsement (clip comment at 2:55)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "mulligan", "name": "Mulligan", "color": "#a47ad8", "path": [
    {"track": "1-01", "at": 0.0, "x": 7.3, "z": 4.6, "dwell": 41.6, "off": true, "label": "Mulligan"},
@@ -2968,7 +3014,11 @@
    {"track": "2-23", "at": 124.65, "x": 4.041, "z": 2.929, "facing": -35.0},
    {"track": "2-23", "at": 153.54, "x": 3.195, "z": 2.113, "facing": -44.7},
    {"track": "2-23", "at": 211.9, "x": 3.195, "z": 2.113, "facing": -44.7},
-   {"track": "2-23", "at": 214.6, "x": -4.05, "z": 4.15, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": 3.195, "z": 2.113, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": 3.195, "z": 2.113, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": 1.74, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 237.75, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 238.91, "x": 7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
    {"track": "1-03", "at": 79.53, "move": "my-shot", "counts": 8.0, "note": "chorus 1, first half: the signature phrase on the downbeat after the pickup (words at 79.2 = bar 30 beat 4.5)"},
@@ -2996,7 +3046,9 @@
    {"track": "2-08", "at": 137.41, "move": "finger-wag", "counts": 8.0, "note": "\"the walk\" (973): Madison wagging a finger as the three walk SL in step (video comments; seg6.md Review 3)"},
    {"track": "2-08", "at": 179.52, "move": "spin-full", "counts": 2.0, "note": "\"the little spin they do at the end\" (video comments): a full turn into the button (cue 977)"},
    {"track": "2-14", "at": 89.14, "move": "make-it-rain", "counts": 31.0, "speed": 2.0, "note": "chorus 2: the three DS, bopping and hurling pages"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "laurens", "name": "Laurens", "color": "#e0883a", "path": [
    {"track": "1-01", "at": 0.0, "x": 8.0, "z": -0.5, "dwell": 14.4, "off": true, "label": "Laurens"},
@@ -3321,7 +3373,11 @@
    {"track": "2-23", "at": 125.25, "x": 1.721, "z": 1.943, "facing": -17.5},
    {"track": "2-23", "at": 154.02, "x": 1.992, "z": -0.2, "facing": -19.1},
    {"track": "2-23", "at": 211.9, "x": 1.992, "z": -0.2, "facing": -19.1},
-   {"track": "2-23", "at": 214.6, "x": 0.9, "z": 3.05, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": 1.992, "z": -0.2, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": 1.992, "z": -0.2, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": 0.58, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 238.64, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 239.8, "x": 7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
    {"track": "1-03", "at": 79.53, "move": "my-shot", "counts": 8.0, "note": "chorus 1, first half: the signature phrase on the downbeat after the pickup (words at 79.2 = bar 30 beat 4.5)"},
@@ -3349,7 +3405,9 @@
    {"track": "1-20", "at": 146.88, "move": "musket", "counts": 8.0, "note": "the battle resumes (cue 605)"},
    {"track": "1-20", "at": 204.44, "move": "upside-down", "counts": 21.0, "note": "the company's first full title phrase (cue 609.2, hit 204.24): the furniture lifted and held upside down (props.py ytown-*; the arms go up empty for those without)"},
    {"track": "1-20", "at": 217.91, "move": "upside-down", "counts": 4.0, "reverse": true, "note": "the chant (cue 609.3): the furniture turned back the right way up (\"then righted, matching the lyric\", AllMusicals annotation)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "king", "name": "King George", "color": "#c0392b", "path": [
    {"track": "1-07", "at": 0.0, "x": 1.25, "z": -4.9, "off": true, "label": "King George"},
@@ -3413,9 +3471,12 @@
    {"track": "2-14", "at": 53.8, "x": -2.1, "z": 3.5, "dwell": 0.6, "facing": 60.0},
    {"track": "2-14", "at": 57.12, "x": -6.0, "z": 4.7, "dwell": 0.0},
    {"track": "2-14", "at": 57.99, "x": -7.3, "z": 4.6, "off": true},
-   {"track": "2-23", "at": 212.02, "x": 7.3, "z": 4.6, "dwell": 0.0, "off": true, "label": "King George"},
-   {"track": "2-23", "at": 213.18, "x": 5.8, "z": 4.75, "dwell": 0.0},
-   {"track": "2-23", "at": 214.6, "x": 4.05, "z": 4.15, "facing": 0.0}
+   {"track": "2-23", "at": 221.1, "x": 7.3, "z": 4.6, "dwell": 0.0, "off": true, "label": "King George"},
+   {"track": "2-23", "at": 222.26, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 224.9, "x": 2.37, "z": 4.85, "dwell": 0.0},
+   {"track": "2-23", "at": 225.4, "x": 2.32, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 237.3, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 238.46, "x": 7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "2-09", "at": 292.58, "move": "king-walk", "counts": 3.0, "note": "he \"wanders onto stage\" through the deck door (video comments), the King's walk (Groff's tightrope walk; seg6.md Review 3)"},
    {"track": "2-10", "at": 0.0, "move": "king-walk", "counts": 4.0, "note": "on to UC for the first note"},
@@ -3428,7 +3489,8 @@
    {"track": "2-11", "at": 4.15, "move": "sit", "counts": 66.0, "note": "on his stool UL, watching (seg7_gen.py; props king-stool) until he runs off after the papers drop (34.6)"},
    {"track": "2-14", "at": 40.96, "move": "prance-fan", "counts": 12.0, "speed": 2.0, "note": "King DR (cue 1042): dancing, fanning himself with a pamphlet"},
    {"track": "2-14", "at": 51.1, "move": "shimmy", "counts": 3.0, "note": "the raucous tag (51.16) and the gloat, then the prissy step to Hamilton"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "ens1", "name": "Ensemble 1", "color": "#8c8c8c", "path": [
    {"track": "1-01", "at": 0.0, "x": -8.5, "z": -3.0, "dwell": 36.0, "off": true, "label": "Ensemble 1"},
@@ -3821,7 +3883,11 @@
    {"track": "2-23", "at": 125.4, "x": -2.466, "z": 0.878, "facing": 17.5},
    {"track": "2-23", "at": 154.14, "x": -2.944, "z": -0.75, "facing": 22.9},
    {"track": "2-23", "at": 211.9, "x": -2.944, "z": -0.75, "facing": 22.9},
-   {"track": "2-23", "at": 214.6, "x": 2.25, "z": 4.15, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": -2.944, "z": -0.75, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": -2.944, "z": -0.75, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": -4.06, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 235.52, "x": -5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 236.67, "x": -7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 117.49, "move": "spin-quarter", "counts": 4.0, "note": "Washington's line to the boy: the counter-clockwise gesture, \"falling left\" (Blankenbuehler, BroadwayWorld); the shape a reading"},
    {"track": "1-01", "at": 171.47, "move": "point-fall", "counts": 4.0, "note": "Q56: Angelica hands him the book -- \"all the ensemble point and fall back\" (Disney+ Clip 2 comment; seg1.md Review 3 move 1)"},
@@ -3903,7 +3969,9 @@
    {"track": "2-20", "at": 111.64, "move": "lean-in", "counts": 3.0, "note": "the editor's \"lean thing\": the country leans in toward the two men as it escalates (seg8.md Review 3)"},
    {"track": "2-22", "at": 101.53, "move": "bullet", "counts": 98.0, "note": "the Bullet creeps from Burr's pistol to the centre: \"creeps closer throughout\", at the centre on \"eyes up\""},
    {"track": "2-22", "at": 173.65, "move": "bullet", "counts": 29.0, "note": "ELIZA: the knot blown away, she carries it on to him"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "ens2", "name": "Ensemble 2", "color": "#8c8c8c", "path": [
    {"track": "1-01", "at": 0.0, "x": -8.5, "z": 0.0, "dwell": 36.7, "off": true, "label": "Ensemble 2"},
@@ -4379,7 +4447,11 @@
    {"track": "2-23", "at": 125.55, "x": -0.624, "z": 1.466, "facing": 6.0},
    {"track": "2-23", "at": 154.26, "x": -1.992, "z": -0.2, "facing": 19.1},
    {"track": "2-23", "at": 211.9, "x": -1.992, "z": -0.2, "facing": 19.1},
-   {"track": "2-23", "at": 214.6, "x": -4.5, "z": 3.05, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": -1.992, "z": -0.2, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": -1.992, "z": -0.2, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": -3.48, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 235.96, "x": -5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 237.12, "x": -7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 117.49, "move": "spin-quarter", "counts": 4.0, "note": "Washington's line to the boy: the counter-clockwise gesture, \"falling left\" (Blankenbuehler, BroadwayWorld); the shape a reading"},
    {"track": "1-01", "at": 171.47, "move": "point-fall", "counts": 4.0, "note": "Q56: Angelica hands him the book -- \"all the ensemble point and fall back\" (Disney+ Clip 2 comment; seg1.md Review 3 move 1)"},
@@ -4472,7 +4544,9 @@
    {"track": "2-22", "at": 142.49, "move": "my-shot", "counts": 13.0, "speed": 4.0, "note": "\"America\" Center pose: the My Shot pose round him on the box (hamilton-lyrics); the phrase at 4x to its end shape, held"},
    {"track": "2-22", "at": 155.18, "move": "bullet", "counts": 15.0, "note": "\"Eyes UP\": the knot round the Bullet - every cast member joins her to slow the bullet down (Blankenbuehler)"},
    {"track": "2-22", "at": 164.41, "move": "hoist", "counts": 8.0, "note": "the rest of the knot under her, arms up (nothing carried)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "ens3", "name": "Ensemble 3", "color": "#8c8c8c", "path": [
    {"track": "1-01", "at": 0.0, "x": 1.25, "z": -4.9, "dwell": 39.5, "off": true, "label": "Ensemble 3"},
@@ -4940,7 +5014,11 @@
    {"track": "2-23", "at": 125.7, "x": 0.0, "z": 0.1, "facing": 0.0},
    {"track": "2-23", "at": 154.38, "x": -1.15, "z": -1.042, "facing": 9.5},
    {"track": "2-23", "at": 211.9, "x": -1.15, "z": -1.042, "facing": 9.5},
-   {"track": "2-23", "at": 214.6, "x": -3.6, "z": 3.05, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": -1.15, "z": -1.042, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": -1.15, "z": -1.042, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": 3.48, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 236.41, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 237.57, "x": 7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 171.47, "move": "point-fall", "counts": 4.0, "note": "Q56: Angelica hands him the book -- \"all the ensemble point and fall back\" (Disney+ Clip 2 comment; seg1.md Review 3 move 1)"},
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
@@ -5030,7 +5108,9 @@
    {"track": "2-22", "at": 142.49, "move": "my-shot", "counts": 13.0, "speed": 4.0, "note": "\"America\" Center pose: the My Shot pose round him on the box (hamilton-lyrics); the phrase at 4x to its end shape, held"},
    {"track": "2-22", "at": 155.18, "move": "bullet", "counts": 15.0, "note": "\"Eyes UP\": the knot round the Bullet - every cast member joins her to slow the bullet down (Blankenbuehler)"},
    {"track": "2-22", "at": 164.41, "move": "hoist", "counts": 8.0, "note": "the rest of the knot under her, arms up (nothing carried)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "ens4", "name": "Ensemble 4", "color": "#8c8c8c", "path": [
    {"track": "1-01", "at": 0.0, "x": 8.5, "z": -3.0, "dwell": 38.1, "off": true, "label": "Ensemble 4"},
@@ -5384,11 +5464,6 @@
    {"track": "2-19", "at": 228.42, "x": 4.55, "z": -1.1, "dwell": 0.0},
    {"track": "2-19", "at": 229.66, "x": 4.75, "z": -2.95, "dwell": 0.0},
    {"track": "2-19", "at": 232.16, "x": 8.5, "z": -3.0, "off": true},
-   {"track": "2-22", "at": 3.68, "x": -7.3, "z": 4.6, "dwell": 0.0, "off": true, "label": "Ensemble 4"},
-   {"track": "2-22", "at": 4.62, "x": -5.8, "z": 4.75, "dwell": 0.0},
-   {"track": "2-22", "at": 6.6, "x": -2.8, "z": 3.75, "facing": 0.0},
-   {"track": "2-22", "at": 8.98, "x": -5.8, "z": 4.75, "dwell": 0.0},
-   {"track": "2-22", "at": 9.92, "x": -7.3, "z": 4.6, "off": true},
    {"track": "2-22", "at": 19.19, "x": -8.5, "z": -3.0, "dwell": 0.0, "off": true, "label": "The Doctor"},
    {"track": "2-22", "at": 23.19, "x": -3.3, "z": -2.95, "dwell": 0.0},
    {"track": "2-22", "at": 25.0, "x": -3.3, "z": -0.6, "facing": 60.0},
@@ -5423,7 +5498,11 @@
    {"track": "2-23", "at": 125.85, "x": 0.624, "z": 1.466, "facing": -6.0},
    {"track": "2-23", "at": 154.5, "x": 1.15, "z": -1.042, "facing": -9.5},
    {"track": "2-23", "at": 211.9, "x": 1.15, "z": -1.042, "facing": -9.5},
-   {"track": "2-23", "at": 214.6, "x": -1.8, "z": 3.05, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": 1.15, "z": -1.042, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": 1.15, "z": -1.042, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": 4.06, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 235.96, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 237.12, "x": 7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 117.49, "move": "spin-quarter", "counts": 4.0, "note": "Washington's line to the boy: the counter-clockwise gesture, \"falling left\" (Blankenbuehler, BroadwayWorld); the shape a reading"},
    {"track": "1-01", "at": 171.47, "move": "point-fall", "counts": 4.0, "note": "Q56: Angelica hands him the book -- \"all the ensemble point and fall back\" (Disney+ Clip 2 comment; seg1.md Review 3 move 1)"},
@@ -5489,7 +5568,9 @@
    {"track": "2-22", "at": 142.49, "move": "my-shot", "counts": 13.0, "speed": 4.0, "note": "\"America\" Center pose: the My Shot pose round him on the box (hamilton-lyrics); the phrase at 4x to its end shape, held"},
    {"track": "2-22", "at": 155.18, "move": "bullet", "counts": 15.0, "note": "\"Eyes UP\": the knot round the Bullet - every cast member joins her to slow the bullet down (Blankenbuehler)"},
    {"track": "2-22", "at": 164.41, "move": "hoist", "counts": 8.0, "note": "the rest of the knot under her, arms up (nothing carried)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "ens5", "name": "Ensemble 5", "color": "#8c8c8c", "path": [
    {"track": "1-01", "at": 0.0, "x": 8.0, "z": -0.5, "dwell": 37.4, "off": true, "label": "Ensemble 5"},
@@ -5945,7 +6026,11 @@
    {"track": "2-23", "at": 126.0, "x": -4.041, "z": 2.929, "facing": 35.0},
    {"track": "2-23", "at": 154.62, "x": -3.195, "z": 2.113, "facing": 44.7},
    {"track": "2-23", "at": 211.9, "x": -3.195, "z": 2.113, "facing": 44.7},
-   {"track": "2-23", "at": 214.6, "x": -0.9, "z": 3.05, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": -3.195, "z": 2.113, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": -3.195, "z": 2.113, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": -4.64, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 235.07, "x": -5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 236.23, "x": -7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 117.49, "move": "spin-quarter", "counts": 4.0, "note": "Washington's line to the boy: the counter-clockwise gesture, \"falling left\" (Blankenbuehler, BroadwayWorld); the shape a reading"},
    {"track": "1-01", "at": 171.47, "move": "point-fall", "counts": 4.0, "note": "Q56: Angelica hands him the book -- \"all the ensemble point and fall back\" (Disney+ Clip 2 comment; seg1.md Review 3 move 1)"},
@@ -6030,7 +6115,9 @@
    {"track": "2-22", "at": 142.49, "move": "my-shot", "counts": 13.0, "speed": 4.0, "note": "\"America\" Center pose: the My Shot pose round him on the box (hamilton-lyrics); the phrase at 4x to its end shape, held"},
    {"track": "2-22", "at": 155.18, "move": "bullet", "counts": 15.0, "note": "\"Eyes UP\": the knot round the Bullet - every cast member joins her to slow the bullet down (Blankenbuehler)"},
    {"track": "2-22", "at": 164.41, "move": "hoist", "counts": 8.0, "note": "the rest of the knot under her, arms up (nothing carried)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "ens6", "name": "Ensemble 6", "color": "#8c8c8c", "path": [
    {"track": "1-01", "at": 37.8, "x": 0.6, "z": -4.8, "y": 2.743, "dwell": 0.0, "off": true, "label": "Ensemble 6"},
@@ -6501,7 +6588,11 @@
    {"track": "2-23", "at": 126.15, "x": -3.411, "z": 1.782, "facing": 26.2},
    {"track": "2-23", "at": 154.74, "x": -3.387, "z": 0.654, "facing": 33.2},
    {"track": "2-23", "at": 211.9, "x": -3.387, "z": 0.654, "facing": 33.2},
-   {"track": "2-23", "at": 214.6, "x": 0.0, "z": 3.05, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": -3.387, "z": 0.654, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": -3.387, "z": 0.654, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": -5.22, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 234.62, "x": -5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 235.78, "x": -7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 171.47, "move": "point-fall", "counts": 4.0, "note": "Q56: Angelica hands him the book -- \"all the ensemble point and fall back\" (Disney+ Clip 2 comment; seg1.md Review 3 move 1)"},
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
@@ -6586,7 +6677,9 @@
    {"track": "2-22", "at": 142.49, "move": "my-shot", "counts": 13.0, "speed": 4.0, "note": "\"America\" Center pose: the My Shot pose round him on the box (hamilton-lyrics); the phrase at 4x to its end shape, held"},
    {"track": "2-22", "at": 155.18, "move": "bullet", "counts": 15.0, "note": "\"Eyes UP\": the knot round the Bullet - every cast member joins her to slow the bullet down (Blankenbuehler)"},
    {"track": "2-22", "at": 164.41, "move": "lift", "counts": 8.0, "with": "ens1", "note": "the Bullet lifted into the air at his mother (hamilton-lyrics; seg8.md Review 3): ens6, beside her in the knot, lifts her"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "ens7", "name": "Ensemble 7", "color": "#8c8c8c", "path": [
    {"track": "1-01", "at": 40.6, "x": 0.6, "z": -4.8, "y": 2.743, "dwell": 0.0, "off": true, "label": "Ensemble 7"},
@@ -7038,7 +7131,11 @@
    {"track": "2-23", "at": 126.3, "x": -1.293, "z": 0.299, "facing": 8.8},
    {"track": "2-23", "at": 154.86, "x": -1.95, "z": -1.835, "facing": 13.2},
    {"track": "2-23", "at": 211.9, "x": -1.95, "z": -1.835, "facing": 13.2},
-   {"track": "2-23", "at": 214.6, "x": 1.8, "z": 3.05, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": -1.95, "z": -1.835, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": -1.95, "z": -1.835, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": 2.9, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 236.85, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 238.01, "x": 7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 171.47, "move": "point-fall", "counts": 4.0, "note": "Q56: Angelica hands him the book -- \"all the ensemble point and fall back\" (Disney+ Clip 2 comment; seg1.md Review 3 move 1)"},
    {"track": "1-01", "at": 175.45, "move": "breath", "counts": 3.0, "note": "the company's in-sync inhale before the last word of the women's line (bar 96; Jack's reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)"},
@@ -7119,7 +7216,9 @@
    {"track": "2-22", "at": 142.49, "move": "my-shot", "counts": 13.0, "speed": 4.0, "note": "\"America\" Center pose: the My Shot pose round him on the box (hamilton-lyrics); the phrase at 4x to its end shape, held"},
    {"track": "2-22", "at": 155.18, "move": "bullet", "counts": 15.0, "note": "\"Eyes UP\": the knot round the Bullet - every cast member joins her to slow the bullet down (Blankenbuehler)"},
    {"track": "2-22", "at": 164.41, "move": "hoist", "counts": 8.0, "note": "the rest of the knot under her, arms up (nothing carried)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "ens8", "name": "Ensemble 8", "color": "#8c8c8c", "path": [
    {"track": "1-01", "at": 39.2, "x": 0.6, "z": -4.8, "y": 2.743, "dwell": 0.0, "off": true, "label": "Ensemble 8"},
@@ -7535,7 +7634,11 @@
    {"track": "2-23", "at": 126.45, "x": 1.293, "z": 0.299, "facing": -8.8},
    {"track": "2-23", "at": 154.98, "x": 1.95, "z": -1.835, "facing": -13.2},
    {"track": "2-23", "at": 211.9, "x": 1.95, "z": -1.835, "facing": -13.2},
-   {"track": "2-23", "at": 214.6, "x": 2.7, "z": 3.05, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": 1.95, "z": -1.835, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": 1.95, "z": -1.835, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": 4.64, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 235.52, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 236.67, "x": 7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 117.49, "move": "spin-quarter", "counts": 4.0, "note": "Washington's line to the boy: the counter-clockwise gesture, \"falling left\" (Blankenbuehler, BroadwayWorld); the shape a reading"},
    {"track": "1-01", "at": 171.47, "move": "point-fall", "counts": 4.0, "note": "Q56: Angelica hands him the book -- \"all the ensemble point and fall back\" (Disney+ Clip 2 comment; seg1.md Review 3 move 1)"},
@@ -7614,7 +7717,9 @@
    {"track": "2-22", "at": 155.18, "move": "bullet", "counts": 15.0, "note": "\"Eyes UP\": the knot round the Bullet - every cast member joins her to slow the bullet down (Blankenbuehler)"},
    {"track": "2-22", "at": 164.41, "move": "hoist", "counts": 8.0, "note": "the rest of the knot under her, arms up (nothing carried)"},
    {"track": "2-22", "at": 202.59, "move": "row", "counts": 17.0, "note": "the rowers either side of him while the platform turns him (clockwise)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "ens9", "name": "Ensemble 9", "color": "#8c8c8c", "path": [
    {"track": "1-01", "at": 36.4, "x": 0.6, "z": -4.8, "y": 2.743, "dwell": 0.0, "off": true, "label": "Ensemble 9"},
@@ -7878,7 +7983,11 @@
    {"track": "2-23", "at": 126.6, "x": 2.466, "z": 0.878, "facing": -17.5},
    {"track": "2-23", "at": 155.1, "x": 2.944, "z": -0.75, "facing": -22.9},
    {"track": "2-23", "at": 211.9, "x": 2.944, "z": -0.75, "facing": -22.9},
-   {"track": "2-23", "at": 214.6, "x": -3.15, "z": 4.15, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": 2.944, "z": -0.75, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": 2.944, "z": -0.75, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": 5.22, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 235.07, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 236.23, "x": 7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 117.49, "move": "spin-quarter", "counts": 4.0, "note": "Washington's line to the boy: the counter-clockwise gesture, \"falling left\" (Blankenbuehler, BroadwayWorld); the shape a reading"},
    {"track": "1-01", "at": 171.47, "move": "point-fall", "counts": 4.0, "note": "Q56: Angelica hands him the book -- \"all the ensemble point and fall back\" (Disney+ Clip 2 comment; seg1.md Review 3 move 1)"},
@@ -7926,7 +8035,9 @@
    {"track": "2-22", "at": 58.83, "move": "heartbeat", "counts": 8.0, "note": "Burr's confession: the ensemble pats their hearts, his pulse rising (hamilton-lyrics)"},
    {"track": "2-22", "at": 142.49, "move": "my-shot", "counts": 13.0, "speed": 4.0, "note": "\"America\" Center pose: the My Shot pose round him on the box (hamilton-lyrics); the phrase at 4x to its end shape, held"},
    {"track": "2-22", "at": 202.59, "move": "row", "counts": 17.0, "mirror": true, "note": "the rowers either side of him while the platform turns him (clockwise)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "ens10", "name": "Ensemble 10", "color": "#8c8c8c", "path": [
    {"track": "1-01", "at": 0.0, "x": -8.5, "z": 0.0, "dwell": 38.8, "off": true, "label": "Ensemble 10"},
@@ -8158,7 +8269,11 @@
    {"track": "2-23", "at": 126.75, "x": 3.411, "z": 1.782, "facing": -26.2},
    {"track": "2-23", "at": 155.22, "x": 3.387, "z": 0.654, "facing": -33.2},
    {"track": "2-23", "at": 211.9, "x": 3.387, "z": 0.654, "facing": -33.2},
-   {"track": "2-23", "at": 214.6, "x": 3.6, "z": 3.05, "facing": 0.0}
+   {"track": "2-23", "at": 212.6, "x": 3.387, "z": 0.654, "facing": 0.0},
+   {"track": "2-23", "at": 219.8, "x": 3.387, "z": 0.654, "dwell": 0.05, "facing": 0.0},
+   {"track": "2-23", "at": 226.0, "x": 5.8, "z": 4.2, "facing": 0.0},
+   {"track": "2-23", "at": 234.62, "x": 5.8, "z": 4.75, "dwell": 0.0},
+   {"track": "2-23", "at": 235.78, "x": 7.3, "z": 4.6, "off": true}
   ], "moves": [
    {"track": "1-01", "at": 117.49, "move": "spin-quarter", "counts": 4.0, "note": "Washington's line to the boy: the counter-clockwise gesture, \"falling left\" (Blankenbuehler, BroadwayWorld); the shape a reading"},
    {"track": "1-01", "at": 171.47, "move": "point-fall", "counts": 4.0, "note": "Q56: Angelica hands him the book -- \"all the ensemble point and fall back\" (Disney+ Clip 2 comment; seg1.md Review 3 move 1)"},
@@ -8189,7 +8304,9 @@
    {"track": "2-20", "at": 16.22, "move": "sway", "counts": 18.0, "note": "\"the dancers swayed\" through Burr's rant about the room (clip comments; \"everyone was dancing\")"},
    {"track": "2-20", "at": 111.64, "move": "lean-in", "counts": 3.0, "note": "the editor's \"lean thing\": the country leans in toward the two men as it escalates (seg8.md Review 3)"},
    {"track": "2-22", "at": 58.83, "move": "heartbeat", "counts": 8.0, "note": "Burr's confession: the ensemble pats their hearts, his pulse rising (hamilton-lyrics)"},
-   {"track": "2-23", "at": 215.25, "move": "bow", "counts": 2.0, "note": "the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)"}
+   {"track": "2-23", "at": 216.13, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)"},
+   {"track": "2-23", "at": 226.8, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 2, together in the line (formed by 225.0)"},
+   {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]}
  ],
  "props": [
@@ -8465,8 +8582,7 @@
    {"track": "2-19", "at": 236.0, "x": 0.0, "z": 1.15, "facing": 0.0, "note": "2-20: set in the change; Burr's desk centre (cue 1193), he sits behind it at (0, 0.6)"},
    {"track": "2-20", "at": 147.75, "carriedBy": "hamilton", "note": "in the blackout (cue 1206) Hamilton moves it to his place near SR"},
    {"track": "2-21", "at": 0.44, "x": -2.8, "z": 3.15, "facing": 0.0, "note": "2-21: the desk near SR (ironinkpen); he sits behind it at (-2.8, 2.6)"},
-   {"track": "2-22", "at": 6.7, "carriedBy": "ens4", "note": "2-22: Hamilton rises from it at the top (hamilton-lyrics); ens4 (the Doctor) takes it off SR"},
-   {"track": "2-22", "at": 10.0, "x": -7.3, "z": 4.6, "off": true}
+   {"track": "2-21", "at": 44.3, "x": -2.8, "z": 3.15, "off": true, "note": "NOTES3 (Jack, 2026-10-15): struck in the dark - the snap FTB at the end of Best of Wives (cue 1238, 44.0); gone before 2-22 opens (1238.01, 3.1)"}
   ]},
   {"id": "street-lamp-1", "kind": "custom", "label": "Street lamp", "size": [0.53, 3.0, 0.42], "color": "#2b2b2b", "model": "assets/props/street-lamp.glb", "waypoints": [
    {"track": "2-04", "at": 0.1, "x": -2.1, "z": 3.0, "off": true},
