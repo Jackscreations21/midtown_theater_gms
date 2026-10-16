@@ -13132,10 +13132,12 @@ function jtlTick(dt) {
 // drawn. The page's own looks are held while the desk drives (look() records the choice and does not fight it); JTL_DESK.hold
 // s of frame time after the desk falls quiet (or the relay goes) the rig crossfades back to the current look.
 // The page asks for the relay only once the T2 rig panel has been opened (a page nobody drives never knocks), then every
-// JTL_DESK.retry s of frame time (retryHidden with the panel shut) — off the frame's dt, never a timer. A refused WebSocket
-// raises no exception and the page logs nothing; Chrome's DevTools itself notes each refused attempt as a network line.
+// JTL_DESK.retry s of frame time (retryHidden with the panel shut) — off the frame's dt, never a timer. It KNOCKS QUIETLY:
+// a refused WebSocket (or fetch) is logged by Chrome itself, an error line per attempt that no page code can catch, but a
+// hidden iframe whose load is refused logs nothing — so the knock is the relay's /probe in a hidden iframe, which answers
+// with a postMessage, and only then is the socket opened. No relay, no console line, however long the page waits.
 const JTL_DESK = {
-  url: 'ws://127.0.0.1:9454', retry: 5, retryHidden: 30, hold: 2.0,
+  url: 'ws://127.0.0.1:9454', probe: 'http://127.0.0.1:9454/probe', retry: 5, retryHidden: 30, hold: 2.0,
   emit: {      // an emitter's colour at full (sRGB 0–1): Lustr's seven, the Ovation's amber and lime
     red: [1, 0, 0], lime: [0.55, 1, 0.05], amber: [1, 0.5, 0], green: [0, 1, 0], cyan: [0, 0.85, 1], blue: [0, 0, 1], indigo: [0.35, 0, 1],
     cto: [1, 0.70, 0.38],   // the Encore's CTO at full, as a multiplier
@@ -13144,7 +13146,7 @@ const JTL_DESK = {
   auraWheel: 'ffa490 ff6d84 ff3366 ff45b3 d843ff c170ff 4900bf 0300e4 2f5be7 568dff 1999ff 89ceff a3efff b7deee e5f4ff 91fff4 1ad8cc 27f0ff 51c9b2 22d555 15c100 34e854 47ff65 abff62 d7ff6b f2ff00 efc450 ffac1d ff6f07 ff9600 ff7c00 ff5400 ff0800'.split(' '),
   encoreGobo: [0, 4, 3, 5, 2, 1],   // wheel slot 0–5 → JTL.gobos: open, water, leaves, moon, window, bars
   gelDefault: { s4: 'eef4ff', follow: 'fff3e0', practical: 'ff9a40' },
-  ws: null, wsState: 'none', wanted: false, retryT: 0, uiT: 0, status: null,
+  ws: null, wsState: 'none', wanted: false, retryT: 0, uiT: 0, status: null, knock: null, knocks: 0,
   frames: { 1: new Uint8Array(512), 2: new Uint8Array(512) }, got: { 1: false, 2: false },
   dirty: false, live: false, quiet: Infinity, msgs: 0, applies: 0, gel: null,
 };
@@ -13154,6 +13156,21 @@ function jtlDeskFrame(b) {
   if (!f || b.length < 513) return false;
   f.set(b.subarray(1, 513)); D.got[b[0]] = true; D.dirty = true; D.quiet = 0; D.msgs++;
   return true;
+}
+// the quiet knock: the relay's /probe in a hidden iframe; its postMessage (below) opens the socket. A NEW iframe each time:
+// Chrome refuses to navigate a frame again once it shows a refused load's error page (net::ERR_BLOCKED_BY_CLIENT).
+function jtlDeskKnock() {
+  const D = JTL_DESK;
+  if (!D.knocks) window.addEventListener('message', e => {
+    if (e.origin !== new URL(D.probe).origin || !e.data || !e.data.artnetRelay) return;
+    if (D.knock) { D.knock.remove(); D.knock = null; }
+    if (!D.ws) jtlDeskConnect();
+  });
+  if (D.knock) D.knock.remove();
+  const f = D.knock = document.createElement('iframe');
+  f.hidden = true; f.title = 'Art-Net relay probe'; f.setAttribute('aria-hidden', 'true'); f.style.cssText = 'display:none;width:0;height:0;border:0';
+  D.knocks++; f.src = `${D.probe}?${D.knocks}`;
+  document.body.appendChild(f);
 }
 function jtlDeskConnect() {
   const D = JTL_DESK; let ws;
@@ -13282,13 +13299,13 @@ function jtlDeskTick(dt) {
   const S = JTL.state, D = JTL_DESK; if (!S) return false;
   if (D.wanted && !D.ws) {
     D.retryT -= dt;
-    if (D.retryT <= 0) { const p = document.getElementById('jt-lp'); D.retryT = p && !p.hidden ? D.retry : D.retryHidden; jtlDeskConnect(); }
+    if (D.retryT <= 0) { const p = document.getElementById('jt-lp'); D.retryT = p && !p.hidden ? D.retry : D.retryHidden; jtlDeskKnock(); }
   }
   D.quiet += dt;
   let moved = false;
   if (D.dirty && D.quiet <= D.hold) { if (!D.live) jtlDeskTake(); D.dirty = false; jtlDeskApply(); moved = true; }
   else if (D.live && D.quiet > D.hold) { jtlDeskRelease(); moved = true; }
-  if ((D.uiT += dt) > 0.5) { D.uiT = 0; jtlDeskUI(); }
+  if ((D.uiT += dt) > 0.5) { D.uiT = 0; if (D.live) jtlUI(); else jtlDeskUI(); }   // twice a second: the status line (and, while live, the lit count)
   return moved;
 }
 function jtlDeskText() {

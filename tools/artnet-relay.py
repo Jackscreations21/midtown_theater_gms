@@ -21,7 +21,9 @@ A page cannot receive UDP, and Art-Net is UDP, so the desk talks to this and thi
     changes — the Palace's measured trap, TRAPS "a protocol's nominal rate is not a device's actual rate"), so a
     held look is still "the desk is live" although no frame changes.
   - The WebSocket half is RFC 6455 by hand: the accept-key handshake, unmasked server frames, ping -> pong, close
-    honoured. Clients send nothing else. Listens on 127.0.0.1 only. Any other HTTP request gets a one-line answer.
+    honoured. Clients send nothing else. Listens on 127.0.0.1 only. GET /probe answers a tiny page that postMessages
+    its parent: the page knocks with it in a hidden iframe (a refused iframe logs nothing; a refused WebSocket is an
+    error line in Chrome's console every try). Any other HTTP request gets a one-line answer.
   - One status line every 3 s.
 
 No SO_REUSEADDR on the UDP socket: on Windows a second bind to a port another program holds can succeed and receive
@@ -164,8 +166,15 @@ def handshake(c):
             hdr[k.strip().lower()] = v.strip()
     key = hdr.get('sec-websocket-key')
     if not lines[0].startswith('GET ') or 'websocket' not in hdr.get('upgrade', '').lower() or not key:
-        body = b'Theatre 2 Art-Net relay: connect with ws://127.0.0.1:%d\n' % args.ws_port
-        c.send(b'HTTP/1.1 426 Upgrade Required\r\nContent-Type: text/plain\r\nContent-Length: %d\r\nConnection: close\r\n\r\n' % len(body) + body)
+        if lines[0].startswith('GET /probe'):
+            # THE PAGE'S QUIET KNOCK. A refused WebSocket is logged by Chrome itself (an error line per attempt, nothing the
+            # page can catch), and so is a refused fetch; a hidden iframe whose load is refused logs nothing. So the page
+            # loads this in a hidden iframe every few seconds, and only when this answers (postMessage) opens the socket.
+            body = b'<!doctype html><title>relay</title><script>parent.postMessage({artnetRelay: 1}, "*")</script>\n'
+            c.send(b'HTTP/1.1 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nCache-Control: no-store\r\nContent-Length: %d\r\nConnection: close\r\n\r\n' % len(body) + body)
+        else:
+            body = b'Theatre 2 Art-Net relay: connect with ws://127.0.0.1:%d\n' % args.ws_port
+            c.send(b'HTTP/1.1 426 Upgrade Required\r\nContent-Type: text/plain\r\nContent-Length: %d\r\nConnection: close\r\n\r\n' % len(body) + body)
         c.closing = True
         return
     acc = base64.b64encode(hashlib.sha1(key.encode('latin1') + WS_GUID).digest())
