@@ -1961,3 +1961,47 @@ against this list before opening a PR; **add new traps as you hit them.**
 - **A vertex-coloured MeshStandardMaterial glows a flat grey, not its own colour.** `emissive` is a uniform; vertex
   colours tint only the diffuse. The fittings' `bsColour` multiplies `totalEmissiveRadiance` by `vColor` in
   `onBeforeCompile` (with its own `customProgramCacheKey`), so a red costume glows red in the unlit rooms.
+
+## From the worklight round (2026-10-15)
+
+- **A real light on these stages lights the backstage through the back brick.** The corridor floor behind either stage
+  lies within a degree or two of the upstage deck as any lamp on the stage sees it, so no lamp position and no circular
+  cone lights the one and not the other, and three.js has no per-object light mask (and a SpotLight casts nothing here).
+  The worklights' light is a term in the materials' shaders, clipped to each stage house's box (`wlPatchScan`,
+  `wlPatchLit`): nothing behind the brick, and no real light, so it costs no frame while off.
+- **The scan is double-sided: an `abs(N·L)` term lights a wall from behind.** The first worklight lit the proscenium's
+  audience face from a lamp upstage of it. A face of the scan takes the light only when the lamp and the eye are on the
+  same side of it (`a * dot(N, cameraPosition - P) > 0`).
+- **A multiplier cannot light the scan's deck.** Its texture averages ~0.9 % (the engine's pools found the same,
+  `LX_DECK_ALBEDO`); five times near-black is near-black, and ×1.5 in linear is ×1.2 on the screen: the first worklight
+  changed the frame's mean 34 → 38 and looked like nothing. It adds a lift in the material's own colour (`diffuse`, which
+  is base × the slider, so the two still multiply).
+- **A level ray cannot see a horizontal lip.** House 1's stage-left wall has one at y 3.44, 4 cm proud of the face; rays
+  every 0.25 m all read x −9.50 and the conduit ran through it. Faces are read off the walk's collision triangles
+  (`wlFaceMax`). And a triangle crossing the measuring box clamps it: a rig pipe's end 3 cm off that wall (z 1.04–1.09)
+  put the conduit 0.3 m off the wall until the switch moved to z 1.20.
+- **The rig's grid of pipes is ONE mesh** (x −9.70…9.90, z 0.57…7.79, y 7.6): its bounding box says anything by the
+  stage's side walls under it "meets the rig". Behind any box test against a rig mesh, test its triangles (`wlMeshIn`).
+- **One straight walk line in house 1 is luck.** From centre stage toward the stage-left wall, the set's front posts stop
+  the lines at z 0.40–0.50 and 0.65–0.70, and SL Boom 2's tower (z 0.91–1.51) the one at z 1.1; z 0.6, 0.8 and 1.0 reach
+  the wall. A check that walks tries several lines. It drives `walkStep`, which prints the walk's one perf line per
+  session — save and restore `walkPerf` around it.
+- **Materials made after the shaders compile miss a patch-everything-at-load.** The actors and their props (24 materials)
+  load after `compileAsync`; the worklights sweep the scene once a second (~0.6 ms over ~5,300 objects), so they are
+  patched before anyone switches on.
+- **`MIDTOWN.lx.work()` is not a getter.** Its defaults are (1, 0), so it SETS the work look to full, at once — called to
+  read the level mid-show, it undid the show's fade. There is no read-only way to the work level from the console.
+- **The pane's screenshot can be a frame behind `MIDTOWN.frame()`.** A toggle, a frame and a screenshot showed the state
+  (once the view) before; take it twice. And the hidden pane throttles timers as well as frames: a `setInterval` sampler
+  never finished inside the tool's 45 s — read state across separate calls instead.
+
+- **The show has two ways to start playing.** `showStart` runs at the Show panel's OPEN (the preshow), and the Play that
+follows goes through `showPause`, never `showStart`. A hook only in `showStart` (the worklight's, at first) misses
+every Play from the preshow or a pause: switched on with the panel open, the light burned through the act. Hook what
+"the show is playing" means, in both places, and make the hook idempotent so a second Play does not overwrite what Stop
+restores.
+
+- **A check that reads the record, not the thing.** `wlCheck` tested `r.box` (the JavaScript copy) while the shader
+clips with the uniforms `uWlBox0/1`; a uniform stretched into the backstage lit the corridor and the check passed. A
+check of a GPU-side value must read the GPU-side value (or prove the record equals it), and its pixel views must
+include the place a failure would show — the corridor behind the house, not only the stage.

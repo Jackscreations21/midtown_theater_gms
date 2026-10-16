@@ -1,4 +1,4 @@
-# STATE — 2026-10-15 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1 and #2 merged; public, Pages live; nothing is local-only)
+# STATE — 2026-10-15 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#4 merged, #5 open; public, Pages live; nothing is local-only)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -29,6 +29,12 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   new repo's checkout: console clean, `walls`/`lx` (301/313)/`actors`/`doors` (13/13) unchanged, the fittings check
   PASS. Walk lobby → house → wing → slot → corridor → Theatre 2's doors → its stage is the agents' evidence (driven
   by hand in the pane); the lead walked none of it live.
+- **PR #5 (`worklight`, off `main`) is OPEN** (2026-10-15): https://github.com/Jackscreations21/midtown_theater_gms/pull/5 —
+  *"make a worklight i can turn on for both stages"*: a caged work flood on each stage's stage-left fly wall with a wall
+  switch (E while walking), `Worklight` header buttons and `MIDTOWN.worklight`; no real light, a shader term clipped to
+  each stage house; the show takes Stage 1's out at every Play and Stop puts it back. Built by one Opus agent, checked by
+  a second, its one bug fixed by the lead (HANDOFF.md's newest block). Record files in the PR. Post-merge: fast-forward
+  `main`, delete `worklight` both sides, remove the worktree `.claude/worktrees/worklight`.
 - **Rulings are at GH (GI next).** The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
   the house; **GH** (2026-10-15) a closed curtain stops the walker, like a closed door. FF is the mannequin.
@@ -37,6 +43,14 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Open, in the order it will bite
 
+0. **His eye on the worklights** (PR #5, 2026-10-15): the `Worklight` header buttons, or walk to the grey switch box
+   on either stage's stage-left wall just upstage of the proscenium and press E. Decisions it raises: both OFF on load
+   (or Theatre 2 on by default?); the lamp high on the stage-left fly wall, mostly out of sight from the stalls and the
+   walk (a stand on Theatre 2's deck, or a pipe once the rig has a gap, are the alternatives); the look (warm 0xffe4bc,
+   gain 8, lift 0.08 — brighter? cooler? it rides the House light slider now); +18 draw calls at Back of house (the
+   fixture could merge to ~5 meshes a stage); the Lights panel's old "Work light" slider (the engine's LOOK, which the
+   show fades) now sits beside the new "Worklight" fixtures — rename one? And the walker's 0.25 m body passes through the switch box (its centre stands
+   0.25 m off the wall; unseen in first person) — move the box 0.3 m up the wall, or leave it.
 1. **His eye on the backstage** (`Backstage` button; walk from either wing upstage past the set into the corridor;
    E on the doors). Decisions it raises: the house-1-facing faces of the block are black (seen from the fly gallery
    over the roof); EXIT signs over all three ways onto the stages; Theatre 2's closed doors are visible from its
