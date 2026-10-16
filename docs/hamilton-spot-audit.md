@@ -8,7 +8,9 @@ notes), by `tools/spot-audit.py` (its header has the rules). Set-local metres: x
 
 1. The page dumped every lit unit of every cue (`tools/pool-dump.js` in the page, saved by `tools/pool-dump-serve.py`).
 2. `python -I tools/spot-audit.py --dump DIR --fix` (pass 1), re-dump, `--fix` again (pass 2), re-dump, and the report-only run
-   gives the after count. Two pass-2 results were taken back by hand after looking (below); the dump diff between each step was
+   gives the after count. After looking, five results were changed by hand: 1-20 593 (Viper 25 takes Eliza on the gallery),
+   1-23 661 (ch18 back; ch100 has Washington), 2-19 1167 (ch74 back; ch100 has Burr), and both passes' swaps for Eacker
+   (2-16 1071-1073: every unit tried stops on the SL gallery rail, so they lit a rail and were taken out). The dump diff between each step was
    checked so that no cue downstream of a fix moved unless the tool wrote it (each moved unit gets its old focus back).
 3. 15 fixed moments rendered and read by eye and by number (`MIDTOWN.lx.beam` landing against `MIDTOWN.actors.pose`).
 
@@ -16,11 +18,11 @@ notes), by `tools/spot-audit.py` (its header has the rules). Set-local metres: x
 
 | | before | after |
 |---|---|---|
-| person lights checked (cue x light) | 9615 | 9620 |
+| person lights checked (cue x light) | 9615 | 9621 |
 | named person in none of her cue's person lights | 82 | 17 |
 | special with nobody in it | 5547 | 5476 |
 
-Fixes written: 107 - hand 1, re-aim 85, swap 20, tried 1. Each re-aim or swap that would have
+Fixes written: 103 - hand 1, re-aim 84, swap 17, tried 1. Each re-aim or swap that would have
 carried its new focus into a later cue is given its old landing back in the first later cue where the unit is dark, else the
 next cue that lights it; Binkley's real cues are never edited - 12 reconstructed followers carry the fixes on them. Swaps
 light a free Viper at 70 % for the one cue and take it out in the next.
@@ -152,16 +154,12 @@ Movers left empty, by track (most are the beam fans, rings and floor textures of
 | 2-16 | 1066 | 1.72 | 1 | named |  | Blow Us All Away - Philip, warm amber party | Philip | re-aim ch61 (glp-x4) onto Philip at (0.0, 2.8) |
 | 2-16 | 1068 | 27.24 | 1 | named |  | Philip and the ladies - warm, DS keys | Philip | re-aim ch62 (glp-x4) onto Philip at (-1.6, 2.4) |
 | 2-16 | 1069 | 40.1 | 1 | named |  | Off to the play - Philip DS | Philip | re-aim ch62 (glp-x4) onto Philip at (-1.6, 2.4) |
-| 2-16 | 1071 | 51.79 | 1 | named |  | The theatre - footlights, Eacker's box | George Eacker | swap: free Viper ch95 (down 61 deg) onto George Eacker at (4.9, 2.5) |
-| 2-16 | 1072 | 59.39 | 1 | named |  | Philip confronts Eacker - two pools | George Eacker | swap: free Viper ch95 (down 61 deg) onto George Eacker at (4.9, 2.5) |
-| 2-16 | 1073 | 64.82 | 1 | named |  | Eacker insults Hamilton - cold edge | George Eacker | swap: free Viper ch95 (down 61 deg) onto George Eacker at (4.9, 2.5) |
 | 2-16 | 1076 | 80.94 | 1 | named |  | Hamilton's office - warm night | Hamilton | re-aim ch62 (glp-x4) onto Hamilton at (-1.4, 1.2) |
 | 2-18 | 1129 | 96.2 | 1 | named |  | Instrumental - Hamilton DSC, all else recedes | Hamilton | re-aim ch74 (vl3500) onto Hamilton at (0.3, 2.45) |
 | 2-19 | 1154 | 50.28 | 1 | named |  | Burr's vamp - warm side colour | Burr | re-aim ch57 (glp-x4) onto Burr at (0.62, 1.1) |
 | 2-19 | 1155 | 65.05 | 1 | named |  | Burr's campaign - warm floor and steel shafts | Burr | re-aim ch99 (mac-viper) onto Burr at (0.0, 0.95) |
 | 2-19 | 1165 | 152.37 | 1 | named |  | Up to Hamilton - bump to centre | Hamilton | re-aim ch54 (glp-x4) onto Hamilton at (0.0, -3.35) |
 | 2-19 | 1166 | 157.94 | 1 | named |  | Hamilton's endorsement - Hamilton DSC, company in  | Hamilton | re-aim ch74 (vl3500) onto Hamilton at (0.0, -3.35) |
-| 2-19 | 1167 | 184.92 | 1 | named |  | Verdict on Burr - snap | Burr | re-aim ch74 (vl3500) onto Burr at (4.2, -1.6) |
 | 2-19 | 1167 | 184.92 | 2 | named |  | Verdict on Burr - snap | Burr | swap: free Viper ch100 (down 72 deg) onto Burr at (4.2, -1.6) |
 | 2-19 | 1168 | 187.73 | 1 | named |  | Jefferson wins - the company erupts | Jefferson | re-aim ch54 (glp-x4) onto Jefferson at (-0.5, 3.4) |
 | 2-22 | 1241 | 71.42 | 1 | named |  | Burr's suspicion - Hamilton isolated | Burr | re-aim ch53 (glp-x4) onto Burr at (-0.03, 1.0) |
