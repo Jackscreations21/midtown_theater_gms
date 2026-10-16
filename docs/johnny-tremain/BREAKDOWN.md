@@ -31,39 +31,90 @@ as house 1's was.
 
 ## The ground plan
 
-Drawn as the house sees it — **stage right on the LEFT of the drawing**, upstage at the top:
+**Re-laid 2026-10-16 round the two stage lifts** (RULING GI: the front lift brings big sets ON, the back lift takes
+them OFF; Theatre 2 only) and the underground's stair hole in the SL wing (RULING GJ). The first plan (phase 1) had the
+loft and the wharf deck where the back lift now is. `assets/johnny-tremain/set.json` is the truth for every position;
+`python tools/jt-set-check.py` proves it (overlaps, support, deck, heights and out-trims, storage, lifts, keep-outs,
+sightlines) and `MIDTOWN.jt.check()` proves it again in the page, shift by shift. Drawn as the house sees it — **stage
+right on the LEFT of the drawing**, upstage at the top:
 
 ```
- z 6.60 ════════ back brick ══════════════[ stage doors x +1…−1 ]════════════════════════
-         SR wing (5.3 m)                                                    SL wing (5.15 m)
- z 6.20      ┌──── WHARF DECK top 0.45 (x +4.4…+1.0) ──┐  centre ┌──── LOFT deck 2.40 (x −0.6…−4.2) ──┐
-   L3 z4.6   │ lumber   (tents / judge's bench)  crates │  path   │ lumber b │ PRESS (9→) │ FURNACE ◄ │   L3
-             │                         bench           │  to the │          │            │ bellows   │
- z 3.60      └──────────── step z 3.30–3.60 ───────────┘  doors  └────────[ladder x −1.0]────────────┘ z 4.40
- z 3.00  · · · · · · · · · · · · · · · masking border (bottom 4.40) · · · · · · · · · · · · · · · · ·
-   L2 z2.6                     OPEN ACTING FLOOR  z 0 … 3.30, x −4.3 … +4.3                         L2
-   L1 z0.6   (SR pocket 1.7 m)                                                                      L1
+ z 6.60 ════════════════ back brick ═══════════[ stage doors x +1…−1 ]══════════════════════════════
+          piles z 6.40–6.60                      (steeple / masts fly in SR, z 6.05 / 6.33)
+ z 6.40 ┌ WHARF ┐                                                                        ┌ LOFT ┐
+        │ deck  │       ┌───────────── BACK LIFT  x +2.50 … −2.50 ─────────────┐ furnace │ deck │ lumber b
+        │ 0.45  │       │   z 3.60 … 6.00 · takes big sets OFF (down)          │ (SR side│ 2.40 │ (SL wing)
+        │ x 4.55│       │   floor when up: the courtroom, the camp play on it  │  of the │ x −2.55
+        │ …2.55 │       └──────────────────────────────────────────────────────┘  under- │ …−4.55
+ z 3.05 └ step ─┘               (centre path to the doors: over the back lift      loft)  └ z 2.85┘
+ z 3.00 · · · · · · · · · · · · · · · masking border (bottom 4.40, top 5.00) · · · · · · · ladder · · ·
+ z 2.70     ┌───────────────── FRONT LIFT  x +3.00 … −3.00 ──────────────────┐            x −3.6
+            │   z 0.30 … 2.70 · brings big sets ON (up) · the open acting floor │            z 2.05–2.85
+ z 0.30     └─────────────────────────────────────────────────────────────────┘
  z 0     ═══════════════════ proscenium  x +4.30 … −4.30 ═════════════════════
- z −2.65 ··········· apron  x +5.95 … −5.60 (the lip; Johnny's narrator spot DSR) ···········
+ z −2.65 ··········· apron  x +5.95 … −5.60 ···········
 ```
 
-- **The unit set, upstage, never moves.** Stage left: **the loft** (3.6 × 1.8, deck at 2.40, four posts, a 1.1 m
-  rail with a 0.6 m gap where **the ladder** arrives, an open A-frame of **rafters** to 4.40 that Otis pushes on);
-  under its SL end **the furnace**, its mouth turned to stage right so Johnny works it in profile, the chimney up
-  through the loft, **the bellows** on its downstage side. The under-loft is the Lapham kitchen's hearth corner,
-  then (from Scene 9) the Observer's press room. Stage right: **the wharf deck** (3.4 × 2.6, 45 cm high, one 22 cm
-  step), piles and bracing along its back, lumber and crates on it, **the bench** on its front edge.
-- **Between them a 1.6 m centre path** runs from the open floor to Theatre 2's stage doors: an upstage-centre
-  entrance (Rab leaving Boston, the brigade, the dead at the finale) and the route big pieces take to the backstage
-  crossover.
-- **The open floor** (z 0…3.3 behind the arch, plus the 2.65 m apron) is where the company builds every other
-  place by standing in it. Travelling furniture sets there and leaves to the wings within ten seconds.
-- **Masking** (my addition; Jack's call): three pairs of black legs at z 0.6 / 2.6 / 4.6 (inner edges |x| 4.6) and
-  one border at z 3.0. Without them the side seats look straight into both wings and the front rows up into the
-  tower.
-- **Storage:** both wings (SL ~18 m², SR ~15 m² offstage of the legs), props tables SL and SR, and the backstage
-  crossover through the centre doors for pieces used in one stretch of the show. Flown: the Observer's sign, the
-  steeple, the masts, the apple branches.
+- **The unit set never moves and stands on neither lift.** Both platforms now run **up and down stage** at the sides:
+  **the loft** (2.0 wide × 3.6 deep, deck 2.40) at stage left, x −4.55…−2.55, z 2.85…6.45, rails round it with the
+  0.6 m gap at its downstage end where **the ladder** (x −3.6, z 2.05…2.85) arrives; its **rafters** to 4.40 over it.
+  Under its upstage end, on its stage-right side, **the furnace** (x −3.35…−2.55, z 5.30…6.30; mouth to stage right and
+  a second glowing mouth on its house side, the chimney up through the loft) with **the bellows** on its stage-left side.
+  The under-loft downstage of the furnace is the kitchen's hearth corner and, from scene 9, the press room (**the press**
+  parks there when on: x −3.75…−2.65, z 3.0…5.0). **The wharf deck** (2.0 × 3.35, 0.45 high) at stage right, x
+  2.55…4.55, z 3.05…6.40, its **step** along the downstage edge (z 2.75…3.05), **piles** along the back, lumber and crates
+  on it, **the bench** on its front edge. **Lumber pile b** went into the SL wing beside the loft.
+- **The back lift is the centre.** Up, it is floor: the centre path to the stage doors runs over it, and the courtroom
+  and the camp play on it. Down (only in a big-set shift, and the shift waits for it to come back up before anything
+  sets), the doors are reached under the loft and along the 0.6 m strip behind the lift (z 6.00…6.60).
+- **The front lift is the open acting floor** (z 0.30…2.70). Anything may stand on it, except in a shift where it moves.
+- **Sightlines** (plan view, past the piers and the legs; the checker's table): the front row's two extreme seats see
+  76–100 % of the loft's, the wharf's, the ladder's and the furnace's acting edges, the centre 100 %; the widest rows'
+  extreme seats see none of the far side's platform (inherent: the pier hides it).
+- **Masking** (my addition; Jack's call): black legs at z 0.6 / 2.6 / 4.6 (inner edges |x| 4.6; the SR one at z 0.6
+  only 1.35 wide, the SR side room starts at x 5.95) and one border at z 3.0 (bottom 4.40, top 5.00, just under the iron).
+- **Flown out-trims raised:** the phase-1 rule counted only the border's bottom edge; a piece upstage of it showed over
+  its top. Now no row sees the apple branches (out 7.70), the Observer's sign (8.20), the steeple (10.15, at z 6.05) or
+  the church lanterns (12.70). The ship's masts (8 m) cannot hide under a 15.2 m fly roof: at out-trim 7.0 the first
+  rows still see their lowest 3 m over the border — recorded in set.json (`trim.outSeen`), Jack's call.
+
+### The big sets (storage `lift`, RULING GI)
+
+Six wagons ride the lifts, each a rigid layout that fits the back lift (5.0 × 2.4): **courtroom** (a new
+`judge-platform` 2.8 × 0.30 × 1.8 with the judge's bench and chair on it — it plays on the back lift, upstage centre;
+scene 11.2), **ship** (the ship's rail, 4.8 wide, and the twelve tea chests; 13.3), **counting-house** (the three high
+desks and stools; 10.2), **coach** (the half-coach; 17.1), **camp** (the three tents in forced perspective — full, ¾, ½
+size — across the back lift; 14.2 and 20.5), **chaise** (Grandsire's chaise; 26.3). In a shift a leaving wagon glides as
+one onto the back lift, goes down, and is moved (out of sight) to its bay in the basement dock (`MIDTOWN.under.bays`;
+turned a quarter if it is wider than the bay); an arriving one is moved from its bay onto the front lift, comes up, and
+glides to its place. The press is **not** a big set: it parks under the loft.
+
+### Storage
+
+- **SL wing** (the underground's stair hole, x −9.40…−6.25, z 1.70…6.30, took most of it): behind the legs, between
+  them (x −6.20…−4.65), and the strip downstage of the hole (x −9.30…−6.30, z 0.20…1.60). It holds the armchair, the
+  kitchen table, benches and chairs, the low stool, the Lytes' chairs and the polishing wheel. Nothing parks on the hole
+  or glides across it (both checkers).
+- **SR wing** (x 6.30…9.40, z 1.70…6.40, offstage of the legs): the clothesline, door frame, window flat, gravestone,
+  mounting block, saddle stand, stacked arms, warehouse corner.
+- **Backstage** (out through the centre stage doors, 2.0 × 3.40): everything else that travels, including the two presses,
+  the workbench, the trestle table, the truckle beds, the counter, the type case and the drawing board (the SL wing is
+  full), and the plank run and rope line (longer than a wing is deep). The page hides them once through the doors.
+- **Hand props** live on the props tables (not drawn when off).
+
+### The shift (the page's Johnny Tremain panel)
+
+One segment's change runs in this order, each step waiting for the last: **strike** (what leaves glides to its wing,
+goes out through the centre doors, flies out, or is taken off) → **re-set** (a piece on in both that only moves) → **big
+sets off** (back lift → bay) → **big sets on** (bay → front lift) → **set** → **lights** (MIDTOWN.jtLights.look, the
+furnace, the practicals). Thirteen shifts move a lift: 10.1→10.2 and 10.2→10.3 (counting house), 11.1→11.2 and
+11.2→11.3 (courtroom), 13.2→13.3 and 13.3→14.1 (ship), 14.1→14.2 and 14.2→14.3 (camp), 16.3→17.1 and 17.1→17.2 (coach),
+20.4→20.5 and 20.5→20.6 (camp), 26.2→26.3 (chaise). With the real lifts (about 18.7 s a run) a big-set shift takes about
+a minute; the panel's speed (1× / 2× / 4×) speeds the glides and flies, not the lifts.
+
+**The scene-by-scene positions below are the first plan's**, kept for their staging reasons; where a piece moved for the
+lifts, set.json has the new spot (e.g. the armchair's corner is now x −4.0, z 1.2; the courtroom is upstage centre on
+its own platform; the tipped chair in 17.4 falls at x +1.9, z 2.9 beside its own end of the table).
 
 ## Scene by scene
 

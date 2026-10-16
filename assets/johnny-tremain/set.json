@@ -1,6 +1,6 @@
 {
  "format": "johnny-tremain-set/1",
- "about": "Ground plan for 'Johnny Tremain' (Jack's comedy in two acts) on Theatre 2 of midtown.html. Read docs/johnny-tremain/set-format.md for the schema and docs/johnny-tremain/BREAKDOWN.md for the scenes. Positions in the STAGE frame; stage.frame.toWorld converts.",
+ "about": "Ground plan for 'Johnny Tremain' (Jack's comedy in two acts) on Theatre 2 of midtown.html. Read docs/johnny-tremain/set-format.md for the schema and docs/johnny-tremain/BREAKDOWN.md for the scenes. Positions in the STAGE frame; stage.frame.toWorld converts. Re-laid round the lifts 2026-10-16 (RULING GI): tools/jt-set-check.py checks it.",
  "stage": {
   "frame": {
    "axes": "x + = STAGE RIGHT (the audience's left = house left = world +x); x - = STAGE LEFT (house right, world -x). z + = upstage of the proscenium plane (world +z: UPSTAGE IS +Z in this GLB); z - = the apron. y + = up from the deck.",
@@ -320,13 +320,14 @@
   ]
  },
  "parks": {
-  "SL wing": "x -9.30...-6.30, z 0.2...6.4 (behind the legs; keep the switch box at x -9.45, z 1.0 clear)",
+  "SL wing": "x -6.20...-4.65 behind the legs, between them (z 0.65...2.55, 2.65...4.55; upstage of z 4.65 only x -6.20...-5.65, lumber pile b beside it) and x -9.30...-6.30, z 0.20...1.60 downstage of the underground's stair hole (x -9.40...-6.25, z 1.70...6.30: nothing parks on it or glides across it)",
   "SR wing": "x +6.30...+9.40, z 1.7...6.4 (behind the legs)",
   "props table SL": "x -8.0, z 0.3 (a 1.8 x 0.6 table)",
   "props table SR": "x +7.0, z 2.0 (a 1.8 x 0.6 table)",
   "backstage": "through the centre stage doors (x -1.0...+1.0, 3.40 high) into the crossover, stage z 7.0...11.1, x -9.6...+10.0",
   "flown": "out-trim y given in trim.out; lanes between the iron's pipes",
-  "on stage": "unit set: never moves"
+  "on stage": "unit set: never moves",
+  "lift": "the basement (RULING GJ): a big set goes DOWN the back lift (stage x -2.5...+2.5, z 3.6...6.0) to a bay in MIDTOWN.under.bays and comes back UP the front lift (x -3...+3, z 0.3...2.7) (RULING GI); storage.wagon names the pieces that travel together, storage.bay the bay"
  },
  "pieces": [
   {
@@ -335,9 +336,9 @@
    "worklistModel": "Rustic Wooden Dock",
    "slot": "assets/johnny-tremain/models/wharf-deck.glb",
    "size": [
-    3.4,
+    2.0,
     0.45,
-    2.6
+    3.35
    ],
    "kind": "unit",
    "count": 1,
@@ -345,9 +346,9 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": 2.7,
+     "x": 3.55,
      "y": 0,
-     "z": 4.9,
+     "z": 4.725,
      "rotY": 0
     }
    ],
@@ -388,7 +389,7 @@
     25,
     26
    ],
-   "notes": "Top 0.45 over the deck (x +1.00...+4.40, z 3.60...6.20). Plank faces 25 cm, posts 25-30 cm. Doubles as the courtroom's platform (11), the camp's far ground (14, 20), the Dartmouth's wharf (13), Lexington's far side (25). Its SR end stops 0.2 m inside the leg line."
+   "notes": "Top 0.45 over the deck (x +1.00...+4.40, z 3.60...6.20). Plank faces 25 cm, posts 25-30 cm. Doubles as the courtroom's platform (11), the camp's far ground (14, 20), the Dartmouth's wharf (13), Lexington's far side (25). Its SR end stops 0.2 m inside the leg line. Re-laid 2026-10-16 around the lifts (RULING GI): turned to run up and down stage along stage right (x 2.55...4.55, z 3.05...6.40), clear of the back lift (x <= 2.50); 2.0 x 3.35."
   },
   {
    "id": "wharf-step",
@@ -396,7 +397,7 @@
    "worklistModel": "Rustic Wooden Dock",
    "slot": "assets/johnny-tremain/models/wharf-step.glb",
    "size": [
-    3.4,
+    2.0,
     0.22,
     0.3
    ],
@@ -406,9 +407,9 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": 2.7,
+     "x": 3.55,
      "y": 0,
-     "z": 3.45,
+     "z": 2.9,
      "rotY": 0
     }
    ],
@@ -456,7 +457,7 @@
    "worklistModel": "The Wharf – Fishing Harbor Wood",
    "slot": "assets/johnny-tremain/models/wharf-piles.glb",
    "size": [
-    3.4,
+    2.0,
     1.4,
     0.2
    ],
@@ -466,9 +467,9 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": 2.7,
+     "x": 3.55,
      "y": 0,
-     "z": 6.1,
+     "z": 6.5,
      "rotY": 0
     }
    ],
@@ -516,9 +517,9 @@
    "worklistModel": "Free Wooden Scaffolding Set",
    "slot": "assets/johnny-tremain/models/loft.glb",
    "size": [
-    3.6,
+    2.0,
     3.5,
-    1.8
+    3.6
    ],
    "kind": "unit",
    "count": 1,
@@ -526,9 +527,9 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": -2.4,
+     "x": -3.55,
      "y": 0,
-     "z": 5.3,
+     "z": 4.65,
      "rotY": 0
     }
    ],
@@ -568,7 +569,7 @@
     25,
     26
    ],
-   "notes": "Deck 3.6 x 1.8, top at y 2.40 (x -4.20...-0.60, z 4.40...6.20), 0.2 thick, on four 0.18 posts at its corners; clear under it 2.20. Rail 1.10 high (top 3.50) on the front, both ends and the back, with a 0.60 gap in the front rail at x -1.30...-0.70 where the ladder arrives. The chimney passes through the deck at its SL end (x -4.20...-3.80, z 4.80...5.20). The rail is the 'window' and the 'windowsill' of several scenes (15, 18, 21). The Lapham apprentices' loft (1-8), then the loft over the Observer (9 on)."
+   "notes": "Deck 3.6 x 1.8, top at y 2.40 (x -4.20...-0.60, z 4.40...6.20), 0.2 thick, on four 0.18 posts at its corners; clear under it 2.20. Rail 1.10 high (top 3.50) on the front, both ends and the back, with a 0.60 gap in the front rail at x -1.30...-0.70 where the ladder arrives. The chimney passes through the deck at its SL end (x -4.20...-3.80, z 4.80...5.20). The rail is the 'window' and the 'windowsill' of several scenes (15, 18, 21). The Lapham apprentices' loft (1-8), then the loft over the Observer (9 on). Re-laid 2026-10-16 around the lifts (RULING GI): turned to run up and down stage along stage left (x -4.55...-2.55, z 2.85...6.45), clear of the back lift (x >= -2.50) and the front lift (z <= 2.70); 2.0 wide x 3.6 deep; the ladder arrives at its downstage end."
   },
   {
    "id": "loft-rafters",
@@ -576,9 +577,9 @@
    "worklistModel": "Free Wooden Scaffolding Set",
    "slot": "assets/johnny-tremain/models/loft-rafters.glb",
    "size": [
-    3.6,
     2.0,
-    1.8
+    2.0,
+    3.6
    ],
    "kind": "unit",
    "count": 1,
@@ -586,9 +587,9 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": -2.4,
+     "x": -3.55,
      "y": 2.4,
-     "z": 5.3,
+     "z": 4.65,
      "rotY": 0
     }
    ],
@@ -646,9 +647,9 @@
    "licenceNote": "CC BY-SA 4.0: a changed copy passed on (the stage file shared) must carry CC BY-SA",
    "home": [
     {
-     "x": -1.0,
+     "x": -3.6,
      "y": 0,
-     "z": 4.0,
+     "z": 2.45,
      "rotY": 0
     }
    ],
@@ -688,7 +689,7 @@
     25,
     26
    ],
-   "notes": "3.0 m long, 45 cm wide, rungs 30 cm apart, leaned at 75 degrees: foot at z 3.60 (x -1.22...-0.78), top against the loft's front edge at z 4.40, stiles 0.5 m over the loft deck. Arrives at the rail gap. Clear of the centre path (x -0.60...+1.00)."
+   "notes": "3.0 m long, 45 cm wide, rungs 30 cm apart, leaned at 75 degrees: foot at z 3.60 (x -1.22...-0.78), top against the loft's front edge at z 4.40, stiles 0.5 m over the loft deck. Arrives at the rail gap. Clear of the centre path (x -0.60...+1.00). Re-laid 2026-10-16 around the lifts (RULING GI): at the loft's downstage end (x -3.825...-3.375, z 2.05...2.85), stage left of the front lift."
   },
   {
    "id": "furnace",
@@ -706,9 +707,9 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": -3.8,
+     "x": -2.95,
      "y": 0,
-     "z": 5.0,
+     "z": 5.8,
      "rotY": -90
     }
    ],
@@ -748,7 +749,7 @@
     25,
     26
    ],
-   "notes": "Brick hearth 1.0 w x 0.8 d x 0.9 h, its mouth facing STAGE RIGHT (rotY -90) so Johnny works it in profile from x -3.0 without turning his back on the house; footprint x -4.20...-3.40, z 4.50...5.50, under the loft's SL end. Hood over the hearth, chimney up its SL side through the loft deck, top at y 4.40. Coals emissive with two states, lit/dark (an orange LED in the hearth on its own channel). Also plays every other hearth: the Lapham kitchen fire (1, 2, 7), Milton's kitchen where the Bible pages burn (17), Silsbee's Cove (26)."
+   "notes": "Brick hearth 1.0 w x 0.8 d x 0.9 h, its mouth facing STAGE RIGHT (rotY -90) so Johnny works it in profile from x -3.0 without turning his back on the house; footprint x -4.20...-3.40, z 4.50...5.50, under the loft's SL end. Hood over the hearth, chimney up its SL side through the loft deck, top at y 4.40. Coals emissive with two states, lit/dark (an orange LED in the hearth on its own channel). Also plays every other hearth: the Lapham kitchen fire (1, 2, 7), Milton's kitchen where the Bible pages burn (17), Silsbee's Cove (26). Re-laid 2026-10-16 around the lifts (RULING GI): under the loft's upstage end, on its stage-right side (x -3.35...-2.55, z 5.30...6.30) so the front row's house-right seats see its mouth; mouth to stage right, the chimney up through the loft."
   },
   {
    "id": "bellows",
@@ -766,10 +767,10 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": -3.8,
+     "x": -3.6,
      "y": 0,
-     "z": 3.95,
-     "rotY": 180
+     "z": 5.8,
+     "rotY": 0
     }
    ],
    "storage": {
@@ -808,7 +809,7 @@
     25,
     26
    ],
-   "notes": "1.0-1.2 m workshop bellows on a low stand along z at the hearth's downstage side (x -4.00...-3.60, z 3.40...4.50), nozzle into the side of the fire. One set only (delete the Forge model's own). Grouped with the furnace."
+   "notes": "1.0-1.2 m workshop bellows on a low stand along z at the hearth's downstage side (x -4.00...-3.60, z 3.40...4.50), nozzle into the side of the fire. One set only (delete the Forge model's own). Grouped with the furnace. Re-laid 2026-10-16 around the lifts (RULING GI): on the furnace's stage-left side (x -3.80...-3.40): the under-loft downstage of the furnace is the press room."
   },
   {
    "id": "lumber-pile-a",
@@ -826,10 +827,10 @@
    "licenceNote": "Fab licence (not CC): read the Fab page's licence panel on download; no credit line",
    "home": [
     {
-     "x": 3.8,
+     "x": 3.9,
      "y": 0.45,
-     "z": 5.7,
-     "rotY": 0
+     "z": 5.6,
+     "rotY": 90
     }
    ],
    "storage": {
@@ -886,9 +887,9 @@
    "licenceNote": "Fab licence (not CC): read the Fab page's licence panel on download; no credit line",
    "home": [
     {
-     "x": -1.2,
+     "x": -5.2,
      "y": 0,
-     "z": 5.4,
+     "z": 5.5,
      "rotY": 0
     }
    ],
@@ -928,7 +929,7 @@
     25,
     26
    ],
-   "notes": "The same scan turned and cut shorter, under the loft's SR end (x -1.60...-0.80, z 4.60...6.20), clear of the press (x <= -1.75) and the centre path."
+   "notes": "The same scan turned and cut shorter, under the loft's SR end (x -1.60...-0.80, z 4.60...6.20), clear of the press (x <= -1.75) and the centre path. Re-laid 2026-10-16 around the lifts (RULING GI): into the SL wing beside the loft (x -5.6...-4.8), the old spot is the back lift."
   },
   {
    "id": "crates",
@@ -946,19 +947,19 @@
    "licenceNote": "CC0 (ShareTextures)",
    "home": [
     {
-     "x": 1.3,
+     "x": 4.25,
      "y": 0.45,
-     "z": 5.72,
+     "z": 4.5,
      "rotY": 0
     },
     {
-     "x": 1.3,
+     "x": 4.25,
      "y": 0.95,
-     "z": 5.72,
+     "z": 4.5,
      "rotY": 0
     },
     {
-     "x": 4.15,
+     "x": 4.25,
      "y": 0.45,
      "z": 3.85,
      "rotY": 0
@@ -1018,9 +1019,9 @@
    "licenceNote": "CGTrader royalty-free, NO AI USE; no credit",
    "home": [
     {
-     "x": 2.7,
+     "x": 3.4,
      "y": 0.45,
-     "z": 3.85,
+     "z": 3.3,
      "rotY": 0
     }
    ],
@@ -1107,10 +1108,11 @@
      "rotY": 0
     },
     {
-     "x": 5.3,
+     "x": 5.275,
      "y": 0,
      "z": 0.6,
-     "rotY": 0
+     "rotY": 0,
+     "w": 1.35
     },
     {
      "x": -5.4,
@@ -1180,7 +1182,7 @@
     "lane": "offstage of the arch (|x| 4.6...6.2)",
     "deadHung": true
    },
-   "notes": "NOT in the worklist: a designer's addition. Black velour legs 1.6 wide (SR L1 1.4: the SR side room's wall is at x +6.00), deck to y 5.00 (under the venue's iron at 5.10), at z 0.60 / 2.60 / 4.60, inner edges at |x| 4.6. They hide the wing parks from the centre seats and make three entrances a side ('in 1' z 0.6-2.6, 'in 2' 2.6-4.6, 'in 3' 4.6-6.6). The widest side seats (x beyond +/-7 in the stalls' rows at world z -4...-5.5) still see a little of each wing. Jack's call: keep or drop."
+   "notes": "NOT in the worklist: a designer's addition. Black velour legs 1.6 wide (SR L1 1.4: the SR side room's wall is at x +6.00), deck to y 5.00 (under the venue's iron at 5.10), at z 0.60 / 2.60 / 4.60, inner edges at |x| 4.6. They hide the wing parks from the centre seats and make three entrances a side ('in 1' z 0.6-2.6, 'in 2' 2.6-4.6, 'in 3' 4.6-6.6). The widest side seats (x beyond +/-7 in the stalls' rows at world z -4...-5.5) still see a little of each wing. Jack's call: keep or drop. The SR leg at z 0.6 is 1.35 wide (x 4.60...5.95): the SR side room starts at x 5.95."
   },
   {
    "id": "masking-border",
@@ -1274,7 +1276,7 @@
    "storage": {
     "where": "flown",
     "x": -2.4,
-    "y": 5.0,
+    "y": 8.2,
     "z": 3.9,
     "rotY": 0,
     "fits": "yes"
@@ -1291,7 +1293,7 @@
    ],
    "trim": {
     "in": 2.6,
-    "out": 5.0,
+    "out": 8.2,
     "lane": "SL lane (x -4.30...-0.80, between the iron's pipes)"
    },
    "notes": "Board 0.9 x 0.6 on an iron bracket and chains, painted with a small figure in a blue coat holding a spyglass. Flies in in front of the loft for Salt Lane; out above the front row's sightline behind the border. The Colonial House model is editorial-only; the sign is a painted board, so build it from boxes if the author says no."
@@ -1314,15 +1316,15 @@
     {
      "x": 2.6,
      "y": 0.9,
-     "z": 6.5,
+     "z": 6.05,
      "rotY": 0
     }
    ],
    "storage": {
     "where": "flown",
     "x": 2.6,
-    "y": 6.5,
-    "z": 6.5,
+    "y": 10.15,
+    "z": 6.05,
     "rotY": 0,
     "fits": "yes"
    },
@@ -1336,10 +1338,10 @@
    ],
    "trim": {
     "in": 0.9,
-    "out": 6.5,
+    "out": 10.15,
     "lane": "SR lane (x +1.05...+4.60, between the iron's pipes)"
    },
-   "notes": "Flat cut-out 1.8 w x 5.0 h at z 6.50 (behind the wharf piles), the two lit windows of its top stage at y 3.5-3.9 (visible from every seat: the back row sees to ~4.6 there). Worklist said 5-6 m; 5.0 is the most that flies out of sight in this tower even with the border. Weathervane, not a cross."
+   "notes": "Flat cut-out 1.8 w x 5.0 h at z 6.50 (behind the wharf piles), the two lit windows of its top stage at y 3.5-3.9 (visible from every seat: the back row sees to ~4.6 there). Worklist said 5-6 m; 5.0 is the most that flies out of sight in this tower even with the border. Weathervane, not a cross. Out-trim 10.15 (top 15.15) at z 6.05: hidden from every row."
   },
   {
    "id": "church-lanterns",
@@ -1359,21 +1361,21 @@
     {
      "x": 2.35,
      "y": 3.45,
-     "z": 6.45,
+     "z": 6.05,
      "rotY": 0
     },
     {
      "x": 2.85,
      "y": 3.45,
-     "z": 6.45,
+     "z": 6.05,
      "rotY": 0
     }
    ],
    "storage": {
     "where": "flown",
     "x": 2.6,
-    "y": 9.05,
-    "z": 6.45,
+    "y": 12.7,
+    "z": 6.05,
     "rotY": 0,
     "fits": "yes"
    },
@@ -1387,7 +1389,7 @@
    ],
    "trim": {
     "in": 3.45,
-    "out": 9.05,
+    "out": 12.7,
     "lane": "with the steeple"
    },
    "notes": "Practicals (candle LEDs) fixed in the steeple's windows; they come on in Scene 21. The punched-tin lantern is still missing; this is the stand-in."
@@ -1417,7 +1419,7 @@
    "storage": {
     "where": "flown",
     "x": 2.75,
-    "y": 6.4,
+    "y": 7.0,
     "z": 6.33,
     "rotY": 0,
     "fits": "yes"
@@ -1438,8 +1440,9 @@
    ],
    "trim": {
     "in": 1.0,
-    "out": 6.4,
-    "lane": "SR lane (x +1.05...+4.60)"
+    "out": 7.0,
+    "lane": "SR lane (x +1.05...+4.60)",
+    "outSeen": "8.0 m tall: hung out with its top at 15.0 (the fly roof 15.2), the first rows see its lowest 3 m (7.1...10.4) at out-trim over the border; mid-stalls and back see nothing. A second border or shorter masts would hide it: Jack's call"
    },
    "notes": "Masts, yards and furled sails only (no hull), a 1770s merchant rig, flat silhouette 3.1 w x 8.0 h. In for the Tea Party and the wharf in daylight. 8 m is the tallest that clears the front row's view when out (top 14.4 under the 15.2 roof)."
   },
@@ -1475,7 +1478,7 @@
    "storage": {
     "where": "flown",
     "x": 0,
-    "y": 4.7,
+    "y": 7.7,
     "z": 3.4,
     "rotY": 0,
     "fits": "yes"
@@ -1490,7 +1493,7 @@
    ],
    "trim": {
     "in": 2.0,
-    "out": 4.7,
+    "out": 7.7,
     "lane": "one in each lane (SL x -4.15...-1.35, 2.8 wide so it clears the ladder; SR +1.20...+4.40)"
    },
    "notes": "Leafy branch cut-outs heavy with small green apples. The SL one hangs low (bottom 2.0) over the orchard bench so Cilla can reach up and pick an apple. Not in the worklist."
@@ -1511,19 +1514,19 @@
    "licenceNote": "CGTrader royalty-free, NO AI USE (may not be fed to AI training); no credit",
    "home": [
     {
-     "x": -3.6,
+     "x": -4.0,
      "y": 0,
-     "z": 2.3,
+     "z": 1.2,
      "rotY": -50
     }
    ],
    "storage": {
     "where": "SL wing",
-    "x": -7.0,
-    "y": 0.0,
-    "z": 0.9,
+    "x": -5.875,
+    "y": 0,
+    "z": 1.45,
     "rotY": 0,
-    "fits": "yes — narrow side 0.60 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "fits": true
    },
    "scenes": [
     1,
@@ -1548,10 +1551,10 @@
      ],
      "at": [
       {
-       "x": -0.93,
+       "x": -4.0,
        "y": 2.4,
-       "z": 5.6,
-       "rotY": 0
+       "z": 5.7,
+       "rotY": -90
       }
      ]
     },
@@ -1576,10 +1579,10 @@
      ],
      "at": [
       {
-       "x": -2.6,
+       "x": -2.2,
        "y": 0,
-       "z": 3.0,
-       "rotY": -40
+       "z": 3.4,
+       "rotY": -60
       }
      ]
     }
@@ -1610,11 +1613,11 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -7.8,
-    "y": 0.0,
-    "z": 2.4,
+    "x": -5.8,
+    "y": 0,
+    "z": 3.55,
     "rotY": 90,
-    "fits": "yes — narrow side 0.80 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "fits": true
    },
    "scenes": [
     1,
@@ -1717,11 +1720,25 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -7.0,
-    "y": 0.0,
-    "z": 4.0,
+    "x": -5.05,
+    "y": 0,
+    "z": 1.45,
     "rotY": 90,
-    "fits": "yes — narrow side 0.30 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "fits": true,
+    "at": [
+     {
+      "x": -5.05,
+      "y": 0,
+      "z": 1.45,
+      "rotY": 90
+     },
+     {
+      "x": -5.2,
+      "y": 0,
+      "z": 3.45,
+      "rotY": 90
+     }
+    ]
    },
    "scenes": [
     1,
@@ -1734,15 +1751,15 @@
      ],
      "at": [
       {
-       "x": -2.8,
+       "x": -2.3,
        "y": 0,
-       "z": 1.2,
+       "z": 1.0,
        "rotY": -30
       },
       {
-       "x": -2.8,
+       "x": -2.3,
        "y": 0,
-       "z": 2.3,
+       "z": 1.9,
        "rotY": -30
       }
      ]
@@ -1754,10 +1771,10 @@
      ],
      "at": [
       {
-       "x": -2.2,
+       "x": -3.6,
        "y": 2.4,
-       "z": 6.05,
-       "rotY": 0
+       "z": 4.0,
+       "rotY": 90
       }
      ]
     },
@@ -1768,10 +1785,10 @@
      ],
      "at": [
       {
-       "x": -2.2,
+       "x": -3.6,
        "y": 2.4,
-       "z": 6.05,
-       "rotY": 0
+       "z": 4.0,
+       "rotY": 90
       }
      ]
     },
@@ -1827,20 +1844,34 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -8.6,
-    "y": 0.0,
-    "z": 0.9,
-    "rotY": 0,
-    "fits": "yes — narrow side 0.45 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "x": -5.975,
+    "y": 0,
+    "z": 0.875,
+    "rotY": 90,
+    "fits": true,
+    "at": [
+     {
+      "x": -5.975,
+      "y": 0,
+      "z": 0.875,
+      "rotY": 90
+     },
+     {
+      "x": -5.475,
+      "y": 0,
+      "z": 0.875,
+      "rotY": 90
+     }
+    ]
    },
    "scenes": [
     {
      "n": 7,
      "at": [
       {
-       "x": -3.6,
+       "x": -4.0,
        "y": 0,
-       "z": 2.3,
+       "z": 1.2,
        "rotY": -50
       }
      ]
@@ -1989,12 +2020,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -7.0,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 5.6,
-    "rotY": 90,
-    "fits": "yes — narrow side 0.70 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "z": 9.0,
+    "rotY": 0,
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     3,
@@ -2005,9 +2037,9 @@
      ],
      "at": [
       {
-       "x": 2.0,
+       "x": 1.6,
        "y": 0,
-       "z": 2.2,
+       "z": 2.0,
        "rotY": -15
       }
      ]
@@ -2055,9 +2087,9 @@
      ],
      "at": [
       {
-       "x": 2.0,
+       "x": 1.6,
        "y": 0.9,
-       "z": 2.2,
+       "z": 2.0,
        "rotY": -15
       }
      ]
@@ -2089,11 +2121,11 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -8.6,
-    "y": 0.0,
-    "z": 5.6,
+    "x": -5.8,
+    "y": 0,
+    "z": 2.1,
     "rotY": 0,
-    "fits": "yes — narrow side 0.60 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "fits": true
    },
    "scenes": [
     3,
@@ -2153,9 +2185,9 @@
      ],
      "at": [
       {
-       "x": -2.6,
+       "x": -2.9,
        "y": 0,
-       "z": 4.0,
+       "z": 5.6,
        "rotY": 0
       }
      ]
@@ -2193,9 +2225,9 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": -3.0,
+     "x": -2.9,
      "y": 0.9,
-     "z": 4.6,
+     "z": 5.0,
      "rotY": 0
     }
    ],
@@ -2373,10 +2405,10 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": -2.2,
+     "x": -3.55,
      "y": 2.4,
-     "z": 5.2,
-     "rotY": 0
+     "z": 4.0,
+     "rotY": 90
     }
    ],
    "storage": {
@@ -2410,26 +2442,26 @@
    "licenceNote": "TurboSquid royalty-free; Maya-only file (needs converting)",
    "home": [
     {
-     "x": -2.95,
+     "x": -3.55,
      "y": 2.4,
-     "z": 5.3,
-     "rotY": 0
+     "z": 3.4,
+     "rotY": 90
     },
     {
-     "x": -1.95,
+     "x": -3.55,
      "y": 2.4,
-     "z": 5.3,
-     "rotY": 0
+     "z": 4.4,
+     "rotY": 90
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -8.6,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 4.6,
+    "z": 9.0,
     "rotY": 0,
-    "note": "handed down off the loft's SL end",
-    "fits": "yes — narrow side 0.90 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -2530,20 +2562,20 @@
    "licenceNote": "CGTrader royalty-free, NO AI USE; no credit",
    "home": [
     {
-     "x": -2.25,
+     "x": -3.0,
      "y": 2.4,
-     "z": 5.6,
-     "rotY": 0
+     "z": 4.0,
+     "rotY": 90
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -7.6,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 5.0,
-    "rotY": 90,
-    "note": "folds; handed down off the loft",
-    "fits": "yes — narrow side 0.60 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "z": 9.0,
+    "rotY": 0,
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -2577,9 +2609,9 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": -2.2,
+     "x": -3.0,
      "y": 3.14,
-     "z": 5.6,
+     "z": 4.0,
      "rotY": 0
     }
    ],
@@ -2623,51 +2655,51 @@
    "licenceNote": "RenderHub free, commercial use; credit optional",
    "home": [
     {
-     "x": -2.9,
+     "x": -3.0,
      "y": 3.14,
-     "z": 5.6,
+     "z": 3.22,
      "rotY": 0
     },
     {
-     "x": -2.65,
+     "x": -3.0,
      "y": 3.14,
-     "z": 5.6,
+     "z": 3.44,
      "rotY": 0
     },
     {
-     "x": -2.4,
+     "x": -3.0,
      "y": 3.14,
-     "z": 5.6,
+     "z": 3.66,
      "rotY": 0
     },
     {
-     "x": -2.15,
+     "x": -3.0,
      "y": 3.14,
-     "z": 5.6,
+     "z": 3.88,
      "rotY": 0
     },
     {
-     "x": -1.9,
+     "x": -3.0,
      "y": 3.14,
-     "z": 5.6,
+     "z": 4.1,
      "rotY": 0
     },
     {
-     "x": -1.65,
+     "x": -3.0,
      "y": 3.14,
-     "z": 5.6,
+     "z": 4.32,
      "rotY": 0
     },
     {
-     "x": -1.4,
+     "x": -3.0,
      "y": 3.14,
-     "z": 5.6,
+     "z": 4.54,
      "rotY": 0
     },
     {
-     "x": -1.15,
+     "x": -3.0,
      "y": 3.14,
-     "z": 5.6,
+     "z": 4.76,
      "rotY": 0
     }
    ],
@@ -2687,27 +2719,27 @@
      ],
      "at": [
       {
-       "x": -2.9,
+       "x": -3.0,
        "y": 3.14,
-       "z": 5.6,
+       "z": 3.3,
        "rotY": 0
       },
       {
-       "x": -2.6,
+       "x": -3.0,
        "y": 3.14,
-       "z": 5.6,
+       "z": 3.55,
        "rotY": 0
       },
       {
-       "x": -1.9,
+       "x": -3.0,
        "y": 3.14,
-       "z": 5.6,
+       "z": 4.45,
        "rotY": 0
       },
       {
-       "x": -1.6,
+       "x": -3.0,
        "y": 3.14,
-       "z": 5.6,
+       "z": 4.7,
        "rotY": 0
       }
      ]
@@ -2736,27 +2768,27 @@
      ],
      "at": [
       {
-       "x": -2.9,
+       "x": -3.0,
        "y": 3.14,
-       "z": 5.6,
+       "z": 3.3,
        "rotY": 0
       },
       {
-       "x": -2.6,
+       "x": -3.0,
        "y": 3.14,
-       "z": 5.6,
+       "z": 3.55,
        "rotY": 0
       },
       {
-       "x": -1.9,
+       "x": -3.0,
        "y": 3.14,
-       "z": 5.6,
+       "z": 4.45,
        "rotY": 0
       },
       {
-       "x": -1.6,
+       "x": -3.0,
        "y": 3.14,
-       "z": 5.6,
+       "z": 4.7,
        "rotY": 0
       }
      ]
@@ -2880,12 +2912,49 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -8.6,
-    "y": 0.0,
-    "z": 2.2,
-    "rotY": 0,
-    "note": "stacked in pairs",
-    "fits": "yes — narrow side 0.50 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "x": -5.95,
+    "y": 0,
+    "z": 4.9,
+    "rotY": 90,
+    "fits": true,
+    "at": [
+     {
+      "x": -5.95,
+      "y": 0,
+      "z": 4.9,
+      "rotY": 90
+     },
+     {
+      "x": -5.95,
+      "y": 0,
+      "z": 5.45,
+      "rotY": 90
+     },
+     {
+      "x": -5.95,
+      "y": 0,
+      "z": 6.0,
+      "rotY": 90
+     },
+     {
+      "x": -7.2,
+      "y": 0,
+      "z": 0.45,
+      "rotY": 90
+     },
+     {
+      "x": -6.65,
+      "y": 0,
+      "z": 0.45,
+      "rotY": 90
+     },
+     {
+      "x": -7.2,
+      "y": 0,
+      "z": 1.0,
+      "rotY": 90
+     }
+    ]
    },
    "scenes": [
     {
@@ -2935,9 +3004,9 @@
       ],
       "4": [
        {
-        "x": 0.9,
+        "x": 1.9,
         "y": 0,
-        "z": 3.0,
+        "z": 2.9,
         "rotY": 0,
         "tipped": true
        }
@@ -3103,9 +3172,9 @@
      ],
      "at": [
       {
-       "x": 2.0,
-       "y": 1.55,
-       "z": 4.75,
+       "x": 0.8,
+       "y": 1.8,
+       "z": 4.45,
        "rotY": 0
       }
      ]
@@ -3292,32 +3361,30 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": 0.9,
+     "x": -1.1,
      "y": 0,
-     "z": 2.6,
+     "z": 1.4,
      "rotY": 0
     },
     {
-     "x": 2.0,
+     "x": 0,
      "y": 0,
-     "z": 2.6,
+     "z": 1.4,
      "rotY": 0
     },
     {
-     "x": 3.1,
+     "x": 1.1,
      "y": 0,
-     "z": 2.6,
+     "z": 1.4,
      "rotY": 0
     }
    ],
    "storage": {
-    "where": "backstage",
-    "x": 4.0,
-    "y": 0.0,
-    "z": 8.0,
-    "rotY": 0,
-    "note": "three in a row",
-    "fits": "yes — narrow side 0.60 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+    "where": "lift",
+    "wagon": "counting-house",
+    "bay": "counting-house",
+    "fits": true,
+    "note": "a big set (RULING GI): up the front lift from its basement bay, off down the back lift; parked in MIDTOWN.under.bays (the bay named like the wagon, else the first free one that fits)"
    },
    "scenes": [
     {
@@ -3344,32 +3411,30 @@
    "licenceNote": "CC0 (Poly Haven)",
    "home": [
     {
-     "x": 0.9,
+     "x": -1.1,
      "y": 0,
-     "z": 3.1,
+     "z": 1.95,
      "rotY": 0
     },
     {
-     "x": 2.0,
+     "x": 0,
      "y": 0,
-     "z": 3.1,
+     "z": 1.95,
      "rotY": 0
     },
     {
-     "x": 3.1,
+     "x": 1.1,
      "y": 0,
-     "z": 3.1,
+     "z": 1.95,
      "rotY": 0
     }
    ],
    "storage": {
-    "where": "backstage",
-    "x": 4.0,
-    "y": 0.0,
-    "z": 9.0,
-    "rotY": 0,
-    "note": "via the centre doors",
-    "fits": "yes — narrow side 0.35 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+    "where": "lift",
+    "wagon": "counting-house",
+    "bay": "counting-house",
+    "fits": true,
+    "note": "a big set (RULING GI): up the front lift from its basement bay, off down the back lift; parked in MIDTOWN.under.bays (the bay named like the wagon, else the first free one that fits)"
    },
    "scenes": [
     {
@@ -3405,11 +3470,11 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -8.6,
-    "y": 0.0,
-    "z": 0.3,
-    "rotY": 0,
-    "fits": "yes — narrow side 0.35 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "x": -4.825,
+    "y": 0,
+    "z": 2.825,
+    "rotY": 90,
+    "fits": true
    },
    "scenes": [
     {
@@ -3451,9 +3516,9 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": -1.4,
+     "x": -2.4,
      "y": 0,
-     "z": 1.6,
+     "z": 1.4,
      "rotY": -30
     }
    ],
@@ -3492,20 +3557,20 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": -2.3,
+     "x": -3.2,
      "y": 0,
-     "z": 5.2,
+     "z": 4.0,
      "rotY": 0
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -7.8,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 3.6,
+    "z": 9.0,
     "rotY": 0,
-    "note": "on its wagon; rolls downstage out from under the loft, then SL",
-    "fits": "yes — narrow side 1.10 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     9,
@@ -3532,7 +3597,7 @@
      ]
     }
    ],
-   "notes": "All-wood press with an iron screw, 1.95 h, frame 1.1 w, 2.0 long WITH ITS LENGTH UP/DOWNSTAGE under the loft (x -2.85...-1.75, z 4.20...6.20: the bed's rails overhang the loft line by 0.2). Clear under the loft (2.20) by 0.25. On a low wagon; must assemble in under ten seconds."
+   "notes": "All-wood press with an iron screw, 1.95 h, frame 1.1 w, 2.0 long WITH ITS LENGTH UP/DOWNSTAGE under the loft (x -2.85...-1.75, z 4.20...6.20: the bed's rails overhang the loft line by 0.2). Clear under the loft (2.20) by 0.25. On a low wagon; must assemble in under ten seconds. Re-laid 2026-10-16 around the lifts (RULING GI): parks UNDER the loft when on (x -3.75...-2.65, z 3.0...5.0), so it is not a lift set; it glides on from the SL wing."
   },
   {
    "id": "printing-press-smashed",
@@ -3550,20 +3615,20 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": -2.4,
+     "x": -3.3,
      "y": 0,
-     "z": 5.1,
+     "z": 4.0,
      "rotY": 0
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -7.8,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 3.6,
+    "z": 9.0,
     "rotY": 0,
-    "note": "swaps with the intact press on its wagon",
-    "fits": "yes — narrow side 1.50 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -3591,19 +3656,20 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": -3.0,
+     "x": -4.2,
      "y": 0,
      "z": 3.4,
      "rotY": -90
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -8.6,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 6.2,
+    "z": 9.0,
     "rotY": 0,
-    "fits": "yes — narrow side 0.50 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     9
@@ -3633,12 +3699,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -7.8,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 6.2,
-    "rotY": 90,
-    "fits": "yes — narrow side 0.60 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "z": 9.0,
+    "rotY": 0,
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     9
@@ -3668,12 +3735,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -7.0,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 1.8,
+    "z": 9.0,
     "rotY": 0,
-    "fits": "yes — narrow side 0.80 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -3740,20 +3808,20 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": -1.05,
+     "x": -4.0,
      "y": 2.4,
-     "z": 5.6,
+     "z": 5.7,
      "rotY": 90
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -8.6,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 1.6,
+    "z": 9.0,
     "rotY": 0,
-    "note": "handed down off the loft",
-    "fits": "yes — narrow side 0.50 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -3789,11 +3857,11 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 7.4,
-    "y": 0.0,
-    "z": 4.4,
+    "x": 6.95,
+    "y": 0,
+    "z": 1.85,
     "rotY": 0,
-    "fits": "yes — narrow side 0.30 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "fits": true
    },
    "scenes": [
     {
@@ -3822,9 +3890,9 @@
      "n": 12,
      "at": [
       {
-       "x": -2.3,
+       "x": -1.8,
        "y": 0,
-       "z": 3.7,
+       "z": 2.6,
        "rotY": 0
       }
      ]
@@ -3833,9 +3901,9 @@
      "n": 15,
      "at": [
       {
-       "x": 3.4,
+       "x": 3.5,
        "y": 0,
-       "z": 2.4,
+       "z": 1.8,
        "rotY": 45
       }
      ]
@@ -3849,9 +3917,9 @@
      "atBySeg": {
       "2": [
        {
-        "x": 3.4,
+        "x": 3.5,
         "y": 0,
-        "z": 2.4,
+        "z": 1.8,
         "rotY": 45
        }
       ],
@@ -3872,9 +3940,9 @@
      ],
      "at": [
       {
-       "x": 3.4,
+       "x": 3.5,
        "y": 0,
-       "z": 2.4,
+       "z": 1.8,
        "rotY": 45
       }
      ]
@@ -3897,10 +3965,10 @@
      ],
      "at": [
       {
-       "x": -2.8,
+       "x": -1.9,
        "y": 0,
-       "z": 2.4,
-       "rotY": -45
+       "z": 2.3,
+       "rotY": -30
       }
      ]
     }
@@ -3925,26 +3993,26 @@
     {
      "x": -3.4,
      "y": 0,
-     "z": 2.2,
+     "z": 1.4,
      "rotY": -60
     }
    ],
    "storage": {
     "where": "SR wing",
-    "x": 8.9,
-    "y": 0.0,
-    "z": 4.4,
+    "x": 8.15,
+    "y": 0,
+    "z": 1.75,
     "rotY": 0,
-    "fits": "yes — narrow side 0.10 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "fits": true
    },
    "scenes": [
     {
      "n": 15,
      "at": [
       {
-       "x": -2.6,
+       "x": -3.55,
        "y": 2.4,
-       "z": 4.55,
+       "z": 2.95,
        "rotY": 0
       }
      ]
@@ -4070,11 +4138,11 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 9.0,
-    "y": 0.0,
-    "z": 3.2,
+    "x": 8.1,
+    "y": 0,
+    "z": 1.91,
     "rotY": 0,
-    "fits": "yes — narrow side 0.12 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "fits": true
    },
    "scenes": [
     {
@@ -4116,11 +4184,11 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 6.8,
-    "y": 0.0,
-    "z": 3.2,
+    "x": 9.0,
+    "y": 0,
+    "z": 1.925,
     "rotY": 0,
-    "fits": "yes — narrow side 0.45 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "fits": true
    },
    "scenes": [
     {
@@ -4211,6 +4279,45 @@
    "notes": "The Observer's yard (12). Not in the worklist."
   },
   {
+   "id": "judge-platform",
+   "name": "the Justice's platform (a low rostrum under the judge's bench and chair)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/judge-platform.glb",
+   "size": [
+    2.8,
+    0.3,
+    1.8
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 0,
+     "y": 0,
+     "z": 4.8,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "lift",
+    "wagon": "courtroom",
+    "bay": "courtroom",
+    "fits": true,
+    "note": "a big set (RULING GI): up the front lift from its basement bay, off down the back lift; parked in MIDTOWN.under.bays (the bay named like the wagon, else the first free one that fits)"
+   },
+   "scenes": [
+    {
+     "n": 11,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "Re-laid 2026-10-16 around the lifts (RULING GI): the courtroom rides the lifts as one wagon (platform, bench, chair); before, the wharf deck was the platform."
+  },
+  {
    "id": "judge-bench",
    "name": "The Justice's bench",
    "worklistModel": "Courtroom Judge Desk",
@@ -4226,20 +4333,18 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": 2.7,
-     "y": 0.45,
-     "z": 4.85,
+     "x": 0,
+     "y": 0.3,
+     "z": 4.45,
      "rotY": 0
     }
    ],
    "storage": {
-    "where": "backstage",
-    "x": 3.0,
-    "y": 0.0,
-    "z": 9.0,
-    "rotY": 0,
-    "note": "on a wagon via the centre doors, 0.9 side first",
-    "fits": "yes — narrow side 0.90 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+    "where": "lift",
+    "wagon": "courtroom",
+    "bay": "courtroom",
+    "fits": true,
+    "note": "a big set (RULING GI): up the front lift from its basement bay, off down the back lift; parked in MIDTOWN.under.bays (the bay named like the wagon, else the first free one that fits)"
    },
    "scenes": [
     {
@@ -4267,19 +4372,18 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": 2.7,
-     "y": 0.45,
-     "z": 5.65,
+     "x": 0,
+     "y": 0.3,
+     "z": 5.3,
      "rotY": 0
     }
    ],
    "storage": {
-    "where": "backstage",
-    "x": 3.0,
-    "y": 0.0,
-    "z": 10.0,
-    "rotY": 0,
-    "fits": "yes — narrow side 0.60 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+    "where": "lift",
+    "wagon": "courtroom",
+    "bay": "courtroom",
+    "fits": true,
+    "note": "a big set (RULING GI): up the front lift from its basement bay, off down the back lift; parked in MIDTOWN.under.bays (the bay named like the wagon, else the first free one that fits)"
    },
    "scenes": [
     {
@@ -4338,7 +4442,7 @@
    "worklistModel": "Rustic Wooden Dock",
    "slot": "assets/johnny-tremain/models/ship-rail.glb",
    "size": [
-    5.0,
+    4.8,
     1.0,
     0.25
    ],
@@ -4348,20 +4452,18 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": -0.5,
+     "x": 0,
      "y": 0,
      "z": 0.5,
      "rotY": 0
     }
    ],
    "storage": {
-    "where": "backstage",
-    "x": 0.0,
-    "y": 0.0,
-    "z": 10.0,
-    "rotY": 0,
-    "note": "in two 2.5 m halves via the centre doors",
-    "fits": "yes — narrow side 0.25 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+    "where": "lift",
+    "wagon": "ship",
+    "bay": "ship",
+    "fits": true,
+    "note": "a big set (RULING GI): up the front lift from its basement bay, off down the back lift; parked in MIDTOWN.under.bays (the bay named like the wagon, else the first free one that fits)"
    },
    "scenes": [
     {
@@ -4389,86 +4491,84 @@
    "licenceNote": "CC0 (ShareTextures)",
    "home": [
     {
-     "x": -2.6,
+     "x": -1.875,
      "y": 0,
      "z": 1.3,
      "rotY": 0
     },
     {
-     "x": -1.7,
+     "x": -1.125,
      "y": 0,
      "z": 1.3,
      "rotY": 0
     },
     {
-     "x": -0.8,
+     "x": -0.375,
      "y": 0,
      "z": 1.3,
      "rotY": 0
     },
     {
-     "x": 0.1,
+     "x": 0.375,
      "y": 0,
      "z": 1.3,
      "rotY": 0
     },
     {
-     "x": 1.0,
+     "x": 1.125,
      "y": 0,
      "z": 1.3,
      "rotY": 0
     },
     {
-     "x": 1.9,
+     "x": 1.875,
      "y": 0,
      "z": 1.3,
      "rotY": 0
     },
     {
-     "x": -2.6,
+     "x": -1.875,
      "y": 0,
      "z": 2.2,
      "rotY": 0
     },
     {
-     "x": -1.7,
+     "x": -1.125,
      "y": 0,
      "z": 2.2,
      "rotY": 0
     },
     {
-     "x": -0.8,
+     "x": -0.375,
      "y": 0,
      "z": 2.2,
      "rotY": 0
     },
     {
-     "x": 0.1,
+     "x": 0.375,
      "y": 0,
      "z": 2.2,
      "rotY": 0
     },
     {
-     "x": 1.0,
+     "x": 1.125,
      "y": 0,
      "z": 2.2,
      "rotY": 0
     },
     {
-     "x": 1.9,
+     "x": 1.875,
      "y": 0,
      "z": 2.2,
      "rotY": 0
     }
    ],
    "storage": {
-    "where": "backstage",
-    "x": 6.0,
-    "y": 0.0,
-    "z": 8.0,
-    "rotY": 0,
-    "note": "stacked four high",
-    "fits": "yes — narrow side 0.50 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+    "where": "lift",
+    "wagon": "ship",
+    "bay": "ship",
+    "fits": true,
+    "note": "a big set (RULING GI): up the front lift from its basement bay, off down the back lift; parked in MIDTOWN.under.bays (the bay named like the wagon, else the first free one that fits)"
    },
    "scenes": [
     {
@@ -4503,13 +4603,13 @@
     }
    ],
    "storage": {
-    "where": "SR wing",
-    "x": 8.4,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 4.8,
+    "z": 9.0,
     "rotY": 0,
-    "note": "in three sections",
-    "fits": "yes — narrow side 1.20 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "fits": true,
+    "note": "longer than a wing park is deep; out through the centre doors"
    },
    "scenes": [
     4,
@@ -4544,34 +4644,33 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": -2.4,
+     "x": -1.35,
      "y": 0,
-     "z": 2.3,
-     "rotY": 0
-    },
-    {
-     "x": 2.3,
-     "y": 0.45,
      "z": 4.8,
      "rotY": 0,
-     "scale": 0.7
+     "scale": 1.0
     },
     {
-     "x": 3.75,
-     "y": 0.45,
-     "z": 4.75,
+     "x": 0.6,
+     "y": 0,
+     "z": 5.2,
      "rotY": 0,
-     "scale": 0.62
+     "scale": 0.75
+    },
+    {
+     "x": 1.95,
+     "y": 0,
+     "z": 5.4,
+     "rotY": 0,
+     "scale": 0.5
     }
    ],
    "storage": {
-    "where": "SR wing",
-    "x": 8.0,
-    "y": 0.0,
-    "z": 2.6,
-    "rotY": 0,
-    "note": "struck flat",
-    "fits": "yes — narrow side 2.10 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "where": "lift",
+    "wagon": "camp",
+    "bay": "camp",
+    "fits": true,
+    "note": "a big set (RULING GI): up the front lift from its basement bay, off down the back lift; parked in MIDTOWN.under.bays (the bay named like the wagon, else the first free one that fits)"
    },
    "scenes": [
     {
@@ -4587,7 +4686,7 @@
      ]
     }
    ],
-   "notes": "Stand-in for the missing wedge tent: off-white linen, dirty hem. The full-size one on the deck SL; the two smaller ones on the wharf deck (scale 0.70 and 0.62) so the camp reads deep."
+   "notes": "Stand-in for the missing wedge tent: off-white linen, dirty hem. The full-size one on the deck SL; the two smaller ones on the wharf deck (scale 0.70 and 0.62) so the camp reads deep. Re-laid 2026-10-16 around the lifts (RULING GI): the camp rides the lifts as one wagon, its forced perspective now across the back lift (full, 3/4, 1/2 size)."
   },
   {
    "id": "stacked-arms",
@@ -4613,11 +4712,11 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 7.0,
-    "y": 0.0,
-    "z": 5.6,
-    "rotY": 0,
-    "fits": "yes — narrow side 0.90 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "x": 6.75,
+    "y": 0,
+    "z": 2.5,
+    "rotY": 90,
+    "fits": true
    },
    "scenes": [
     {
@@ -4658,12 +4757,13 @@
     }
    ],
    "storage": {
-    "where": "SR wing",
-    "x": 9.0,
+    "where": "backstage",
+    "x": 0.0,
     "y": 0.0,
-    "z": 5.0,
-    "rotY": 90,
-    "fits": "yes — narrow side 0.10 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "z": 9.0,
+    "rotY": 0,
+    "fits": true,
+    "note": "longer than a wing park is deep; out through the centre doors"
    },
    "scenes": [
     {
@@ -5081,9 +5181,9 @@
      "rotY": 20
     },
     {
-     "x": 1.8,
+     "x": 1.4,
      "y": 0,
-     "z": 2.6,
+     "z": 2.0,
      "rotY": -20
     }
    ],
@@ -5177,11 +5277,11 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 9.2,
-    "y": 0.0,
-    "z": 3.2,
+    "x": 7.7,
+    "y": 0,
+    "z": 4.05,
     "rotY": 90,
-    "fits": "yes — narrow side 0.10 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "fits": true
    },
    "scenes": [
     15,
@@ -5275,9 +5375,9 @@
      "n": 15,
      "at": [
       {
-       "x": 3.4,
+       "x": 3.5,
        "y": 2.2,
-       "z": 2.4,
+       "z": 1.8,
        "rotY": 45
       }
      ]
@@ -5289,9 +5389,9 @@
      ],
      "at": [
       {
-       "x": 3.4,
+       "x": 3.5,
        "y": 2.2,
-       "z": 2.4,
+       "z": 1.8,
        "rotY": 45
       }
      ]
@@ -5303,9 +5403,9 @@
      ],
      "at": [
       {
-       "x": 3.4,
+       "x": 3.5,
        "y": 2.2,
-       "z": 2.4,
+       "z": 1.8,
        "rotY": 45
       }
      ]
@@ -5337,11 +5437,11 @@
    ],
    "storage": {
     "where": "SR wing",
-    "x": 6.8,
-    "y": 0.0,
-    "z": 4.6,
-    "rotY": 0,
-    "fits": "yes — narrow side 0.50 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "x": 8.9,
+    "y": 0,
+    "z": 2.45,
+    "rotY": 90,
+    "fits": true
    },
    "scenes": [
     {
@@ -5424,9 +5524,9 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": -3.2,
+     "x": -4.0,
      "y": 0,
-     "z": 2.6,
+     "z": 1.6,
      "rotY": -35
     }
    ],
@@ -5466,9 +5566,9 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": 3.4,
+     "x": 3.6,
      "y": 0,
-     "z": 2.7,
+     "z": 1.9,
      "rotY": -30
     }
    ],
@@ -5603,9 +5703,9 @@
       ],
       "5": [
        {
-        "x": -2.6,
+        "x": -3.3,
         "y": 0.9,
-        "z": 3.0,
+        "z": 5.0,
         "rotY": 0
        }
       ]
@@ -5696,20 +5796,18 @@
    "licenceNote": "CC BY: print the credit line",
    "home": [
     {
-     "x": 2.8,
+     "x": 1.8,
      "y": 0,
-     "z": 1.8,
+     "z": 1.6,
      "rotY": 0
     }
    ],
    "storage": {
-    "where": "backstage",
-    "x": 2.0,
-    "y": 0.0,
-    "z": 10.2,
-    "rotY": 0,
-    "note": "through the centre doors 1.3 m side first",
-    "fits": "yes — narrow side 1.30 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+    "where": "lift",
+    "wagon": "coach",
+    "bay": "coach",
+    "fits": true,
+    "note": "a big set (RULING GI): up the front lift from its basement bay, off down the back lift; parked in MIDTOWN.under.bays (the bay named like the wagon, else the first free one that fits)"
    },
    "scenes": [
     {
@@ -5737,20 +5835,18 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": 0.0,
+     "x": 0,
      "y": 0,
-     "z": 2.4,
+     "z": 1.5,
      "rotY": 90
     }
    ],
    "storage": {
-    "where": "SR wing",
-    "x": 7.8,
-    "y": 0.0,
-    "z": 4.2,
-    "rotY": 90,
-    "note": "enters from the SL wing, crosses the Green and parks SR",
-    "fits": "yes — narrow side 1.60 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "where": "lift",
+    "wagon": "chaise",
+    "bay": "chaise",
+    "fits": true,
+    "note": "a big set (RULING GI): up the front lift from its basement bay, off down the back lift; parked in MIDTOWN.under.bays (the bay named like the wagon, else the first free one that fits)"
    },
    "scenes": [
     {
@@ -5778,20 +5874,19 @@
    "licenceNote": "EDITORIAL ONLY: previs use only until the author grants permission for a ticketed show",
    "home": [
     {
-     "x": -3.4,
+     "x": -3.0,
      "y": 0,
-     "z": 2.6,
+     "z": 0.9,
      "rotY": 30
     }
    ],
    "storage": {
     "where": "SR wing",
-    "x": 9.0,
-    "y": 0.0,
-    "z": 2.6,
+    "x": 8.1,
+    "y": 0,
+    "z": 2.85,
     "rotY": 90,
-    "note": "too tall (3.6) for the stage doors",
-    "fits": "yes — narrow side 0.60 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+    "fits": true
    },
    "scenes": [
     {
@@ -5822,7 +5917,7 @@
     {
      "x": 3.3,
      "y": 0,
-     "z": 2.3,
+     "z": 1.2,
      "rotY": -20
     }
    ],
@@ -5984,9 +6079,9 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": 2.6,
+     "x": 3.0,
      "y": 0.45,
-     "z": 5.45,
+     "z": 4.6,
      "rotY": 0
     }
    ],
@@ -6511,6 +6606,7 @@
     "furnace",
     "judge-bench",
     "judge-chair",
+    "judge-platform",
     "kitchen-benches",
     "kitchen-table",
     "ladder",
@@ -6548,6 +6644,7 @@
       "candlesticks",
       "judge-bench",
       "judge-chair",
+      "judge-platform",
       "kitchen-benches",
       "kitchen-table",
       "lyte-cup"

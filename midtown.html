@@ -499,7 +499,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|understage)$/.test(o.name)) o.traverse(take);
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|understage|jt set)$/.test(o.name)) o.traverse(take);
   baked.traverse(take);
   return list;
 }
@@ -11732,9 +11732,14 @@ function underCheck() {
   }
   // 3. the bays: on the floor, inside the basement, ≥ 5.5 × 2.6, clear of the sets' paths, the shafts and one another
   const shafts = Object.values(U.lifts).map(s => [s.x0 - 0.2, s.x1 + 0.2, s.z0 - 0.2, s.z1 + 0.2]), over = (a, b) => a[0] < b[1] && b[0] < a[1] && a[2] < b[3] && b[2] < a[3];
+  // the basement's own floor, not the walk's collider: a set wagon parked in a bay is in the collider ("jt set") and
+  // would read as the floor
+  const ug = []; underBuilt.group.traverse(o => { if (o.isMesh) ug.push(o); });
+  const underFloorAt = (x, z) => { ray.set(new THREE.Vector3(x, U.floor + 0.05, z), new THREE.Vector3(0, -1, 0)); ray.far = 0.5;
+    const h = ray.intersectObjects(ug, true)[0]; return h ? h.point.y : null; };
   U.bays.forEach((b, i) => {
     const r = [b.x - b.w / 2, b.x + b.w / 2, b.z - b.d / 2, b.z + b.d / 2], ys = [];
-    for (const [x, z] of [[b.x, b.z], [r[0] + 0.15, r[2] + 0.15], [r[1] - 0.15, r[2] + 0.15], [r[0] + 0.15, r[3] - 0.15], [r[1] - 0.15, r[3] - 0.15]]) ys.push(groundAt(x, z, U.floor + 0.05));
+    for (const [x, z] of [[b.x, b.z], [r[0] + 0.15, r[2] + 0.15], [r[1] - 0.15, r[2] + 0.15], [r[0] + 0.15, r[3] - 0.15], [r[1] - 0.15, r[3] - 0.15]]) ys.push(underFloorAt(x, z));
     const flat = ys.every(y => y !== null && Math.abs(y - U.floor) < 0.02), inside = r[0] >= U.x0 && r[1] <= U.x1 && r[2] >= U.z0 && r[3] <= U.z1;
     const hits = [...U.paths.filter(p => over(r, p.r)).map(p => p.name), ...shafts.filter(sh => over(r, sh)).map(() => 'a shaft'), ...U.bays.filter((q, j) => j !== i && over(r, [q.x - q.w / 2, q.x + q.w / 2, q.z - q.d / 2, q.z + q.d / 2])).map(q => q.name)];
     line(flat && inside && b.w * b.d >= 5.5 * 2.6 - 1e-9 && Math.max(b.w, b.d) >= 5.5 && Math.min(b.w, b.d) >= 2.6 && !hits.length,
@@ -11818,6 +11823,815 @@ const UNDER_API = {
       + `lifts ${Object.values(b.lifts).map(L => `${L.key} ${L.state}`).join(', ')}; Theatre 2's scan split ${b.split.split} → ${b.split.made} (${b.split.meshes.join(', ') || 'none'}); cut ${UNDER_CUTS.map(c => { const q = house2Cut.find(h => h.cut === c); return `"${c.name}" ${q ? Object.values(q.removed).reduce((a, n) => a + n, 0) : 0}`; }).join(', ')} · ${b.ms.toFixed(0)} ms`;
     console.info(s); return s;
   },
+};
+
+/* ---------------------------------------------------------------- THEATRE 2: JOHNNY TREMAIN — THE SET
+   Jack: "get the sets ready to be put in" — his play Johnny Tremain (two acts, 26 scenes, 66 segments) on Theatre 2, read
+   from the ground plan assets/johnny-tremain/set.json (format: docs/johnny-tremain/set-format.md; re-laid round the lifts
+   and checked by tools/jt-set-check.py). Every piece stands as a STAND-IN of boxes, cylinders and spheres that reads as
+   the thing (a ladder's stiles and rungs, the loft's posts, deck and rails, the press's cheeks and screw), built at its
+   real size in a local frame (front to −z, base on y 0) and normalised to set.json's [w, h, d] exactly; each copy one
+   mesh (vertex-coloured MeshStandardMaterial, so the lights take it) plus its flames (practicals) and the furnace's mouth.
+   SLOTS: assets/johnny-tremain/models/manifest.json lists the GLBs Jack has dropped in ({"models": {"<id>": {"file",
+   "rotY", "fit"}}}, empty now — nothing else is fetched, so a missing model is never a console error); each listed model
+   is loaded, turned rotY, scaled uniformly to the piece's largest dimension (or "fit": "w" | "h" | "d"), centred on the
+   footprint with its base on the floor, and the stand-in hidden. assets/johnny-tremain/models/README.md is his recipe.
+   SCENES: the "Johnny Tremain" header button opens the panel. Jack: "make something that i can cycle through the sets and
+   it moves them in correct order". Next / Prev (or PageDown / PageUp while the panel is open) run ONE segment's shift in
+   show order, sequenced strike → big sets off (back lift → bay) → big sets on (bay → front lift) → set → lights (jtGo's
+   comment); Prev runs the same shift backwards (a real reverse, not a snap). Speed 1× / 2× / 4×, Skip (the running shift
+   ends at once), Auto (every shift from here to the end of the show, holding JT.hold s on each), the picker jumps (a
+   snap), Snap (every step a snap), Practicals, Stalls view, Check. A BIG SET is storage.where 'lift' (storage.wagon names
+   the pieces that travel together, RULING GI); its bay is MIDTOWN.under.bays' one named like the wagon, else the first
+   free one it fits. No MIDTOWN.under: a big set just vanishes and appears.
+   The furnace's mouth glows in the lit segments (scene.furnace / furnaceLitSegments); flames burn on the practicals that
+   are on stage. Every change calls MIDTOWN.jtLights.look(scene, seg) (seg 1-based, as set.json numbers them) if the lights
+   are there. In the walk's collision grid by the group's name ('jt set', colliderMeshes; hidden pieces drop out).
+   MIDTOWN.jt = { scene(n, seg), next(), prev(), pieces, set, check(), state, snap(on), practicals(on), panel(on) }. */
+const JT = {
+  url: 'assets/johnny-tremain/set.json', models: 'assets/johnny-tremain/models/',
+  o: { x: HOUSE2.dx, y: HOUSE.deckY, z: 2.30 },              // the stage frame's origin in the world (set-format.md)
+  glide: 2.4, pop: 0.5, fly: 3.0, fire: 1.5,                  // seconds: a walk-off, a hand prop, a fly, the furnace coming up
+  door: { x: 0, z: 6.30 },                                    // where a backstage piece goes out: the centre stage doors
+  lifts: { front: { x: [-3.0, 3.0], z: [0.3, 2.7] }, back: { x: [-2.5, 2.5], z: [3.6, 6.0] } },   // CONTRACT.md, stage frame
+  house: { x: [10.45, 29.65], z: [-0.36, 8.90] },
+  keepOut: [{ name: "the underground's stair hole in the SL wing", x: [-9.40, -6.25], z: [1.70, 6.30] }],   // stage frame: nothing stands, parks or glides there             // Theatre 2's stage house and apron, world (deck fill 10.5…29.9)
+  d: null, pieces: {}, order: [], cur: null, busy: false, want: null, tw: [], fireK: 0, fireTo: 0,
+  snap: false, practicals: true, speed: 1, auto: false, hold: 4, held: 0, skipping: false, plan: null, routes: {}, group: null, el: null, btn: null, manifest: {}, fitted: {}, bays: {}, msg: '',
+};
+const jtTint = (g, hex) => { const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([c.r, c.g, c.b], i * 3); g.setAttribute('color', new THREE.BufferAttribute(a, 3)); return g; };
+// one vertex-coloured, lit material for every stand-in; emissive × the vertex colour, so each glows a little of its own (an unlit stage still reads)
+const jtMat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.78, metalness: 0, emissive: new THREE.Color(0.16, 0.16, 0.16) });
+jtMat.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n#ifdef USE_COLOR\n\ttotalEmissiveRadiance *= vColor.rgb;\n#endif'); };
+jtMat.customProgramCacheKey = () => 'jt: colour';
+const jtFlame = new THREE.MeshBasicMaterial({ color: 0xffc061, toneMapped: false });                    // candles, lanterns, torches, lamps
+const jtFire = new THREE.MeshStandardMaterial({ color: 0x140804, roughness: 1, emissive: new THREE.Color(0xff5410), emissiveIntensity: 0 });   // the furnace's mouth
+const C_ = { wood: 0x7a5a3a, dark: 0x4a3422, plank: 0x8f6d47, pale: 0xb08a5e, grey: 0x6d6a66, iron: 0x2e2e33, brick: 0x8a4632,
+  canvas: 0xd6cab0, white: 0xe6e0d2, red: 0x8e2424, scarlet: 0xb0201c, green: 0x3f6a34, brass: 0xc9a14e, silver: 0xc4c8cc,
+  black: 0x0e0e10, stone: 0x9a958c, leather: 0x6a3e22, mahog: 0x5a2618, navy: 0x2a3550, straw: 0xc8b060, rope: 0xb09a6a,
+  pewter: 0x8e9096, lead: 0x5a5c60, soot: 0x2a2220, grey2: 0xa8a6a2, cream: 0xe9dcc0, glass: 0x1a2028, leaf: 0x4f7a2e };
+
+// The kit: primitives in a piece's local frame (metres; x across, y up, z depth, the front to −z), filed for the merge.
+function jtKit() {
+  const parts = [], glow = [], fire = [], E3 = new THREE.Euler(), Q = new THREE.Quaternion(), M = new THREE.Matrix4(), one = new THREE.Vector3(1, 1, 1);
+  const put = (list, g, hex, x, y, z, rx = 0, ry = 0, rz = 0) => { g.applyMatrix4(M.compose(new THREE.Vector3(x, y, z), Q.setFromEuler(E3.set(rx, ry, rz, 'YXZ')), one)); list.push(jtTint(g, hex)); return g; };
+  const k = {
+    parts, glow, fire,
+    box: (w, h, d, x, y, z, hex, rx, ry, rz) => put(parts, new THREE.BoxGeometry(w, h, d), hex, x, y, z, rx, ry, rz),
+    bx: (x0, x1, y0, y1, z0, z1, hex) => k.box(Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0), (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2, hex),
+    cyl: (rt, rb, y0, y1, x, z, hex, seg = 10) => put(parts, new THREE.CylinderGeometry(rt, rb, y1 - y0, seg), hex, x, (y0 + y1) / 2, z),
+    disc: (r, t, x, y, z, hex, ry = 0, seg = 16) => put(parts, new THREE.CylinderGeometry(r, r, t, seg), hex, x, y, z, Math.PI / 2, ry),   // its face to ±z (turned ry)
+    rod: (a, b, r, hex, seg = 6) => {
+      const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), dv = B.clone().sub(A), L = Math.max(dv.length(), 1e-4);
+      const g = new THREE.CylinderGeometry(r, r, L, seg, 1);
+      g.applyMatrix4(M.compose(A.clone().add(B).multiplyScalar(0.5), Q.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dv.normalize()), one));
+      parts.push(jtTint(g, hex)); return g;
+    },
+    sph: (r, x, y, z, hex, sy = 1) => { const g = new THREE.SphereGeometry(r, 8, 6); g.scale(1, sy, 1); return put(parts, g, hex, x, y, z); },
+    flame: (r, x, y, z) => { const g = new THREE.SphereGeometry(r, 6, 4); g.scale(1, 1.7, 1); return put(glow, g, 0xffffff, x, y, z); },
+    glowBox: (w, h, d, x, y, z) => put(glow, new THREE.BoxGeometry(w, h, d), 0xffffff, x, y, z),
+    mouth: (w, h, d, x, y, z) => put(fire, new THREE.BoxGeometry(w, h, d), 0xffffff, x, y, z),
+  };
+  // compound pieces
+  k.legs = (w, d, y0, y1, r, inset, hex, splay = 0) => { for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const x = sx * (w / 2 - inset), z = sz * (d / 2 - inset); k.rod([x + sx * splay, y0, z + sz * splay], [x, y1, z], r, hex); } };
+  k.table = (w, h, d, hex, top = 0.04, inset = 0.06, r = 0.03) => { k.box(w, top, d, 0, h - top / 2, 0, hex); k.legs(w, d, 0, h - top, r, inset, hex); k.bx(-w / 2 + inset, w / 2 - inset, h - top - 0.1, h - top, -d / 2 + inset, -d / 2 + inset + 0.02, hex); k.bx(-w / 2 + inset, w / 2 - inset, h - top - 0.1, h - top, d / 2 - inset - 0.02, d / 2 - inset, hex); };
+  k.chair = (w, h, d, seat, hex, back = hex, arms = false) => {
+    k.box(w, 0.04, d, 0, seat, 0, hex); k.legs(w, d, 0, seat - 0.02, 0.02, 0.04, hex, 0.01);
+    for (const s of [-1, 1]) k.rod([s * (w / 2 - 0.04), seat, d / 2 - 0.03], [s * (w / 2 - 0.05), h, d / 2 - 0.01], 0.02, back);
+    k.box(w - 0.08, 0.08, 0.025, 0, h - 0.06, d / 2 - 0.02, back); k.box(w - 0.12, 0.06, 0.02, 0, seat + (h - seat) * 0.5, d / 2 - 0.025, back);
+    if (arms) for (const s of [-1, 1]) { k.box(0.05, 0.04, d - 0.08, s * (w / 2 - 0.03), seat + 0.22, 0, back); k.rod([s * (w / 2 - 0.03), seat, -d / 2 + 0.07], [s * (w / 2 - 0.03), seat + 0.22, -d / 2 + 0.07], 0.018, back); }
+  };
+  k.musket = (h, x = 0, z = 0, lean = 0) => { const top = [x, h, z + lean]; k.rod([x, 0, z], top, 0.012, C_.iron); k.box(0.05, h * 0.42, 0.08, x, h * 0.21, z + lean * 0.21, C_.dark, -Math.atan2(lean, h)); };
+  k.wheel = (r, x, y, z, hex = C_.dark, n = 14) => {
+    for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, b = (i + 1) / n * Math.PI * 2; k.rod([x, y + Math.sin(a) * r, z + Math.cos(a) * r], [x, y + Math.sin(b) * r, z + Math.cos(b) * r], 0.03, hex); }
+    for (let i = 0; i < 6; i++) { const a = i / 6 * Math.PI; k.rod([x, y + Math.sin(a) * r, z + Math.cos(a) * r], [x, y - Math.sin(a) * r, z - Math.cos(a) * r], 0.014, hex); }
+    k.disc(0.07, 0.12, x, y, z, hex, Math.PI / 2, 10);
+  };
+  k.crate = (w, h, d, hex, edge = C_.dark) => { k.box(w - 0.02, h - 0.02, d - 0.02, 0, h / 2, 0, hex); for (const sx of [-1, 1]) for (const sz of [-1, 1]) k.box(0.04, h, 0.04, sx * (w / 2 - 0.02), h / 2, sz * (d / 2 - 0.02), edge); k.box(w, 0.04, d, 0, h - 0.02, 0, edge); };
+  k.lantern = (w, h, x = 0, y = 0, z = 0, hex = C_.iron) => { k.box(w, 0.03, w, x, y + 0.015, z, hex); k.box(w * 0.9, 0.03, w * 0.9, x, y + h * 0.72, z, hex); k.cyl(0.01, w * 0.5, y + h * 0.72, y + h * 0.88, x, z, hex, 4); for (const sx of [-1, 1]) for (const sz of [-1, 1]) k.box(0.015, h * 0.7, 0.015, x + sx * w * 0.42, y + h * 0.37, z + sz * w * 0.42, hex); k.rod([x - 0.04, y + h * 0.9, z], [x + 0.04, y + h, z], 0.006, hex); k.rod([x - 0.04, y + h * 0.9, z], [x - 0.04, y + h, z], 0.006, hex); k.flame(w * 0.18, x, y + h * 0.35, z); };
+  return k;
+}
+
+// The stand-ins, piece by piece: (k, w, h, d) in the piece's local frame at its real size; jtBuildBody normalises after.
+const JT_BUILD = {
+  'wharf-deck': (k, w, h, d) => { const n = Math.round(w / 0.25); for (let i = 0; i < n; i++) k.box(w / n - 0.012, 0.05, d, -w / 2 + (i + 0.5) * w / n, h - 0.025, 0, i % 3 ? C_.plank : C_.pale);
+    for (let z = -d / 2 + 0.15; z <= d / 2 - 0.1; z += 0.8) for (const x of [-w / 2 + 0.12, 0, w / 2 - 0.12]) k.box(0.22, h - 0.05, 0.22, x, (h - 0.05) / 2, z, C_.dark);
+    k.box(w, 0.18, 0.05, 0, h - 0.14, -d / 2 + 0.03, C_.wood); },
+  'wharf-step': (k, w, h, d) => { k.box(w, 0.05, d, 0, h - 0.025, 0, C_.plank); k.box(w, h - 0.05, 0.04, 0, (h - 0.05) / 2, -d / 2 + 0.02, C_.wood); for (const x of [-w / 2 + 0.1, w / 2 - 0.1]) k.box(0.06, h - 0.05, d - 0.06, x, (h - 0.05) / 2, 0.02, C_.dark); },
+  'wharf-piles': (k, w, h, d) => { for (let x = -w / 2 + 0.12; x <= w / 2 - 0.1; x += 0.45) k.cyl(0.1, 0.12, 0, h, x, 0, C_.dark, 8); k.rod([-w / 2 + 0.12, 0.2, -0.03], [w / 2 - 0.12, h - 0.2, -0.03], 0.04, C_.wood); k.rod([-w / 2 + 0.12, h - 0.2, -0.05], [w / 2 - 0.12, 0.2, -0.05], 0.04, C_.wood); k.box(w, 0.12, 0.08, 0, h - 0.06, -0.05, C_.wood); },
+  loft: (k, w, h, d) => { const deck = 2.40, p = 0.14;
+    for (const z of [-d / 2 + p / 2, 0, d / 2 - p / 2]) for (const x of [-w / 2 + p / 2, w / 2 - p / 2]) k.box(p, h, p, x, h / 2, z, C_.dark);   // six posts, up through the rail
+    const n = Math.round(d / 0.25); for (let i = 0; i < n; i++) k.box(w, 0.05, d / n - 0.01, 0, deck - 0.025, -d / 2 + (i + 0.5) * d / n, i % 2 ? C_.plank : C_.pale);
+    for (const x of [-w / 2 + 0.05, w / 2 - 0.05]) k.box(0.1, 0.22, d, x, deck - 0.16, 0, C_.wood);                                  // the beams under it
+    for (const z of [-d / 2 + 0.05, d / 2 - 0.05]) k.box(w, 0.2, 0.1, 0, deck - 0.15, z, C_.wood);
+    for (const x of [-w / 2 + 0.03, w / 2 - 0.03]) { k.box(0.06, 0.06, d, x, h - 0.03, 0, C_.wood); k.box(0.04, 0.05, d, x, deck + 0.5, 0, C_.wood); }   // the long rails
+    k.box(w, 0.06, 0.06, 0, h - 0.03, d / 2 - 0.03, C_.wood); k.box(w, 0.05, 0.04, 0, deck + 0.5, d / 2 - 0.03, C_.wood);
+    for (const s of [-1, 1]) { k.box(w / 2 - 0.3, 0.06, 0.06, s * (w / 4 + 0.15), h - 0.03, -d / 2 + 0.03, C_.wood); k.box(w / 2 - 0.3, 0.05, 0.04, s * (w / 4 + 0.15), deck + 0.5, -d / 2 + 0.03, C_.wood); }   // the front rail, its 0.6 m gap at the ladder
+    for (const s of [-1, 1]) k.box(0.06, 0.6, d - 0.2, s * (w / 2 - 0.02), deck - 0.65, 0, C_.wood, 0, 0, s * 0.0); },
+  'loft-rafters': (k, w, h, d) => { for (const z of [-d / 2 + 0.05, -d / 6, d / 6, d / 2 - 0.05]) { k.rod([-w / 2 + 0.05, 0.03, z], [0, h - 0.06, z], 0.05, C_.wood); k.rod([w / 2 - 0.05, 0.03, z], [0, h - 0.06, z], 0.05, C_.wood); k.rod([-w / 4, h / 2, z], [w / 4, h / 2, z], 0.035, C_.wood); }
+    k.box(0.1, 0.12, d, 0, h - 0.06, 0, C_.dark); },
+  ladder: (k, w, h, d) => { for (const s of [-1, 1]) k.rod([s * (w / 2 - 0.03), 0, -d / 2 + 0.03], [s * (w / 2 - 0.03), h, d / 2 - 0.03], 0.03, C_.pale);
+    for (let y = 0.3; y < h - 0.1; y += 0.3) { const z = -d / 2 + 0.03 + (d - 0.06) * y / h; k.rod([-w / 2 + 0.03, y, z], [w / 2 - 0.03, y, z], 0.018, C_.wood); } },
+  furnace: (k, w, h, d) => { k.box(w, 1.1, d, 0, 0.55, 0, C_.brick); k.box(w + 0.04, 0.06, d + 0.04, 0, 1.13, 0, C_.stone);
+    k.cyl(0.25, w * 0.62, 1.16, 1.9, 0, 0.05, C_.brick, 4); k.box(0.5, h - 1.9, 0.42, 0, (h + 1.9) / 2, 0.1, C_.brick); k.box(0.56, 0.08, 0.48, 0, h - 0.04, 0.1, C_.stone);
+    k.box(0.52, 0.42, 0.06, 0, 0.62, -d / 2 + 0.01, C_.soot); k.mouth(0.42, 0.32, 0.05, 0, 0.6, -d / 2 + 0.035); k.box(0.06, 0.36, 0.5, -w / 2 + 0.01, 0.6, 0, C_.soot); k.mouth(0.05, 0.28, 0.4, -w / 2 + 0.005, 0.6, 0); k.box(w * 0.7, 0.05, 0.3, 0, 0.85, -d / 2 - 0.12, C_.iron); },
+  bellows: (k, w, h, d) => { k.box(w * 0.9, 0.05, d * 0.7, 0, 0.28, 0.08, C_.wood, 0.12); k.box(w * 0.9, 0.05, d * 0.7, 0, 0.12, 0.08, C_.wood); k.box(w * 0.8, 0.14, d * 0.6, 0, 0.2, 0.08, C_.leather);
+    k.rod([0, 0.18, -d / 2 + 0.3], [0, 0.18, -d / 2], 0.03, C_.iron); for (const s of [-1, 1]) k.box(0.05, h, 0.05, s * (w / 2 - 0.03), h / 2, d / 2 - 0.05, C_.dark); k.rod([-w / 2, h - 0.03, d / 2 - 0.05], [w / 2, h - 0.03, d / 2 - 0.05], 0.025, C_.wood); },
+  'lumber-pile-a': (k, w, h, d) => jtLumber(k, w, h, d), 'lumber-pile-b': (k, w, h, d) => jtLumber(k, w, h, d),
+  crates: (k, w, h, d) => k.crate(w, h, d, C_.pale),
+  bench: (k, w, h, d) => { k.box(w, 0.05, d, 0, h - 0.025, 0, C_.plank); for (const x of [-w / 2 + 0.15, w / 2 - 0.15]) k.box(0.05, h - 0.05, d - 0.04, x, (h - 0.05) / 2, 0, C_.wood); k.box(w - 0.3, 0.08, 0.03, 0, h * 0.45, 0, C_.wood); },
+  'masking-legs': (k, w, h, d) => { k.box(w, h, d, 0, h / 2, 0, C_.black); },
+  'masking-border': (k, w, h, d) => { k.box(w, h, d, 0, h / 2, 0, C_.black); },
+  'observer-sign': (k, w, h, d) => { k.box(w, h * 0.62, 0.05, 0, h * 0.31, 0, C_.green); k.box(w * 0.86, h * 0.22, 0.06, 0, h * 0.33, 0, C_.cream); for (const s of [-1, 1]) k.rod([s * w * 0.4, h * 0.62, 0], [s * w * 0.3, h, 0], 0.008, C_.iron); k.box(w, 0.03, d, 0, h - 0.015, 0, C_.iron); },
+  steeple: (k, w, h, d) => { k.box(w, 1.8, d, 0, 0.9, 0, C_.white); k.box(w * 0.72, 1.4, d, 0, 2.5, 0, C_.white); k.box(w * 0.5, 0.7, d, 0, 3.55, 0, C_.white); k.cyl(0.01, w * 0.32, 3.9, h, 0, 0, C_.grey2, 4);
+    for (const x of [-0.25, 0.25]) k.box(0.22, 0.4, d + 0.02, x * w / 1.8, 2.65, 0, C_.glass); k.box(0.3, 0.5, d + 0.02, 0, 0.6, 0, C_.dark); },
+  'church-lanterns': (k, w, h, d) => k.lantern(w * 0.9, h, 0, 0, 0, C_.iron),
+  'ship-masts': (k, w, h, d) => { for (const x of [-w * 0.3, w * 0.3]) { k.box(0.1, h, d, x, h / 2, 0, C_.dark); for (const y of [h * 0.35, h * 0.62, h * 0.85]) k.box(w * (y > h * 0.8 ? 0.28 : 0.42), 0.06, d, x, y, 0, C_.wood); }
+    k.rod([-w / 2, 0.1, 0], [-w * 0.3, h * 0.9, 0], 0.01, C_.rope); k.rod([w / 2, 0.1, 0], [w * 0.3, h * 0.9, 0], 0.01, C_.rope); k.rod([-w * 0.3, h * 0.95, 0], [w * 0.3, h * 0.6, 0], 0.01, C_.rope);
+    k.box(w * 0.35, h * 0.18, d * 0.5, -w * 0.3, h * 0.48, 0, C_.canvas); k.box(w * 0.35, h * 0.16, d * 0.5, w * 0.3, h * 0.73, 0, C_.canvas); },
+  'apple-branches': (k, w, h, d) => { k.rod([-w / 2, h * 0.75, 0], [w / 2, h * 0.85, 0], 0.05, C_.dark); for (let i = 0; i < 7; i++) { const x = -w / 2 + (i + 0.5) * w / 7; k.rod([x, h * 0.78, 0], [x + 0.2, h * 0.3, (i % 3 - 1) * 0.15], 0.025, C_.dark); k.sph(0.24, x + 0.15, h * 0.42, (i % 3 - 1) * 0.12, C_.leaf, 0.8); }
+    for (const x of [-w * 0.3, 0.1, w * 0.35]) k.sph(0.04, x, h * 0.2 + 0.04, 0, C_.green); },
+  armchair: (k, w, h, d) => { k.box(w, 0.05, d * 0.85, 0, 0.44, -0.03, C_.red); k.legs(w * 0.9, d * 0.75, 0, 0.42, 0.022, 0.05, C_.dark, 0.03);   // the script's red armchair (Windsor)
+    const bz = d / 2 - 0.06; k.rod([-w / 2 + 0.05, 0.62, -d / 2 + 0.06], [-w / 2 + 0.04, 0.62, bz], 0.022, C_.dark); k.rod([w / 2 - 0.05, 0.62, -d / 2 + 0.06], [w / 2 - 0.04, 0.62, bz], 0.022, C_.dark);
+    k.rod([-w / 2 + 0.04, 0.62, bz], [w / 2 - 0.04, 0.62, bz], 0.022, C_.dark);
+    for (let i = 0; i < 7; i++) { const x = -w * 0.33 + i * w * 0.11; k.rod([x, 0.46, bz - 0.02], [x * 1.1, h - 0.06, bz + 0.03], 0.012, C_.dark); } k.box(w * 0.85, 0.06, 0.05, 0, h - 0.03, bz + 0.03, C_.dark);
+    for (const s of [-1, 1]) k.rod([s * (w / 2 - 0.05), 0.46, -d / 2 + 0.06], [s * (w / 2 - 0.05), 0.62, -d / 2 + 0.06], 0.015, C_.dark); },
+  'kitchen-table': (k, w, h, d) => k.table(w, h, d, C_.wood, 0.05, 0.08, 0.035),
+  'kitchen-benches': (k, w, h, d) => JT_BUILD.bench(k, w, h, d),
+  'kitchen-chairs': (k, w, h, d) => k.chair(w, h, d, 0.45, C_.wood),
+  workbench: (k, w, h, d) => { k.table(w, h, d, C_.wood, 0.06, 0.06, 0.04); k.box(w - 0.14, 0.03, d - 0.14, 0, 0.18, 0, C_.dark); k.box(w, 0.2, 0.03, 0, h + 0.0 - 0.1, d / 2 - 0.015, C_.dark); k.box(0.16, 0.1, 0.14, w / 2 - 0.15, h - 0.1, -d / 2 + 0.05, C_.iron); },
+  'bench-tools': (k, w, h, d) => { k.box(w, 0.02, d, 0, 0.01, 0, C_.dark); for (let i = 0; i < 6; i++) { const x = -w / 2 + 0.08 + i * (w - 0.16) / 5; k.box(0.03, 0.03, d * 0.6, x, 0.035, 0, C_.wood); k.box(0.07, 0.04, 0.04, x, 0.05, -d * 0.25, C_.iron); } k.cyl(0.04, 0.05, 0.02, h, w / 2 - 0.08, d * 0.25, C_.iron, 8); },
+  'polishing-wheel': (k, w, h, d) => { for (const s of [-1, 1]) k.rod([s * (w / 2 - 0.05), 0, 0], [s * 0.12, h - 0.1, 0], 0.03, C_.wood); k.rod([-0.2, h - 0.1, 0], [0.2, h - 0.1, 0], 0.02, C_.iron);
+    k.disc(0.22, 0.05, 0.12, h - 0.1, 0, C_.grey2, Math.PI / 2, 18); k.disc(0.3, 0.04, -0.12, h - 0.35, 0, C_.wood, Math.PI / 2, 18); k.box(w * 0.5, 0.04, d * 0.6, 0, 0.12, -d * 0.1, C_.wood); k.box(w - 0.1, 0.06, 0.06, 0, 0.05, d / 2 - 0.05, C_.wood); k.box(w - 0.1, 0.06, 0.06, 0, 0.05, -d / 2 + 0.05, C_.wood); },
+  'water-bucket': (k, w, h, d) => { k.cyl(w / 2, w * 0.4, 0, h * 0.85, 0, 0, C_.wood, 12); for (const y of [0.06, h * 0.7]) k.cyl(w / 2 + 0.005, w / 2 - 0.01, y, y + 0.03, 0, 0, C_.iron, 12); k.rod([-w / 2, h * 0.8, 0], [0, h, 0], 0.006, C_.iron); k.rod([w / 2, h * 0.8, 0], [0, h, 0], 0.006, C_.iron); k.cyl(w * 0.44, w * 0.44, h * 0.8, h * 0.82, 0, 0, C_.navy, 12); },
+  'crucible-and-tongs': (k, w, h, d) => { k.cyl(0.06, 0.045, 0, h * 0.7, -w * 0.3, 0, C_.grey, 10); k.flame(0.03, -w * 0.3, h * 0.72, 0); k.rod([-w * 0.1, 0.02, -0.02], [w / 2, 0.02, -0.05], 0.008, C_.iron); k.rod([-w * 0.1, 0.02, 0.02], [w / 2, 0.02, 0.05], 0.008, C_.iron); },
+  'hancock-creamer': (k, w, h, d) => { k.cyl(w * 0.3, w * 0.22, 0.01, h * 0.75, 0, 0, C_.silver, 12); k.cyl(w * 0.18, w * 0.25, 0, 0.02, 0, 0, C_.silver, 12); k.rod([0, h * 0.7, -w * 0.3], [0, h, -d / 2], 0.012, C_.silver); k.rod([0, h * 0.6, w * 0.25], [0, h * 0.3, d / 2], 0.008, C_.silver); },
+  'parrot-cage': (k, w, h, d) => { k.cyl(w / 2, w / 2, 0, 0.04, 0, 0, C_.brass, 12); for (let i = 0; i < 10; i++) { const a = i / 10 * Math.PI * 2; k.rod([Math.cos(a) * w * 0.47, 0.04, Math.sin(a) * w * 0.47], [Math.cos(a) * w * 0.4, h * 0.75, Math.sin(a) * w * 0.4], 0.005, C_.brass); }
+    k.cyl(0.01, w * 0.42, h * 0.75, h * 0.95, 0, 0, C_.brass, 10); k.rod([0, h * 0.95, 0], [0, h, 0], 0.01, C_.brass); k.sph(0.07, 0, h * 0.35, 0, C_.green, 1.4); },
+  'family-bible': (k, w, h, d) => { k.box(w, h, d, 0, h / 2, 0, C_.leather); k.box(w - 0.02, h - 0.03, d - 0.03, 0.01, h / 2, 0, C_.cream); },
+  'three-boy-bed': (k, w, h, d) => jtBed(k, w, h, d, C_.wood, 0x8c7a5a, true),
+  'truckle-beds': (k, w, h, d) => jtBed(k, w, h, d, C_.dark, 0x9a8a6a, false),
+  'feather-bed': (k, w, h, d) => { k.box(w, h * 0.35, d, 0, h * 0.175, 0, C_.wood); k.box(w - 0.06, h * 0.5, d - 0.06, 0, h * 0.6, 0, C_.white); for (const x of [-w / 4, w / 4]) k.box(w * 0.4, h * 0.15, 0.35, x, h - 0.075, d / 2 - 0.25, C_.cream); },
+  'trestle-table': (k, w, h, d) => { k.box(w, 0.05, d, 0, h - 0.025, 0, C_.plank); for (const x of [-w / 2 + 0.25, w / 2 - 0.25]) { k.rod([x, 0, -d / 2 + 0.05], [x, h - 0.05, 0], 0.03, C_.wood); k.rod([x, 0, d / 2 - 0.05], [x, h - 0.05, 0], 0.03, C_.wood); } k.rod([-w / 2 + 0.25, 0.3, 0], [w / 2 - 0.25, 0.3, 0], 0.025, C_.wood); },
+  'punch-bowl': (k, w, h, d) => { k.cyl(w * 0.2, w * 0.25, 0, 0.04, 0, 0, C_.pewter, 14); k.cyl(w / 2, w * 0.25, 0.04, h, 0, 0, C_.pewter, 16); k.cyl(w * 0.45, w * 0.45, h - 0.02, h - 0.01, 0, 0, 0x6a2a20, 16); },
+  tankards: (k, w, h, d) => { k.cyl(w * 0.38, w * 0.42, 0, h * 0.95, 0, -0.01, C_.pewter, 10); k.cyl(w * 0.4, w * 0.4, h * 0.92, h, 0, -0.01, C_.pewter, 10); k.box(0.012, h * 0.6, 0.03, 0, h * 0.5, d / 2 - 0.015, C_.pewter); },
+  'lyte-table': (k, w, h, d) => { k.box(w, 0.04, d, 0, h - 0.02, 0, C_.mahog); k.box(w - 0.2, 0.1, d - 0.2, 0, h - 0.09, 0, C_.mahog); for (const sx of [-1, 1]) for (const sz of [-1, 1]) k.cyl(0.025, 0.04, 0, h - 0.04, sx * (w / 2 - 0.15), sz * (d / 2 - 0.15), C_.mahog, 8); k.box(w * 0.8, 0.005, 0.3, 0, h + 0.002, 0, C_.white); },
+  'lyte-chairs': (k, w, h, d) => { k.chair(w, h, d, 0.46, C_.mahog); k.box(w - 0.06, 0.05, d - 0.08, 0, 0.485, -0.01, 0x9c8a5a); },
+  sideboard: (k, w, h, d) => { k.box(w, 0.04, d, 0, h - 0.02, 0, C_.mahog); k.box(w - 0.06, h * 0.45, d - 0.06, 0, h - 0.04 - h * 0.225, 0, C_.mahog); for (const x of [-w / 3, 0, w / 3]) k.box(w / 3 - 0.06, h * 0.38, 0.02, x, h * 0.72, -d / 2 + 0.02, 0x6a3020);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) k.cyl(0.02, 0.03, 0, h * 0.53, sx * (w / 2 - 0.06), sz * (d / 2 - 0.06), C_.mahog, 6); },
+  candelabra: (k, w, h, d) => { k.cyl(w * 0.3, w * 0.35, 0, 0.03, 0, 0, C_.brass, 12); k.cyl(0.015, 0.02, 0.03, h * 0.6, 0, 0, C_.brass, 6); k.rod([-w * 0.42, h * 0.6, 0], [w * 0.42, h * 0.6, 0], 0.01, C_.brass);
+    for (const x of [-w * 0.42, 0, w * 0.42]) { k.cyl(0.012, 0.012, h * 0.6, h * 0.85, x, 0, C_.white, 6); k.flame(0.016, x, h * 0.85 + 0.025, 0); } },
+  candlesticks: (k, w, h, d) => { k.cyl(w * 0.45, w * 0.5, 0, 0.02, 0, 0, C_.pewter, 10); k.cyl(0.015, 0.02, 0.02, h * 0.45, 0, 0, C_.pewter, 6); k.cyl(0.03, 0.02, h * 0.45, h * 0.5, 0, 0, C_.pewter, 8); k.cyl(0.011, 0.011, h * 0.5, h * 0.82, 0, 0, C_.white, 6); k.flame(0.016, 0, h * 0.82 + 0.03, 0); },
+  'lyte-cup': (k, w, h, d) => { k.cyl(w * 0.3, w * 0.42, 0, 0.015, 0, 0, C_.silver, 12); k.cyl(0.008, 0.012, 0.015, h * 0.45, 0, 0, C_.silver, 6); k.cyl(w * 0.5, w * 0.12, h * 0.45, h, 0, 0, C_.silver, 12); },
+  'clerk-desks': (k, w, h, d) => { k.legs(w, d, 0, h - 0.2, 0.025, 0.05, C_.dark, 0.01); k.box(w, 0.04, d, 0, h - 0.12, 0, C_.wood, -0.25); k.box(w, 0.18, d * 0.85, 0, h - 0.27, 0.02, C_.wood); k.rod([-w / 2 + 0.05, 0.25, -d / 2 + 0.05], [w / 2 - 0.05, 0.25, -d / 2 + 0.05], 0.015, C_.dark); k.box(0.05, 0.08, 0.05, w * 0.3, h - 0.03, d * 0.3, C_.black); },
+  'clerk-stools': (k, w, h, d) => { k.cyl(w / 2, w / 2, h - 0.04, h, 0, 0, C_.wood, 12); k.legs(w * 0.8, d * 0.8, 0, h - 0.04, 0.015, 0.03, C_.dark, 0.04); k.rod([-w * 0.35, 0.28, 0], [w * 0.35, 0.28, 0], 0.012, C_.dark); },
+  'low-stool': (k, w, h, d) => { k.box(w, 0.04, d, 0, h - 0.02, 0, C_.wood); k.legs(w, d, 0, h - 0.04, 0.018, 0.04, C_.wood, 0.03); },
+  'lyte-great-chair': (k, w, h, d) => { k.chair(w, h, d, 0.48, C_.mahog, C_.mahog, true); k.box(w - 0.1, 0.08, d - 0.12, 0, 0.52, -0.02, C_.red); k.box(w - 0.16, h - 0.6, 0.05, 0, (h + 0.56) / 2, d / 2 - 0.05, C_.red); },
+  'printing-press': (k, w, h, d) => jtPress(k, w, h, d, false),
+  'printing-press-smashed': (k, w, h, d) => jtPress(k, w, h, d, true),
+  'type-case': (k, w, h, d) => { k.legs(w, d, 0, h * 0.7, 0.025, 0.04, C_.wood); k.box(w, 0.06, d, 0, h * 0.72, 0.05, C_.wood, 0.35); for (let i = 0; i < 3; i++) k.box(w - 0.06, 0.04, d - 0.06, 0, 0.2 + i * 0.25, 0, C_.dark); k.box(w, h * 0.25, 0.03, 0, h * 0.86, d / 2 - 0.015, C_.wood); k.box(w * 0.9, 0.02, d * 0.5, 0, h * 0.75, -0.02, C_.lead, 0.35); },
+  counter: (k, w, h, d) => { k.box(w, 0.05, d, 0, h - 0.025, 0, C_.plank); k.box(w - 0.04, h - 0.05, d - 0.1, 0, (h - 0.05) / 2, 0.03, C_.wood); for (const x of [-w / 3, 0, w / 3]) k.box(w / 3 - 0.08, h * 0.6, 0.02, x, h * 0.45, -d / 2 + 0.06, C_.dark);
+    k.cyl(0.12, 0.1, h, h + 0.0001, -w / 4, 0, C_.straw, 10); },
+  'drawing-board': (k, w, h, d) => { k.box(w, 0.03, d * 0.75, 0, h * 0.85, 0, C_.pale, -0.5); k.box(w * 0.8, 0.005, d * 0.55, 0, h * 0.86, -0.01, C_.white, -0.5); for (const s of [-1, 1]) { k.rod([s * (w / 2 - 0.05), 0, -d / 2 + 0.05], [s * (w / 2 - 0.05), h * 0.75, -0.1], 0.02, C_.wood); k.rod([s * (w / 2 - 0.05), 0, d / 2 - 0.05], [s * (w / 2 - 0.05), h * 0.95, 0.15], 0.02, C_.wood); } },
+  'observer-sign-smashed': (k, w, h, d) => { k.box(w * 0.55, 0.04, d * 0.4, -w * 0.2, 0.02, -d * 0.2, C_.green, 0, 0.4); k.box(w * 0.4, 0.04, d * 0.3, w * 0.25, 0.06, d * 0.15, C_.green, 0.1, -0.7); k.box(w * 0.3, 0.04, 0.12, w * 0.1, 0.02, d * 0.35, C_.cream, 0, 1.1); k.rod([-w / 2, 0.02, d / 2 - 0.05], [-w * 0.1, 0.12, 0], 0.008, C_.iron); },
+  'sea-chest': (k, w, h, d) => { k.box(w, h * 0.7, d, 0, h * 0.35, 0, C_.navy); const g = k.box(w, h * 0.3, d, 0, h * 0.85, 0, C_.navy); for (const x of [-w / 3, w / 3]) k.box(0.05, h + 0.002, d + 0.01, x, h / 2, 0, C_.leather); for (const s of [-1, 1]) k.box(0.02, 0.05, 0.14, s * (w / 2 + 0.005), h * 0.6, 0, C_.iron); },
+  'door-frame': (k, w, h, d) => { for (const s of [-1, 1]) k.box(0.12, h, d, s * (w / 2 - 0.06), h / 2, 0, C_.wood); k.box(w, 0.14, d, 0, h - 0.07, 0, C_.wood); k.box(w - 0.24, 0.04, d, 0, 0.02, 0, C_.dark);
+    k.box(w - 0.26, h - 0.2, 0.04, -(w - 0.26) / 2 * 0.45 + 0.04, (h - 0.2) / 2 + 0.02, -0.25, C_.plank, 0, -1.1); },
+  'window-flat': (k, w, h, d) => { k.box(w, h, d * 0.6, 0, h / 2, 0.02, 0xc8bca4); k.box(w * 0.7, h * 0.4, d, 0, h * 0.62, -0.005, C_.glass); for (const y of [h * 0.42, h * 0.82]) k.box(w * 0.74, 0.05, d, 0, y, -0.01, C_.white); for (const s of [-1, 1]) k.box(0.05, h * 0.42, d, s * w * 0.37, h * 0.62, -0.01, C_.white);
+    k.box(0.03, h * 0.4, d, 0, h * 0.62, -0.012, C_.white); k.box(w * 0.7, 0.03, d, 0, h * 0.62, -0.012, C_.white); k.box(w * 0.84, 0.05, d * 1.4, 0, h * 0.4, -0.02, C_.white); },
+  'shop-doors': (k, w, h, d) => { for (const s of [-1, 1]) k.box(0.08, h, d, s * (w / 2 - 0.04), h / 2, 0, C_.white); k.box(w, 0.1, d, 0, h - 0.05, 0, C_.white); k.box(w - 0.16, h - 0.1, d * 0.6, 0, (h - 0.1) / 2, 0, C_.green);
+    for (const y of [0.5, 1.4]) for (const s of [-1, 1]) k.box((w - 0.16) / 2 - 0.1, 0.6, d * 0.7, s * (w - 0.16) / 4, y, -0.005, 0x355a2c); k.sph(0.03, w * 0.32, 1.0, -d / 2, C_.brass); },
+  gravestone: (k, w, h, d) => { k.box(w, h - w / 2, d, 0, (h - w / 2) / 2, 0, C_.stone); const g = new THREE.CylinderGeometry(w / 2, w / 2, d, 16, 1, false, 0, Math.PI); g.rotateZ(Math.PI / 2); g.rotateX(Math.PI / 2); g.rotateY(Math.PI); g.translate(0, h - w / 2, 0); k.parts.push(jtTint(g, C_.stone)); k.box(w * 0.6, 0.01, 0.005, 0, h * 0.55, -d / 2, C_.dark); k.box(w * 0.6, 0.01, 0.005, 0, h * 0.45, -d / 2, C_.dark); },
+  'mounting-block': (k, w, h, d) => { k.box(w, h / 2, d, 0, h / 4, 0, C_.stone); k.box(w, h / 2, d / 2, 0, h * 0.75, d / 4, C_.stone); },
+  'hitch-rail': (k, w, h, d) => { for (const s of [-1, 1]) k.box(0.12, h, 0.12, s * (w / 2 - 0.06), h / 2, 0.1, C_.dark); k.box(w, 0.08, 0.08, 0, h - 0.15, 0.1, C_.wood); k.box(0.8, 0.4, 0.4, -0.4, 0.2, -0.0, C_.straw); },
+  'judge-platform': (k, w, h, d) => { k.box(w, 0.04, d, 0, h - 0.02, 0, C_.mahog); k.box(w - 0.04, h - 0.04, d - 0.04, 0, (h - 0.04) / 2, 0, C_.dark); for (let x = -w / 2 + 0.3; x < w / 2; x += 0.6) k.box(0.4, h * 0.55, 0.01, x + 0.2, h * 0.45, -d / 2 + 0.015, 0x4a2014); },
+  'judge-bench': (k, w, h, d) => { k.box(w, 0.06, d * 0.6, 0, h - 0.03, -d * 0.12, C_.mahog); k.box(w, h - 0.06, 0.08, 0, (h - 0.06) / 2, -d / 2 + 0.04, C_.mahog); for (const s of [-1, 1]) k.box(0.08, h - 0.06, d, s * (w / 2 - 0.04), (h - 0.06) / 2, 0, C_.mahog);
+    for (let i = 0; i < 4; i++) k.box(w / 4 - 0.12, h * 0.6, 0.02, -w / 2 + (i + 0.5) * w / 4, h * 0.45, -d / 2 - 0.005, 0x4a2014); k.box(w * 0.6, 0.02, 0.3, 0, h + 0.0, -d * 0.12, C_.red); },
+  'judge-chair': (k, w, h, d) => { k.chair(w, h, d, 0.48, C_.mahog, C_.mahog, true); k.box(w - 0.06, h - 0.55, 0.06, 0, (h + 0.52) / 2, d / 2 - 0.04, C_.red); k.box(w, 0.1, 0.08, 0, h - 0.05, d / 2 - 0.04, C_.mahog); },
+  'bar-rail': (k, w, h, d) => { for (let x = -w / 2 + 0.05; x <= w / 2 - 0.04; x += w / 3 - 0.03) k.box(0.1, h, 0.1, x, h / 2, 0, C_.dark); k.box(w, 0.08, d, 0, h - 0.04, 0, C_.dark); k.box(w, 0.06, d * 0.7, 0, 0.1, 0, C_.dark); for (let x = -w / 2 + 0.15; x < w / 2 - 0.1; x += 0.15) k.box(0.03, h - 0.2, 0.03, x, h / 2, 0, C_.dark); },
+  'ship-rail': (k, w, h, d) => { k.box(w, 0.07, d, 0, h - 0.035, 0, C_.pale); for (let x = -w / 2 + 0.05; x <= w / 2; x += 0.6) k.box(0.1, h - 0.07, 0.1, x, (h - 0.07) / 2, 0.05, C_.dark); for (let y = 0.1; y < h * 0.65; y += 0.2) k.box(w, 0.18, 0.04, 0, y + 0.09, d / 2 - 0.02, C_.wood); for (const x of [-w / 3, w / 3]) k.box(0.3, 0.12, 0.2, x, h * 0.55, -0.04, C_.iron); },
+  'tea-chests': (k, w, h, d) => { k.crate(w, h, d, 0xa8865a); k.box(w - 0.06, 0.01, d - 0.06, 0, h + 0.0, 0, C_.lead); k.box(w * 0.5, h * 0.4, 0.005, 0, h * 0.5, -d / 2 - 0.001, C_.dark); },
+  'plank-run': (k, w, h, d) => { for (let i = 0; i < 4; i++) k.box(w / 4 - 0.01, h, d, -w / 2 + (i + 0.5) * w / 4, h / 2, 0, i % 2 ? C_.plank : C_.pale); },
+  tents: (k, w, h, d) => { const a = Math.atan2(w / 2, h), L = Math.hypot(w / 2, h);
+    for (const s of [-1, 1]) k.box(0.03, L, d - 0.1, s * w / 4, h / 2, 0, C_.canvas, 0, 0, s * a);
+    k.rod([0, h - 0.02, -d / 2], [0, h - 0.02, d / 2], 0.025, C_.wood); for (const z of [-d / 2 + 0.05, d / 2 - 0.05]) k.rod([0, 0, z], [0, h, z], 0.025, C_.wood);
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute([-w / 2, 0, d / 2 - 0.05, w / 2, 0, d / 2 - 0.05, 0, h, d / 2 - 0.05], 3)); g.setIndex([0, 1, 2]); g.computeVertexNormals(); g.setAttribute('normal', new THREE.Float32BufferAttribute([0, 0, 1, 0, 0, 1, 0, 0, 1], 3)); g.setAttribute('uv', new THREE.Float32BufferAttribute([0, 0, 1, 0, 0.5, 1], 2)); k.parts.push(jtTint(g, 0xc4b89c));
+    k.box(w * 0.3, h * 0.55, 0.02, 0, h * 0.27, -d / 2 + 0.05, 0xb8ac90); for (const s of [-1, 1]) k.box(w * 0.18, h * 0.5, 0.02, s * w * 0.25, h * 0.25, -d / 2 + 0.06, C_.canvas, 0, s * 0.5, 0); },
+  'stacked-arms': (k, w, h, d) => { for (let i = 0; i < 3; i++) { const a = i / 3 * Math.PI * 2, x = Math.cos(a) * w * 0.42, z = Math.sin(a) * d * 0.42; k.rod([x, 0, z], [0, h, 0], 0.012, C_.iron); k.rod([x, 0, z], [x * 0.6, h * 0.42, z * 0.6], 0.03, C_.dark); } },
+  'rope-line': (k, w, h, d) => { for (let i = 0; i < 5; i++) { const x = -w / 2 + 0.05 + i * (w - 0.1) / 4; k.box(0.08, h, 0.08, x, h / 2, 0, C_.wood); } k.rod([-w / 2 + 0.05, h - 0.1, 0], [w / 2 - 0.05, h - 0.1, 0], 0.015, C_.rope); k.rod([-w / 2 + 0.05, h * 0.5, 0], [w / 2 - 0.05, h * 0.5, 0], 0.015, C_.rope); },
+  'redcoat-muskets': (k, w, h, d) => k.musket(h), 'rab-musket': (k, w, h, d) => k.musket(h), 'grandsire-gun': (k, w, h, d) => k.musket(h),
+  'powder-horn': (k, w, h, d) => { const g = new THREE.CylinderGeometry(0.015, d * 0.5, w * 0.9, 10); g.rotateZ(Math.PI / 2 - 0.15); g.translate(0, h / 2, 0); k.parts.push(jtTint(g, C_.cream)); k.cyl(d * 0.5, d * 0.5, h * 0.3, h * 0.7, w * 0.42, 0, C_.wood, 10); },
+  drum: (k, w, h, d) => { k.cyl(w / 2, w / 2, 0.03, h - 0.03, 0, 0, C_.navy, 16); for (const y of [0, h - 0.03]) k.cyl(w / 2 + 0.01, w / 2 + 0.01, y, y + 0.03, 0, 0, C_.red, 16); for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2, b = (i + 0.5) / 8 * Math.PI * 2; k.rod([Math.cos(a) * w * 0.51, 0.04, Math.sin(a) * w * 0.51], [Math.cos(b) * w * 0.51, h - 0.04, Math.sin(b) * w * 0.51], 0.004, C_.rope, 4); } k.cyl(w / 2 - 0.01, w / 2 - 0.01, h - 0.01, h, 0, 0, C_.cream, 16); },
+  fife: (k, w, h, d) => { const g = new THREE.CylinderGeometry(0.009, 0.009, w, 8); g.rotateZ(Math.PI / 2); g.translate(0, h / 2, 0); k.parts.push(jtTint(g, C_.pale)); },
+  flag: (k, w, h, d) => { k.rod([-w / 2 + 0.02, 0, 0], [-w / 2 + 0.02, h, 0], 0.02, C_.wood); k.box(w - 0.04, h * 0.4, 0.01, 0.02, h * 0.78, 0, C_.scarlet); k.box(w * 0.45, h * 0.16, 0.012, -w * 0.22, h * 0.9, 0, C_.navy); k.box(w - 0.04, 0.04, 0.013, 0.02, h * 0.78, 0, C_.white); k.box(0.04, h * 0.4, 0.013, 0.02, h * 0.78, 0, C_.white); },
+  hurdles: (k, w, h, d) => { for (let i = 0; i < 5; i++) k.box(0.06, h, 0.06, -w / 2 + 0.03 + i * (w - 0.06) / 4, h / 2, 0, C_.dark); for (let y = 0.15; y < h - 0.05; y += 0.12) k.box(w, 0.07, 0.05, 0, y, (Math.round(y * 10) % 2 ? 0.03 : -0.03), 0x8a7048); },
+  campfires: (k, w, h, d) => { for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI; k.rod([Math.cos(a) * w * 0.45, 0.05, Math.sin(a) * d * 0.45], [-Math.cos(a) * w * 0.45, 0.1, -Math.sin(a) * d * 0.45], 0.045, C_.dark); } for (let i = 0; i < 8; i++) { const a = i / 8 * Math.PI * 2; k.sph(0.06, Math.cos(a) * w * 0.42, 0.04, Math.sin(a) * d * 0.42, C_.stone, 0.6); } k.flame(0.1, 0, h * 0.6, 0); },
+  clothesline: (k, w, h, d) => { for (const s of [-1, 1]) k.box(0.08, h, 0.08, s * (w / 2 - 0.04), h / 2, 0, C_.wood); k.rod([-w / 2 + 0.04, h - 0.1, 0], [w / 2 - 0.04, h - 0.1, 0], 0.008, C_.rope);
+    for (const [x, sw, sh] of [[-1.2, 1.2, 1.1], [0.2, 1.0, 1.25], [1.3, 0.7, 0.8]]) k.box(sw, sh, 0.01, x * w / 4.4, h - 0.1 - sh / 2, 0, C_.white); },
+  'laundry-basket': (k, w, h, d) => { const g = new THREE.CylinderGeometry(0.5, 0.42, h * 0.85, 14); g.scale(w, 1, d); g.translate(0, h * 0.425, 0); k.parts.push(jtTint(g, C_.straw)); k.box(w * 0.7, h * 0.3, d * 0.6, 0, h * 0.85, 0, C_.white); },
+  'afric-queen-sign': (k, w, h, d) => { k.box(w, h * 0.7, d * 0.6, 0, h * 0.35, 0, 0x2a2a50); k.box(w * 0.8, h * 0.4, d, 0, h * 0.35, 0, 0xc0a040); k.box(w * 0.9, 0.04, 0.04, 0, h - 0.02, 0, C_.iron); for (const s of [-1, 1]) k.rod([s * w * 0.4, h * 0.7, 0], [s * w * 0.4, h, 0], 0.006, C_.iron); },
+  'saddle-stand': (k, w, h, d) => { for (const sz of [-1, 1]) { k.rod([-w / 2 + 0.03, 0, sz * (d / 2 - 0.05)], [0, h * 0.75, sz * (d / 2 - 0.1)], 0.025, C_.wood); k.rod([w / 2 - 0.03, 0, sz * (d / 2 - 0.05)], [0, h * 0.75, sz * (d / 2 - 0.1)], 0.025, C_.wood); } k.box(0.08, 0.06, d - 0.1, 0, h * 0.75, 0, C_.wood);
+    k.box(w * 0.85, 0.16, d * 0.7, 0, h * 0.84, 0, C_.leather); k.box(w * 0.5, 0.12, 0.12, 0, h - 0.06, -d * 0.3, C_.leather); k.box(w * 0.4, 0.1, 0.1, 0, h * 0.86, d * 0.32, C_.leather); for (const s of [-1, 1]) k.box(0.02, 0.4, 0.08, s * w * 0.4, h * 0.6, 0, C_.leather); },
+  sofa: (k, w, h, d) => { for (const sx of [-1, 1]) for (const sz of [-1, 1]) k.box(0.05, 0.12, 0.05, sx * (w / 2 - 0.08), 0.06, sz * (d / 2 - 0.08), C_.mahog); k.box(w, 0.3, d, 0, 0.27, 0, 0x8c8ca0); k.box(w - 0.3, 0.12, d - 0.2, 0, 0.48, -0.06, 0xa0a0b4);
+    k.box(w, h - 0.42, 0.18, 0, (h + 0.42) / 2, d / 2 - 0.09, 0x8c8ca0); for (const s of [-1, 1]) k.box(0.16, 0.3, d, s * (w / 2 - 0.08), 0.57, 0, 0x8c8ca0); },
+  mirror: (k, w, h, d) => { for (const s of [-1, 1]) { k.box(0.05, h * 0.92, 0.05, s * (w / 2 - 0.025), h * 0.46, 0, C_.mahog); k.box(0.06, 0.04, d, s * (w / 2 - 0.03), 0.02, 0, C_.mahog); } k.box(w - 0.1, h * 0.6, 0.04, 0, h * 0.55, 0, C_.mahog); k.box(w - 0.16, h * 0.55, 0.01, 0, h * 0.55, -0.025, 0x8a96a0); k.sph(0.035, 0, h - 0.035, 0, C_.brass); },
+  'dressing-table': (k, w, h, d) => { k.table(w, 0.76, d, C_.mahog, 0.04, 0.05, 0.022); k.box(w * 0.6, h - 0.8, 0.04, 0, (h + 0.8) / 2, d / 2 - 0.05, C_.mahog); k.box(w * 0.52, h - 0.9, 0.01, 0, (h + 0.8) / 2, d / 2 - 0.075, 0x8a96a0); k.box(0.12, 0.08, 0.08, -w * 0.35, 0.8, 0, C_.cream); },
+  'wig-stand': (k, w, h, d) => { k.cyl(w * 0.5, w * 0.5, 0, 0.03, 0, 0, C_.wood, 10); k.cyl(0.02, 0.02, 0.03, h - 0.25, 0, 0, C_.wood, 6); k.sph(0.1, 0, h - 0.13, 0, C_.cream, 1.2); k.sph(0.12, 0, h - 0.1, 0.02, C_.white, 1.0); k.sph(0.05, 0, h - 0.17, 0.12, C_.white); },
+  lantern: (k, w, h, d) => k.lantern(w * 0.85, h, 0, 0, 0, C_.iron),
+  torches: (k, w, h, d) => { k.cyl(w * 0.4, w * 0.5, 0, 0.05, 0, 0, C_.iron, 6); k.cyl(0.025, 0.03, 0.05, h - 0.25, 0, 0, C_.dark, 6); k.cyl(0.07, 0.04, h - 0.32, h - 0.2, 0, 0, C_.iron, 6); k.flame(0.08, 0, h - 0.1, 0); },
+  'ruby-coach': (k, w, h, d) => { const bw = w * 0.62, bx = -w / 2 + bw / 2; k.box(bw, h * 0.6, d * 0.85, bx, h * 0.55, 0, 0x8a1a26); k.box(bw + 0.06, 0.08, d * 0.9, bx, h * 0.86, 0, C_.black); k.box(bw * 0.5, h * 0.25, 0.01, bx, h * 0.65, -d * 0.43, C_.glass);
+    k.wheel(h * 0.4, w / 2 - 0.2, h * 0.42, -d * 0.1, C_.dark);
+    k.rod([bx + bw / 2, h * 0.3, 0], [w / 2 - 0.2, h * 0.43, -d * 0.3], 0.03, C_.black); for (const z of [-d * 0.42, d * 0.42]) { k.box(0.12, 0.2, 0.12, bx + bw / 2 + 0.06, h * 0.82, z, C_.brass); k.glowBox(0.07, 0.12, 0.07, bx + bw / 2 + 0.06, h * 0.82, z); } },
+  chaise: (k, w, h, d) => {                                   // two big spoked wheels, the seat over the axle, a folding hood; shafts forward (−z)
+    for (const s of [-1, 1]) { k.wheel(0.62, s * (w / 2 - 0.04), 0.62, 0.35, C_.dark); k.rod([s * 0.5, 0.95, 0.5], [s * 0.55, 0.62, -d / 2], 0.03, C_.wood); }
+    k.rod([-w / 2 + 0.04, 0.62, 0.35], [w / 2 - 0.04, 0.62, 0.35], 0.03, C_.iron); for (const s of [-1, 1]) k.rod([s * 0.45, 0.62, 0.35], [s * 0.45, 0.95, 0.35], 0.025, C_.iron);
+    k.box(1.1, 0.3, 0.7, 0, 1.1, 0.35, 0x3a2a24); k.box(1.0, 0.1, 0.55, 0, 1.28, 0.3, C_.leather); k.box(1.1, 0.35, 0.06, 0, 1.4, 0.66, 0x3a2a24); k.box(1.1, 0.04, 0.5, 0, 0.98, -0.2, C_.wood);
+    const g = new THREE.CylinderGeometry(0.45, 0.45, 1.1, 12, 1, true, 0, Math.PI); g.rotateZ(Math.PI / 2); g.translate(0, h - 0.45, 0.5); k.parts.push(jtTint(g, C_.black)); },
+  'warehouse-corner': (k, w, h, d) => { k.box(w, h, 0.25, 0, h / 2, -d / 2 + 0.125, C_.brick); k.box(0.25, h, d, -w / 2 + 0.125, h / 2, 0, C_.brick); k.box(0.5, 0.8, 0.02, 0.2, h * 0.62, -d / 2 - 0.005, C_.glass); k.box(0.6, 0.06, 0.08, 0.2, h * 0.62 - 0.43, -d / 2 - 0.02, C_.stone); k.box(w + 0.04, 0.12, 0.3, 0, h - 0.06, -d / 2 + 0.13, C_.stone); },
+  'tanning-shed': (k, w, h, d) => { for (const sx of [-1, 1]) { k.box(0.1, h * 0.7, 0.1, sx * (w / 2 - 0.05), h * 0.35, -d / 2 + 0.05, C_.dark); k.box(0.1, h, 0.1, sx * (w / 2 - 0.05), h / 2, d / 2 - 0.05, C_.dark); }
+    k.box(w, 0.05, Math.hypot(d, h * 0.3), 0, h * 0.85, 0, C_.grey, Math.atan2(h * 0.3, d)); k.box(w, h * 0.9, 0.04, 0, h * 0.45, d / 2 - 0.02, C_.wood); k.box(0.8, 0.5, 0.05, -0.2, 0.9, 0, C_.leather, 0, 0, 0.1); },
+  pump: (k, w, h, d) => { k.box(w * 0.6, h * 0.85, w * 0.6, 0, h * 0.425, 0.08, C_.wood); k.box(w * 0.7, 0.08, w * 0.7, 0, h * 0.86, 0.08, C_.wood); k.rod([0, h * 0.6, -0.05], [0, h * 0.55, -d / 2], 0.03, C_.iron); k.rod([0, h * 0.85, 0.08], [0, h, d / 2], 0.02, C_.iron); k.box(w, 0.15, 0.2, 0, 0.075, -d / 2 + 0.1, C_.wood); },
+  'flour-barrel': (k, w, h, d) => { k.cyl(w * 0.5, w * 0.42, h / 2, h, 0, 0, C_.pale, 14); k.cyl(w * 0.42, w * 0.5, 0, h / 2, 0, 0, C_.pale, 14); for (const y of [0.08, h / 2 - 0.03, h - 0.1]) k.cyl(w * 0.505, w * 0.505, y, y + 0.04, 0, 0, C_.iron, 14); k.cyl(w * 0.4, w * 0.4, h, h + 0.0001, 0, 0, C_.white, 14); },
+  well: (k, w, h, d) => { k.cyl(w * 0.45, w * 0.48, 0, 0.75, 0, 0, C_.stone, 14); k.cyl(w * 0.35, w * 0.35, 0.74, 0.75, 0, 0, C_.black, 14); for (const s of [-1, 1]) k.box(0.08, h - 0.2, 0.08, s * w * 0.42, (h - 0.2) / 2 + 0.0, 0, C_.wood);
+    k.rod([-w * 0.42, h * 0.72, 0], [w * 0.42, h * 0.72, 0], 0.04, C_.wood); for (const s of [-1, 1]) k.box(w, 0.04, d * 0.6, 0, h - 0.13, s * d * 0.24, C_.dark, s * -0.5); k.cyl(0.1, 0.08, h * 0.45, h * 0.6, 0, 0, C_.wood, 8); },
+  belfry: (k, w, h, d) => { for (const sx of [-1, 1]) for (const sz of [-1, 1]) k.box(0.08, h * 0.7, 0.08, sx * (w / 2 - 0.12), h * 0.35, sz * (d / 2 - 0.12), C_.white); k.box(w * 0.8, 0.06, d * 0.8, 0, h * 0.7, 0, C_.white); k.cyl(0.01, w / 2, h * 0.7, h, 0, 0, C_.grey, 4); k.cyl(0.06, 0.13, h * 0.45, h * 0.62, 0, 0, C_.brass, 10); k.box(w * 0.75, 0.12, d * 0.75, 0, 0.06, 0, C_.white); },
+};
+function jtLumber(k, w, h, d) {                                // boards ~0.25 wide, ~0.05 thick, their lengths along the longer side
+  const long = w >= d, L = long ? w : d, S = long ? d : w, n = Math.max(1, Math.round(S / 0.26)), layers = Math.max(1, Math.round(h / 0.06));
+  for (let j = 0; j < layers; j++) for (let i = 0; i < n; i++) { const len = L * (0.82 + 0.18 * ((i * 7 + j * 3) % 5) / 4), off = (L - len) * (((i + j) % 3) / 2 - 0.5), c = (i + j) % 3 ? C_.plank : C_.pale, s = -S / 2 + (i + 0.5) * S / n, y = j * h / layers + h / layers / 2;
+    if (long) k.box(len, h / layers - 0.005, S / n - 0.02, off, y, s, c); else k.box(S / n - 0.02, h / layers - 0.005, len, s, y, off, c); }
+}
+function jtBed(k, w, h, d, frame, blanket, posts) {           // a rope bed: frame, mattress, blanket; a headboard upstage (+z)
+  k.legs(w, d, 0, h * 0.5, 0.035, 0.04, frame); k.box(w, 0.06, d, 0, h * 0.5, 0, frame); k.box(w - 0.06, h * 0.25, d - 0.06, 0, h * 0.5 + h * 0.125 + 0.03, 0, 0xd8cdb0);
+  k.box(w - 0.04, 0.04, d * 0.62, 0, h * 0.5 + h * 0.25 + 0.05, -d * 0.18, blanket); k.box(w * 0.7, 0.06, 0.25, 0, h * 0.5 + h * 0.25 + 0.06, d / 2 - 0.18, C_.white);
+  if (posts) k.box(w, h, 0.05, 0, h / 2, d / 2 - 0.025, frame);
+}
+function jtPress(k, w, h, d, smashed) {                        // a common press: two cheeks, the head, the screw and bar, the platen, the bed on its ribs along z
+  if (!smashed) {
+    for (const s of [-1, 1]) { k.box(0.12, h, 0.2, s * (w / 2 - 0.06), h / 2, -0.1, C_.dark); k.box(0.12, 0.6, d, s * (w / 2 - 0.06), 0.3, 0, C_.dark); }
+    k.box(w, 0.2, 0.26, 0, h * 0.8, -0.1, C_.wood); k.box(w, 0.12, 0.26, 0, h - 0.06, -0.1, C_.dark);
+    k.cyl(0.05, 0.05, h * 0.5, h * 0.8, 0, -0.1, C_.iron, 10); k.rod([0, h * 0.62, -0.1], [w * 0.55, h * 0.66, -0.55], 0.02, C_.iron);
+    k.box(w * 0.6, 0.06, 0.45, 0, h * 0.48, -0.1, C_.iron); k.box(w - 0.3, 0.1, d - 0.1, 0, 0.75, 0, C_.wood); k.box(w * 0.55, 0.04, 0.5, 0, 0.82, d * 0.25, C_.lead);
+    k.box(w * 0.6, 0.03, 0.45, 0, 0.95, d * 0.25 - 0.02, C_.cream, -0.5); k.disc(0.12, 0.06, -w / 2 - 0.03, 0.6, d * 0.35, C_.iron, Math.PI / 2, 12);
+  } else {                                                     // smashed: a cheek down, the head across, the bed tipped, type spilled
+    k.box(0.12, 1.1, 0.2, -w / 2 + 0.08, 0.55, -d / 2 + 0.2, C_.dark); k.box(0.12, h * 1.4, 0.2, w * 0.1, 0.12, 0, C_.dark, 0, 0.6, 1.5);
+    k.box(w * 0.9, 0.2, 0.26, 0, 0.1, d * 0.3, C_.wood, 0, 0.3, 0); k.box(w - 0.3, 0.1, d * 0.8, 0.05, 0.3, -0.1, C_.wood, 0.25, 0, 0.1);
+    k.rod([0.2, 0.05, d / 2 - 0.1], [-0.1, 0.12, -0.2], 0.05, C_.iron); for (let i = 0; i < 9; i++) k.box(0.05, 0.02, 0.04, -w / 2 + 0.1 + (i * 0.37) % (w - 0.2), 0.01, -d / 2 + 0.1 + (i * 0.53) % (d - 0.2), C_.lead, 0, i);
+  }
+}
+
+// One piece's body: its stand-in normalised to set.json's [w, h, d] exactly (base on y 0, centred on the footprint), merged.
+function jtBuildBody(p) {
+  const [w, h, d] = p.size, k = jtKit(), f = JT_BUILD[p.id];
+  if (f) f(k, w, h, d); else k.crate(w, h, d, C_.grey);        // an unknown id still stands, as a grey crate of its size
+  const all = [...k.parts, ...k.glow, ...k.fire], b = new THREE.Box3();
+  for (const g of all) { g.computeBoundingBox(); b.union(g.boundingBox); }
+  const sz = b.getSize(new THREE.Vector3()), c = b.getCenter(new THREE.Vector3());
+  const m = new THREE.Matrix4().makeScale(w / Math.max(sz.x, 1e-4), h / Math.max(sz.y, 1e-4), d / Math.max(sz.z, 1e-4)).multiply(new THREE.Matrix4().makeTranslation(-c.x, -b.min.y, -c.z));
+  const merge = list => { if (!list.length) return null; for (const g of list) g.applyMatrix4(m); const g = mergeGeometries(list, false); if (!g) throw new Error('the stand-in did not merge'); list.forEach(x => x.dispose()); return g; };
+  const out = { stand: merge(k.parts), glow: merge(k.glow), fire: merge(k.fire), raw: sz.clone() };
+  return out;
+}
+
+// ---- the plan (set-format.md): where each copy is in a segment
+function jtPlacements(p, n, seg) {
+  for (const e of p.scenes) {
+    if (typeof e === 'number') { if (e === n) return p.home; continue; }
+    if (e.n !== n || (e.seg && !e.seg.includes(seg))) continue;
+    if (e.atBySeg && e.atBySeg[seg]) return e.atBySeg[seg];
+    return e.at || p.home;
+  }
+  return [];
+}
+const jtDeadHung = p => !!(p.trim && p.trim.deadHung);
+const jtWagon = p => p.storage && p.storage.where === 'lift' ? p.storage.wagon : null;
+const jtWorld = (x, y, z) => new THREE.Vector3(JT.o.x + x, JT.o.y + y, JT.o.z + z);
+const jtUnder = () => { const U = window.MIDTOWN && window.MIDTOWN.under; return U && U.lifts && U.lifts.front && U.lifts.back ? U : null; };
+const jtDims = (p, pl) => { let [w, h, d] = p.size; if (pl && pl.w != null) w = pl.w; const k = (pl && pl.scale) || 1; return pl && pl.tipped ? [w * k, d * k, h * k] : [w * k, h * k, d * k]; };
+function jtFoot(p, pl) {                                     // the footprint's corners (stage frame), as tools/jt-set-check.py
+  const [w, , d] = jtDims(p, pl), t = (pl.rotY || 0) * Math.PI / 180, c = Math.cos(t), s = Math.sin(t);
+  return [[-w / 2, -d / 2], [w / 2, -d / 2], [w / 2, d / 2], [-w / 2, d / 2]].map(([u, v]) => [pl.x + u * c + v * s, pl.z - u * s + v * c]);
+}
+function jtSat(a, b, e = 0.005) {
+  for (const poly of [a, b]) for (let i = 0; i < poly.length; i++) {
+    const [x0, z0] = poly[i], [x1, z1] = poly[(i + 1) % poly.length]; let nx = z1 - z0, nz = -(x1 - x0); const L = Math.hypot(nx, nz) || 1; nx /= L; nz /= L;
+    const pa = a.map(([x, z]) => x * nx + z * nz), pb = b.map(([x, z]) => x * nx + z * nz);
+    if (Math.max(...pa) <= Math.min(...pb) + e || Math.max(...pb) <= Math.min(...pa) + e) return false;
+  }
+  return true;
+}
+const jtRect = (L) => [[L.x[0], L.z[0]], [L.x[1], L.z[0]], [L.x[1], L.z[1]], [L.x[0], L.z[1]]];
+// What a copy is in (n, seg): { on, pl } on stage, or off: { how: 'wing' | 'flown' | 'hidden' | 'door' | 'lift', pl }
+function jtTarget(c, n, seg) {
+  const p = c.p, on = jtPlacements(p, n, seg)[c.i];
+  if (p.kind === 'unit' || jtDeadHung(p)) return { on: true, pl: p.home[c.i] };
+  if (on) return { on: true, pl: on };
+  const s = p.storage || {}, home = p.home[c.i] || p.home[0];
+  if (p.kind === 'flown') return { on: false, how: 'flown', pl: { ...home, y: p.trim.out } };
+  if (p.kind === 'hand') return { on: false, how: 'hidden', pl: home };
+  if (s.where === 'lift') return { on: false, how: 'lift', pl: home };
+  if (s.where === 'SL wing' || s.where === 'SR wing') { const a = (s.at && s.at[c.i]) || s; return { on: false, how: 'wing', pl: { x: a.x, y: 0, z: a.z, rotY: a.rotY || 0 } }; }
+  return { on: false, how: 'door', pl: home };                // backstage: out through the centre stage doors, then out of sight
+}
+
+// ---- building
+function jtBuild(d) {
+  const t0 = performance.now();
+  JT.d = d; JT.order = d.scenes.flatMap(s => s.segments.map(g => [s.n, g.seg]));
+  const group = new THREE.Group(); group.name = 'jt set'; group.userData.rig = true; JT.group = group;
+  let tris = 0; const triN = g => g ? (g.index ? g.index.count : g.attributes.position.count) / 3 : 0;
+  for (const p of d.pieces) {
+    const body = jtBuildBody(p), copies = [];
+    for (let i = 0; i < (p.count || 1); i++) {
+      const holder = new THREE.Group(); holder.name = 'jt: ' + p.id + ((p.count || 1) > 1 ? ' #' + i : ''); holder.userData.rig = true; holder.userData.jt = p.id;
+      const inner = new THREE.Group(); inner.name = 'body'; holder.add(inner);
+      const stand = new THREE.Mesh(body.stand, jtMat); stand.name = 'stand-in'; inner.add(stand);
+      tris += triN(body.stand);
+      let glow = null, fire = null;
+      if (body.glow) { glow = new THREE.Mesh(body.glow, jtFlame); glow.name = 'practical'; inner.add(glow); tris += triN(body.glow); }
+      if (body.fire) { fire = new THREE.Mesh(body.fire, jtFire); fire.name = 'fire'; inner.add(fire); tris += triN(body.fire); }
+      holder.traverse(o => { if (o.isMesh) { o.castShadow = o.receiveShadow = false; o.userData.rig = true; o.userData.jt = p.id; } });
+      const c = { p, i, holder, inner, stand, glow, fire, model: null, state: null, raw: body.raw };
+      jtPose(c, p.home[i] || p.home[0]);
+      group.add(holder); copies.push(c);
+    }
+    JT.pieces[p.id] = { piece: p, copies, tris: triN(body.stand) + triN(body.glow) + triN(body.fire) };
+  }
+  scene.add(group);
+  JT.tris = tris; JT.meshes = 0; group.traverse(o => { if (o.isMesh) JT.meshes++; });
+  console.info(`jt set: ${d.pieces.length} pieces, ${Object.values(JT.pieces).reduce((a, q) => a + q.copies.length, 0)} copies · ${tris} triangles · ${JT.meshes} meshes · ${(performance.now() - t0).toFixed(0)} ms`);
+}
+// A copy at a placement: the holder at the footprint's centre, turned; a tipped piece lies on its back inside it.
+function jtPose(c, pl, scaleK) {
+  const p = c.p, [w, h, d] = p.size, k = (pl.scale || 1) * (scaleK == null ? 1 : scaleK);
+  c.holder.position.copy(jtWorld(pl.x, pl.y || 0, pl.z)); c.holder.rotation.set(0, (pl.rotY || 0) * Math.PI / 180, 0);
+  c.holder.scale.set(k * (pl.w != null ? pl.w / w : 1), k, k);
+  if (pl.tipped) { c.inner.rotation.set(-Math.PI / 2, 0, 0); c.inner.position.set(0, d / 2, h / 2); } else { c.inner.rotation.set(0, 0, 0); c.inner.position.set(0, 0, 0); }
+}
+const jtPoseOf = c => ({ x: c.holder.position.x - JT.o.x, y: c.holder.position.y - JT.o.y, z: c.holder.position.z - JT.o.z, rotY: c.holder.rotation.y * 180 / Math.PI, s: c.holder.scale.y });
+
+// ---- the slots: the manifest, then each listed GLB fitted to its piece
+async function jtModels() {
+  let man = null;
+  try { const r = await fetch(JT.models + 'manifest.json', { cache: 'no-cache' }); if (r.ok) man = await r.json(); } catch (e) { /* no manifest: stand-ins only */ }
+  JT.manifest = (man && man.models) || {};
+  const ids = Object.keys(JT.manifest).filter(id => JT.pieces[id]);
+  for (const id of Object.keys(JT.manifest)) if (!JT.pieces[id]) console.warn(`jt set: models/manifest.json lists "${id}", which is no piece in set.json — skipped`);
+  await Promise.all(ids.map(id => jtModel(id, JT.manifest[id]).catch(e => console.warn(`jt set: ${id}'s model (${(JT.manifest[id] && JT.manifest[id].file) || id + '.glb'}) did not load — its stand-in stays (${e && e.message || e})`))));
+  jtPanelDraw();
+}
+async function jtModel(id, m) {
+  const P = JT.pieces[id], p = P.piece, file = (m && m.file) || id + '.glb';
+  const gltf = await new Promise((ok, no) => new GLTFLoader().load(JT.models + file, ok, undefined, no));
+  const root = gltf.scene, wrap = new THREE.Group(); wrap.name = 'model: ' + file; wrap.add(root);
+  root.rotation.y = ((m && m.rotY) || 0) * Math.PI / 180;
+  wrap.updateMatrixWorld(true);
+  let b = new THREE.Box3().setFromObject(root); const sz = b.getSize(new THREE.Vector3());
+  const want = p.size, dims = [sz.x, sz.y, sz.z], ax = { w: 0, h: 1, d: 2 }[m && m.fit] ?? want.indexOf(Math.max(...want));
+  const s = want[ax] / Math.max(dims[ax], 1e-6);
+  root.scale.multiplyScalar(s); wrap.updateMatrixWorld(true);
+  b = new THREE.Box3().setFromObject(root); const c = b.getCenter(new THREE.Vector3());
+  root.position.x -= c.x; root.position.z -= c.z; root.position.y -= b.min.y;
+  root.traverse(o => { if (o.isMesh) { o.castShadow = o.receiveShadow = false; o.userData.rig = true; o.userData.jt = id; } });
+  for (const cp of P.copies) { const mm = wrap.clone(true); cp.inner.add(mm); cp.model = mm; cp.stand.visible = false; }
+  JT.fitted[id] = { file, scale: s, axis: 'whd'[ax], got: b.getSize(new THREE.Vector3()).toArray().map(v => +v.toFixed(3)) };
+  colliderStale(); requestRender();
+}
+
+// ---- the scene change
+const jtEase = t => t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function jtTween(c, to, dur, opt = {}) {                        // → a Promise resolved when the copy gets there (off the frame dt)
+  return new Promise(ok => { JT.tw = JT.tw.filter(t => t.c !== c); JT.tw.push({ c, from: jtPoseOf(c), to, dur: Math.max(dur, 1e-3), t: 0, ok, opt }); });
+}
+function jtTick(dt) {
+  let moving = false;
+  if (JT.tw.length) {
+    moving = true;
+    for (const t of JT.tw) {
+      t.t = Math.min(1, t.t + (JT.skipping ? 1e9 : dt * JT.speed) / t.dur); const k = jtEase(t.t), a = t.from, b = t.to, c = t.c;
+      let dr = ((b.rotY - a.rotY) % 360 + 540) % 360 - 180;
+      c.holder.position.copy(jtWorld(a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k, a.z + (b.z - a.z) * k));
+      c.holder.rotation.y = (a.rotY + dr * k) * Math.PI / 180;
+      if (b.s != null) { const s = a.s + (b.s - a.s) * k, base = c.holder.scale.y || 1; c.holder.scale.multiplyScalar(Math.max(s, 1e-3) / Math.max(base, 1e-3)); }
+    }
+    const done = JT.tw.filter(t => t.t >= 1); JT.tw = JT.tw.filter(t => t.t < 1); for (const t of done) t.ok();
+  }
+  if (JT.fireK !== JT.fireTo) { moving = true; const s = JT.skipping ? 1 : dt * JT.speed / JT.fire; JT.fireK = JT.fireTo > JT.fireK ? Math.min(JT.fireTo, JT.fireK + s) : Math.max(JT.fireTo, JT.fireK - s); jtFire.emissiveIntensity = 2.4 * JT.fireK; }
+  if (JT.busy && JT.el && !JT.el.hidden && (JT.stT = (JT.stT || 0) + dt) > 0.25) { JT.stT = 0; jtPanelStatus(); }
+  if (JT.auto && !JT.busy) {                                   // Auto: hold, then the next shift; off at the show's end
+    JT.held += dt * JT.speed;
+    if (JT.held >= JT.hold) { JT.held = 0; if (jtIndex() >= JT.order.length - 1) jtAuto(false); else jtStep(1); }
+  }
+  return moving;
+}
+const jtLit = (n, seg) => { const s = JT.d.scenes.find(q => q.n === n); return !!s && s.furnace === 'lit' && (!s.furnaceLitSegments || s.furnaceLitSegments.includes(seg)); };
+function jtPractical(c, on) { if (c.glow) c.glow.visible = on && JT.practicals; }
+function jtLook(n, seg) {
+  const M = window.MIDTOWN;
+  try { if (M && M.jtLights && M.jtLights.look) M.jtLights.look(n, seg); } catch (e) { console.error('jt set: MIDTOWN.jtLights.look failed —', e); }
+}
+// Snap every copy to (n, seg) at once (load, Snap mode, the console's scene(n, seg, {snap: true})).
+function jtSnap(n, seg) {
+  const U = jtUnder();
+  JT.tw.forEach(t => t.ok()); JT.tw = [];
+  const placedWagons = {};
+  for (const P of Object.values(JT.pieces)) for (const c of P.copies) {
+    const T = jtTarget(c, n, seg); c.state = T;
+    if (c.holder.parent !== JT.group) JT.group.attach(c.holder);
+    jtPose(c, T.pl);
+    c.holder.visible = T.on || T.how === 'wing' || T.how === 'flown' || (T.how === 'lift' && !!U);
+    if (T.how === 'lift' && U) { const w = jtWagon(c.p); (placedWagons[w] = placedWagons[w] || []).push(c); }
+    jtPractical(c, T.on);
+  }
+  for (const [w, cs] of Object.entries(placedWagons)) jtToBay(w, cs, U);
+  JT.fireTo = JT.fireK = jtLit(n, seg) ? 1 : 0; jtFire.emissiveIntensity = 2.4 * JT.fireK;
+  JT.cur = [n, seg]; colliderStale(); requestRender(); jtLook(n, seg); jtPanelDraw();
+}
+// The wagon's footprint (stage frame) over its copies at their placements: { x0, x1, z0, z1, cx, cz }
+function jtWagonBox(cs, pls) {
+  const pts = cs.flatMap((c, k) => jtFoot(c.p, pls[k]));
+  const x0 = Math.min(...pts.map(q => q[0])), x1 = Math.max(...pts.map(q => q[0])), z0 = Math.min(...pts.map(q => q[1])), z1 = Math.max(...pts.map(q => q[1]));
+  return { x0, x1, z0, z1, cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, w: x1 - x0, d: z1 - z0 };
+}
+function jtBayFor(w, box, U) {
+  if (JT.bays[w]) return JT.bays[w];
+  const bays = U.bays || [], used = new Set(Object.values(JT.bays));
+  const names = new Set(JT.d.pieces.map(jtWagon).filter(Boolean)), free = q => !used.has(q) && !(names.has(q.name) && q.name !== w);   // a bay named for another wagon is kept for it
+  const b = bays.find(q => q.name === w && !used.has(q)) || bays.find(q => free(q) && ((q.w >= box.w && q.d >= box.d) || (q.w >= box.d && q.d >= box.w))) || bays.find(free) || bays.find(q => !used.has(q)) || bays[0] || null;
+  if (b) JT.bays[w] = b; return b;
+}
+// A wagon parked in its basement bay: its layout kept, centred on the bay, on the bay's floor (world).
+function jtToBay(w, cs, U) {
+  const pls = cs.map(c => c.p.home[c.i] || c.p.home[0]), box = jtWagonBox(cs, pls), bay = jtBayFor(w, box, U);
+  if (!bay) { cs.forEach(c => { c.holder.visible = false; }); return; }
+  for (const [k, c] of cs.entries()) {
+    if (c.holder.parent !== JT.group) JT.group.attach(c.holder);
+    const pl = pls[k], turn = box.w > bay.w + 1e-6 && box.d <= bay.w + 1e-6, ox = pl.x - box.cx, oz = pl.z - box.cz;   // too wide for the bay: turned a quarter, lengthwise down it
+    jtPose(c, turn ? { ...pl, rotY: (pl.rotY || 0) + 90 } : pl);
+    c.holder.position.set(bay.x + (turn ? oz : ox), bay.y + (pl.y || 0), bay.z + (turn ? -ox : oz)); c.holder.visible = true;
+  }
+}
+// The change itself, in theatrical order (Jack, 2026-10-16: "cycle through the sets and it moves them in correct order"),
+// each step waiting for the last, off the frame dt at JT.speed:
+//   a  STRIKE — what leaves glides off to its wing, goes out through the centre doors, flies out, or is taken off (hand
+//      props); then the RE-SET — a piece on in both that only moves glides straight to its new place;
+//   b  BIG SETS OFF — each leaving wagon glides as one onto the back lift; the back lift goes down; at the bottom (out of
+//      sight) it is moved to its bay; the back lift comes back up empty (awaited before d: no hole while pieces set);
+//   c  BIG SETS ON — the front lift goes down empty; the wagon is moved from its bay onto it; it comes up; the wagon glides
+//      off it to its place;
+//   d  SET — what arrives glides on from its wing / the centre doors, flies in, or is set (hand props);
+//   e  LIGHTS — MIDTOWN.jtLights.look(scene, seg), the furnace, the practicals.
+// No MIDTOWN.under: b hides the leaving wagon, c sets the arriving one where it plays. JT.routes logs each wagon's path.
+async function jtGo(n, seg) {
+  const U = jtUnder(), A = JT.cur, strike = [], reset = [], set = [], leave = {}, come = {}, names = { strike: new Set(), reset: new Set(), set: new Set() };
+  const nm = c => c.p.id;
+  for (const P of Object.values(JT.pieces)) for (const c of P.copies) {
+    const was = c.state || jtTarget(c, ...A), T = jtTarget(c, n, seg), p = c.p;
+    c.state = T;
+    if (p.kind === 'unit' || jtDeadHung(p)) continue;
+    const w = jtWagon(p);
+    if (w && was.on && !T.on) { (leave[w] = leave[w] || []).push([c, was.pl]); continue; }
+    if (w && !was.on && T.on) { (come[w] = come[w] || []).push([c, T.pl]); continue; }
+    if (was.on && T.on) { if (JSON.stringify(was.pl) !== JSON.stringify(T.pl)) { names.reset.add(nm(c)); reset.push(() => jtTween(c, jtAt(T.pl), JT.glide)); } continue; }
+    if (!was.on && !T.on) continue;
+    const raised = pl => (pl.y || 0) > 0.3 && p.kind !== 'flown';
+    if (was.on) {
+      names.strike.add(nm(c));
+      if (T.how === 'wing' && !raised(was.pl)) strike.push(() => jtTween(c, jtAt(T.pl), JT.glide));
+      else if (T.how === 'flown') strike.push(() => jtTween(c, jtAt(T.pl), JT.fly));
+      else if (T.how === 'door' && !raised(was.pl)) strike.push(async () => { await jtTween(c, { ...jtAt(was.pl), x: JT.door.x, z: JT.door.z }, JT.glide); c.holder.visible = false; });
+      else strike.push(async () => { await jtTween(c, { ...jtPoseOf(c), s: 0.001 }, JT.pop); c.holder.visible = false; if (T.how === 'wing') { jtPose(c, T.pl); c.holder.visible = true; } });
+    } else {
+      names.set.add(nm(c)); const go = T.pl;
+      if (was.how === 'wing' && !raised(go)) set.push(async () => { c.holder.visible = true; await jtTween(c, jtAt(go), JT.glide); });
+      else if (was.how === 'flown') set.push(async () => { c.holder.visible = true; await jtTween(c, jtAt(go), JT.fly); });
+      else if (was.how === 'door' && !raised(go)) set.push(async () => { jtPose(c, { ...go, x: JT.door.x, z: JT.door.z }); c.holder.visible = true; await jtTween(c, jtAt(go), JT.glide); });
+      else set.push(async () => { jtPose(c, go, 0.001); c.holder.visible = true; await jtTween(c, jtAt(go), JT.pop); });
+    }
+  }
+  const L = Object.keys(leave), C = Object.keys(come), list = s => [...s].join(', ');
+  JT.cur = [n, seg]; JT.plan = { strike: list(names.strike), reset: list(names.reset), off: L.join(', '), on: C.join(', '), set: list(names.set) };
+  for (const P of Object.values(JT.pieces)) for (const c of P.copies) if (!(c.state && c.state.on)) jtPractical(c, false);
+  jtPanelDraw();
+  const step = async (msg, fns) => { if (!fns.length) return; JT.msg = msg; jtPanelStatus(); await Promise.all(fns.map(f => f())); };
+  const log = (w, what) => (JT.routes[w] = JT.routes[w] || []).push(what);
+  // a
+  await step(`Strike: ${JT.plan.strike}`, strike);
+  await step(`Re-set: ${JT.plan.reset}`, reset);
+  // b
+  const B = JT.lifts.back, F = JT.lifts.front, bc = [(B.x[0] + B.x[1]) / 2, (B.z[0] + B.z[1]) / 2];
+  let backUp = null;
+  if (L.length) {
+    const glides = [];
+    for (const [w, items] of Object.entries(leave)) {
+      const box = jtWagonBox(items.map(q => q[0]), items.map(q => q[1])), dx = bc[0] - box.cx, dz = bc[1] - box.cz;
+      for (const [c, pl] of items) glides.push(() => jtTween(c, { ...jtAt(pl), x: pl.x + dx, z: pl.z + dz }, JT.glide));
+    }
+    await step(`Big set off: ${JT.plan.off} onto the back lift`, glides);
+    if (U) {
+      for (const items of Object.values(leave)) for (const [c] of items) U.lifts.back.platform.attach(c.holder);
+      JT.msg = `Big set off: the back lift down with ${JT.plan.off}`; jtPanelStatus();
+      await U.lifts.back.go('down');
+      for (const [w, items] of Object.entries(leave)) { log(w, 'back lift'); jtToBay(w, items.map(q => q[0]), U); log(w, 'bay'); }
+      backUp = U.lifts.back.go('up');
+    } else for (const [w, items] of Object.entries(leave)) { for (const [c] of items) c.holder.visible = false; log(w, 'gone (no lifts)'); }
+  }
+  // c
+  if (C.length) {
+    if (U) {
+      JT.msg = `Big set on: the front lift down for ${JT.plan.on}`; jtPanelStatus();
+      await U.lifts.front.go('down');
+      for (const [w, items] of Object.entries(come)) {
+        log(w, 'bay');
+        const box = jtWagonBox(items.map(q => q[0]), items.map(q => q[1])), top = U.lifts.front.platform.getWorldPosition(new THREE.Vector3());
+        for (const [c, pl] of items) { if (c.holder.parent !== JT.group) JT.group.attach(c.holder); jtPose(c, pl); c.holder.position.set(top.x + (pl.x - box.cx), top.y + (pl.y || 0), top.z + (pl.z - box.cz)); c.holder.visible = true; U.lifts.front.platform.attach(c.holder); }
+      }
+      JT.msg = `Big set on: ${JT.plan.on} up the front lift`; jtPanelStatus();
+      await U.lifts.front.go('up');
+      for (const [w, items] of Object.entries(come)) { log(w, 'front lift'); for (const [c] of items) JT.group.attach(c.holder); }
+      await step(`Big set on: ${JT.plan.on} to its place`, Object.values(come).flat().map(([c, pl]) => () => jtTween(c, jtAt(pl), JT.glide)));
+    } else {
+      for (const w of C) log(w, 'appears (no lifts)');
+      await step(`Big set on: ${JT.plan.on}`, Object.values(come).flat().map(([c, pl]) => async () => { jtPose(c, pl, 0.001); c.holder.visible = true; await jtTween(c, jtAt(pl), JT.pop); }));
+    }
+  }
+  if (backUp) { JT.msg = 'The back lift coming up empty'; jtPanelStatus(); await backUp; }
+  // d
+  await step(`Set: ${JT.plan.set}`, set);
+  // e
+  JT.msg = 'Lights'; jtLook(n, seg);
+  JT.fireTo = jtLit(n, seg) ? 1 : 0;
+  for (const P of Object.values(JT.pieces)) for (const c of P.copies) jtPractical(c, !!(c.state && c.state.on));
+  JT.msg = ''; colliderStale(); requestRender();
+}
+const jtAt = pl => ({ x: pl.x, y: pl.y || 0, z: pl.z, rotY: pl.rotY || 0, s: pl.scale || 1 });
+// The public change: queued while one runs (the last asked wins); Snap mode or {snap: true} sets it at once.
+function jtScene(n, seg = 1, opt = {}) {
+  const s = JT.d && JT.d.scenes.find(q => q.n === n); if (!s) return Promise.resolve(null);
+  if (!s.segments.some(g => g.seg === seg)) seg = s.segments[0].seg;
+  if (opt.snap || JT.snap || !JT.cur) { if (JT.busy) { JT.want = [n, seg, true]; JT.skipping = true; return JT.run; } jtSnap(n, seg); return Promise.resolve(JT.cur); }
+  if (JT.busy) { JT.want = [n, seg, false]; return JT.run; }
+  if (JT.cur[0] === n && JT.cur[1] === seg) return Promise.resolve(JT.cur);
+  JT.busy = true; JT.skipping = false;
+  JT.run = (async () => {
+    try { await jtGo(n, seg); } catch (e) { console.error('jt set: the change failed —', e); jtSnap(n, seg); }
+    JT.busy = false; JT.skipping = false; JT.msg = ''; jtPanelDraw();
+    if (JT.want) { const [wn, ws, snap] = JT.want; JT.want = null; return jtScene(wn, ws, { snap }); }
+    return JT.cur;
+  })();
+  return JT.run;
+}
+const jtIndex = () => JT.order.findIndex(([n, s]) => n === JT.cur[0] && s === JT.cur[1]);
+function jtStep(k) { const j = jtIndex() + k; if (j < 0 || j >= JT.order.length) return Promise.resolve(JT.cur); return jtScene(...JT.order[j]); }
+// Skip: the change running now finishes at once (its glides and flies end this frame; a lift already moving finishes its run).
+function jtSkip() { if (JT.busy) JT.skipping = true; }
+// Auto: the whole show's shifts in order from here, a hold of JT.hold s (at speed) on each segment; stops at the end.
+function jtAuto(on) { JT.auto = !!on; JT.held = 0; if (JT.el) { const b = JT.el.querySelector('.jt-auto'); b.setAttribute('aria-pressed', String(JT.auto)); b.textContent = JT.auto ? 'Stop auto' : 'Auto'; } }
+function jtSpeed(k) { JT.speed = k; if (JT.el) JT.el.querySelectorAll('.jt-spd').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.k === k))); }
+
+// For the shift check: a convex hull (monotone chain) of plan points; two pieces clash where their footprints and heights
+// meet, the platforms' rules as tools/jt-set-check.py (the loft's under-side to 2.30 and its top from 2.40; a platform
+// carries what stands on its top; the furnace's chimney passes the loft)
+function jtHull(pts) {
+  const P = pts.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]), cr = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]), lo = [], up = [];
+  for (const p of P) { while (lo.length >= 2 && cr(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+  for (const p of P.reverse()) { while (up.length >= 2 && cr(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+const JT_PLAT = { loft: 2.40, 'wharf-deck': 0.45, 'wharf-step': 0.22, 'judge-platform': 0.30 };
+function jtClash(pa, pla, fa, pb, plb, fb) {
+  const ids = [pa.id, pb.id].sort().join('|');
+  if (ids === 'furnace|loft' || pa.id === 'loft-rafters' || pb.id === 'loft-rafters') return false;
+  const ya = [pla.y || 0, (pla.y || 0) + jtDims(pa, pla)[1]], yb = [plb.y || 0, (plb.y || 0) + jtDims(pb, plb)[1]];
+  if (ya[1] <= yb[0] + 0.005 || yb[1] <= ya[0] + 0.005) return false;
+  if (!jtSat(fa, fb)) return false;
+  if (pa.id === 'loft' || pb.id === 'loft') { const o = pa.id === 'loft' ? yb : ya; if (o[1] <= 2.305 || o[0] >= 2.395) return false; }
+  if (JT_PLAT[pa.id] != null && Math.abs(yb[0] - (JT_PLAT[pa.id] + (pla.y || 0))) < 0.01) return false;
+  if (JT_PLAT[pb.id] != null && Math.abs(ya[0] - (JT_PLAT[pb.id] + (plb.y || 0))) < 0.01) return false;
+  return true;
+}
+// ---- the check: PASS / FAIL lines (MIDTOWN.jt.check())
+function jtCheck(quiet) {
+  const lines = [], fails = [], d = JT.d, E = 0.005;
+  const out = (name, bad, extra = '') => { lines.push(`${bad.length ? 'FAIL' : 'PASS'}  ${name}${extra ? ' — ' + extra : ''}`); for (const b of bad.slice(0, 20)) lines.push('      ' + b); if (bad.length > 20) lines.push(`      … ${bad.length - 20} more`); fails.push(...bad); };
+  // 1: built
+  const b1 = [];
+  for (const p of d.pieces) { const P = JT.pieces[p.id]; if (!P) b1.push(`${p.id}: not built`); else if (P.copies.length !== (p.count || 1)) b1.push(`${p.id}: ${P.copies.length} copies, set.json says ${p.count}`); else if (P.copies.some(c => !c.holder.parent)) b1.push(`${p.id}: a copy is in no group`); }
+  out('built: every piece in set.json, every copy', b1, `${d.pieces.length} pieces`);
+  // 2: sizes, measured off the built geometry (or the fitted model: its fitted dimension)
+  const b2 = []; let worst = 0;
+  for (const p of d.pieces) {
+    const c = JT.pieces[p.id] && JT.pieces[p.id].copies[0]; if (!c) continue;
+    let got;
+    if (c.model) { c.inner.updateMatrixWorld(true); const m = new THREE.Box3(); c.model.traverse(o => { if (o.isMesh) { o.geometry.computeBoundingBox(); m.union(o.geometry.boundingBox.clone().applyMatrix4(new THREE.Matrix4().copy(c.inner.matrixWorld).invert().multiply(o.matrixWorld))); } }); got = m.getSize(new THREE.Vector3()).toArray(); }
+    else { const u = new THREE.Box3(); for (const m of [c.stand, c.glow, c.fire]) if (m) { m.geometry.computeBoundingBox(); u.union(m.geometry.boundingBox); } got = u.getSize(new THREE.Vector3()).toArray(); }
+    const axes = c.model ? ['whd'.indexOf(JT.fitted[p.id].axis)] : [0, 1, 2];
+    for (const a of axes) { const r = Math.abs(got[a] - p.size[a]) / p.size[a]; worst = Math.max(worst, r); if (r > 0.02) b2.push(`${p.id}: ${'whd'[a]} ${got[a].toFixed(3)} against ${p.size[a]} (${(r * 100).toFixed(1)} %)`); }
+  }
+  out('sizes: every piece within 2 % of set.json', b2, `worst ${(worst * 100).toFixed(2)} %`);
+  // 3: in the stage house, on the deck, now (world boxes); every segment's on pieces on the deck (the plan)
+  const b3 = [], H = JT.house, box = new THREE.Box3();
+  JT.group.updateMatrixWorld(true);
+  for (const P of Object.values(JT.pieces)) for (const c of P.copies) {
+    if (!c.holder.visible || c.holder.parent !== JT.group) continue;
+    box.setFromObject(c.holder); if (box.isEmpty()) continue;
+    if (box.max.y < JT.o.y - 1) continue;                        // parked in a basement bay
+    if (box.min.x < H.x[0] - E || box.max.x > H.x[1] + E || box.min.z < H.z[0] - E || box.max.z > H.z[1] + E) b3.push(`${c.holder.name}: x ${box.min.x.toFixed(2)}…${box.max.x.toFixed(2)} z ${box.min.z.toFixed(2)}…${box.max.z.toFixed(2)} leaves the stage house`);
+    if (box.min.y < JT.o.y - 0.01) b3.push(`${c.holder.name}: its bottom ${box.min.y.toFixed(3)} is under the deck`);
+  }
+  for (const [n, seg] of JT.order) for (const p of d.pieces) for (const pl of jtPlacements(p, n, seg)) {
+    if (p.kind === 'flown' && !jtDeadHung(p)) continue;
+    const f = jtFoot(p, pl); for (const [x, z] of f) if (x < -9.45 - E || x > 9.6 + E || z < -2.65 - E || z > 6.6 + E) { b3.push(`${n}.${seg} ${p.id} off the deck at x ${x.toFixed(2)} z ${z.toFixed(2)}`); break; }
+  }
+  out('deck: nothing off the deck or out of the stage house (now, and every segment as planned)', b3);
+  // 4: the arch: nothing unflown over 4.40 in the arch's sightlines
+  const b4 = [];
+  for (const [n, seg] of JT.order) for (const p of d.pieces) {
+    if (p.kind === 'flown' || p.id === 'masking-legs') continue;
+    for (const pl of jtPlacements(p, n, seg)) { const top = (pl.y || 0) + jtDims(p, pl)[1]; if (top > 4.40 + E) b4.push(`${n}.${seg} ${p.id} reaches ${top.toFixed(2)}`); }
+  }
+  for (const P of Object.values(JT.pieces)) for (const c of P.copies) { if (c.p.kind === 'flown' || !c.holder.visible || c.holder.parent !== JT.group) continue; box.setFromObject(c.holder); if (!box.isEmpty() && box.max.y > JT.o.y + 4.40 + 0.01 && box.min.y >= JT.o.y - 0.5) b4.push(`${c.holder.name} stands ${(box.max.y - JT.o.y).toFixed(2)} over the deck now`); }
+  out('arch: no unflown piece over 4.40', [...new Set(b4)]);
+  // 5: the lifts: unit set off both; every wagon rides both; nothing stays on a lift that moves in a change
+  const b5 = [], moves = [];
+  for (const p of d.pieces) if (p.kind === 'unit' || jtDeadHung(p)) for (const pl of p.home) for (const [nm, L] of Object.entries(JT.lifts)) if (jtSat(jtFoot(p, pl), jtRect(L))) b5.push(`unit piece ${p.id} on the ${nm} lift`);
+  for (let k = 1; k < JT.order.length; k++) {
+    const A = JT.order[k - 1], Bq = JT.order[k], wa = new Set(), wb = new Set();
+    for (const p of d.pieces) { const w = jtWagon(p); if (!w) continue; if (jtPlacements(p, ...A).length) wa.add(w); if (jtPlacements(p, ...Bq).length) wb.add(w); }
+    const moving = [...([...wa].some(w => !wb.has(w)) ? ['back'] : []), ...([...wb].some(w => !wa.has(w)) ? ['front'] : [])];
+    if (!moving.length) continue;
+    moves.push(`${A.join('.')}→${Bq.join('.')} ${moving.join('+')}`);
+    for (const p of d.pieces) {
+      if (p.kind === 'unit' || p.kind === 'hand' || p.kind === 'flown' || jtWagon(p)) continue;
+      const a = jtPlacements(p, ...A), bb = jtPlacements(p, ...Bq); if (!a.length || !bb.length) continue;
+      for (const pl of [...a, ...bb]) for (const nm of moving) if (jtSat(jtFoot(p, pl), jtRect(JT.lifts[nm]))) b5.push(`${A.join('.')}→${Bq.join('.')}: ${p.id} stands on the ${nm} lift while it moves`);
+    }
+  }
+  const wag = {};
+  for (const [n, seg] of JT.order) for (const p of d.pieces) { const w = jtWagon(p); if (!w) continue; const pls = jtPlacements(p, n, seg); if (pls.length) (wag[w + ' ' + n + '.' + seg] = wag[w + ' ' + n + '.' + seg] || []).push(...pls.map(pl => jtFoot(p, pl)).flat()); }
+  for (const [k, pts] of Object.entries(wag)) { const W = Math.max(...pts.map(q => q[0])) - Math.min(...pts.map(q => q[0])), D = Math.max(...pts.map(q => q[1])) - Math.min(...pts.map(q => q[1])); if (W > 4.9 + E || D > 2.3 + E) b5.push(`wagon ${k}: ${W.toFixed(2)} × ${D.toFixed(2)} does not ride the back lift (5.0 × 2.4)`); }
+  out('lifts: unit set off both; wagons fit; nothing stays on a moving lift', [...new Set(b5)], `${moves.length} changes move a lift${jtUnder() ? '' : ' (MIDTOWN.under absent: big sets appear and vanish)'}`);
+  // 6: the shifts in show order, step by step (jtGo): after the strike and re-set, during the big sets' glides and after the
+  // set, no two pieces in one footprint; every re-set and every wagon's glide sweeps clear of what stands; every big set's
+  // route is back lift → bay, then bay → front lift, and it only leaves the stage it is on and only arrives from its bay
+  const b6 = [], where = {}, d6 = JT.d;
+  for (const p of d6.pieces) { const w = jtWagon(p); if (w) where[w] = 'bay'; }
+  for (const p of d6.pieces) { const w = jtWagon(p); if (w && jtPlacements(p, ...JT.order[0]).length) where[w] = 'stage'; }
+  const B6 = JT.lifts.back, F6 = JT.lifts.front, bc6 = [(B6.x[0] + B6.x[1]) / 2, (B6.z[0] + B6.z[1]) / 2], fc6 = [(F6.x[0] + F6.x[1]) / 2, (F6.z[0] + F6.z[1]) / 2];
+  const solid = p => p.kind !== 'hand' && p.id !== 'loft-rafters' && (p.kind !== 'flown' || jtDeadHung(p));
+  const fixed = d6.pieces.filter(p => solid(p) && (p.kind === 'unit' || jtDeadHung(p))).flatMap(p => p.home.map(pl => ({ p, pl, f: jtFoot(p, pl) })));
+  let shifts = 0;
+  for (let k = 1; k < JT.order.length; k++) {
+    const A = JT.order[k - 1], Bq = JT.order[k], tag = `${A.join('.')}→${Bq.join('.')}`;
+    const stay = [], leave = {}, come = {};
+    for (const p of d6.pieces) {
+      if (!solid(p) || p.kind === 'unit' || jtDeadHung(p)) continue;
+      const a = jtPlacements(p, ...A), b = jtPlacements(p, ...Bq), w = jtWagon(p);
+      if (w) { if (a.length && !b.length) (leave[w] = leave[w] || []).push(...a.map(pl => ({ p, pl }))); if (!a.length && b.length) (come[w] = come[w] || []).push(...b.map(pl => ({ p, pl }))); continue; }
+      for (let i = 0; i < Math.min(a.length, b.length); i++) stay.push({ p, a: a[i], b: b[i], moves: JSON.stringify(a[i]) !== JSON.stringify(b[i]) });
+    }
+    shifts++;
+    const after = [...fixed, ...stay.map(s => ({ p: s.p, pl: s.b, f: jtFoot(s.p, s.b) }))];
+    // re-set sweeps: a moving piece's path against what does not move
+    for (const s of stay.filter(q => q.moves)) {
+      const hull = jtHull([...jtFoot(s.p, s.a), ...jtFoot(s.p, s.b)]);
+      for (const o of [...fixed, ...stay.filter(q => !q.moves && q !== s).map(q => ({ p: q.p, pl: q.b, f: jtFoot(q.p, q.b) }))]) if (jtClash(s.p, s.b, hull, o.p, o.pl, o.f)) b6.push(`${tag}: the re-set of ${s.p.id} sweeps through ${o.p.id}`);
+    }
+    // the big sets' glides: off onto the back lift, on from the front lift, against everything standing then
+    for (const [name, its, dir] of [...Object.entries(leave).map(e => [...e, 'off']), ...Object.entries(come).map(e => [...e, 'on'])]) {
+      const pts = its.flatMap(q => jtFoot(q.p, q.pl)), xs = pts.map(q => q[0]), zs = pts.map(q => q[1]);
+      const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2, to = dir === 'off' ? bc6 : fc6;
+      for (const q of its) {
+        const moved = { ...q.pl, x: q.pl.x + to[0] - cx, z: q.pl.z + to[1] - cz }, hull = jtHull([...jtFoot(q.p, q.pl), ...jtFoot(q.p, moved)]);
+        for (const o of after) if (jtClash(q.p, q.pl, hull, o.p, o.pl, o.f)) b6.push(`${tag}: big set ${name} (${q.p.id}) ${dir === 'off' ? 'to the back lift' : 'from the front lift'} sweeps through ${o.p.id}`);
+      }
+      if (dir === 'off') { if (where[name] !== 'stage') b6.push(`${tag}: big set ${name} leaves but is not on stage`); where[name] = 'bay'; }
+      else { if (where[name] !== 'bay') b6.push(`${tag}: big set ${name} arrives but is not in its bay`); where[name] = 'stage'; }
+    }
+    // the moment after the set: everything standing, pairwise
+    const all = [...after]; for (const p of d6.pieces) { if (!solid(p) || p.kind === 'unit' || jtDeadHung(p)) continue; const a = jtPlacements(p, ...A), b = jtPlacements(p, ...Bq); for (let i = (jtWagon(p) ? 0 : Math.min(a.length, b.length)); i < b.length; i++) all.push({ p, pl: b[i], f: jtFoot(p, b[i]) }); }
+    for (let i = 0; i < all.length; i++) for (let j = i + 1; j < all.length; j++) if (all[i].p !== all[j].p && jtClash(all[i].p, all[i].pl, all[i].f, all[j].p, all[j].pl, all[j].f)) b6.push(`${tag}: after the set ${all[i].p.id} and ${all[j].p.id} share a footprint`);
+  }
+  // the live log (with MIDTOWN.under): each big set's runs were back lift → bay or bay → front lift, alternately
+  for (const [w, log] of Object.entries(JT.routes)) {
+    const real = log.filter(x => !/no lifts/.test(x));
+    for (let i = 0; i + 1 < real.length; i += 2) { const pair = real[i] + ' → ' + real[i + 1]; if (pair !== 'back lift → bay' && pair !== 'bay → front lift') b6.push(`big set ${w} ran ${pair}`); }
+  }
+  out('shifts: strike before set, nothing sweeps through what stands, every big set back lift → bay → front lift', [...new Set(b6)], `${shifts} shifts in show order${Object.keys(JT.routes).length ? `, ${Object.values(JT.routes).reduce((a, l) => a + l.length, 0)} lift legs logged` : ''}`);
+  // 7: the keep-outs (the underground's stair hole): nothing on it in any segment, parked on it, or gliding across it
+  const b7 = [], KO = JT.keepOut.map(k => ({ name: k.name, r: jtRect(k) }));
+  for (const p of JT.d.pieces) {
+    const st = p.storage || {}, wing = st.where === 'SL wing' || st.where === 'SR wing';
+    for (let i = 0; i < (p.count || 1); i++) {
+      const park = wing ? (st.at && st.at[i]) || st : null, pf = park ? jtFoot(p, { x: park.x, z: park.z, rotY: park.rotY || 0 }) : null;
+      if (pf) for (const k of KO) if (jtSat(pf, k.r)) b7.push(`${p.id}#${i} parked on ${k.name}`);
+      for (const [n, seg] of JT.order) {
+        const pl = jtPlacements(p, n, seg)[i]; if (!pl || (p.kind === 'flown' && !jtDeadHung(p))) continue;
+        const f = jtFoot(p, pl);
+        for (const k of KO) { if (jtSat(f, k.r)) b7.push(`${n}.${seg} ${p.id} stands on ${k.name}`); if (pf && (pl.y || 0) <= 0.3 && jtSat(jtHull([...pf, ...f]), k.r)) b7.push(`${p.id}#${i} glides across ${k.name} to ${n}.${seg}`); }
+      }
+    }
+  }
+  out('keep-out: nothing on, parked on or gliding across the stair hole', [...new Set(b7)]);
+  const pass = !fails.length;
+  lines.push(`jt check: ${pass ? 'PASS' : 'FAIL'} — ${d.pieces.length} pieces, ${JT.order.length} segments, ${Object.keys(JT.fitted).length} models slotted, ${JT.tris} stand-in triangles, ${JT.meshes} meshes`);
+  if (!quiet) console[pass ? 'info' : 'error'](lines.join('\n'));
+  return { pass, lines, moves };
+}
+
+// ---- the panel and its header button
+function jtPanelStatus() {
+  const s = JT.el && JT.el.querySelector('.jt-status'); if (!s) return;
+  const U = jtUnder(), lift = U ? `lifts: front ${U.lifts.front.state}, back ${U.lifts.back.state}` : 'no lifts yet (MIDTOWN.under absent): big sets appear and vanish';
+  const P = JT.plan, mv = P && JT.busy ? [['Strike', P.strike], ['Re-set', P.reset], ['Big set off', P.off], ['Big set on', P.on], ['Set', P.set]].filter(q => q[1]).map(q => `${q[0]}: ${q[1]}`).join('\n') : '';
+  s.textContent = (JT.busy ? `▶ ${JT.msg || '…'}${JT.speed !== 1 ? ` (${JT.speed}×)` : ''}` : JT.auto ? `Auto: holding ${JT.hold} s on each segment` : 'Standing.') + '\n' + lift + (mv ? '\n\nThis shift —\n' + mv : '');
+}
+function jtPanelDraw() {
+  if (!JT.el || !JT.d || !JT.cur) return;
+  const [n, seg] = JT.cur, s = JT.d.scenes.find(q => q.n === n), g = s.segments.find(q => q.seg === seg), k = s.segments.findIndex(q => q.seg === seg);
+  JT.el.querySelector('.jt-sel').value = n + '.' + seg;
+  JT.el.querySelector('.jt-title').textContent = `Act ${s.act} · Scene ${n} · ${s.title} (${k + 1}/${s.segments.length})`;
+  JT.el.querySelector('.jt-where').innerHTML = `${g.location}<br><span class="note">look: ${g.look} · furnace ${jtLit(n, seg) ? 'LIT' : 'dark'} · on: ${g.pieces.length ? g.pieces.join(', ') : 'the unit set alone'}</span>`;
+  JT.el.querySelector('.jt-models').textContent = `Models slotted: ${Object.keys(JT.fitted).length} of ${JT.d.pieces.length} (assets/johnny-tremain/models/manifest.json) — the rest are stand-ins.`;
+  const i = jtIndex();
+  JT.el.querySelector('.jt-prev').disabled = i <= 0; JT.el.querySelector('.jt-next').disabled = i >= JT.order.length - 1;
+  JT.el.querySelector('.jt-pos').textContent = `${i + 1} / ${JT.order.length}`;
+  jtPanelStatus();
+}
+function jtPanel(on) {
+  if (!JT.el) {
+    const css = document.createElement('style');
+    css.textContent = `#jt { position: absolute; top: 12px; right: 12px; width: 330px; max-height: calc(100% - 64px); overflow: auto; background: rgb(23,21,27); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; display: grid; grid-auto-rows: max-content; gap: 8px; font-size: 12px; z-index: 5; }
+#jt .row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; } #jt button { padding: 4px 8px; font-size: 12px; } #jt label { color: var(--muted); display: flex; align-items: center; gap: 4px; }
+#jt .note { color: var(--muted); font-size: 11px; } #jt select { flex: 1; min-width: 0; font: 12px var(--mono); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 3px 5px; }
+#jt .jt-head { display: flex; align-items: center; justify-content: space-between; } #jt .jt-head b { font-size: 13px; } #jt .jt-out { font: 11px var(--mono); white-space: pre-wrap; color: var(--muted); max-height: 160px; overflow: auto; }
+#jt .jt-title { font-weight: 600; color: var(--accent); } #jt .jt-status { white-space: pre-wrap; font: 11px var(--mono); color: var(--fg); } #jt .jt-pos { font: 11px var(--mono); color: var(--muted); margin-left: auto; }
+@media (max-width: 640px) { #jt { width: calc(100% - 24px); } }`;
+    document.head.appendChild(css);
+    const el = document.createElement('div'); el.id = 'jt'; el.hidden = true;
+    el.innerHTML = `<div class="jt-head"><b>Johnny Tremain · Theatre 2</b><button class="jt-x" title="Hide the panel (the set stays as it is)">Hide</button></div>
+<div class="jt-title"></div>
+<div class="row"><button class="jt-prev" title="Run the shift back to the previous segment (PageUp)">◀ Prev</button><button class="jt-next" title="Run the shift to the next segment, in order (PageDown)">Next ▶</button><button class="jt-skip" title="Finish the running shift at once">Skip</button><button class="jt-auto" aria-pressed="false" title="Play every shift from here to the end of the show">Auto</button><span class="jt-pos"></span></div>
+<div class="row"><span class="note">Speed</span><button class="jt-spd" data-k="1" aria-pressed="true">1×</button><button class="jt-spd" data-k="2" aria-pressed="false">2×</button><button class="jt-spd" data-k="4" aria-pressed="false">4×</button><label title="Every step a snap: no strike, lifts or set"><input type="checkbox" class="jt-snap"> Snap</label></div>
+<div class="row"><select class="jt-sel" aria-label="Jump to an act, scene and segment (snaps)"></select></div>
+<div class="jt-where"></div><div class="jt-status"></div>
+<div class="row"><label title="Flames on the candles, lanterns, torches and lamps that are on stage"><input type="checkbox" class="jt-prac" checked> Practicals</label><button class="jt-view" title="The view from the middle of Theatre 2's stalls">Stalls view</button><button class="jt-check" title="MIDTOWN.jt.check()">Check</button></div>
+<div class="note">Keys while this panel is open: PageDown the next shift · PageUp back. The picker jumps straight there (a snap).</div>
+<div class="note jt-models"></div><div class="jt-out" hidden></div>`;
+    const sel = el.querySelector('.jt-sel');
+    for (const act of [1, 2]) { const og = document.createElement('optgroup'); og.label = act === 1 ? 'Act One' : 'Act Two'; for (const s of JT.d.scenes.filter(q => q.act === act)) for (const g of s.segments) { const o = document.createElement('option'); o.value = s.n + '.' + g.seg; o.textContent = `${s.n}.${g.seg}  ${s.segments.length > 1 ? g.location : s.title}`.slice(0, 64); og.appendChild(o); } sel.appendChild(og); }
+    sel.addEventListener('change', () => { const [n, g] = sel.value.split('.').map(Number); jtAuto(false); jtScene(n, g, { snap: true }); });
+    el.querySelector('.jt-prev').addEventListener('click', () => { jtAuto(false); jtStep(-1); });
+    el.querySelector('.jt-next').addEventListener('click', () => jtStep(1));
+    el.querySelector('.jt-skip').addEventListener('click', () => jtSkip());
+    el.querySelector('.jt-auto').addEventListener('click', () => jtAuto(!JT.auto));
+    el.querySelectorAll('.jt-spd').forEach(b => b.addEventListener('click', () => jtSpeed(+b.dataset.k)));
+    el.querySelector('.jt-x').addEventListener('click', () => jtPanel(false));
+    el.querySelector('.jt-snap').addEventListener('change', e => { JT.snap = e.target.checked; });
+    el.querySelector('.jt-prac').addEventListener('change', e => jtSetPracticals(e.target.checked));
+    el.querySelector('.jt-view').addEventListener('click', () => go('jt-stalls'));
+    el.querySelector('.jt-check').addEventListener('click', () => { const r = jtCheck(true), o = el.querySelector('.jt-out'); o.hidden = false; o.textContent = r.lines.join('\n'); });
+    document.getElementById('stage').appendChild(el); JT.el = el;
+  }
+  JT.el.hidden = !on; JT.btn.setAttribute('aria-pressed', String(!!on));
+  if (on) jtPanelDraw();
+}
+// PageDown / PageUp: the next / previous shift while the panel is open and nothing is being typed (no other key of the page uses them)
+addEventListener('keydown', e => {
+  if (!JT.el || JT.el.hidden || e.ctrlKey || e.metaKey || e.altKey || (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName) && e.target.type !== 'checkbox')) return;
+  if (e.code === 'PageDown') { e.preventDefault(); if (!e.repeat) jtStep(1); }
+  else if (e.code === 'PageUp') { e.preventDefault(); if (!e.repeat) { jtAuto(false); jtStep(-1); } }
+});
+function jtSetPracticals(on) { JT.practicals = !!on; for (const P of Object.values(JT.pieces)) for (const c of P.copies) jtPractical(c, !!(c.state && c.state.on)); requestRender(); }
+VIEWS['jt-stalls'] = [[HOUSE2.dx, 2.3, -8.5], [HOUSE2.dx, 2.0, 5.0]];   // the middle of Theatre 2's stalls, looking at the stage
+
+// ---- the hooks: the header's button, the frame (after the actors), MIDTOWN.jt
+JT.btn = document.createElement('button');
+JT.btn.id = 'jt-toggle'; JT.btn.textContent = 'Johnny Tremain'; JT.btn.setAttribute('aria-pressed', 'false'); JT.btn.disabled = true; JT.btn.title = 'Loading the set…';
+ACT.btn.after(JT.btn);
+JT.btn.addEventListener('click', () => jtPanel(!JT.el || JT.el.hidden));
+const lxPanelTickJT = lxPanelTick;
+lxPanelTick = dt => { const a = lxPanelTickJT(dt), b = jtTick(dt); return a || b; };
+const buildLightsPanelJT = buildLightsPanel;
+buildLightsPanel = () => {
+  buildLightsPanelJT();
+  (async () => {
+    const r = await fetch(JT.url, { cache: 'no-cache' }); if (!r.ok) throw new Error(`${JT.url}: ${r.status}`);
+    jtBuild(await r.json());
+    const M = window.MIDTOWN;
+    if (M) M.jt = {
+      scene: (n, seg = 1, opt) => jtScene(n, seg, opt), next: () => jtStep(1), prev: () => jtStep(-1),
+      get pieces() { return Object.fromEntries(Object.entries(JT.pieces).map(([id, P]) => [id, { kind: P.piece.kind, size: P.piece.size, copies: P.copies.map(c => c.holder), model: JT.fitted[id] || null, triangles: P.tris }])); },
+      get set() { return JT.d; }, check: quiet => jtCheck(quiet), get state() { return { scene: JT.cur, busy: JT.busy, phase: JT.msg, speed: JT.speed, auto: JT.auto, snap: JT.snap, practicals: JT.practicals, furnace: JT.fireTo, bays: Object.fromEntries(Object.entries(JT.bays).map(([w, b]) => [w, b.name])), under: !!jtUnder() }; },
+      speed: k => jtSpeed(k), skip: () => jtSkip(), auto: on => jtAuto(on !== false), get routes() { return JT.routes; }, get plan() { return JT.plan; },
+      snap: on => { JT.snap = on !== false; if (JT.el) JT.el.querySelector('.jt-snap').checked = JT.snap; }, practicals: on => jtSetPracticals(on !== false), panel: on => jtPanel(on !== false),
+      group: JT.group, materials: { stand: jtMat, flame: jtFlame, fire: jtFire }, models: JT.fitted, spec: JT,
+    };
+    jtSnap(1, 1);
+    JT.btn.disabled = false; JT.btn.title = "Johnny Tremain on Theatre 2: the set, scene by scene (again to hide the panel)";
+    jtCheck(true).pass || console.error(jtCheck(true).lines.join('\n'));
+    await jtModels();
+  })().catch(e => { console.error('jt set: the set failed to build —', e); JT.btn.title = 'The set failed to load: ' + (e && e.message || e); });
 };
 
 /* ---------------------------------------------------------------- BUILD MODE
