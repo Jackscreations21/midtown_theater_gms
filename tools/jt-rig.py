@@ -215,7 +215,7 @@ for x, sx in ((14.6, -4.5), (17.4, -1.8), (22.6, 1.8), (25.4, 4.5)):
     E(4, x, 'cyc', W(sx, 7.0, 6.6), 'Back brick wash from above (the sky)', 'sky', colour='LED RGBAL')
 E(4, 15.0, 'aura', W(-3.0, 0, 3.5), 'Wash mover: back light colour, the ride', 'aura', beam=True)
 E(4, 16.0, 'cs-par', A('LOFT'), 'Back light LOFT', 'back', area='LOFT')
-E(4, 16.8, 'cs-spot', W(-3.3, 4.2, 4.65), 'Otis at the rafters (S12)', 'special', special='S12', pool=1.5, beam=True)
+E(3, 16.1, 'cs-spot', W(-3.3, 4.2, 4.65), 'Otis at the rafters (S12), steep top', 'special', special='S12', pool=1.5, beam=True)
 E(4, 18.2, 'aura', W(-1.0, 0, 2.0), 'Wash mover: back light colour, the ride', 'aura', beam=True)
 E(4, 18.9, 'cs-spot', W(0.2, 1.6, 5.0), 'Rab at the back: soft cool backlight (S33)', 'special', special='S33', pool=1.8, beam=True)
 E(4, 21.4, 'cs-par', A('PATH'), 'Back light PATH', 'back', area='PATH')

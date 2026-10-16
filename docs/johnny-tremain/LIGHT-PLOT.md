@@ -34,8 +34,8 @@ World metres (stage → world: x + 20.00, y + 0.80, z + 2.30). "Stage" columns a
 | Pros boom house left | x 25.50, y 3.00, z 0.60 | 1 | 1 × ETC ColorSource Spot |
 | 1st Electric | x 15.00…25.00, y 8.50, z 2.90 | 11 | 2 × Martin MAC Encore Performance CLD, 6 × ETC ColorSource PAR, 1 × ETC Source Four 750 W (tungsten) on a dimmer, 2 × ETC ColorSource Spot |
 | 2nd Electric | x 15.00…25.00, y 8.50, z 4.70 | 12 | 2 × Martin MAC Encore Performance CLD, 6 × ETC ColorSource PAR, 1 × ETC Source Four 750 W (tungsten) on a dimmer, 3 × ETC ColorSource Spot |
-| 3rd Electric | x 15.60…23.80, y 10.10, z 6.50 | 8 | 7 × ETC ColorSource PAR, 1 × ETC ColorSource Spot |
-| 4th Electric | x 14.60…25.40, y 11.60, z 8.00 | 14 | 4 × Chauvet Ovation CYC 1 FC, 4 × Martin MAC Aura, 4 × ETC ColorSource PAR, 2 × ETC ColorSource Spot |
+| 3rd Electric | x 15.60…23.80, y 10.10, z 6.50 | 9 | 7 × ETC ColorSource PAR, 2 × ETC ColorSource Spot |
+| 4th Electric | x 14.60…25.40, y 11.60, z 8.00 | 13 | 4 × Chauvet Ovation CYC 1 FC, 4 × Martin MAC Aura, 4 × ETC ColorSource PAR, 1 × ETC ColorSource Spot |
 | SL boom 1 (in 1) | x 13.80, y 1.20…4.20, z 3.40 | 4 | 4 × ETC ColorSource Spot |
 | SL boom 2 (in 2) | x 14.45, y 1.20…4.80, z 5.60 | 5 | 5 × ETC ColorSource Spot |
 | SL boom 3 (in 3) | x 14.45, y 1.20…3.40, z 7.60 | 4 | 4 × ETC ColorSource Spot |
@@ -108,19 +108,19 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | 1 | 388–392 | 50 | E2-10 | 2nd Electric | ETC ColorSource Spot | 5-Channel | Lantern reveal: the dressing table (S24) | LED colour mix |
 | 1 | 393–397 | 51 | E2-11 | 2nd Electric | ETC ColorSource PAR | 5-channel | Top light MSR | LED colour mix |
 | 1 | 398–402 | 52 | E3-01 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light LOFT, downstage half and the ladder head (S11) | LED colour mix |
-| 1 | 403–407 | 53 | E3-02 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light LOFT, upstage half (S11) | LED colour mix |
-| 1 | 408–412 | 54 | E3-03 | 3rd Electric | ETC ColorSource PAR | 5-channel | Back light MSL | LED colour mix |
-| 1 | 413–417 | 55 | E3-04 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light PATH | LED colour mix |
-| 1 | 418–422 | 56 | E3-05 | 3rd Electric | ETC ColorSource PAR | 5-channel | Back light MSC | LED colour mix |
-| 1 | 423–427 | 57 | E3-06 | 3rd Electric | ETC ColorSource Spot | 5-Channel | Steeple lanterns pin (S22) | LED colour mix |
-| 1 | 428–432 | 58 | E3-07 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light WHARF | LED colour mix |
-| 1 | 433–437 | 59 | E3-08 | 3rd Electric | ETC ColorSource PAR | 5-channel | Back light MSR | LED colour mix |
-| 1 | 438–442 | 60 | E4-03 | 4th Electric | ETC ColorSource PAR | 5-channel | Back light LOFT | LED colour mix |
-| 1 | 443–447 | 61 | E4-04 | 4th Electric | ETC ColorSource Spot | 5-Channel | Otis at the rafters (S12) | LED colour mix |
-| 1 | 448–452 | 62 | E4-07 | 4th Electric | ETC ColorSource Spot | 5-Channel | Rab at the back: soft cool backlight (S33) | LED colour mix |
-| 1 | 453–457 | 63 | E4-08 | 4th Electric | ETC ColorSource PAR | 5-channel | Back light PATH | LED colour mix |
-| 1 | 458–462 | 64 | E4-11 | 4th Electric | ETC ColorSource PAR | 5-channel | Back light WHARF | LED colour mix |
-| 1 | 463–467 | 65 | E4-12 | 4th Electric | ETC ColorSource PAR | 5-channel | The volley flash behind Johnny (S28), strobe | LED colour mix |
+| 1 | 403–407 | 53 | E3-02 | 3rd Electric | ETC ColorSource Spot | 5-Channel | Otis at the rafters (S12), steep top | LED colour mix |
+| 1 | 408–412 | 54 | E3-03 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light LOFT, upstage half (S11) | LED colour mix |
+| 1 | 413–417 | 55 | E3-04 | 3rd Electric | ETC ColorSource PAR | 5-channel | Back light MSL | LED colour mix |
+| 1 | 418–422 | 56 | E3-05 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light PATH | LED colour mix |
+| 1 | 423–427 | 57 | E3-06 | 3rd Electric | ETC ColorSource PAR | 5-channel | Back light MSC | LED colour mix |
+| 1 | 428–432 | 58 | E3-07 | 3rd Electric | ETC ColorSource Spot | 5-Channel | Steeple lanterns pin (S22) | LED colour mix |
+| 1 | 433–437 | 59 | E3-08 | 3rd Electric | ETC ColorSource PAR | 5-channel | Top light WHARF | LED colour mix |
+| 1 | 438–442 | 60 | E3-09 | 3rd Electric | ETC ColorSource PAR | 5-channel | Back light MSR | LED colour mix |
+| 1 | 443–447 | 61 | E4-03 | 4th Electric | ETC ColorSource PAR | 5-channel | Back light LOFT | LED colour mix |
+| 1 | 448–452 | 62 | E4-06 | 4th Electric | ETC ColorSource Spot | 5-Channel | Rab at the back: soft cool backlight (S33) | LED colour mix |
+| 1 | 453–457 | 63 | E4-07 | 4th Electric | ETC ColorSource PAR | 5-channel | Back light PATH | LED colour mix |
+| 1 | 458–462 | 64 | E4-10 | 4th Electric | ETC ColorSource PAR | 5-channel | Back light WHARF | LED colour mix |
+| 1 | 463–467 | 65 | E4-11 | 4th Electric | ETC ColorSource PAR | 5-channel | The volley flash behind Johnny (S28), strobe | LED colour mix |
 | 1 | 468–472 | 66 | FL-1 | Floor (under the loft, beside the bellows) | ETC ColorSource PAR | 5-channel | Furnace glow on Johnny's face (S8) | LED colour mix |
 | 1 | 473–477 | 67 | DR-1 | Backstage corridor, through the stage doors | ETC ColorSource Spot | 5-Channel | The doorway backlight (S14) | LED colour mix |
 | 1 | 478–478 | 68 | FS-1 | Theatre 2's followspot booth | Robert Juliat D'Artagnan 934SNX followspot | 1 (1 channel) | Followspot (S3): Johnny anywhere, the aisle | LED colour mix |
@@ -155,13 +155,13 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | 2 | 268–305 | 97 | E2-01 | 2nd Electric | Martin MAC Encore Performance CLD | CLD | Mover: moon and cloud breakup (S18) | LED colour mix |
 | 2 | 306–343 | 98 | E2-12 | 2nd Electric | Martin MAC Encore Performance CLD | CLD | Mover: moon breakup / the ride (S18, S29) | LED colour mix |
 | 2 | 344–357 | 99 | E4-02 | 4th Electric | Martin MAC Aura | Standard | Wash mover: back light colour, the ride | LED colour mix |
-| 2 | 358–371 | 100 | E4-06 | 4th Electric | Martin MAC Aura | Standard | Wash mover: back light colour, the ride | LED colour mix |
-| 2 | 372–385 | 101 | E4-09 | 4th Electric | Martin MAC Aura | Standard | Wash mover: back light colour, the ride | LED colour mix |
-| 2 | 386–399 | 102 | E4-13 | 4th Electric | Martin MAC Aura | Standard | Wash mover: back light colour, the ride | LED colour mix |
+| 2 | 358–371 | 100 | E4-05 | 4th Electric | Martin MAC Aura | Standard | Wash mover: back light colour, the ride | LED colour mix |
+| 2 | 372–385 | 101 | E4-08 | 4th Electric | Martin MAC Aura | Standard | Wash mover: back light colour, the ride | LED colour mix |
+| 2 | 386–399 | 102 | E4-12 | 4th Electric | Martin MAC Aura | Standard | Wash mover: back light colour, the ride | LED colour mix |
 | 2 | 400–406 | 103 | E4-01 | 4th Electric | Chauvet Ovation CYC 1 FC | 7 Channel | Back brick wash from above (the sky) | LED RGBAL |
-| 2 | 407–413 | 104 | E4-05 | 4th Electric | Chauvet Ovation CYC 1 FC | 7 Channel | Back brick wash from above (the sky) | LED RGBAL |
-| 2 | 414–420 | 105 | E4-10 | 4th Electric | Chauvet Ovation CYC 1 FC | 7 Channel | Back brick wash from above (the sky) | LED RGBAL |
-| 2 | 421–427 | 106 | E4-14 | 4th Electric | Chauvet Ovation CYC 1 FC | 7 Channel | Back brick wash from above (the sky) | LED RGBAL |
+| 2 | 407–413 | 104 | E4-04 | 4th Electric | Chauvet Ovation CYC 1 FC | 7 Channel | Back brick wash from above (the sky) | LED RGBAL |
+| 2 | 414–420 | 105 | E4-09 | 4th Electric | Chauvet Ovation CYC 1 FC | 7 Channel | Back brick wash from above (the sky) | LED RGBAL |
+| 2 | 421–427 | 106 | E4-13 | 4th Electric | Chauvet Ovation CYC 1 FC | 7 Channel | Back brick wash from above (the sky) | LED RGBAL |
 | 2 | 428–434 | 107 | GR-1 | Ground row (the back brick) | Chauvet Ovation CYC 1 FC (ground row) | 7 Channel | Back brick from below (the sky) | LED RGBAL |
 | 2 | 435–441 | 108 | GR-2 | Ground row (the back brick) | Chauvet Ovation CYC 1 FC (ground row) | 7 Channel | Back brick from below (the sky) | LED RGBAL |
 | 2 | 442–448 | 109 | GR-3 | Ground row (the back brick) | Chauvet Ovation CYC 1 FC (ground row) | 7 Channel | Back brick from below (the sky) | LED RGBAL |
@@ -197,13 +197,13 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | DSR | +2.85, +0.85 | BR-16 (ch 16) | BBHR-2 (ch 26) | E1-10 (ch 41) | E2-09 (ch 49) |
 | DSC | +0.00, +0.85 | BR-11 (ch 11) | — | E1-06 (ch 37) | E2-07 (ch 47) |
 | DSL | -2.85, +0.85 | BR-05 (ch 5) | BBHL-2 (ch 29) | E1-02 (ch 33) | E2-04 (ch 44) |
-| MSR | +2.85, +2.50 | F2-07 (ch 24) | BBHR-3 (ch 27) | E2-11 (ch 51) | E3-08 (ch 59) |
-| MSC | +0.00, +2.50 | F2-04 (ch 21) | — | E2-06 (ch 46) | E3-05 (ch 56) |
-| MSL | -2.85, +2.50 | F2-02 (ch 19) | BBHL-3 (ch 30) | E2-02 (ch 42) | E3-03 (ch 54) |
+| MSR | +2.85, +2.50 | F2-07 (ch 24) | BBHR-3 (ch 27) | E2-11 (ch 51) | E3-09 (ch 60) |
+| MSC | +0.00, +2.50 | F2-04 (ch 21) | — | E2-06 (ch 46) | E3-06 (ch 57) |
+| MSL | -2.85, +2.50 | F2-02 (ch 19) | BBHL-3 (ch 30) | E2-02 (ch 42) | E3-04 (ch 55) |
 | SHOP | -2.40, +5.00 | F2-01 (ch 18) | — | — | — |
-| LOFT | -3.55, +4.65 (floor 2.4) | F2-03 (ch 20) | — | E3-01 (ch 52), E3-02 (ch 53) | E4-03 (ch 60) |
-| WHARF | +3.55, +4.70 (floor 0.45) | F2-06 (ch 23) | — | E3-07 (ch 58) | E4-11 (ch 64) |
-| PATH | +0.20, +5.00 | F2-05 (ch 22) | — | E3-04 (ch 55) | E4-08 (ch 63) |
+| LOFT | -3.55, +4.65 (floor 2.4) | F2-03 (ch 20) | — | E3-01 (ch 52), E3-03 (ch 54) | E4-03 (ch 61) |
+| WHARF | +3.55, +4.70 (floor 0.45) | F2-06 (ch 23) | — | E3-08 (ch 59) | E4-10 (ch 64) |
+| PATH | +0.20, +5.00 | F2-05 (ch 22) | — | E3-05 (ch 56) | E4-07 (ch 63) |
 
 | system | units |
 |---|---|
@@ -211,12 +211,12 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | side light from SR (booms) | SR1-1 (ch 83), SR1-2 (ch 84), SR2-1 (ch 85), SR2-2 (ch 86), SR2-3 (ch 87), SR3-1 (ch 89), SR3-2 (ch 90), SR3-3 (ch 91) |
 | pros booms (apron side) | PB-L (ch 31), PB-R (ch 32) |
 | long low light from SR (dawn, sunset) | SR2-4 (ch 88), SR3-4 (ch 92) |
-| the back brick from above | E4-01 (ch 103), E4-05 (ch 104), E4-10 (ch 105), E4-14 (ch 106) |
+| the back brick from above | E4-01 (ch 103), E4-04 (ch 104), E4-09 (ch 105), E4-13 (ch 106) |
 | the ground row | GR-1 (ch 107), GR-2 (ch 108), GR-3 (ch 109), GR-4 (ch 110), GR-5 (ch 111), GR-6 (ch 112) |
 | movers: water (bridge) | BR-M1 (ch 93), BR-M2 (ch 94) |
 | movers: leaves / ride (1st) | E1-01 (ch 95), E1-11 (ch 96) |
 | movers: moon / ride (2nd) | E2-01 (ch 97), E2-12 (ch 98) |
-| wash movers (4th) | E4-02 (ch 99), E4-06 (ch 100), E4-09 (ch 101), E4-13 (ch 102) |
+| wash movers (4th) | E4-02 (ch 99), E4-05 (ch 100), E4-08 (ch 101), E4-12 (ch 102) |
 | followspots | FS-1 (ch 68), FS-2 (ch 69) |
 | haze | HZ-1 (ch 113), HZ-2 (ch 114) |
 
@@ -236,13 +236,13 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | S9 The crucible pour: hot low snap (S9) | SL3-4 | 82 | SL boom 3 (in 3) | -2.60, 1.00, +5.10 | 19.2 | — |
 | S10 Bucket, boy and furnace isolation (S10) | SL2-4 | 77 | SL boom 2 (in 2) | -2.30, 0.80, +5.20 | 32.5 | — |
 | S11 Loft isolation, front (S11) | BR-01 | 1 | FOH 1 — the bridge | -3.55, 4.00, +4.65 | 19.7 | — |
-| S12 Otis at the rafters (S12) | E4-04 | 61 | 4th Electric | -3.30, 4.20, +4.65 | 12.8 | — |
+| S12 Otis at the rafters (S12), steep top | E3-02 | 53 | 3rd Electric | -3.30, 4.20, +4.65 | 16.6 | — |
 | S13 Lavinia, rosy lift (S13) | BR-07 | 7 | FOH 1 — the bridge | -1.25, 1.60, +1.80 | 12.0 | — |
 | S14 The doorway backlight (S14) | DR-1 | 67 | Backstage corridor, through the stage doors | +0.20, 1.50, +3.30 | 27.2 | — |
 | S14b The SL in-1 doorway (S14) | SL1-4 | 73 | SL boom 1 (in 1) | -4.40, 1.60, +0.90 | 34.8 | — |
 | S15 Jail bars (S15) | E1-03 | 34 | 1st Electric | -2.80, 0.50, +1.60 | 15.7 | bars |
 | S16 Window light through the window flat (S16) | SL2-5 | 78 | SL boom 2 (in 2) | -1.00, 0.80, +2.50 | 26.0 | window |
-| S22 Steeple lanterns pin (S22) | E3-06 | 57 | 3rd Electric | +2.60, 3.70, +6.05 | 9.7 | — |
+| S22 Steeple lanterns pin (S22) | E3-07 | 58 | 3rd Electric | +2.60, 3.70, +6.05 | 9.7 | — |
 | S24a Lantern reveal: the dressing table (S24) | E2-10 | 50 | 2nd Electric | +3.60, 1.00, +1.90 | 7.7 | — |
 | S24b Lantern reveal: the wig (S24) | E1-08 | 39 | 1st Electric | +3.00, 1.40, +1.20 | 8.0 | — |
 | S24c Lantern reveal: the tipped chair (S24) | E2-08 | 48 | 2nd Electric | +0.90, 0.60, +3.00 | 7.1 | — |
@@ -251,9 +251,9 @@ The electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3
 | S27c Shop door 3 slice (S27) | BR-12 | 12 | FOH 1 — the bridge | +1.20, 1.20, -1.20 | 8.8 | slice |
 | S27d Shop door 4 slice (S27) | BR-15 | 15 | FOH 1 — the bridge | +3.60, 1.20, -1.20 | 8.7 | slice |
 | S28 The eight eyes: tight cold top (S28) | E1-05 | 36 | 1st Electric | +0.00, 1.60, +0.50 | 10.8 | — |
-| S28f The volley flash behind Johnny (S28), strobe | E4-12 | 65 | 4th Electric | +0.00, 2.00, +1.00 | 40 | — |
+| S28f The volley flash behind Johnny (S28), strobe | E4-11 | 65 | 4th Electric | +0.00, 2.00, +1.00 | 40 | — |
 | S32 The sheet, backlit (S32) | E2-05 | 45 | 2nd Electric | +0.00, 1.50, +1.60 | 26.0 | — |
-| S33 Rab at the back: soft cool backlight (S33) | E4-07 | 62 | 4th Electric | +0.20, 1.60, +5.00 | 11.0 | — |
+| S33 Rab at the back: soft cool backlight (S33) | E4-06 | 62 | 4th Electric | +0.20, 1.60, +5.00 | 11.0 | — |
 
 ## Practicals (each its own dimmer)
 
