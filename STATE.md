@@ -53,7 +53,10 @@ notes and the six hand-offs are APPLIED in `assets/hamilton-show.json` (1-01 Q38
 164.5, 1-14 440–443.5 + Viper 95 on the gallery, 2-06 Vipers 17/19, 2-07 mirrored + the switch at 77.27 — a beat-grid
 guess for Jack to confirm — no blackout, 2-23 new 1299/1300) but UNCHECKED by eye, `lx.check()` not re-run, and with
 SIX KNOWN FAULTS (re-aimed ch1/ch2/ch6 keep their new aim into later cues; a restore wrongly lights 261–269 in 1-05
-Q150) listed with their fixes in `docs/WIP-cues-2026-10-15.md`; its scripts are in `tools/wip-cues-2026-10-15/`. The show-wide spotlight audit (`tools/spot-audit.py`, re-aiming
+Q150) listed in `docs/WIP-cues-2026-10-15.md` and PATCHED in a second WIP `4085191` (`tools/wip-cues-2026-10-15/fixA.py`:
+ch2 back to its usual spot in 1-01 Q42/Q67 and 1-05 Q168, Viper 6 re-marked in Q65, 1-20 Q589's 1/5 lit again, the
+Q150 side-light restore removed; 898 cues parse) — none of it reloaded, dumped, diffed, `lx.check`ed or seen; Q168 may
+still need ch2's colour and gobo back. The WIP doc has the next steps in order. The show-wide spotlight audit (`tools/spot-audit.py`, re-aiming
 every person light to where the actors now stand) was NOT started. **Not done:** the cue work, the lead's own check of
 the merged page, the one-line replies into his checklist rows, the PR, HANDOFF's DONE block (a draft is in the lead
 session's scratchpad `worklight/notes-handoff.md`). **Resume:** read `docs/WIP-cues-2026-10-15.md` on `his-notes-cues`,
