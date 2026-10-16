@@ -127,7 +127,23 @@ T = "1-08"
 off("hamilton", "1-07", 199.0, "W-USR")
 w("hamilton", "1-07", 205.9, 0.0, 0.6, 0)        # in the transition (Q202 photo: already at the centre)
 w("hamilton", T, 29.6, -1.2, 3.7, 0)             # Q206 Binkley's 'Ham dsc' (preset 259), lit again in Q274
-w("hamilton", T, 66.0, -1.2, 3.7, 40)            # the General arrives beside him (photo 274: the figure DSR of the lane)
+# NOTES3 (Jack, 2026-10-14): "at around 55 seconds in hamilton goes off then he comes back when mulligan comes back on"
+# (was: on beside Washington from Q274, photos 274 / 278 read as him): he walks off DSR from his verse spot at 54.8 and
+# comes back on with Mulligan for the battle verse (125, below)
+off("hamilton", T, 59.5, "W-DSR")
+# NOTES3 (Jack): "also at the start when hamilton is talking lafayette, burr, mulligan and laurens are on with him": the
+# three friends follow him down from the door into a loose group upstage of him, SR (clear of the centre lane the
+# General's file will use), Burr comes on DSL; the friends go off DSR with Hamilton at ~55 (Mulligan comes back at 125)
+FRIENDS108 = [("laurens", 26.0, (-2.4, 3.2), 20, 59.0), ("mulligan", 26.7, (-2.75, 2.15), 35, 60.6),
+              ("lafayette", 27.4, (-1.45, 2.35), 15, 60.2)]
+for a, t0, (x, z), f, t1 in FRIENDS108:
+    off(a, T, t0, "D-UC")
+    w(a, T, t0 + math.hypot(x - OFF["D-UC"][0], z - OFF["D-UC"][1]) / 1.45, x, z, f)
+    off(a, T, t1, "W-DSR")
+off("burr", T, 27.0, "W-DSL")
+w("burr", T, 31.4, 1.9, 3.3, -30)                # SL, watching; he crosses to announce the General at 53
+off("laurens", T, 70.0, "W-MSR")                 # NOTES3: offstage, back to the wings they walk on from in 1-09
+off("lafayette", T, 70.0, "W-MSL")
 # the spy and the redcoat DR: Q202.01 DR bax up, Q204 Kill DR at 22.22 (photos 202.01 / 204: the DR pair)
 off("ens1", "1-07", 203.0, "W-DSR")
 w("ens1", "1-07", 207.5, -2.1, 3.65, 20)         # in Binkley's Kill 1 pools (Q204 preset 224); photo 202 has her there
@@ -148,35 +164,42 @@ for a, x, z in (("angelica", 0.0, 3.25), ("eliza", -0.8, 3.35), ("peggy", 0.8, 3
 # Q274 Here comes the General: photo 274 / 274.01 - Washington at the head of a SINGLE FILE of soldiers standing in the
 # blue-white centre lane, Hamilton DSR of its head. Washington and seven ensemble walk down from the door in the
 # red climax and are standing in the lane on the snap. Burr announces from DL.
-off("burr", T, 47.0, "W-DSL")
 w("burr", T, 53.0, 3.7, 3.7, -40)
 off("burr", T, 72.0, "W-DSL")                    # Burr leaves after the introduction
-off("washington", T, 43.5, "D-UC")
-w("washington", T, 47.5, 0.0, -2.3, dwell=0)
-w("washington", T, 53.4, 0.1, 3.0, 0)
-w("washington", T, 64.9, -0.1, 3.5, -20)          # SPOT: in Q274.01's DSC X4s ch42/45 (0, 4.05) for the chorus
+# NOTES3 (Jack): "when they are in a line near the start at around 1 minute in washington is at the back till he starts
+# talking then the line disperses and he comes to the front" (was: at the file's head). He is the last out of the door,
+# at the upstage end of the file; on Q274.01 (64.98, his first line) the file breaks up from the back (each a moment
+# before he reaches her), every one stepping straight out SL (no two paths cross) into the loose block SL of photo 278,
+# laid out as a zig-zag at the file's own depths (x 2.0 / 3.0), and he walks down the cleared lane to the front.
+off("washington", T, 46.5, "D-UC")
+w("washington", T, 53.4, 0.0, -3.05, 0, dwell=11.6)   # the back of the file; leaves at 65.0
+w("washington", T, 69.0, -0.1, 3.5, -20)          # SPOT: in Q274.01's DSC X4s ch42/45 (0, 4.05) for the chorus
 FILE = [("ens2", 2.2), ("ens3", 1.45), ("ens4", 0.7), ("ens6", -0.05), ("ens7", -0.8), ("ens8", -1.55), ("ens10", -2.3)]
 for a, z in FILE:
     off(a, T, 44.0, "D-UC")
-    w(a, T, 53.4, 0.0, z, 0)
+    w(a, T, 53.4, 0.0, z, 0, dwell=round(11.5 + 0.2 * (6 - FILE.index((a, z))), 2))   # NOTES3: peel from the back, 64.9 on
 # Q278 Path up: photo 278 - Washington in the path DC with Hamilton beside him, and the company (EIGHT figures) in a
 # loose block on the STAGE-LEFT side (the earlier passes put it SR: the photo is from the house, SL on its right).
-BLOCK = {"ens2": (1.9, 2.4), "ens5": (2.8, 2.6), "ens3": (2.1, 1.5), "ens4": (3.0, 1.7), "ens6": (2.3, 0.6),
-         "ens7": (3.2, 0.8), "ens8": (2.5, -0.3), "ens10": (3.4, -0.1)}
+# NOTES3: the block is where the file steps out to (was a 4 x 2 block at z 2.6 .. -0.3, reached by a crossing walk at Q278)
+BLOCK = {a: (2.0 if i % 2 == 0 else 3.0, z) for i, (a, z) in enumerate(FILE)}
+BLOCK["ens5"] = (2.9, 2.95)
 off("ens5", T, 72.0, "W-DSL")                    # the redcoat's actor rejoins the company
-for a, (x, z) in BLOCK.items():
-    w(a, T, 79.5, x, z, face(x, z, 0.0, 3.2))
+w("ens5", T, 79.5, BLOCK["ens5"][0], BLOCK["ens5"][1], face(BLOCK["ens5"][0], BLOCK["ens5"][1], 0.0, 3.2))
+for i, (a, z) in enumerate(FILE):                # NOTES3: the file breaks up sideways on Q274.01 into the block
+    xs = BLOCK[a][0]
+    t0 = 53.4 + 11.5 + 0.2 * (6 - i)
+    w(a, T, round(t0 + xs / 1.3 + 0.2, 2), xs, z, face(xs, z, 0.0, 3.2))
 w("washington", T, 79.0, 0.0, 3.4, 0)
 w("washington", T, 90.0, 1.1, 3.2, -15)
 w("washington", T, 104.0, 0.0, 3.0, 0)
 w("washington", T, 116.0, 0.0, 3.5, 0)          # Q279.5 chorus 2
 w("washington", T, 130.0, 0.0, 3.0, 0)
-w("hamilton", T, 79.5, -1.1, 3.3, 45)            # photo 278: the figure just SR of Washington
 # Q280-282.5 the battle: R2 - the scatter, the cannon recoils and the retreat were invented. Kept only what the fan
 # notes say: the soldiers desert him one by one over the number (ironinkpen). Hamilton goes off to the fight.
 # REVIEW 3 (video + libretto): Hamilton sings the battle verse himself (128-141, to his plan to take the cannons) and
 # Mulligan answers him (the clip's 2:09 / 2:13 comments: Mulligan's shouts), so both stay for it, then go off DSR
 # together to take the cannons. Mulligan is back in 1-08 for this alone.
+off("hamilton", T, 125.0, "W-DSR")               # NOTES3: back on with Mulligan
 w("hamilton", T, 129.0, -1.1, 3.3, 30, dwell=12.6)
 off("hamilton", T, 146.5, "W-DSR")
 off("mulligan", T, 125.0, "W-DSR")
@@ -219,6 +242,15 @@ w("hamilton", T, 252.0, 0.95, 2.4, -100)
 w("hamilton", T, 266.0, 1.25, 2.85, -10)       # Q286 Hamilton accepts - steps out into his key
 w("washington", T, 277.0, -1.6, 2.75, 20)      # Q286.5 Washington takes the chorus, in ch2
 w("hamilton", T, 290.0, 1.25, 2.6, -15)
+# NOTES3 (Jack): "washington's desk should come off around 4:37": two of the company who are free (ens1, the spy's actor,
+# off since 31; ens9, not in 1-08) come on from MSR as the company's phrase ends, take the desk (ens1, in front of him)
+# and the tent chair (ens9) at 277, and go off MSR with them (props.py washington-desk, washington-tent-chair)
+off("ens1", T, 271.0, "W-MSR")
+w("ens1", T, 276.6, -0.35, 0.2, 0, dwell=0.6)
+off("ens1", T, 283.5, "W-MSR")
+off("ens9", T, 271.8, "W-MSR")
+w("ens9", T, 276.8, -1.0, -0.8, 60, dwell=3.2)       # leaves once ens1 is well ahead on the same way off
+off("ens9", T, 284.6, "W-MSR")
 # Q288 finale: R2 - the thirteen-body arc on the ring is cut. The company (the eight of the file) comes back for the
 # last chorus in ONE loose line upstage of the desk, standing, and goes in the last line (Q288.5).
 FIN = [("ens8", -3.5, "W-USR"), ("ens7", -2.5, "W-USR"), ("ens3", -1.5, "W-USR"), ("ens2", -0.5, "D-UC"),
@@ -227,16 +259,32 @@ FIN = [("ens8", -3.5, "W-USR"), ("ens7", -2.5, "W-USR"), ("ens3", -1.5, "W-USR")
 # phrase right after Washington's offer (263.5-272), and Blankenbuehler names the My Shot phrase
 # "in the middle of Right Hand Man" (dance.py places it). So the eight burst on at Q286 (264.06) into the same line and
 # stay there through the duet (the libretto gives them Washington's refrain lines too) to the finale.
+# NOTES3 (Jack): "at 5:02 they get into a line with washington at the front hamilton behind him and burr in the middle"
+# (was: the line held to the end, the two men side by side DC): at 302.0 the eleven stand in ONE FILE down the centre
+# lane, facing the house (the Q274 picture again, now with Washington at its head): Washington, Hamilton, three of the
+# company, Burr (the sixth of eleven), five more; 0.65 m apart. Each of the line walks in from its side, the outer ones
+# to the farther places so no two paths cross and none passes within 0.6 m of Burr (who is in first); they peel off to
+# their own side on the last line (313).
+LANE = {k: round(3.4 - 0.65 * k, 2) for k in range(11)}          # 0 Washington ... 5 Burr ... 10
+# place, the wing she leaves by, when she leaves, when she is in place (the inner two first, so the others walking in
+# along the line do not brush past them)
+FILE302 = {"ens8": (2, "W-DSR", 313.0, 302.0), "ens7": (4, "W-MSR", 313.0, 302.0), "ens2": (6, "W-USR", 313.0, 300.0),
+           "ens3": (10, "W-USR", 313.0, 302.0), "ens6": (3, "W-DSL", 313.0, 302.0), "ens4": (7, "W-MSL", 313.0, 300.0),
+           "ens5": (8, "W-MSL", 313.8, 301.0), "ens10": (9, "W-USL", 313.4, 302.0)}
 for i, (a, x, ent) in enumerate(FIN):
     off(a, T, 261.4 + 0.2 * i, ent)
-    w(a, T, 266.6, x, -1.6, 0, dwell=46.2 + 0.4 * (i % 3))
-    ex, ez = OFF[ent]
-    off(a, T, 313.0 + 0.4 * (i % 3) + math.hypot(ex - x, ez + 1.6) / 1.6, ent)
-w("washington", T, 302.0, -0.47, 2.52, 10, dwell=16.94)   # SPOT: Q288.5/Q289 the two DC specials ch12 (-0.47, 2.52)
-w("hamilton", T, 302.0, 0.47, 2.52, -10, dwell=16.94)      # and ch14 (0.47, 2.52), with ch93 (0, 2.37) over both
+    w(a, T, 266.6, x, -1.6, 0)                                      # leaves just in time for the file
+    k, ent2, t2, t1 = FILE302[a]
+    w(a, T, t1, 0.0, LANE[k], 0, dwell=round(t2 - t1, 2))
+    ex, ez = OFF[ent2]
+    off(a, T, round(t2 + math.hypot(ex, ez - LANE[k]) / 1.5, 2), ent2)
+w("washington", T, 302.0, 0.0, LANE[0], 0, dwell=16.94)   # SPOT: the front of the file (was ch12 (-0.47, 2.52))
+w("hamilton", T, 302.0, 0.0, LANE[1], 0, dwell=16.94)     # SPOT: behind him (was ch14 (0.47, 2.52); ch93 (0, 2.37))
+off("burr", T, 291.0, "W-MSR")                             # NOTES3: Burr comes back for the file's middle, in first
+w("burr", T, 298.0, 0.0, LANE[5], 0)                       # (he leaves just in time for 1-09's W-DSL, 318.94)
 # BUTTON and blackout: the two men leave in the dark
-off("washington", "1-09", 3.4, "W-MSR")
-off("hamilton", "1-09", 3.6, "W-DSR")
+off("washington", "1-09", 3.4, "W-DSR")         # NOTES3: from the file's head DSR, Hamilton (behind him) MSR: no crossing
+off("hamilton", "1-09", 3.6, "W-MSR")
 
 # ================================================================= 1-09 A WINTER'S BALL
 T = "1-09"
@@ -245,12 +293,12 @@ w("burr", T, 1.6, 0.0, 3.0, 0)                  # Q290 Burr DSC narration (walks
 w("burr", T, 19.5, -2.8, 3.8, 30)               # Q290.5 aside DR as the desk lights
 w("burr", T, 45.0, 0.0, 3.0, 0)                 # Q291.5 Burr's aside DSC; SPOT: back in ch93 (0, 2.99)
 w("burr", T, 50.5, 2.6, 3.9, -30)               # R2: Q292 the ball - Burr DL (the men leave SL: fan write-up, photo 300.3)
-# the desk: Washington behind it, Hamilton at his right hand (the desk stays from the tent; props.py)
+# Washington where the desk stood, Hamilton at his right hand (NOTES3: the desk itself went off at 1-08 277; props.py)
 off("washington", T, 8.0, "W-MSR")
 w("washington", T, 17.0, -0.3, 0.2, 0, dwell=3.3)   # REVIEW 3: the clip has him going at 0:21, desk and all
 off("hamilton", T, 8.5, "W-MSR")
 w("hamilton", T, 18.2, -1.5, 0.4, 20)
-off("washington", T, 27.5, "W-USR")             # takes the desk with him (props.py) - R3: at 0:21 in the clip, not Q291
+off("washington", T, 27.5, "W-USR")             # R3: he goes at 0:21 in the clip, not Q291 (NOTES3: no desk now)
 # Q291 refrain - the three friends round Hamilton (R2: the five ensemble men behind them are cut).
 # REVIEW 3 (the clip's comments): a "LADIES lineup" - Laurens reaching for Hamilton's hand beside him - so the four
 # stand in a line abreast, not an arc. And one lady (ens1, the free woman) walks across behind them on the men's
@@ -584,36 +632,97 @@ w("peggy", T, 9.0, -0.9, 3.0, 20)
 # the couple to DL
 w("hamilton", T, 6.0, 2.4, 3.9, -40)
 w("eliza", T, 6.0, 3.0, 3.4, -40)
-# Q366 freeze ... Q366.2 the rewind: the turntable runs CLOCKWISE; everyone in reverse
+# Q366 freeze ... Q366.2 the rewind (46.74 to Q366.8 57.62).
+# NOTES3 (Jack, 2026-10-14): "make the rewind part look better" (was: the semicircle walked 45 degrees clockwise in 11 s,
+# the slow walk backwards, the couple backward to centre). Now it RETRACES what we saw, backwards and quick, in two
+# stretches, everyone in the rewind move at three times its speed (a stride every 0.65 s, matching ~1 m/s; dance.py):
+#  1. 46.74-52.6, the toast run backwards: each of the semicircle walks back along the way he came into it (0-9.5) to his
+#     mark at the end of Helpless (the wedding: 1-10's last places), the tray man back round his loop the other way;
+#     the couple back from DL to where they stood at the wedding, turned to each other (the kiss reversed); Peggy backs
+#     off DSR. A beat held there: the wedding picture.
+#  2. Q366.4 the flash (53.91): a spin backwards (dance.py), and on back through Helpless to the ball: the couples from
+#     the wedding aisle straight to their places in the ball's ring (each to the nearest, so no two paths cross; that
+#     pairs them as at the wedding, 1-10's WED), Hamilton round the upstage side of Laurens to the DR pool, Eliza round
+#     the outside to the UL pool, Washington and Lafayette off DSR (he walks on again from DSL for the replay).
+#  Angelica (and Laurens: REVIEW 3, the side-by-side's comments) keep their glasses up and do not go backwards: she walks
+#  up to her centre spot with her back to the house as the room rewinds (55.0-56.1), and turns out of it on the rebuild
+#  (Q366.8 57.62). Laurens takes her cup (0:55) once Hamilton has passed.
+def mark10(a):
+    L = sorted((d for d in W[a] if d["track"] == "1-10" and not d.get("off")), key=lambda d: d["at"])
+    return L[-1]["x"], L[-1]["z"], L[-1].get("facing", 0)
+
+
+def walk(a, pts, t0, t1, f=None, hold_to=None):
+    """NOTES3: from pts[0] (where she stands until t0) at an even pace through the rest, arriving at t1 (facing f; she
+    stands there until hold_to, if given)."""
+    L = [math.hypot(q[0] - p[0], q[1] - p[1]) for p, q in zip(pts, pts[1:])]
+    w(a, T, REW_A, pts[0][0], pts[0][1], dwell=round(t0 - REW_A, 2))
+    acc = 0.0
+    for q, l in zip(pts[1:-1], L):
+        acc += l
+        w(a, T, t0 + (t1 - t0) * acc / sum(L), q[0], q[1], dwell=0)
+    w(a, T, t1, pts[-1][0], pts[-1][1], f, dwell=round(hold_to - t1, 2) if hold_to else None)
+
+
+REW_A, REW_HOLD, REW_C, REW_END = 46.74, 52.6, 54.4, 57.62
+# when each leaves the semicircle and arrives at her mark (seconds after 46.74 / before 52.6): found by a one-off search
+# (each body's leave / arrive offsets on a 0.5 s grid, minimising the summed shortfall of every pair's closest approach
+# under 0.6 m, poses as seg1/lib.py sim()); the closest two passes left are 0.38 m (ens6 / Washington) and 0.43 m
+# (ens6 / ens3), crossing, both walking; the forward toast's own crossings (0-9.5) come to 0.07 m
+REW_STAGGER = {"ens6": (2.5, 0), "ens10": (2.5, 0), "washington": (0, 1.5), "ens7": (0, 1.5), "ens3": (0, 1.5),
+               "ens8": (0, 1.5)}
 for a in SEMI:
-    ring(a, T, 46.7, 57.6, 3.2, SEMI_H[a], SEMI_H[a] + 1.5, f=0, step=0.75, start=True)
-w("angelica", T, 46.7, 0.0, 3.3, 0, dwell=0)
-w("angelica", T, 57.6, 0.0, 2.25, 0)                     # walks backward upstage (SPOT: to the centre, photo 366.01/368)
+    x0, z0 = clock(3.2, SEMI_H[a])
+    mx, mz, mf = mark10(a)
+    vias = [(1.2, 0.2), (-0.6, -0.3)] if a == "ens2" else ([(-1.75, 2.2)] if a == "lafayette" else [])
+    so, eo = REW_STAGGER.get(a, (0, 0))
+    t1 = 50.5 if a == "lafayette" else REW_HOLD - eo     # Lafayette threads between Laurens and ens7's mark before she is there
+    walk(a, [(x0, z0)] + vias + [(mx, mz)], REW_A + so, t1, mf, hold_to=REW_C)
+w("angelica", T, 46.7, 0.0, 3.3, 0, dwell=8.3)
+w("angelica", T, 56.1, 0.0, 2.25, 180, dwell=1.5)       # her back to the house as the room rewinds (SPOT: centre)
+w("angelica", T, 58.2, 0.0, 2.25, 0)                     # turns out of it on the rebuild (Q366.8); photo 366.01/368
 w("peggy", T, 46.7, -0.9, 3.0, 20, dwell=0)
-w("peggy", T, 52.0, -1.6, 4.2, 20)
+w("peggy", T, 50.5, -1.6, 4.2, 20, dwell=0)
+off("peggy", T, 54.5, "W-DSR")
 # REVIEW 3 (the side-by-side's comments): Laurens, like Angelica, keeps his glass raised and does NOT dance backwards,
 # stays "in the back of Angelica ... a few more seconds after Peggy left", and takes the cup from her (0:55).
-w("laurens", T, 54.8, -0.55, 2.45, 60, dwell=2.5)
+w("laurens", T, 56.6, -0.55, 2.4, 60, dwell=0.9)
 off("laurens", T, 63.5, "W-MSR")
-# the couple walks backward to centre, the kiss reversed, and turns out of it
-w("hamilton", T, 46.7, 2.4, 3.9, -40, dwell=0)
+# the couple: back to the wedding, turned to each other (the kiss reversed), then apart to the pools of first sight
+hx, hz, _ = mark10("hamilton")
+ex, ez, _ = mark10("eliza")
+w("hamilton", T, 46.7, 2.4, 3.9, -40, dwell=1.5)       # leaves after Eliza: their two ways cross 0.6 m apart
 w("eliza", T, 46.7, 3.0, 3.4, -40, dwell=0)
-w("hamilton", T, 50.5, -0.35, 1.6, 90, dwell=1.0)
-w("eliza", T, 50.5, 0.35, 1.6, -90, dwell=1.0)
+w("hamilton", T, 51.6, hx, hz, face(hx, hz, ex, ez), dwell=2.4)
+w("eliza", T, 51.6, ex, ez, face(ex, ez, hx, hz), dwell=2.8)
+w("hamilton", T, 54.67, 0.2, 1.6, dwell=0)               # upstage of Eliza, then of Laurens's toast place
+w("hamilton", T, 56.04, -1.6, 1.9, dwell=0)
 w("hamilton", T, 57.5, -3.2, 3.0, 50)                    # Q366.01 DR pool: frozen, as before Helpless (photo 366.01)
-w("eliza", T, 57.5, 3.7, -1.0, -40)                      # Q366.01 UL pool
+w("eliza", T, 56.33, 2.8, 2.6, dwell=0)                  # round the outside of the couples coming into the ring
+w("eliza", T, 58.6, 3.7, -1.0, -40)                      # Q366.01 UL pool
 # Q368 lose outside pools: Eliza, Peggy slip away; Angelica alone (photo 368: one figure, centre)
 off("eliza", T, 64.5, "W-MSL")
-off("peggy", T, 56.0, "W-DSR")
 # the ensemble re-forms as the ball (four couples on the upstage half), then turns CCW as silhouettes (Q369).
 # Washington leaves; Lafayette stays near Angelica for the replay; Burr comes on beside Hamilton.
-CPL2 = list(zip(MEN, WOMEN))
+# NOTES3: each comes to the ball's ring from the wedding aisle by the shortest way: ens3 / ens7 at 9 o'clock, ens2 / ens6
+# at 11, ens5 / ens9 at 1, ens10 / ens8 at 3 (were ens2 / ens6, ens3 / ens7, ens5 / ens8, ens10 / ens9) -- the wedding's
+# couples; they are in place at the rebuild and stand there until the ring turns (Q369)
+# (when each leaves the aisle and is in place: seconds after 54.4 / before 57.62, by the same search: 0.57 m at the closest)
+CPL2 = [("ens3", "ens7"), ("ens2", "ens6"), ("ens5", "ens9"), ("ens10", "ens8")]
 CPL2_H = [9.0, 11.0, 13.0, 15.0]
+BALL_STAGGER = {"ens3": (0, 0.4), "ens2": (0, 1.2), "ens5": (0, 1.2), "ens10": (0, 0.4), "ens6": (0.8, 0.4),
+                "ens9": (0.8, 0.4)}
 for (m, wo), h in zip(CPL2, CPL2_H):
     for a, r in ((m, 1.3), (wo, 1.9)):
         x, z = clock(r, h)
-        w(a, T, 66.0, x, z, 0)
+        so, eo = BALL_STAGGER.get(a, (0, 0))
+        W[a][-1]["dwell"] = round(REW_C + so - (REW_HOLD - REW_STAGGER.get(a, (0, 0))[1]), 2)   # leaves the aisle mark
+        w(a, T, REW_END - eo, x, z, 0)
         ring(a, T, 71.6, 98.0, r, h, h - 2.0, f=0, step=1.0, start=True)
+off("washington", T, 57.6, "W-DSR")                      # NOTES3: backs off DSR in the rewind
+W["lafayette"][-1]["dwell"] = 5.2                        # NOTES3: holds his mark a moment longer, then follows Washington
+off("lafayette", T, 59.0, "W-DSR")                      # off DSR, clear of Angelica's moment; he walks on again
+off("lafayette", T, 60.0, "W-DSL")                      # from DSL to her for the replay (66.0)
 off("washington", T, 66.0, "W-USR")
 off("burr", T, 58.0, "W-DSR")
 w("burr", T, 66.0, -4.0, 3.9, 40)                       # beside Hamilton's DR pool (fan write-up: he goes to talk to Burr)
@@ -665,7 +774,7 @@ w("angelica", T, 195.5, 2.4, -0.1, 40)
 w("angelica", T, 201.7, 2.3, 1.7, dwell=0)            # SPOT: round the frozen men
 w("angelica", T, 203.5, 0.0, 2.25, 0)                    # SPOT: Q377 count 2, ch93
 # Q377 count 2: Hamilton in a spotlight, "the ensemble men form a line with Hamilton ... turn him toward Eliza"
-MLINE = [("laurens", -2.4), ("ens2", -1.6), ("ens3", -0.8), ("ens5", 0.0), ("ens10", 0.8)]
+MLINE = [("laurens", -2.4), ("ens3", -1.6), ("ens2", -0.8), ("ens5", 0.0), ("ens10", 0.8)]   # NOTES3: ens3 / ens2 swapped with their ball places
 off("laurens", T, 199.0, "W-MSR")
 for a, x in MLINE:
     w(a, T, 206.0, x, 0.6, 0)
@@ -687,7 +796,7 @@ w("peggy", T, 221.2, 2.75, 3.75, 100, dwell=0.4)
 w("peggy", T, 224.4, 5.2, 4.15, 60, dwell=0)
 w("peggy", T, 226.6, 3.4, 3.85, -40)
 # the women: upstage after the freeze, then the letters held up (Q380)
-for i, a in enumerate(WOMEN):
+for i, a in enumerate(["ens7", "ens6", "ens9", "ens8"]):     # NOTES3: in the order of their new ball places
     x = -2.4 + 1.2 * i
     w(a, T, 186.0, x, -2.2, 0)
     w(a, T, 237.0, x, -1.2, 0, dwell=0.5 + 0.6 * i)

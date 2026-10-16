@@ -2005,3 +2005,108 @@ restores.
 clips with the uniforms `uWlBox0/1`; a uniform stretched into the backstage lit the corridor and the check passed. A
 check of a GPU-side value must read the GPU-side value (or prove the record equals it), and its pixel views must
 include the place a failure would show — the corridor behind the house, not only the stage.
+
+## From his act-1 and act-2 notes round (2026-10-15)
+
+- **A brief's song title can name the wrong track; the checklist row is keyed by the track id.** The act-2 brief said
+  "2-11 Washington on Your Side"; 2-11 is The Adams Administration (Washington on Your Side is 2-08). Jack's note
+  ("jefferson come on at 19") sits on the `2-11` row of his blocking checklist. Read the row by id
+  (`ArtifactData get songs/2-11`) and the title from `assets/hamilton-show.json` before you edit a generator.
+- **Walking a scattered company into a line by NEAREST place makes them walk through each other.** For the 2-23 curtain
+  call, a hungarian (least total distance) assignment into a 20-place line crossed 16 pairs (down to 0.04 m). Two fixes,
+  and they work together. First, give each group its places in the order of where they stand (sort by x). Second, make
+  them all leave together and arrive together (a stop with a small `dwell`, then one leg). Both ends of every path are
+  then in order, and with one shared ease the order holds the whole way. What is left is the pairs that change order
+  between groups. Sample the poses (0.05 s) and look at the minimum distance; do not trust the assignment.
+- **A line filing off through one turn point squeezes its two end bodies together.** The two end bodies are 0.55 and
+  0.80 m from the turn and reach it 0.25 m apart. Time each body's arrival at the turn by her PLACE in the file
+  (0.55 + 0.58 k metres at 1.3 m/s, `k` from the end), not by her own distance; the page's "leave just in time" then
+  peels the line from the end.
+- **A generator's own range assert can forbid what the format allows.** `gen_seg8.py`'s `wp()` asserted `at <= LEN[track]`.
+  But 2-23 has an OPEN tail (RULING FQ), so the curtain call after the music (2-23 211.8 to 240) could not be written.
+  The assert now exempts the last track. Look for the same assert in any generator that writes into a lead-in or tail.
+- **A `y` on a waypoint does not stand a body on a prop.** `y` is only where the page's floor ray STARTS (`actFloor`: the
+  path height + 0.6 m, cast down through the walk's collider), and the collider is built from the set's static meshes:
+  props are not in it. Lafayette's waypoint with `y` 0.8 (gs-table's top) passed the merge without a word (any number
+  over 0.1 is kept, and only gallery heights are checked against the map), and the page still posed him at y 0.045,
+  inside the table. "On top of a piece" needs the page to treat a placed prop's top as floor; until then, check
+  `MIDTOWN.actors.pose(id, T).y`, not the file. **Since `prop-standing` it does** (`actGround`): an explicit `y` within
+  0.1 m of a placed prop's top, more than 0.25 m over the ray's floor, with her inside its footprint. A `y` that is NOT at the
+  top (a desk's 0.8 written for a 0.5 box) still leaves her inside, silently. Check the pose.
+- **A merge can commit its conflict markers into `assets/hamilton-blocking.json`, and the page then stands NOBODY.**
+  `60d0cd8` (his-notes ← notes-seg34) holds a `<<<<<<< HEAD` hunk in Lafayette's 1-20 / 1-21 / 2-01 waypoints. The page's
+  only sign is one console warning (`actors: the blocking could not be loaded — Unexpected token '<'`) and "0 actors"; every
+  check still passes, because there is nothing to check. Before any page work on a merged branch, run
+  `grep -n '^<<<<<<<' assets/*.json`. To verify engine work meanwhile without touching the file, load a resolved copy from
+  the console: fetch the text, drop one side of the hunk, `MIDTOWN.actors.load(JSON.parse(...))`. The fix is to
+  re-run the merge from the generators, not to hand-pick a side.
+- **"After the blackout" can be in the next segment.** 1-17's button fade ends at exactly the track's end (175.3 + 2.7 =
+  178.0), and the next track has no lead-in or tail, so 1-17 178.0 and 1-18 0.0 are the SAME instant on the global clock: a
+  waypoint at each is "time does not increase". An exit after the fade is written as a dwell on the last waypoint in one
+  generator and the `off` in the next one's; both generators' "starts / ends offstage" self-checks then need the actor
+  exempted (`CARRIED` in `seg3gen.py` and `gen4.py`).
+- **`MIDTOWN.set` is not the blocking's frame.** It is turned 180° from `MIDTOWN.actors.group` (same origin): a camera
+  placed at a set-local (0, 3.5, 9) through `MIDTOWN.set` landed backstage. Aim in `MIDTOWN.actors.group`'s frame
+  (`localToWorld`), the frame of `assets/hamilton-blocking.json`.
+- **Moving one formation's centre reshuffles everything after it.** 1-20's rally arc was centred on Mulligan; moving him
+  moved the arc, `assign_ring` gave the drill block different bodies, and the battle, the night pools and the furniture
+  carriers after it all changed (props.py's hard-coded `YT4` carriers no longer matched). Keep a formation's anchor where it
+  was unless the note is about the formation, and diff the generator's own prints (`FURN`) before and after.
+- **`dance.py`'s `at=` snaps to the nearest DOWNBEAT, not the nearest beat.** Satisfied's rewind was written `at=46.74`
+  (the cue) and has started at 47.33 since round 2 (the next bar), 0.6 s after the stage began to rewind; the merge's
+  "more than 0.1 s off a beat" warning cannot catch it, because the snapped time it receives is on a beat. For anything
+  that must start inside a bar, give `bar=` and `beat=` (`beats.py <track> <seconds>` names them).
+- **Moving an exit in one song moves the entrance in the next.** An actor walks on from wherever her last waypoint left
+  her, offstage or not. Sending Lafayette off DSR in 1-08 (he used to wait in his MSL wing all song) made him walk on in
+  1-09 from DSR, straight through Burr. After changing an exit, park her again in the wing her next entrance expects
+  (an `off` waypoint there: off-to-off legs are not seen), and run the proximity check on the NEXT song too.
+- **A rewind that retraces the forward paths keeps their crossings and adds the ones the forward walk never had.**
+  Forward, the bodies walked into the toast one after another; run backwards all at once over the same 6 s, five pairs
+  met at 0.1-0.3 m. Also, anyone who does NOT rewind (Laurens, glass up) is a fixed obstacle standing on someone's way
+  back. Lafayette's way back crossed Laurens's spot, and no timing fixes that. Stagger who leaves when (a small search
+  over leave / arrive offsets worked), and route round the bodies that hold still.
+- **Segment 2 (`gen_seg2.py`) has no proximity check of its own** (segment 1's `lib.check()` has one). `seg1/lib.py`'s
+  `sim()` works on any segment file once the waypoints are put on one clock (track starts from `hamilton-show.json`
+  `tracks[].len`). Compare against the committed file's list rather than reading the list cold: 1-09 to 1-11 already
+  have dozens of sub-0.4 m passes (couples, dancing).
+- **Hand-placing `MIDTOWN.camera` in set-local metres: the set's frame is turned 180 degrees in the world.** Set-local +z
+  (the house) is world -z, and `MIDTOWN.set.position` is not that frame's transform: `MIDTOWN.actors.group.localToWorld`
+  is. A camera placed with the set's offset alone looked out of the stage into the house's seating, a grey wall. With
+  the Claude window behind, the pane's screenshot timed out. What worked: `MIDTOWN.frame()`, then in the same task
+  `drawImage` the WebGL canvas onto a 2D canvas, then POST `toDataURL()` to a tiny local receiver (a scratch Python
+  server on another port, `mode: 'no-cors'`), which saves PNGs that the Read tool can open.
+- **A re-aimed mover keeps its new focus in every later cue that does not set one, across songs.** Cues track. Moving
+  Burr's AF (ch2) to centre for 1-01 Q65 also moved it in 1-02, 1-03 and 1-05's top. Viper 6, marked onto Washington's
+  balcony, lit the balcony rail through 1-02 and 1-03. The fix: give the unit its old landing back as `focus` in the first
+  later cue where it is dark (a move in the dark). Then re-dump and run `tools/pool-dump-diff.py` against a dump made before
+  the edit. Every line should be a cue you meant. `tools/spot-audit.py --fix` does the restore itself.
+- **A restore must give back the colour, gobo and zoom too, not just the focus.** The 2-06 gallery keys were set to gobo
+  Open, and 2-07's construction wash came up Open. Burr's DSR key changed the AF's colour into 1-06. The diff shows
+  these as `g1>0` and `#ffe8b5>#fff6dd`. Take the old values from the cue file at the commit before.
+- **"Set a key, then pop it" loses the value that was there before.** A script set `"i": 0` on 1-20 Q589's 1 / 5 (they were
+  at 100). A later "undo" popped the key, which left them at the tracked 55. To undo an edit, restore from the old file;
+  never delete a key.
+- **A reach test on a balcony or gallery passes or fails by the head's starting pose.** A mover has two pan / tilt solutions
+  for one point, and the lens is off-axis. Viper 6 reached Washington's SR balcony from three starting cues and hit the rail
+  from the fourth. 5 cm further on, it cleared from all of them. Test with `REACH` (`tools/pool-dump.js`) after seeking to the
+  cue BEFORE the one that aims it. Then confirm in the dump.
+- **The `"*"` channel key means every Eos channel, including the 72 that have no unit.** A fade-to-black written as
+  `{"*": {"i": 0}}` sent `show.check()`'s "channels without units" from 16 to 88. Zero the rig's channels by name
+  (`assets/hamilton-rig.json`).
+- **A follower at the same moment as a parted real cue makes the real cue a zero-length hold in the dump.** The dump reads
+  each cue just before the next one's GO. The real cue is therefore read at its own GO, before its delayed parts fire.
+  In 2-05, 866's part 2 brings 13 / 18 up 2 s in, so the dump said 1% for them. The page has them at 70%.
+- **A track's last cue was dumped past the track's end, so it showed the next song's first cue.** The bug was
+  `until = max(len, at + 1)`. `tools/pool-dump.js` now reads a last cue at the track's end, and only the open tail of 2-23
+  gets the extra second.
+- **Where a beam lands is not who it lights.** Lafayette on a piece at 0.8 m, and Eacker in his box, are lit by beams that land
+  on the deck behind them. A pool-centre test at the deck says nobody. Follow the beam's axis down to the person's own floor
+  height (`tools/spot-audit.py`), and count nobody below the point where the beam stopped (a rail).
+- **A cue that names someone may be the cue that takes her away.** "Lee goes - his key out" and "Burr exits - warm collapses"
+  name the person who is leaving. A named-miss test must skip exits, or it re-lights the person on her way out.
+- **Python inside a Bash heredoc can turn `\b` into a backspace.** A `str.replace` written as `"r'\b(...)"` inside a
+  heredoc'd Python program put a 0x08 byte into the source. The exit regex then matched nothing, and nothing failed. Check a
+  regex line with `repr()`, or edit it with the Edit tool.
+- **`show.check()` plus a whole-show dump in one `javascript_tool` call runs past its 45 s limit.** The page keeps working, so
+  the files land late and partly. The audit that ran meanwhile read half a show. Split the dump (`DUMPALL(0, 23)`,
+  `DUMPALL(23, 46)`) and count the files before reading them.

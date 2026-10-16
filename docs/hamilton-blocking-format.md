@@ -34,7 +34,7 @@ segments" below).
 | `track` | yes | Album track id, as in `assets/hamilton-show.json` (`"1-01"` … `"2-23"`). |
 | `at` | yes | Seconds into that track, the cues' own clock. She **arrives** here at this time. 0 … the track's length, with the clock's edges (RULING FQ, below): −10 … 0 on 1-01 and 2-01, up to length + 10 on 1-23, no upper bound on 2-23. |
 | `x`, `z` | yes | Where she stands, in **set-local metres**: the frame of `assets/hamilton-set.glb`. Upstage is −z, the house +z, stage right −x, stage left +x. The turntables' centre is (0, 0.95). The deck's edge is at z +5.4 at real size. |
-| `y` | no | The floor height she stands at here: deck 0.045, galleries 2.743, stair treads in between. The editor writes it from where the waypoint was dropped. Absent means the deck. It is a hint, not a position: the page finds the floor with a ray down from the path's height + 0.6 m (FI). |
+| `y` | no | The floor height she stands at here: deck 0.045, galleries 2.743, stair treads in between. The editor writes it from where the waypoint was dropped. Absent means the deck. It is a hint, not a position: the page finds the floor with a ray down from the path's height + 0.6 m (FI). **On a prop:** the ray does not see props, so a `y` at a placed prop's top (a table 0.8, a box 0.5) stands her ON it — see Props, "Standing on a prop". |
 | `dwell` | no | Absent: she stands, then leaves just in time to walk the next leg at 1.3 m/s. `0`: she walks **through** without stopping, and the path curves through the waypoint. `n`: she leaves `n` s after arriving. |
 | `facing` | no | Degrees she turns to while standing here: 0 the house, 90 stage left, −90 stage right, 180 upstage. Absent: the way she arrived. |
 | `off` | no | `true`: she is not seen at this waypoint. She walks on from it, or off to it (FJ). |
@@ -154,6 +154,14 @@ PROP WAYPOINT: `{ track, at, x, z, y?, facing?, off?, carriedBy?, note? }` — t
 - **A model** (`model`, RULING FU): the page draws the GLB instead of the boxes, scaled per axis to `size`, feet on the
   floor; the boxes stand in until it loads (or if it cannot). The merge requires an `assets/props/*.glb` path.
 - **`off`**: not seen from `at` on.
+- **Standing on a prop** (his notes, 1-18: *"lafayette is on top of the table"*). The floor ray does not see props, so an
+  actor's waypoint `y` alone used to leave her at the deck, inside the piece. The page now stands her on a prop's top when
+  three things hold: her waypoint carries an EXPLICIT `y` more than 0.25 m over the floor the ray finds; her (x, z) is inside
+  the footprint (`w` × `d`, turned by its facing) of a PLACED, seen prop (not carried, not `off`); and that prop's top (its
+  floor + `h`) is within 0.1 m of the `y`. So write the top: deck 0.045 + `h`, e.g. 0.8 for a table or desk, 0.5 for a box or
+  bench. On the leg to and from that waypoint, the `y` of either end counts. She steps up as she crosses the piece's edge,
+  stands on the top, and steps down (a jump) as she walks off its edge to the next deck waypoint. No `y`, no change: a body
+  written standing inside a piece stays inside it. `MIDTOWN.actors.tune.ACT_ONPROP` holds the 0.25 / 0.1.
 - **Before its first waypoint a prop is not on stage**; after its last it stays as that one says.
 - **A hand prop** (RULING FW: a book, a quill; since RULING GF `kind: "hand"`, above) may be carried on and carried off
   again with no set-down. The waypoints are `off`, then a carry, then `off` (`schuyler-book` in 1-05).

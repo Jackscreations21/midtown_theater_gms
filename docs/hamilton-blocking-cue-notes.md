@@ -16,6 +16,60 @@ these is edited. They are yours to rule or fix. The sources are the eight agents
   centre. Where a note below may already be fixed by those revisions, it says so.
 - Positions are set-local metres: x + is stage left, z + is downstage, and the deck is at y 0.045.
 
+## Settled by Jack's lighting notes and the spot audit (2026-10-15/16, branch `his-notes-cues`)
+
+His notes (1-01, 1-04, 1-14, 2-06, 2-07, 2-23) and the blocking agents' hand-offs are in the cues. Then the light was moved
+to the actors (his words: *"fix the spotlights"*): `tools/spot-audit.py` checked every person light of every cue. The table and
+counts are in `docs/hamilton-spot-audit.md`: named people unlit, 82 → 17. **The items below in this file are now SETTLED**
+(the older sections are kept as the record):
+
+- **notes2, 1-01 Q61–Q65 roll call:** settled.
+  - Q61: X4s 47 / 49 / 51 on Lafayette, Mulligan and Laurens on the upstage gallery.
+  - Q63: Viper 6 on Washington's SR balcony. Viper 12 cannot reach it past the rail.
+  - Q64: X4 52, zoom 16, holds the three sisters on the SL balcony.
+  - Q65: ch2 on Burr at centre (0, 2.5).
+- **The rig, the apron Vipers ch2 / ch4 in 2-06 935 / 938:** settled. Vipers 17 / 19 on the 9th Electric key Eliza and
+  Philip on the gallery; ch2 / ch4 are out.
+- **2-07 Cabinet Battle #2, mirror:** settled. 944–958 are mirrored as a rig mirror: channels 1↔5, 6↔10 and 92↔94 are
+  swapped and x is negated.
+- **Review 3, 1-14 443:** settled. The audit re-aimed Viper 18 onto Washington on the upstage gallery.
+- **1-14 445:** settled. Viper 95 takes Lee on the SL gallery; ch5 cannot reach it.
+- **1-20 61–66, Eliza on the upstage gallery:** settled. In 593, Viper 25 (10th Electric) is her key; Viper 97 stops on the
+  gallery rail.
+- **1-23 661:** settled. A free Viper 100 takes Washington on the SL gallery. 659 is still open.
+- **2-11 1013–1014, X4 44:** settled. Viper 18 lights Hamilton on the upstage gallery.
+- **1-11 Q370:** Viper 14 is on Hamilton DR.
+- **1-10 Q301.2:** Viper 14 is on Angelica.
+- **2-01 733:** Viper 6 is on Madison DR.
+- **2-01 737:** VL 75 is on Hamilton.
+- **2-14 1045–1046.5:** the pools are on Angelica.
+- **2-18 1129:** VL 74 is on Hamilton.
+- **2-19 1166:** VL 74 is on Hamilton on the gallery.
+- **2-19 1167:** a free Viper 100 takes Burr UL.
+- **2-05 872:** Viper 13 follows Hamilton DR. The "retime 872" ask is moot: Hamilton is lit where he is.
+
+**Still open after the audit (for Jack):**
+
+- **2-16 Eacker's box (1071–1073).**
+  - No unit in the rig reaches him on the SL gallery at (4.9, 2.5). Every beam tried stops on the rail: Vipers 95 and 10,
+    and Viper 13 lands on the deck as before.
+  - The fix has to come from you: move the box (Eacker's mark), or rule him onto the deck where Viper 13 lands.
+- **Binkley's own cues with nobody in a narrow light:**
+  - 1-01 36: 36.1 picks Burr up 2.1 s later, by its follow;
+  - 1-15 459 / 468 "Hamilton / Burr DL";
+  - 1-23 638 "Burr / Men";
+  - 2-05 864.01 and 882;
+  - 2-22 1256 and 1259 "GW UL Steps".
+
+  These real cues carry no special of their own on nobody, and the people stand in his washes. Nothing was added to a real
+  cue. Rule it if any of them should have a pin.
+- **People who walk through a hold** (2-01 726, 2-22 1262, 2-23 1280): their light holds them for part of it. A chase would
+  need cues of its own.
+- **2-07, the switch to Hamilton:** moved to 77.27, the downbeat after Washington's call. This is a guess: no vocal onset
+  is measured. The other downbeats are 79.19 and 81.11, and the old time was 82.1.
+- **1-11 Q369, 1-23 659, 2-16 1087–1089 and the rest of this file's per-track list** that the audit did not settle. Those
+  cues' labels do not name the person, so the audit saw no named miss there.
+
 ## Two blocking questions only you can rule
 
 1. **1-05 The Schuyler Sisters — the sisters' order.**

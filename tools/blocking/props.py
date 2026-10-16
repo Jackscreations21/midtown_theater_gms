@@ -173,7 +173,9 @@ def STRIKE(pid, who, track0, t0, track1, t1, wing, note=None):                 #
 # the tavern: 1-04 the four by candlelight round their chairs DSC (seg1/t104.py); 1-12 the table DC (seg3gen.py).
 # 1-06 Seabury's box (seg1/t106.py BOX (1.4, 2.4); "the soapbox goes on in the dark", cue 174.7)
 FOUR = [('lafayette', (-1.26, 3.47), 20), ('hamilton', (-0.39, 3.78), 5), ('laurens', (0.49, 3.79), -5), ('mulligan', (1.37, 3.48), -20)]
-EXIT4 = {'lafayette': ('W-MSR', 97.0), 'mulligan': ('W-MSL', 97.0), 'laurens': ('W-DSL', 95.0), 'hamilton': ('W-DSL', 95.0)}
+# NOTES3 (Jack): the chairs are taken off by four of the company (seg1/t104.py STRIKERS) while the four stand DS: per chair
+# (FOUR's order) who, the pick-up (1-04) and when she is off with it (1-05: her exit's arrival, rounded up)
+CHAIR_OFF = [('ens9', 88.2, 1.3, 'W-DSR'), ('ens10', 88.4, 2.1, 'W-DSR'), ('ens6', 88.6, 2.3, 'W-DSL'), ('ens7', 88.8, 1.9, 'W-DSL')]
 SEGMENT_1 = [
     # REVIEW2 (Jack's notes, 2026-10-13). 1-01: the cousin's chair (fan account) stands preset UC by the SL stair foot;
     # the cousin (ens3) sets it at centre for Washington's verse; right before Q51 ens7 carries a table on to the centre
@@ -205,19 +207,19 @@ SEGMENT_1 = [
     STRIKE('street-lamp', 'ens10', '1-02', 80.0, '1-02', 83.2, 'W-MSL',
            note='NOTES2 (Jack): "the street light should come off right before the table comes on"'),
     P('picnic-table', 'table', 'Picnic table', '#5a2a1f', size=[1.8, 0.75, 1.56], model='assets/props/picnic-table.glb'),
-    BRING('picnic-table', ['mulligan', 'laurens'], '1-02', 83.0, '1-02', 88.6, -2.4, -1.0, 0, wing='W-USR',
-          note='1-02 Q86: Mulligan and Laurens carry it on between them to UPSTAGE RIGHT (Jack, NOTES2; RULING FU)'),
-    STRIKE('picnic-table', ['ens1', 'ens4'], '1-03', 161.0, '1-03', 166.4, 'W-USR',
+    BRING('picnic-table', ['mulligan', 'laurens'], '1-02', 83.0, '1-02', 89.4, -1.2, 0.3, 0, wing='W-USR',
+          note='1-02 Q86: Mulligan and Laurens carry it on between them (RULING FU); NOTES3 (Jack): "a little farther towards center" (was (-2.4, -1.0)), the three sing their verses at it'),
+    STRIKE('picnic-table', ['ens1', 'ens4'], '1-03', 161.0, '1-03', 166.6, 'W-USR',
            note='NOTES2 (Jack): "the table should come off about halfway through": in the blue of Q119 (159.8)'),
     STRIKE('burr-chair', 'ens4', '1-03', 331.4, '1-04', 1.0, 'W-USR', note='struck in the My Shot blackout'),
     P('tavern-table', 'table', 'Tavern table', WALNUT, size=[0.8, 0.75, 0.5]),
     DARK('tavern-table', '1-03', 331.4, 0.0, 2.7, 0, note='1-04: set in the blackout at the end of My Shot (cue 139.5); the candle table upstage of their chairs'),
-    HIDE('tavern-table', '1-04', 89.2, (0.0, 2.7), note='struck in the 1-04 blackout (cue 149)'),
+    STRIKE('tavern-table', 'ens3', '1-04', 88.6, '1-05', 1.9, 'D-UC', note='NOTES3 (Jack): one of the company takes it off up the centre while the four stand DS (was: vanished at 89.2)'),
     *[P(f'tavern-chair-{k + 1}', 'chair', f'Chair ({who.capitalize()})', PINE) for k, (who, p, f) in enumerate(FOUR)],
     *[DARK(f'tavern-chair-{k + 1}', '1-03', 331.4, *behind(p, f, 0.7), f, note="1-04: his chair, behind his pool (chair pools ch48-51); set in the blackout")
       for k, (who, p, f) in enumerate(FOUR)],
-    *[STRIKE(f'tavern-chair-{k + 1}', who, '1-04', 89.1, '1-05', EXIT4[who][1] - 91.0, EXIT4[who][0], note='he takes his own chair off in the blackout (cue 149)')
-      for k, (who, p, f) in enumerate(FOUR)],
+    *[STRIKE(f'tavern-chair-{k + 1}', e, '1-04', t0, '1-05', t1, wg, note='NOTES3 (Jack): "ensemble members go and take the chairs off" while the four stand DS in their specials (Q147)')
+      for k, (e, t0, t1, wg) in enumerate(CHAIR_OFF)],
     # REVIEW 3: the Schuyler Sisters' "book guy" -- "their dad's dancing with a book", "that guy with the book is going
     # wild with his dance moves" (Disney+ clip comments; of the 2016 Tonys number: "where's book guy appreciation"):
     # the sisters' father's actor, so ens4 (Philip Schuyler's body), dances the number with a book in his hands
@@ -234,7 +236,7 @@ SEGMENT_1 = [
 # ===== END SEGMENT 1 =====
 
 # ===== SEGMENT 2 (1-07..1-11) =====
-# Washington's desk: 1-08 the tent and 1-09 (gen_seg2.py). The tavern table comes back for 1-12 (carried on at the end of 1-11).
+# Washington's desk: 1-08 the tent, struck at 277 (NOTES3; gen_seg2.py). The tavern table comes back for 1-12 (carried on at the end of 1-11).
 SEGMENT_2 = [
     P('washington-desk', 'desk', "Washington's desk", OAK),
     BRING('washington-desk', 'ens4', '1-08', 167.0, '1-08', 174.0, -0.35, 0.85, 0, wing='W-USR',
@@ -242,8 +244,10 @@ SEGMENT_2 = [
     P('washington-tent-chair', 'chair', 'Chair (Washington, the tent)', PINE),
     BRING('washington-tent-chair', 'ens10', '1-08', 167.5, '1-08', 174.5, -0.35, -0.45, 0, wing='W-USR',
           note='1-08: a second soldier sets his chair behind the desk; in 1-09 he stands at it (seated) at (-0.3, 0.2)'),
-    HIDE('washington-tent-chair', '1-09', 0.2, (-0.35, -0.45), note='struck in the blackout after Right Hand Man (Q289.5); 1-09 has him behind the desk'),
-    STRIKE('washington-desk', 'washington', '1-09', 20.3, '1-09', 27.5, 'W-USR', note='1-09: Washington takes it with him once Hamilton is hired (REVIEW 3: the Disney+ clip has him going at 0:21)'),
+    # NOTES3 (Jack, 2026-10-14): "washington's desk should come off around 4:37" (277; was: taken off by Washington in 1-09,
+    # the chair in the blackout after Q289.5): two of the company who are free come on from MSR and take both off
+    STRIKE('washington-desk', 'ens1', '1-08', 277.0, '1-08', 283.6, 'W-MSR', note="NOTES3 (Jack): \"washington's desk should come off around 4:37\"; ens1 (free since the spy's exit) takes it off MSR"),
+    STRIKE('washington-tent-chair', 'ens9', '1-08', 277.2, '1-08', 284.7, 'W-MSR', note='NOTES3: and ens9 (not otherwise in 1-08) the chair with it'),
     P('sisters-bench', 'bench', 'Bench (the sisters)', OAK, size=[1.5, 0.45, 0.4]),
     BRING('sisters-bench', 'ens1', '1-10', 108.6, '1-10', 114.0, 0.0, 3.0, 180, wing='W-DSR',
           note='1-10 Two weeks (Q302; hamilton-lyrics: the sisters sit on a bench on the turntable; photo 302: the three at the disc\'s downstage edge, backs to the house): set as the letters end'),
@@ -269,7 +273,8 @@ SEGMENT_3 = [
     STRIKE('watcher-chair', 'ens8', '1-13', 51.4, '1-13', 55.6, 'W-MSL', note='she takes it off as her pool fades (cue 413)'),
     BRING('washington-desk', 'washington', '1-14', 11.5, '1-14', 16.9, 0.0, 0.85, 0, wing='D-UC',
           note='1-14: Washington brings his desk in from D-UC (cue 429 "a warm pool on the desk"); he stands DS of it'),
-    STRIKE('washington-desk', 'washington', '1-14', 144.8, '1-14', 150.5, 'D-UC', note='he takes it off D-UC as the company clears (144.3)'),
+    STRIKE('washington-desk', 'ens2', '1-14', 50.0, '1-14', 54.8, 'D-UC',
+           note='NOTES3 (Jack): "at 50 washington\'s desk should come off" - no blackout there, so ens2 (free) comes in by the deck door, takes it from behind and goes back out with it'),
     BRING('washington-desk', 'ens2', '1-16', 21.7, '1-16', 28.5, -1.9, 2.4, 40, wing='W-MSR',
           note='1-16: ens2 brings it on from SR on the chant (cue 478 turns the deck into his office); behind his place'),
     STRIKE('washington-desk', 'washington', '1-16', 77.9, '1-16', 82.9, 'W-DSR', note='he takes it off DR on the button'),
@@ -278,7 +283,7 @@ SEGMENT_3 = [
     P('office-chair', 'bench', 'Bench (Hamilton)', OAK, size=[1.0, 0.45, 0.4]),
     BRING('office-chair', 'ens6', '1-16', 22.2, '1-16', 29.0, *behind((0.75, 2.6), -20, 0.7), -20, wing='W-MSL',
           note='1-16: ens6 brings it on from SL with the desk; Washington leaves it, and Hamilton sits on it at the top of 1-17 (cue 490; ironinkpen: "a little bench")'),
-    STRIKE('office-chair', 'hamilton', '1-17', 173.6, '1-17', 177.6, 'W-DSR', note='he takes it off DR with Eliza in the fade (cue 501)'),
+    # (NOTES3: its strike is in SEGMENT 4 now - he takes it off once the fade is black, at 1-18's top)
 ]
 # ===== END SEGMENT 3 =====
 
@@ -296,19 +301,24 @@ JBRING4 = [('jury-chair-b2', 'ens6', 'b2', 'W-USL', 84.6), ('jury-chair-f1', 'en
 # chair or a crate back from the escort (cue 608), lift it with 'upside-down' (dance.py) on 609.2, set it down beside
 # their pool at victory (609.5) and take it off in the blackout. YT4: (id, kind, carrier, escort wing, its spot by the
 # pool, blackout wing, the '1-21' time she is off) - gen4.py prints these ('FURN').
-YT4 = [('ytown-chair-1', 'chair', 'ens4', 'W-DSL', (1.52, 3.44), 'W-MSL', 4.5),
-       ('ytown-chair-2', 'chair', 'ens8', 'W-DSR', (-1.58, 3.44), 'W-MSR', 4.6),
+# NOTES3 (Jack, 2026-10-14/15): the five principals take the tableau's five front pools, so the carriers' spots moved (gen4.py
+# 'FURN', the pool or dark spot less 0.55 m in z) and so did their blackout exits.
+YT4 = [('ytown-chair-1', 'chair', 'ens4', 'W-DSL', (3.86, -0.64), 'W-MSL', 1.6),
+       ('ytown-chair-2', 'chair', 'ens8', 'W-DSR', (-2.29, -2.88), 'D-UC', 1.8),
        ('ytown-chair-3', 'chair', 'ens10', 'W-DSR', (-2.69, 1.05), 'W-MSR', 3.1),
-       ('ytown-crate-1', 'crate', 'ens9', 'W-DSL', (3.76, 1.77), 'W-MSL', 2.4),
-       ('ytown-crate-2', 'crate', 'ens6', 'W-USR', (-2.0, -3.06), 'D-UC', 1.6)]
+       ('ytown-crate-1', 'crate', 'ens9', 'W-DSL', (2.69, 1.11), 'W-MSL', 2.8),
+       ('ytown-crate-2', 'crate', 'ens6', 'W-USR', (-1.97, -1.35), 'D-UC', 2.4)]
 SEGMENT_4 = [
+    # NOTES3 (Jack): "make hamilton and eliza wait to come off till the lights are fully out" - 1-17's fade is black at its
+    # last second, so he takes his bench off DR in the dark of 1-18's top (seg3gen.py / gen4.py)
+    STRIKE('office-chair', 'hamilton', '1-18', 0.4, '1-18', 7.1, 'W-DSR', note='he takes it off DR in the dark once 1-17\'s fade is out (cue 501 ends at 178.0; cue 560 lights only the balcony)'),
     P('gs-table', 'table', "Lafayette's table", OAK, size=[1.0, 0.75, 0.6]),
     BRING('gs-table', 'ens6', '1-18', 22.0, '1-18', 28.5, 0.0, 2.1, 0, wing='W-MSL',
           note='1-18 (review 3): ens6 brings it on in the build; Lafayette raps standing on it in the ring of beams and jumps off mid-rap (Disney+ clip comments)'),
     STRIKE('gs-table', 'ens6', '1-18', 46.0, '1-18', 51.6, 'W-MSL', note='struck once he is travelling (cue 563): ens6 back in for it and off SL'),
     P('yorktown-box', 'box', 'Box', CRATE),
-    BRING('yorktown-box', 'ens10', '1-19', 90.0, '1-19', 94.5, 0.0, 4.7, 0, wing='W-DSL',
-          note='1-20: ens10 brings it on at the lip in the dark of cue 583/584; Hamilton stands on it at the top of Yorktown (Joan Marcus photo)'),
+    BRING('yorktown-box', 'ens10', '1-20', 44.5, '1-20', 49.4, 0.0, 4.7, 0, wing='W-DSL',
+          note='NOTES3 (Jack): "the box doesn\'t come on till later" - ens10 brings it on at the lip after the Shot phrase, and Hamilton stands on it for his solo verse (cue 592, 51.2; the Joan Marcus photo)'),
     STRIKE('yorktown-box', 'ens10', '1-20', 70.0, '1-20', 75.0, 'W-DSL', note='struck on the march (cue 594): ens10 in from DL and off with it'),
     *[op for pid, kind, who, wing, spot, wing2, t_off in YT4 for op in (
         P(pid, kind, ('Chair' if kind == 'chair' else 'Crate') + ' (Yorktown)', PINE if kind == 'chair' else CRATE,
@@ -519,8 +529,8 @@ SEGMENT_8 = [
     HIDE('desk-chair', '2-20', 147.8, (0.0, 0.1), note='moved in the blackout (cue 1206)'),
     DARK('desk-chair', '2-21', 0.3, -2.8, 2.1, 0, note="2-21: Hamilton's chair at the desk near SR (ironinkpen); he stands at (-2.8, 2.6), Eliza behind it"),
     PLACE('hamilton-desk', '2-21', 0.44, -2.8, 3.15, 0, note='2-21: the desk near SR (ironinkpen); he sits behind it at (-2.8, 2.6)'),
-    STRIKE('hamilton-desk', 'ens4', '2-22', 6.7, '2-22', 10.0, 'W-DSR',
-           note="2-22: Hamilton rises from it at the top (hamilton-lyrics); ens4 (the Doctor) takes it off SR"),
+    HIDE('hamilton-desk', '2-21', 44.3, (-2.8, 3.15),
+         note='NOTES3 (Jack, 2026-10-15): struck in the dark - the snap FTB at the end of Best of Wives (cue 1238, 44.0); gone before 2-22 opens (1238.01, 3.1)'),
     STRIKE('desk-chair', 'ens3', '2-22', 8.7, '2-22', 12.3, 'W-DSR', note='2-22: ens3 (Pendleton) takes the chair off SR'),
     P('duel-box', 'box', 'The box', CRATE),
     BRING('duel-box', 'ens9', '2-22', 131.5, '2-22', 137.0, 0.0, 3.45, 0, wing='W-DSL',

@@ -365,6 +365,12 @@ for k, (m, (p, tgt, g)) in enumerate(WAR.items()):
     add(m, T, 77.5, p[0], p[1], face(p, FR[77.5][tgt]))
     add(m, T, 85.2, p[0], p[1], face(p, FR[77.5][tgt]))
     exit_to(m, T, 85.2 + 0.3 * k, g)
+# NOTES3 (Jack, 2026-10-14/15): "at 50 washington's desk should come off". No blackout there (cue 432's night raids, 44.95),
+# so a free body strikes it: ens2 (off from 1-13's end until the war reports) comes in through the deck door the desk came
+# by, takes it from behind at 50.0 and goes back out with it (props.py SEGMENT 3); Washington stays at his place.
+add("ens2", T, 45.6, ENT["D-UC"][0], ENT["D-UC"][1], off=True)
+add("ens2", T, 50.0, 0.0, 0.3, 0, dwell=0.3)       # behind the desk (0, 0.85): it spans z 0.55-1.15
+exit_to("ens2", T, 50.3, "D-UC")
 # Charles Lee: ens3 walks on for his promotion, into his DL special (ch5, up from 87.1)
 add("ens3", T, 80.0, ENT["W-DSL"][0], ENT["W-DSL"][1], off=True, label="Charles Lee")
 add("ens3", T, 87.6, 2.45, 3.05, -20)      # SPOT: Lee's DL special (ch5 2.35-2.56, 3.02-3.33) is up from 87.1
@@ -595,10 +601,20 @@ add("eliza", T, 140.0, -0.45, 3.7, 15)       # SPOT: together in the DC shaft (c
 add("hamilton", T, 140.1, 0.45, 3.7, -15)
 add("eliza", T, 155.85, -0.55, 2.75, 50)
 add("hamilton", T, 155.9, 0.75, 2.7, -50)
-add("eliza", T, 170.1, -0.5, 2.95, 40, dwell=3.0)                     # SPOT: "the couple alone in their pool" (ch93 0.11, 2.89)
-add("hamilton", T, 170.2, 0.7, 2.95, -40, dwell=3.3)
-add("eliza", T, 177.0, ENT["W-DSR"][0], ENT["W-DSR"][1], off=True)
-add("hamilton", T, 177.5, ENT["W-DSR"][0], ENT["W-DSR"][1] - 0.4, off=True)
+# NOTES3 (Jack, 2026-10-14/15): "make hamilton and eliza wait to come off till the lights are fully out". The button
+# (cue 501, 175.3) fades for 2.7 s: black at 178.0, the track's very end. So they hold their places through the fade and
+# leave in the dark of 1-18's top (cue 560 lights only the balcony until 31): Eliza at 1-18 0.2, Hamilton at 0.5 with
+# his bench (props.py SEGMENT 4); their off waypoints at W-DSR are gen4.py's (1-18 5.9 / 7.0).
+add("eliza", T, 170.1, -0.5, 2.95, 40, dwell=8.1)                     # SPOT: "the couple alone in their pool" (ch93 0.11, 2.89)
+add("hamilton", T, 170.2, 0.7, 2.95, -40, dwell=8.3)
+# NOTES3 (Jack): "burr should already be on the balcony by the time the light goes to him" - cue 560 brings the balcony
+# special up at 1-18 0.0, so he is there before it: on in the fade from the SL wing's landing beside the gallery (2.48 m,
+# tools/hamilton-floor.json), 4.3 m along the SL gallery (the back way through G-UC is 11.5 m, seen under the last line)
+add("burr", T, 175.3, 6.6, -1.0, y="top", off=True)
+add("burr", T, 176.05, 5.4, -0.6, y="gallery", dwell=0)
+add("burr", T, 177.5, 5.3, 1.9, y="gallery", dwell=0)
+add("burr", T, 177.8, 5.49, 2.36, y="gallery", facing=-40)           # the G&S spot (gen4.py GS); he holds it into 1-18
+CARRIED = {"hamilton", "eliza", "burr"}   # their paths go on into segment 4 without an `off` at 1-17's end
 
 # =====================================================================================
 TI = {t: i for i, t in enumerate(TRACKS)}
@@ -608,7 +624,7 @@ for a, path in P.items():
     for u, v in zip(path, path[1:]):
         if clock(v["track"], v["at"]) <= clock(u["track"], u["at"]):
             bad.append((a, u, v))
-    if not path[0].get("off") or not path[-1].get("off"):
+    if not path[0].get("off") or (not path[-1].get("off") and a not in CARRIED):
         bad.append((a, "not off at ends", path[0], path[-1]))
     if "label" not in path[0]:
         bad.append((a, "first waypoint unlabelled"))

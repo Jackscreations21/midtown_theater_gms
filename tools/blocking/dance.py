@@ -136,6 +136,9 @@ SOLDIERS = FOUR + ENS[:9]                                         # Yorktown
 #    reprise: "dancing with the ensemble").
 DECK01 = ['ens1', 'ens2', 'ens4', 'ens5', 'ens8', 'ens9', 'ens10']     # the company standing in the upstage line at bar 63
 CITY05 = ['ens%d' % k for k in range(1, 9)]                             # t105's city
+MS5 = ['ens1', 'ens4', 'ens5', 'ens8', 'ens10']                     # NOTES3: t103's five (H5)
+MS_FR = ['lafayette', 'laurens', 'mulligan']                          # NOTES3: Hamilton's three friends
+MS_RISE = ['laurens', 'hamilton', 'lafayette', 'mulligan']            # NOTES3: the rise-up ripple, Laurens first
 SEGMENT_1 = [
     dict(who=['hamilton'], track='1-01', bar=53, beat=3, move='sit', until=104.6, note='sick in the cousin\'s chair (set behind him at 99.4) until he recovers (seg1.md Review 3: the clip has him in a chair, standing up where he recovers)'),
     dict(who=DECK01, track='1-01', bar=63, move='spin-quarter', counts=4, note='Washington\'s line to the boy: the counter-clockwise gesture, "falling left" (Blankenbuehler, BroadwayWorld); the shape a reading'),
@@ -145,12 +148,66 @@ SEGMENT_1 = [
     dict(who=ENS + ['burr', 'lafayette', 'laurens', 'mulligan', 'eliza', 'angelica', 'peggy', 'washington'], track='1-01', bar=95, beat=4, move='breath', counts=3,
          note='the company\'s in-sync inhale before the last word of the women\'s line (bar 96; Jack\'s reddit notes): in on beat 4, held through the word (seg1.md Review 3 move 2)'),
     dict(who=['burr'], track='1-03', bar=3, beat=3, move='sit', until=123.3, note='reading in his tavern chair UR (props burr-chair, burr-book; "just reading a book in the background", seg1.md Review 3) until he goes at Q118'),
+    # NOTES3 (Jack, 2026-10-14): "there are a lot of parts where they should be dancing and they are just standing still".
+    # The phrases below (bars 31, 35, 67, 71, 115) are the sourced ones; everything else marked NOTES3 fills the number
+    # with the library's general moves, section by section, on the cues' own labels (a reading, not a source).
+    dict(who=MS_FR, track='1-03', bar=3, move='head-bob', until=42.4, note='NOTES3: verse 1 (Q101 "the tavern groove"): the friends nod along to his rap'),
+    dict(who=['hamilton'], track='1-03', bar=4, move='head-bob', until=36.6, note='NOTES3: verse 1: he raps as he works the room'),
+    dict(who=['hamilton'], track='1-03', bar=15, move='point', counts=4, note='NOTES3: Q103, the verse hit ("the brick flares"): he points out'),
+    dict(who=MS_FR, track='1-03', bar=19, move='two-step', until=63.5, note='NOTES3: Q106, the company comes in: the groove builds'),
+    dict(who=MS5, track='1-03', bar=22, move='two-step', until=63.5, note='NOTES3: Q106: the five join the groove once in their places (t103 five_on: all in by 53.3)'),
+    dict(who=FOUR + MS5, track='1-03', bar=25, move='chest-pump', until=73.6, note='NOTES3: Q108 "Hamilton steps in -- bump": the chest on every beat, building into chorus 1'),
+    dict(who=FOUR + MS5, track='1-03', bar=30, move='stomp', counts=4, note='NOTES3: chorus 1: the stamps before the phrase (the four are DSC by 75.8)'),
     dict(who=FOUR + ENS, track='1-03', bar=31, move='my-shot', counts=8, note='chorus 1, first half: the signature phrase on the downbeat after the pickup (words at 79.2 = bar 30 beat 4.5)'),
+    dict(who=FOUR + MS5, track='1-03', bar=33, move='stomp', counts=8, note='NOTES3: chorus 1, second half: the stamps on its two refusals, into the phrase'),
     dict(who=FOUR + ENS, track='1-03', bar=35, move='my-shot', counts=8, note='chorus 1, second half (words at 89.8 = bar 34 beat 4.6)'),
+    # the three verses (Q111 Lafayette, Q113 Mulligan, Q115 Laurens): the singer drives it, the others nod him on, the five
+    # keep the groove; on each "Shot -- hit" cue (Q112, Q114, Q116) everyone snaps the shot down (the phrase's last shape)
+    *[dict(who=[sing], track='1-03', bar=b, beat=bt, move='chest-pump', counts=n, note=f'NOTES3: {sing.capitalize()}\'s verse: he drives it')
+      for sing, b, bt, n in (('lafayette', 37, 1, 16), ('mulligan', 41, 3, 14), ('laurens', 45, 3, 14))],
+    *[dict(who=[a for a in FOUR if a != sing], track='1-03', bar=b, beat=bt, move='head-bob', counts=n, note=f'NOTES3: {sing.capitalize()}\'s verse: the others nod him on')
+      for sing, b, bt, n in (('lafayette', 37, 1, 16), ('mulligan', 41, 3, 14), ('laurens', 45, 3, 14))],
+    *[dict(who=MS5, track='1-03', bar=b, beat=bt, move='two-step', counts=n, note='NOTES3: the verses: the five keep the groove')
+      for b, bt, n in ((37, 1, 16), (41, 3, 14), (45, 3, 14))],
+    *[dict(who=FOUR + MS5, track='1-03', bar=b, move='point-down', counts=2, note=f'NOTES3: Q{q} "Shot -- hit": the shot snapped down (the last shape of the phrase, WSJ)')
+      for q, b in ((112, 41), (114, 45), (116, 49))],
+    dict(who=['hamilton'], track='1-03', bar=55, move='beckon', counts=2, note='NOTES3: Q118, he rallies his friends'),
+    dict(who=['hamilton'], track='1-03', bar=55, beat=3, move='head-bob', until=159.6, note='NOTES3: Q118: his verse'),
+    dict(who=MS_FR + MS5, track='1-03', bar=55, move='two-step', until=159.6, note='NOTES3: Q118: the room picks the groove up again (Burr gone)'),
+    dict(who=FOUR, track='1-03', bar=63, beat=3, move='reach-up', counts=2, note='NOTES3: Q120 "Friends lift him -- build": the arms go up'),
+    dict(who=FOUR + ['ens5', 'ens8', 'ens10'], track='1-03', bar=65, beat=3, move='stomp', counts=6, note='NOTES3: chorus 2: the stamps before the phrase (ens1 and ens4 are still coming back from striking the table)'),
     dict(who=FOUR + ENS, track='1-03', bar=67, move='my-shot', counts=8, note='chorus 2, first half (words at 174.4-174.6 = bar 66 beat 4.2-4.5 on the GF grid)'),
+    dict(who=FOUR + MS5, track='1-03', bar=69, move='stomp', counts=8, note='NOTES3: chorus 2, second half: the stamps, into the phrase'),
     dict(who=FOUR + ENS, track='1-03', bar=71, move='my-shot', counts=8, note='chorus 2, second half (words at 185.0-185.1 = bar 70 beat 4.3-4.5)'),
+    dict(who=FOUR, track='1-03', bar=73, move='strut', until=203.4, note='NOTES3: Q123, the four walk the room (t103 wander): a swagger on their walk'),
+    # the "rise up" build (Q124: "Laurens takes the lead", the Disney+ clip's 3:24): down on a knee and up, rippling out from
+    # him half a beat apart, then the arms up; Q125 the chant, a march on the spot; Q126 the clap; arms up on its last call
+    dict(who=MS_RISE, track='1-03', bar=79, move='kneel', counts=2, canon=0.33, note='NOTES3: Q124, the rise-up build: down on one knee, Laurens first'),
+    dict(who=MS_RISE, track='1-03', bar=79, beat=3, move='rise', counts=2, canon=0.33, note='NOTES3: Q124: and up, arms open'),
+    dict(who=MS_RISE, track='1-03', bar=80, move='reach-up', counts=4, canon=0.33, note='NOTES3: Q124: the arms up, held'),
+    dict(who=FOUR, track='1-03', bar=81, move='hiphop-march', counts=16, note='NOTES3: Q125 the bridge chant: a hip-hop step like a march (the Yorktown step, a reading here)'),
+    dict(who=FOUR, track='1-03', bar=85, move='clap', counts=12, note='NOTES3: Q126 the chant b: a clap on every beat as the shafts sweep'),
+    dict(who=FOUR, track='1-03', bar=88, move='reach-up', counts=2, note='NOTES3: the chant\'s last call, arms up, before the death verse'),
+    dict(who=['hamilton'], track='1-03', bar=89, beat=2, move='imagine-death', counts=8, note='NOTES3: Q127 the death verse, its first line: the imagine-death shapes (WSJ; the phrase is first heard here, before Yorktown); he is in the shaft by 233.4'),
+    dict(who=['hamilton'], track='1-03', bar=91, beat=2, move='slow-walk', until=254.6, note='NOTES3: Q127 "slow motion, cold": the rest of the verse in slow motion'),
+    dict(who=MS_FR, track='1-03', bar=90, move='slow-walk', until=254.6, note='NOTES3: Q127 "slow motion, cold": the friends\' slow-motion ring round him (t103 revolve, 235.0-254.4)'),
+    dict(who=MS_FR, track='1-03', bar=98, move='head-bob', until=289.6, note='NOTES3: verse 3 (Q131): the friends nod him on, and as they come to him (Q133)'),
+    dict(who=['hamilton'], track='1-03', bar=98, move='chest-pump', until=275.6, note='NOTES3: verse 3: he drives it, until he stops to write (Q132)'),
+    dict(who=MS5, track='1-03', bar=104, move='two-step', until=289.6, note='NOTES3: verse 3: the five, back on (Q131; in by 271.5), groove'),
+    dict(who=['hamilton'], track='1-03', bar=106, beat=3, move='head-bob', until=289.6, note='NOTES3: Q133, the build'),
+    dict(who=FOUR + MS5, track='1-03', bar=110, beat=2, move='point-down', counts=2, note='NOTES3: Q134 "Verse 3 climax -- hit": the shot snapped down'),
+    dict(who=MS_FR + MS5, track='1-03', bar=111, move='two-step', until=296.9, note='NOTES3: into the final chorus'),
+    dict(who=['hamilton'], track='1-03', bar=111, move='chest-pump', until=296.9, note='NOTES3: into the final chorus'),
+    dict(who=FOUR, track='1-03', bar=113, move='stomp', counts=4, note='NOTES3: the final chorus (Q135): the stamps before the phrase (the four walk DSC at 299.6)'),
+    dict(who=MS5, track='1-03', bar=113, move='stomp', counts=8, note='NOTES3: the final chorus: the stamps before the phrase'),
     dict(who=FOUR + ENS, track='1-03', bar=115, move='my-shot', counts=8, note='the last chorus: its only phrase (words at 301.8-302.1 = bar 114 beat 4.1-4.6: the GF grid has the death verse\'s half bar)'),
+    dict(who=FOUR + MS5, track='1-03', bar=117, move='chest-pump', counts=16, note='NOTES3: Q136 "the drive": the counterpoint chant, the chest on every beat'),
+    dict(who=FOUR, track='1-03', bar=121, move='reach-up', counts=8, note='NOTES3: Q137 the vocal peak: the arms up, held'),
+    dict(who=MS5, track='1-03', bar=122, beat=3, move='reach-up', counts=4, note='NOTES3: Q137: the five, once they have come down a step (321.6)'),
+    dict(who=FOUR + MS5, track='1-03', bar=125, beat=3, move='point-down', counts=2, note='NOTES3: Q139 the BUTTON: the shot snapped down, held into the blackout'),
     dict(who=['lafayette', 'hamilton', 'laurens', 'mulligan'], track='1-04', bar=1, beat=3, move='sit', until=16.0, note='Q140: the four settled at their chairs by candlelight (t104; props tavern-chair-1..4) until they draw together (Q141)'),
+    dict(who=['lafayette', 'hamilton', 'laurens', 'mulligan'], track='1-04', bar=13, beat=2, move='sit', until=59.0, note='NOTES3 (Jack: "they come off too early"): Q143, back in their chairs (t104, in by 36.6) until the second toast (Q145)'),
+    dict(who=['lafayette', 'hamilton', 'laurens', 'mulligan'], track='1-04', bar=27, beat=3, move='sit', until=83.8, note='NOTES3: back in their chairs after the last raise (in by 79.4); at Q147 they stand up and come forward (t104)'),
     dict(who=CITY05, track='1-05', bar=5, beat=3, move='old-walk', until=20.0, note='"0:09 ensemble\'s grandpa walk" as the city comes on (seg1.md Review 3 move 4): the gait on their walk-on'),
     dict(who=['burr'], track='1-05', bar=10, move='two-step', counts=12, note='"Burr\'s dance at the beginning when the sisters are being introduced" (Disney+ clip comments); the step not named, so the two-step (he stands DSR: no strut)'),
     dict(who=SISTERS, track='1-05', bar=18, beat=3, move='slow-walk', speed=2, until=50.6, note='the street walk: walking on the spot against the turning floor, a step a beat ("the characters walk in place", clip comments)'),
@@ -173,6 +230,7 @@ SEGMENT_1 = [
 RING196 = ['ens2', 'ens3', 'ens6', 'ens7', 'ens4', 'ens5', 'ens8', 'ens9']    # 1-07 Q196 the ring (gen_seg2.py)
 FIN8 = ['ens8', 'ens7', 'ens3', 'ens2', 'ens4', 'ens6', 'ens5', 'ens10']      # 1-08 the company line from Q286
 COUPLES = ['ens2', 'ens6', 'ens3', 'ens7', 'ens5', 'ens8', 'ens10', 'ens9']   # man, woman: 'alt' mirrors the women
+REWIND11 = ['ens6', 'ens2', 'washington', 'ens7', 'ens3', 'ens8', 'ens5', 'lafayette', 'ens9', 'ens10', 'hamilton', 'eliza']   # NOTES3: 1-11's SEMI + the couple
 # 1-07 You'll Be Back. Q196 "Group Enters" for the last sing-along: the eight on the ring sway, in sync, half time
 # (no source names a move; the simplest one for a sing-along, per the brief).
 # 1-08 Right Hand Man. Blankenbuehler (TheaterMania): the My Shot phrase is done "in the middle of Right Hand Man". The
@@ -216,7 +274,9 @@ SEGMENT_2 = [
     dict(who=['ens4'], track='1-10', bar=39, beat=2, move='sit', until=126.3, note='Q302: "Papa Schuyler sits in a chair on the turntable" (hamilton-lyrics; props schuyler-chair)'),
     dict(who=['hamilton'], track='1-10', bar=48, beat=3, move='tootsie-roll', counts=4, note="his celebration dance after the blessing (the clip's 2:28-2:31, \"the Tootsie Roll\"; seg2.md Review 3)"),
     dict(who=['eliza'], track='1-10', bar=49, move='tootsie-roll', counts=4, note="Eliza in the back copying his dance (the clip's 2:30)"),
-    dict(who=[a for a in EVERYONE if a not in ('angelica', 'laurens')], track='1-11', at=46.74, move='rewind', until=57.62, note="the rewind (cues 366.2 to 366.8); Angelica and Laurens keep their glasses up and do not go backwards"),
+    dict(who=[a for a in EVERYONE if a not in ('angelica', 'laurens')], track='1-11', bar=24, beat=4, move='rewind', speed=3, until=52.6, note="NOTES3 (Jack: \"make the rewind part look better\"): the toast run backwards (Q366.2 46.74; gen_seg2.py), the backward walk at three times its speed (a stride every 0.65 s, ~1 m/s, the pace they travel); Angelica and Laurens keep their glasses up and do not go backwards (was: speed 1 to 57.62, from the downbeat at 47.33)"),
+    dict(who=REWIND11, track='1-11', bar=28, beat=2, move='spin-full', counts=2, reverse=True, note="NOTES3: Q366.4 the flash (53.91): a full turn, run backwards"),
+    dict(who=REWIND11, track='1-11', bar=28, beat=4, move='rewind', speed=3, until=57.62, note="NOTES3: and on back through Helpless to the ball, to the rebuild (Q366.8)"),
     dict(who=COUPLES, track='1-11', at=91.9, move='gavotte', until=107.9, mirror='alt', note="the ball replayed: where the ball's gavotte falls in the side-by-side"),
     dict(who=COUPLES, track='1-11', at=155.84, move='gavotte', until=167.47, mirror='alt', note="Helpless replayed: where its gavotte falls"),
     dict(who=COUPLES, track='1-11', at=167.47, move='grind', until=172.35, mirror='alt', note="Helpless's grind replayed, on the matching line, to the freeze (Q374)"),
@@ -317,7 +377,7 @@ SEGMENT_4 = [
     dict(who=GS_DECK, track='1-18', bar=18, move='two-step', until=48.8, note='Lafayette\'s rap: the company dances round him (clip comments: "0:34 ... just dancing", "0:46 the Farmer Refuted dude at the back ... having the time of his life"); the move is a general hip-hop step, not seen'),
     dict(who=['ens3'], track='1-18', bar=18, move='two-step', until=46.0, note='as the deck company, until Lee leaves for the stair'),
     dict(who=['ens6'], track='1-18', bar=18, move='two-step', until=43.5, note='as the deck company, until she goes back for the table'),
-    dict(who=['lafayette'], track='1-18', bar=21, move='jump', counts=2, note='he jumps down off the table mid-rap (clip 0:38-0:39 = album ~36.5)'),
+    dict(who=['lafayette'], track='1-18', bar=23, move='jump', counts=2, note='he jumps down off the table mid-rap - NOTES3 (Jack): "on top of the table till 40 seconds in then he jumps off" (bar 23 = 39.98; was bar 21, clip 0:38-0:39 = album ~36.5)'),
     dict(who=['angelica', 'peggy', 'ens3'], track='1-18', bar=34, move='bounce', until=80.0, note='"everyone upstairs is dancing except for Burr" (clip 1:04); "Peggy and Angelica jamming on the rafter"; "1:16 Angelica\'s feeling it"'),
     dict(who=GS_DECK + ['ens6'], track='1-18', bar=40, move='two-step', until=80.0, note='the company chant (cue 567): the deck company dances it (a general step: the clips name no move)'),
     dict(who=['hamilton'], track='1-18', bar=55, move='coat-on', counts=4, note='on the gallery Eliza gives him his coat (95; Disney+ clip 1:50 "Eliza gives him his coat"; seg4.md Review 3)'),
@@ -649,7 +709,7 @@ SEGMENT_8 = [
     dict(who=['hamilton'], track='2-20', bar=35, beat=2, move='sit', until=147.5, note='Hamilton takes the desk and writes his list (gen_seg8.py; props desk-chair) until the blackout (cue 1206)'),
     dict(who=['ens1', 'ens6', 'ens7', 'ens8', 'ens9', 'ens10'], track='2-20', bar=52, move='lean-in', counts=3, note='the editor\'s "lean thing": the country leans in toward the two men as it escalates (seg8.md Review 3)'),
     dict(who=['hamilton'], track='2-21', bar=1, beat=2, move='sit', until=46.5, note='at his desk near SR, writing (ironinkpen; "He sits in a chair writing", clip; props desk-chair)'),
-    dict(who=['hamilton'], track='2-22', bar=0, beat=4, move='sit', until=3.6, note='still at the desk; he rises from it at the top (hamilton-lyrics)'),
+    dict(who=['hamilton'], track='2-22', bar=0, beat=4, move='sit', until=3.6, note='still in his chair (the desk was struck in the 2-21 FTB, NOTES3); he rises from it at the top (hamilton-lyrics)'),
     dict(who=['ens5', 'ens6', 'ens7', 'ens8', 'ens9', 'ens10'], track='2-22', bar=26, move='heartbeat', counts=8, note='Burr\'s confession: the ensemble pats their hearts, his pulse rising (hamilton-lyrics)'),
     dict(who=['ens2', 'ens3'], track='2-22', bar=32, beat=3, move='kneel', counts=8, note='the seconds kneel as Burr cuts through them (hamilton-lyrics)'),
     dict(who=['burr'], track='2-22', bar=33, move='point', counts=4, note='he points and shouts at Hamilton (hamilton-lyrics)'),
@@ -669,7 +729,11 @@ SEGMENT_8 = [
     dict(who=['ens8', 'ens9'], track='2-22', bar=89, beat=3, move='row', until=213.0, mirror='alt', note='the rowers either side of him while the platform turns him (clockwise)'),
     dict(who=['hamilton'], track='2-22', at=222.0, move='rise', counts=2, note='"Hamilton slowly stands, facing upstage" (hamilton-lyrics)'),
     dict(who=['eliza'], track='2-23', bar=65, beat=3, move='gasp', counts=2, note='the gasp (cue 1296, 210.98): both hands to her heart (the official upload\'s comments; seg8.md Review 3), held into the blackout'),
-    dict(who=EVERYONE + ['king'], track='2-23', bar=66, beat=4, move='bow', counts=2, note='the bows: in the line, a bow from the waist (Harmon Writes: they bow in place)'),
+    # NOTES3 (Jack, 2026-10-15): the curtain call (gen_seg8.py BOWS) - they hold through the blackout (211.8), bow where they
+    # stand when the lights come back (cue 1298, 214.8), walk into one line, bow twice together, and leave both sides
+    dict(who=EVERYONE, track='2-23', bar=67, move='bow', counts=4, note='NOTES3: bow 1, where they stand, as the lights come back up (cue 1298 at 214.8, up 3 s)'),
+    dict(who=EVERYONE + ['king'], track='2-23', bar=70, move='bow', counts=4, note='NOTES3: bow 2, together in the line (formed by 225.0)'),
+    dict(who=EVERYONE + ['king'], track='2-23', bar=71, move='bow', counts=4, note='NOTES3: bow 3, together in the line; they file off both sides from 234.2'),
 ]
 # ===== END SEGMENT 8 =====
 

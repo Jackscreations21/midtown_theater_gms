@@ -4,8 +4,8 @@
     python -I tools/blocking-pools.py <POOLS DIR> [--out assets/hamilton-pools.json] [--made 'where the dump came from']
 
 <POOLS DIR>/<track>.json is the dump of every lit unit's landing point and radius, cue by cue, made in midtown.html
-(MIDTOWN.show.seek + settle, MIDTOWN.lx.get / beam: what the page draws). It is 19 MB and lives in a session scratch
-folder, not the repository; its README says how it was made. This keeps only the lights meant for one person -- a
+(MIDTOWN.show.seek + settle, MIDTOWN.lx.get / beam: what the page draws), made by tools/pool-dump.js (served by
+tools/pool-dump-serve.py). It is 19 MB and lives in a scratch folder, not the repository. This keeps only the lights meant for one person -- a
 `special`, or any unit at zoom 18.5 deg or less (the same test as tools/blocking-plot.py) -- that land on a floor (the deck,
 a gallery, a stair) or point down at the deck, so the blocking editor (blocking.html) can draw them under the actors.
 
@@ -17,7 +17,7 @@ a gallery, a stair) or point down at the deck, so the blocking editor (blocking.
 - `s`: the person lights: landing x, z (set-local metres), pool radius r, channel, colour (#rrggbb), level 0-1, the landing
   height y, and 1 for a `special` (0 for a narrow wash at zoom <= 18.5).
 
-Regenerate after any change to the cues, the rig or the engine (dump first, see the dump's README). Standard library only.
+Regenerate after any change to the cues, the rig or the engine (dump first: tools/pool-dump.js). Standard library only.
 """
 import glob, json, os, sys
 
