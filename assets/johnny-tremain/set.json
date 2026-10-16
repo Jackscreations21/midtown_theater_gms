@@ -1,0 +1,7586 @@
+{
+ "format": "johnny-tremain-set/1",
+ "about": "Ground plan for 'Johnny Tremain' (Jack's comedy in two acts) on Theatre 2 of midtown.html. Read docs/johnny-tremain/set-format.md for the schema and docs/johnny-tremain/BREAKDOWN.md for the scenes. Positions in the STAGE frame; stage.frame.toWorld converts.",
+ "stage": {
+  "frame": {
+   "axes": "x + = STAGE RIGHT (the audience's left = house left = world +x); x - = STAGE LEFT (house right, world -x). z + = upstage of the proscenium plane (world +z: UPSTAGE IS +Z in this GLB); z - = the apron. y + = up from the deck.",
+   "origin": "the centre of the proscenium opening, on the deck, on the proscenium plane",
+   "toWorld": "world = (20.00 + x, 0.80 + y, 2.30 + z) — a pure translation (HOUSE2.dx 20.0; the arch is centred on GLB x 0.00; deck y 0.80; proscenium plane z 2.30)",
+   "rotY": "degrees about +y (three.js's sense). 0 = the piece's FRONT faces the house (-z); +90 = faces stage LEFT (-x); -90 = faces stage RIGHT (+x); 180 = faces upstage. A glTF model whose front is +z in its own file needs 180 added.",
+   "placement": "x, z = the centre of the piece's footprint; y = its BASE over the deck. size = [w along x, h, d along z] at rotY 0. Optional scale (uniform) and tipped (bool)."
+  },
+  "measuredWorld": {
+   "source": "assets/midtown-auditorium.glb read directly (fills by name, scan triangles Object_4...15), + HOUSE2.dx 20.0; checked against midtown.html (HOUSE, WALL_SET notes, BACKSTAGE, cutBeams' BEAM_BOX, RIG_TRIM, BOOTH_CUTS, WORKLIGHT). Theatre 2 is the uncut scan.",
+   "deckY": 0.8,
+   "deckFill": {
+    "x": [
+     10.5,
+     29.9
+    ],
+    "z": [
+     -0.35,
+     9.0
+    ]
+   },
+   "apron": {
+    "frontEdgeZ": -0.35,
+    "stageFrontFaceZ": [
+     -0.51,
+     -0.41
+    ],
+    "sideWallsX": [
+     14.4,
+     25.95
+    ],
+    "width": 11.55,
+    "depth": 2.65
+   },
+   "proscenium": {
+    "planeZ": 2.3,
+    "openingX": [
+     15.7,
+     24.3
+    ],
+    "openingWidth": 8.6,
+    "headerUndersideY": 5.2,
+    "openingHeight": 4.4,
+    "pierSL_X": [
+     13.4,
+     15.7
+    ],
+    "pierSR_X": [
+     24.3,
+     26.4
+    ],
+    "wallTopY": 8.05
+   },
+   "backBrickZ": 8.9,
+   "backBrickOuterZ": 9.1,
+   "depthBehindArch": 6.6,
+   "stageHouseSideWalls": {
+    "SL_innerX": [
+     10.45,
+     10.59
+    ],
+    "SR_innerX": [
+     29.56,
+     29.65
+    ],
+    "flyWallsX": [
+     10.2,
+     30.0
+    ],
+    "flyWallsFromY": 3.5
+   },
+   "wings": {
+    "SL": "x 10.55...15.70 (5.15 m) the full depth z 2.30...8.85",
+    "SR": "x 24.30...29.60 (5.30 m) upstage of z 3.90; downstage of it only x 24.30...26.00 (1.70 m): the SR side room (x 25.95...29.56, z 0.85...3.90, ceiling y 4.46) with its cross wall at z 3.81...3.90"
+   },
+   "flyRoofY": 16.0,
+   "flyTowerZ": [
+    2.3,
+    9.1
+   ],
+   "flyHeightOverDeck": 15.2,
+   "hangingIron": {
+    "note": "the venue's own iron, uncut in Theatre 2 (house 1's was cut by BEAM_BOX). Pipes run UP/DOWNSTAGE, not across.",
+    "pipes": [
+     {
+      "x": 15.7,
+      "y": 5.9,
+      "z": [
+       2.69,
+       8.9
+      ]
+     },
+     {
+      "x": [
+       19.13,
+       19.29
+      ],
+      "y": [
+       5.9,
+       6.24
+      ],
+      "z": [
+       2.64,
+       8.78
+      ],
+      "note": "a pair"
+     },
+     {
+      "x": [
+       21.0,
+       21.1
+      ],
+      "y": [
+       5.9,
+       6.2
+      ],
+      "z": [
+       2.6,
+       8.8
+      ]
+     },
+     {
+      "x": [
+       24.55,
+       24.67
+      ],
+      "y": 5.94,
+      "z": [
+       2.69,
+       8.65
+      ]
+     }
+    ],
+    "centreWalk": {
+     "x": [
+      19.2,
+      21.1
+     ],
+     "y": 6.1,
+     "z": [
+      [
+       3.9,
+       5.0
+      ],
+      [
+       5.1,
+       6.6
+      ],
+      [
+       6.7,
+       7.9
+      ]
+     ]
+    },
+    "boxOverSLPier": {
+     "x": [
+      13.6,
+      16.0
+     ],
+     "y": [
+      6.2,
+      7.2
+     ],
+     "z": [
+      0.9,
+      3.1
+     ]
+    }
+   },
+   "stageDoors": {
+    "x": [
+     19.0,
+     21.0
+    ],
+    "y": [
+     0.8,
+     4.2
+    ],
+    "z": [
+     8.9,
+     9.1
+    ],
+    "swing": "into the backstage",
+    "corridorZ": [
+     9.3,
+     13.4
+    ],
+    "corridorCeilingY": 4.6
+   },
+   "worklight": {
+    "switchBox": "stage-left wall (x ~10.5), z 3.30, 1.3 m over the deck",
+    "lamp": "stage-left fly wall, y 11.40, z 4.60, aimed at (20.0, 0.80, 5.50)"
+   },
+   "scanStrays": "two loose flat scan triangles 0.8 m over the deck: x 15.18...15.66, z 7.67...7.96 and x 23.81...24.74, z 7.63...7.94 (y 1.61...1.64) — the second pokes 0.35 m out of the wharf deck; cut them (an HOUSE2_CUTS box) when the set goes in.",
+   "seating": "Object_13: first row at world z ~-2.0 (x 14.8...24.6), seated eye ~y 1.12 = only 0.32 m over the deck; widest rows z -4.5...-5.5 (x 11.4...28.5); back row z ~-14.0 (eye ~y 3.9)"
+  },
+  "measuredStage": {
+   "opening": {
+    "x": [
+     -4.3,
+     4.3
+    ],
+    "height": 4.4
+   },
+   "apron": {
+    "z": [
+     -2.65,
+     0.0
+    ],
+    "x": [
+     -5.6,
+     5.95
+    ]
+   },
+   "deckBehindArch": {
+    "z": [
+     0.0,
+     6.6
+    ],
+    "deckRunsTo": 6.7
+   },
+   "wingSL": {
+    "x": [
+     -9.45,
+     -4.3
+    ],
+    "z": [
+     0.0,
+     6.55
+    ]
+   },
+   "wingSR": {
+    "x": [
+     4.3,
+     9.6
+    ],
+    "z": [
+     1.6,
+     6.55
+    ],
+    "downstagePocket": {
+     "x": [
+      4.3,
+      6.0
+     ],
+     "z": [
+      0.0,
+      1.5
+     ]
+    }
+   },
+   "flyHeight": 15.2,
+   "ironY": [
+    5.1,
+    5.44
+   ],
+   "flyLanes": {
+    "SL": [
+     -4.3,
+     -0.8
+    ],
+    "SR": [
+     1.05,
+     4.6
+    ],
+    "note": "flown pieces must fit a lane between the iron's pipes, or the iron is cut (Jack's call)"
+   },
+   "stageDoors": {
+    "x": [
+     -1.0,
+     1.0
+    ],
+    "height": 3.4,
+    "z": 6.6
+   },
+   "sightlines": {
+    "frontRowEye": [
+     0,
+     0.32,
+     -4.3
+    ],
+    "backRowEye": [
+     0,
+     3.1,
+     -16.3
+    ],
+    "frontRowSeesUpTo": "y = 0.32 + 0.949 (z + 4.30) through the arch alone (10.5 at the back wall); with the masking border at z 3.0: y = 0.32 + 0.559 (z + 4.30) upstage of it (6.3 at the back wall)",
+    "backRowSeesUpTo": "about 4.4-4.9 m at any depth"
+   }
+  },
+  "vsWorklist": [
+   {
+    "his": "Proscenium opening 8.6 m x 4.4 m",
+    "measured": "8.60 x 4.40 (x 15.70...24.30, deck 0.80 to header 5.20)",
+    "agree": true
+   },
+   {
+    "his": "6.6 m deep behind the arch + 2.65 m apron",
+    "measured": "6.60 to the back brick (deck runs on to 6.70) + 2.65 apron",
+    "agree": true
+   },
+   {
+    "his": "Side walls 11.6 m apart",
+    "measured": "11.55 m is the APRON's width (the house's walls either side of the apron). The STAGE HOUSE's side walls are ~19.0 m apart (x 10.5...29.6)",
+    "agree": false
+   },
+   {
+    "his": "About 1.5 m of wing each side; the 1.3 m rule",
+    "measured": "SL 5.15 m the full depth; SR 5.30 m upstage of z 1.6 and 1.70 m only downstage of it (the SR side room). The 1.3 m rule is not needed: every travelling piece here parks in a wing or goes through the centre doors",
+    "agree": false
+   },
+   {
+    "his": "Fly tower 16 m",
+    "measured": "fly roof at world y 16.0 = 15.2 m over the deck (16.0 over the house floor). Empty above the iron (5.1-5.4 over the deck) to the roof. But the front row sees 10.5 m up the back wall through the arch, so only a piece <= 4.7 m tall hides when flown out, unless a border is hung (with the border at z 3.0: <= ~8.9 m)",
+    "agree": "partly"
+   }
+  ]
+ },
+ "parks": {
+  "SL wing": "x -9.30...-6.30, z 0.2...6.4 (behind the legs; keep the switch box at x -9.45, z 1.0 clear)",
+  "SR wing": "x +6.30...+9.40, z 1.7...6.4 (behind the legs)",
+  "props table SL": "x -8.0, z 0.3 (a 1.8 x 0.6 table)",
+  "props table SR": "x +7.0, z 2.0 (a 1.8 x 0.6 table)",
+  "backstage": "through the centre stage doors (x -1.0...+1.0, 3.40 high) into the crossover, stage z 7.0...11.1, x -9.6...+10.0",
+  "flown": "out-trim y given in trim.out; lanes between the iron's pipes",
+  "on stage": "unit set: never moves"
+ },
+ "pieces": [
+  {
+   "id": "wharf-deck",
+   "name": "Wharf deck (the unit platform, stage right)",
+   "worklistModel": "Rustic Wooden Dock",
+   "slot": "assets/johnny-tremain/models/wharf-deck.glb",
+   "size": [
+    3.4,
+    0.45,
+    2.6
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": "\"Rustic Wooden Dock\" by Evan16 (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 2.7,
+     "y": 0,
+     "z": 4.9,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": 2.7,
+    "y": 0.0,
+    "z": 4.9,
+    "rotY": 0,
+    "note": "never moves",
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "Top 0.45 over the deck (x +1.00...+4.40, z 3.60...6.20). Plank faces 25 cm, posts 25-30 cm. Doubles as the courtroom's platform (11), the camp's far ground (14, 20), the Dartmouth's wharf (13), Lexington's far side (25). Its SR end stops 0.2 m inside the leg line."
+  },
+  {
+   "id": "wharf-step",
+   "name": "Wharf step",
+   "worklistModel": "Rustic Wooden Dock",
+   "slot": "assets/johnny-tremain/models/wharf-step.glb",
+   "size": [
+    3.4,
+    0.22,
+    0.3
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": "\"Rustic Wooden Dock\" by Evan16 (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 2.7,
+     "y": 0,
+     "z": 3.45,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": 2.7,
+    "y": 0.0,
+    "z": 3.45,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "One 22 cm step along the wharf's downstage face (z 3.30...3.60), so the 45 cm deck is two easy steps."
+  },
+  {
+   "id": "wharf-piles",
+   "name": "Wharf piles and bracing (upstage edge)",
+   "worklistModel": "The Wharf – Fishing Harbor Wood",
+   "slot": "assets/johnny-tremain/models/wharf-piles.glb",
+   "size": [
+    3.4,
+    1.4,
+    0.2
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": "\"The Wharf – Fishing Harbor Wood\" by Mehdi Shahsavan (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 2.7,
+     "y": 0,
+     "z": 6.1,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": 2.7,
+    "y": 0.0,
+    "z": 6.1,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "Piles with cross-bracing along the wharf's upstage edge (z 6.00...6.20), tops 1.4 over the deck, plus the same timber as fascia on the wharf's downstage face. Hides the ground row behind it. Shared weathered-wood material with the dock and the loft."
+  },
+  {
+   "id": "loft",
+   "name": "The loft (deck, four posts, rail)",
+   "worklistModel": "Free Wooden Scaffolding Set",
+   "slot": "assets/johnny-tremain/models/loft.glb",
+   "size": [
+    3.6,
+    3.5,
+    1.8
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": "\"Free Wooden Scaffolding Set\" by Just8 (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -2.4,
+     "y": 0,
+     "z": 5.3,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": -2.4,
+    "y": 0.0,
+    "z": 5.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "Deck 3.6 x 1.8, top at y 2.40 (x -4.20...-0.60, z 4.40...6.20), 0.2 thick, on four 0.18 posts at its corners; clear under it 2.20. Rail 1.10 high (top 3.50) on the front, both ends and the back, with a 0.60 gap in the front rail at x -1.30...-0.70 where the ladder arrives. The chimney passes through the deck at its SL end (x -4.20...-3.80, z 4.80...5.20). The rail is the 'window' and the 'windowsill' of several scenes (15, 18, 21). The Lapham apprentices' loft (1-8), then the loft over the Observer (9 on)."
+  },
+  {
+   "id": "loft-rafters",
+   "name": "Loft rafters (open A-frame over the loft)",
+   "worklistModel": "Free Wooden Scaffolding Set",
+   "slot": "assets/johnny-tremain/models/loft-rafters.glb",
+   "size": [
+    3.6,
+    2.0,
+    1.8
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": "\"Free Wooden Scaffolding Set\" by Just8 (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -2.4,
+     "y": 2.4,
+     "z": 5.3,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": -2.4,
+    "y": 2.4,
+    "z": 5.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "Open rafters standing on the loft deck: ridge along x at y 4.40 (z 5.30), eaves at y 3.60 at the deck's front and back edges, frame only, see-through. Low enough that Otis (19) pushes against them with his arms up. Nothing above 4.40."
+  },
+  {
+   "id": "ladder",
+   "name": "Loft ladder",
+   "worklistModel": "Wooden Ladder",
+   "slot": "assets/johnny-tremain/models/ladder.glb",
+   "size": [
+    0.45,
+    2.9,
+    0.8
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": "\"Wooden Ladder\" by romullus (sketchfab.com), CC BY-SA 4.0",
+   "licenceNote": "CC BY-SA 4.0: a changed copy passed on (the stage file shared) must carry CC BY-SA",
+   "home": [
+    {
+     "x": -1.0,
+     "y": 0,
+     "z": 4.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": -1.0,
+    "y": 0.0,
+    "z": 4.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "3.0 m long, 45 cm wide, rungs 30 cm apart, leaned at 75 degrees: foot at z 3.60 (x -1.22...-0.78), top against the loft's front edge at z 4.40, stiles 0.5 m over the loft deck. Arrives at the rail gap. Clear of the centre path (x -0.60...+1.00)."
+  },
+  {
+   "id": "furnace",
+   "name": "Lapham furnace (hearth, hood, chimney)",
+   "worklistModel": "Forge And Bellow",
+   "slot": "assets/johnny-tremain/models/furnace.glb",
+   "size": [
+    1.0,
+    4.4,
+    0.8
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": "\"Forge And Bellow\" by RBG_illustrations (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -3.8,
+     "y": 0,
+     "z": 5.0,
+     "rotY": -90
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": -3.8,
+    "y": 0.0,
+    "z": 5.0,
+    "rotY": -90,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "Brick hearth 1.0 w x 0.8 d x 0.9 h, its mouth facing STAGE RIGHT (rotY -90) so Johnny works it in profile from x -3.0 without turning his back on the house; footprint x -4.20...-3.40, z 4.50...5.50, under the loft's SL end. Hood over the hearth, chimney up its SL side through the loft deck, top at y 4.40. Coals emissive with two states, lit/dark (an orange LED in the hearth on its own channel). Also plays every other hearth: the Lapham kitchen fire (1, 2, 7), Milton's kitchen where the Bible pages burn (17), Silsbee's Cove (26)."
+  },
+  {
+   "id": "bellows",
+   "name": "Furnace bellows",
+   "worklistModel": "Bellows",
+   "slot": "assets/johnny-tremain/models/bellows.glb",
+   "size": [
+    0.4,
+    0.5,
+    1.1
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": "\"Bellows\" by Arkikon (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -3.8,
+     "y": 0,
+     "z": 3.95,
+     "rotY": 180
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": -3.8,
+    "y": 0.0,
+    "z": 3.95,
+    "rotY": 180,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "1.0-1.2 m workshop bellows on a low stand along z at the hearth's downstage side (x -4.00...-3.60, z 3.40...4.50), nozzle into the side of the fire. One set only (delete the Forge model's own). Grouped with the furnace."
+  },
+  {
+   "id": "lumber-pile-a",
+   "name": "Lumber pile on the wharf",
+   "worklistModel": "Old lumber stack (Megascans)",
+   "slot": "assets/johnny-tremain/models/lumber-pile-a.glb",
+   "size": [
+    1.2,
+    0.7,
+    0.55
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "Fab licence (not CC): read the Fab page's licence panel on download; no credit line",
+   "home": [
+    {
+     "x": 3.8,
+     "y": 0.45,
+     "z": 5.7,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": 3.8,
+    "y": 0.45,
+    "z": 5.7,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "Raw boards on the wharf's back SR corner (x 3.20...4.40, z 5.43...5.98, just in front of the piles), under 1.2 m so it never blocks a sightline."
+  },
+  {
+   "id": "lumber-pile-b",
+   "name": "Lumber pile under the loft",
+   "worklistModel": "Old lumber stack (Megascans)",
+   "slot": "assets/johnny-tremain/models/lumber-pile-b.glb",
+   "size": [
+    0.8,
+    0.6,
+    1.6
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "Fab licence (not CC): read the Fab page's licence panel on download; no credit line",
+   "home": [
+    {
+     "x": -1.2,
+     "y": 0,
+     "z": 5.4,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": -1.2,
+    "y": 0.0,
+    "z": 5.4,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "The same scan turned and cut shorter, under the loft's SR end (x -1.60...-0.80, z 4.60...6.20), clear of the press (x <= -1.75) and the centre path."
+  },
+  {
+   "id": "crates",
+   "name": "Wharf crates",
+   "worklistModel": "Wooden Crate 1",
+   "slot": "assets/johnny-tremain/models/crates.glb",
+   "size": [
+    0.5,
+    0.5,
+    0.5
+   ],
+   "kind": "unit",
+   "count": 3,
+   "credit": null,
+   "licenceNote": "CC0 (ShareTextures)",
+   "home": [
+    {
+     "x": 1.3,
+     "y": 0.45,
+     "z": 5.72,
+     "rotY": 0
+    },
+    {
+     "x": 1.3,
+     "y": 0.95,
+     "z": 5.72,
+     "rotY": 0
+    },
+    {
+     "x": 4.15,
+     "y": 0.45,
+     "z": 3.85,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": 1.3,
+    "y": 0.45,
+    "z": 5.72,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "Plain crates: two stacked on the wharf's back SL corner, one at its downstage SR corner. Seats when needed."
+  },
+  {
+   "id": "bench",
+   "name": "The bench (the unit set's one plain bench)",
+   "worklistModel": "Wooden table with benches",
+   "slot": "assets/johnny-tremain/models/bench.glb",
+   "size": [
+    1.6,
+    0.45,
+    0.35
+   ],
+   "kind": "unit",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "CGTrader royalty-free, NO AI USE; no credit",
+   "home": [
+    {
+     "x": 2.7,
+     "y": 0.45,
+     "z": 3.85,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "on stage",
+    "x": 2.7,
+    "y": 0.45,
+    "z": 3.85,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    {
+     "n": 11,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": -0.9,
+       "y": 0,
+       "z": 0.6,
+       "rotY": -15
+      }
+     ]
+    },
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    {
+     "n": 18,
+     "at": [
+      {
+       "x": -1.6,
+       "y": 0,
+       "z": 2.7,
+       "rotY": 0
+      }
+     ]
+    },
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "notes": "The plain bench the production notes name as part of the unit set: a third bench from the kitchen set. Home: the wharf's downstage edge (z 3.68...4.03), facing the house. It moves for the courtroom crowd (11) and the orchard (18)."
+  },
+  {
+   "id": "masking-legs",
+   "name": "Black masking legs (3 pairs, dead-hung)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/masking-legs.glb",
+   "size": [
+    1.6,
+    5.0,
+    0.05
+   ],
+   "kind": "flown",
+   "count": 6,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -5.4,
+     "y": 0,
+     "z": 0.6,
+     "rotY": 0
+    },
+    {
+     "x": 5.3,
+     "y": 0,
+     "z": 0.6,
+     "rotY": 0
+    },
+    {
+     "x": -5.4,
+     "y": 0,
+     "z": 2.6,
+     "rotY": 0
+    },
+    {
+     "x": 5.4,
+     "y": 0,
+     "z": 2.6,
+     "rotY": 0
+    },
+    {
+     "x": -5.4,
+     "y": 0,
+     "z": 4.6,
+     "rotY": 0
+    },
+    {
+     "x": 5.4,
+     "y": 0,
+     "z": 4.6,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "flown",
+    "x": 0,
+    "y": 0.0,
+    "z": 0,
+    "rotY": 0,
+    "note": "dead-hung: in all night",
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "trim": {
+    "in": 0.0,
+    "out": 0.0,
+    "lane": "offstage of the arch (|x| 4.6...6.2)",
+    "deadHung": true
+   },
+   "notes": "NOT in the worklist: a designer's addition. Black velour legs 1.6 wide (SR L1 1.4: the SR side room's wall is at x +6.00), deck to y 5.00 (under the venue's iron at 5.10), at z 0.60 / 2.60 / 4.60, inner edges at |x| 4.6. They hide the wing parks from the centre seats and make three entrances a side ('in 1' z 0.6-2.6, 'in 2' 2.6-4.6, 'in 3' 4.6-6.6). The widest side seats (x beyond +/-7 in the stalls' rows at world z -4...-5.5) still see a little of each wing. Jack's call: keep or drop."
+  },
+  {
+   "id": "masking-border",
+   "name": "Black masking border (dead-hung)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/masking-border.glb",
+   "size": [
+    12.4,
+    0.6,
+    0.05
+   ],
+   "kind": "flown",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 0.0,
+     "y": 4.4,
+     "z": 3.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "flown",
+    "x": 0.0,
+    "y": 4.4,
+    "z": 3.0,
+    "rotY": 0,
+    "note": "dead-hung",
+    "fits": "yes"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26
+   ],
+   "trim": {
+    "in": 4.4,
+    "out": 4.4,
+    "lane": "full width, under the iron",
+    "deadHung": true
+   },
+   "notes": "NOT in the worklist: a designer's addition. 0.6 m black border, bottom at y 4.40 (the arch's height) at z 3.00, x -6.2...+6.2, under the venue's iron (y 5.10). It cuts the front row's view up into the fly tower from y 10.5 to 6.3 at the back wall, which is what lets the steeple, the masts, the sign and the branches fly out of sight in a 15.2 m tower. Hides the iron's downstage half too."
+  },
+  {
+   "id": "observer-sign",
+   "name": "The Boston Observer's swing sign (the spyglass man)",
+   "worklistModel": "Colonial House",
+   "slot": "assets/johnny-tremain/models/observer-sign.glb",
+   "size": [
+    0.9,
+    0.8,
+    0.1
+   ],
+   "kind": "flown",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "EDITORIAL ONLY: previs use only until the author grants permission for a ticketed show",
+   "home": [
+    {
+     "x": -2.4,
+     "y": 2.6,
+     "z": 3.9,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "flown",
+    "x": -2.4,
+    "y": 5.0,
+    "z": 3.9,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    9,
+    12,
+    {
+     "n": 20,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "trim": {
+    "in": 2.6,
+    "out": 5.0,
+    "lane": "SL lane (x -4.30...-0.80, between the iron's pipes)"
+   },
+   "notes": "Board 0.9 x 0.6 on an iron bracket and chains, painted with a small figure in a blue coat holding a spyglass. Flies in in front of the loft for Salt Lane; out above the front row's sightline behind the border. The Colonial House model is editorial-only; the sign is a painted board, so build it from boxes if the author says no."
+  },
+  {
+   "id": "steeple",
+   "name": "Christ Church steeple cut-out (with the two lantern windows)",
+   "worklistModel": "Church steeple with cross",
+   "slot": "assets/johnny-tremain/models/steeple.glb",
+   "size": [
+    1.8,
+    5.0,
+    0.1
+   ],
+   "kind": "flown",
+   "count": 1,
+   "credit": "\"Church steeple with cross\" by Matesic (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 2.6,
+     "y": 0.9,
+     "z": 6.5,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "flown",
+    "x": 2.6,
+    "y": 6.5,
+    "z": 6.5,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 21,
+     "seg": [
+      5
+     ]
+    }
+   ],
+   "trim": {
+    "in": 0.9,
+    "out": 6.5,
+    "lane": "SR lane (x +1.05...+4.60, between the iron's pipes)"
+   },
+   "notes": "Flat cut-out 1.8 w x 5.0 h at z 6.50 (behind the wharf piles), the two lit windows of its top stage at y 3.5-3.9 (visible from every seat: the back row sees to ~4.6 there). Worklist said 5-6 m; 5.0 is the most that flies out of sight in this tower even with the border. Weathervane, not a cross."
+  },
+  {
+   "id": "church-lanterns",
+   "name": "The two church lanterns (in the steeple)",
+   "worklistModel": "Colonial Style Lantern",
+   "slot": "assets/johnny-tremain/models/church-lanterns.glb",
+   "size": [
+    0.3,
+    0.45,
+    0.3
+   ],
+   "kind": "flown",
+   "count": 2,
+   "credit": "\"Colonial Style Lantern\" by trinityscsp (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 2.35,
+     "y": 3.45,
+     "z": 6.45,
+     "rotY": 0
+    },
+    {
+     "x": 2.85,
+     "y": 3.45,
+     "z": 6.45,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "flown",
+    "x": 2.6,
+    "y": 9.05,
+    "z": 6.45,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 21,
+     "seg": [
+      5
+     ]
+    }
+   ],
+   "trim": {
+    "in": 3.45,
+    "out": 9.05,
+    "lane": "with the steeple"
+   },
+   "notes": "Practicals (candle LEDs) fixed in the steeple's windows; they come on in Scene 21. The punched-tin lantern is still missing; this is the stand-in."
+  },
+  {
+   "id": "ship-masts",
+   "name": "Tea ship's masts and rigging (silhouette)",
+   "worklistModel": "Pirate Ship (galleon)",
+   "slot": "assets/johnny-tremain/models/ship-masts.glb",
+   "size": [
+    3.1,
+    8.0,
+    0.1
+   ],
+   "kind": "flown",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "CC0 (OpenGameArt)",
+   "home": [
+    {
+     "x": 2.75,
+     "y": 1.0,
+     "z": 6.33,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "flown",
+    "x": 2.75,
+    "y": 6.4,
+    "z": 6.33,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 13,
+     "seg": [
+      3
+     ]
+    },
+    {
+     "n": 14,
+     "seg": [
+      1
+     ]
+    }
+   ],
+   "trim": {
+    "in": 1.0,
+    "out": 6.4,
+    "lane": "SR lane (x +1.05...+4.60)"
+   },
+   "notes": "Masts, yards and furled sails only (no hull), a 1770s merchant rig, flat silhouette 3.1 w x 8.0 h. In for the Tea Party and the wharf in daylight. 8 m is the tallest that clears the front row's view when out (top 14.4 under the 15.2 roof)."
+  },
+  {
+   "id": "apple-branches",
+   "name": "Apple branches (two cut-out borders)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/apple-branches.glb",
+   "size": [
+    3.2,
+    1.1,
+    0.6
+   ],
+   "kind": "flown",
+   "count": 2,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -2.75,
+     "y": 2.0,
+     "z": 3.4,
+     "rotY": 0,
+     "w": 2.8
+    },
+    {
+     "x": 2.8,
+     "y": 2.4,
+     "z": 3.4,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "flown",
+    "x": 0,
+    "y": 4.7,
+    "z": 3.4,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 18,
+     "seg": [
+      1
+     ]
+    }
+   ],
+   "trim": {
+    "in": 2.0,
+    "out": 4.7,
+    "lane": "one in each lane (SL x -4.15...-1.35, 2.8 wide so it clears the ladder; SR +1.20...+4.40)"
+   },
+   "notes": "Leafy branch cut-outs heavy with small green apples. The SL one hangs low (bottom 2.0) over the orchard bench so Cilla can reach up and pick an apple. Not in the worklist."
+  },
+  {
+   "id": "armchair",
+   "name": "The armchair (red, bow-back Windsor with arms)",
+   "worklistModel": "Windsor Chair",
+   "slot": "assets/johnny-tremain/models/armchair.glb",
+   "size": [
+    0.65,
+    1.0,
+    0.6
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "CGTrader royalty-free, NO AI USE (may not be fed to AI training); no credit",
+   "home": [
+    {
+     "x": -3.6,
+     "y": 0,
+     "z": 2.3,
+     "rotY": -50
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -7.0,
+    "y": 0.0,
+    "z": 0.9,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.60 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    1,
+    2,
+    3,
+    6,
+    {
+     "n": 7,
+     "at": [
+      {
+       "x": -0.3,
+       "y": 0,
+       "z": 1.2,
+       "rotY": -20
+      }
+     ]
+    },
+    {
+     "n": 19,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -0.93,
+       "y": 2.4,
+       "z": 5.6,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 25,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": 0.3,
+       "y": 0,
+       "z": 1.6,
+       "rotY": 15
+      }
+     ]
+    },
+    {
+     "n": 26,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -2.6,
+       "y": 0,
+       "z": 3.0,
+       "rotY": -40
+      }
+     ]
+    }
+   ],
+   "notes": "The one chair that travels: Mr. Lapham's chair first, later Otis's, Rab's at Buckman's, and last Grandsire's, empty, at Silsbee's Cove. The script says RED (26); the worklist offered dark green or red. Add the arm rail (65 cm) and paint it. The production note names Hancock as an owner but no scene seats him; see BREAKDOWN."
+  },
+  {
+   "id": "kitchen-table",
+   "name": "Kitchen table (scrubbed pine; re-dressed per house)",
+   "worklistModel": "Wooden table with benches",
+   "slot": "assets/johnny-tremain/models/kitchen-table.glb",
+   "size": [
+    1.8,
+    0.74,
+    0.8
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "CGTrader royalty-free, NO AI USE; no credit",
+   "home": [
+    {
+     "x": -1.8,
+     "y": 0,
+     "z": 2.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -7.8,
+    "y": 0.0,
+    "z": 2.4,
+    "rotY": 90,
+    "fits": "yes — narrow side 0.80 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    1,
+    2,
+    7,
+    {
+     "n": 11,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": -0.4,
+       "y": 0,
+       "z": 3.0,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 16,
+     "at": [
+      {
+       "x": 2.2,
+       "y": 0,
+       "z": 1.8,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -1.2,
+       "y": 0,
+       "z": 1.8,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 23,
+     "at": [
+      {
+       "x": 1.6,
+       "y": 0,
+       "z": 1.8,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 26,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": 1.4,
+       "y": 0,
+       "z": 1.8,
+       "rotY": 0
+      }
+     ]
+    }
+   ],
+   "notes": "The Laphams' table; with a cloth it is the Lytes' kitchen table (16, 23), the Green Dragon's (20), the courtroom's table for the four cups (11) and Buckman's parlour table (26). Aunt Jenifer's kitchen (22) is played by the feather bed and a chair, not this."
+  },
+  {
+   "id": "kitchen-benches",
+   "name": "Kitchen benches",
+   "worklistModel": "Wooden table with benches",
+   "slot": "assets/johnny-tremain/models/kitchen-benches.glb",
+   "size": [
+    1.6,
+    0.45,
+    0.3
+   ],
+   "kind": "travel",
+   "count": 2,
+   "credit": null,
+   "licenceNote": "CGTrader royalty-free, NO AI USE; no credit",
+   "home": [
+    {
+     "x": -1.8,
+     "y": 0,
+     "z": 1.3,
+     "rotY": 0
+    },
+    {
+     "x": -1.8,
+     "y": 0,
+     "z": 2.7,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -7.0,
+    "y": 0.0,
+    "z": 4.0,
+    "rotY": 90,
+    "fits": "yes — narrow side 0.30 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    1,
+    2,
+    7,
+    {
+     "n": 11,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": -2.8,
+       "y": 0,
+       "z": 1.2,
+       "rotY": -30
+      },
+      {
+       "x": -2.8,
+       "y": 0,
+       "z": 2.3,
+       "rotY": -30
+      }
+     ]
+    },
+    {
+     "n": 13,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -2.2,
+       "y": 2.4,
+       "z": 6.05,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 19,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -2.2,
+       "y": 2.4,
+       "z": 6.05,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -1.2,
+       "y": 0,
+       "z": 1.1,
+       "rotY": 0
+      },
+      {
+       "x": -1.2,
+       "y": 0,
+       "z": 2.5,
+       "rotY": 0
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "kitchen-chairs",
+   "name": "Plain kitchen chairs",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/kitchen-chairs.glb",
+   "size": [
+    0.45,
+    0.9,
+    0.45
+   ],
+   "kind": "travel",
+   "count": 2,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -3.6,
+     "y": 0,
+     "z": 2.3,
+     "rotY": -50
+    },
+    {
+     "x": 3.5,
+     "y": 0,
+     "z": 2.2,
+     "rotY": -60
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -8.6,
+    "y": 0.0,
+    "z": 0.9,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.45 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    {
+     "n": 7,
+     "at": [
+      {
+       "x": -3.6,
+       "y": 0,
+       "z": 2.3,
+       "rotY": -50
+      }
+     ]
+    },
+    {
+     "n": 16,
+     "at": [
+      {
+       "x": 3.5,
+       "y": 0,
+       "z": 2.2,
+       "rotY": -60
+      }
+     ]
+    },
+    {
+     "n": 17,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": -0.25,
+       "y": 0,
+       "z": 1.0,
+       "rotY": 0
+      },
+      {
+       "x": 0.25,
+       "y": 0,
+       "z": 1.0,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      3
+     ],
+     "at": [
+      {
+       "x": 1.0,
+       "y": 0,
+       "z": 1.6,
+       "rotY": -20
+      }
+     ]
+    },
+    {
+     "n": 21,
+     "seg": [
+      4
+     ],
+     "at": [
+      {
+       "x": 2.2,
+       "y": 0,
+       "z": 1.6,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 22,
+     "seg": [
+      3
+     ],
+     "at": [
+      {
+       "x": 3.7,
+       "y": 0,
+       "z": 2.2,
+       "rotY": -70
+      }
+     ]
+    },
+    {
+     "n": 23,
+     "at": [
+      {
+       "x": 0.4,
+       "y": 0,
+       "z": 1.9,
+       "rotY": -80
+      },
+      {
+       "x": 2.85,
+       "y": 0,
+       "z": 1.9,
+       "rotY": 80
+      }
+     ]
+    },
+    {
+     "n": 25,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": -1.0,
+       "y": 0,
+       "z": 2.2,
+       "rotY": -30
+      }
+     ]
+    },
+    {
+     "n": 26,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": 2.6,
+       "y": 0,
+       "z": 2.0,
+       "rotY": 70
+      }
+     ]
+    }
+   ],
+   "notes": "NOT in the worklist. The 'small chair' in Mr. Lapham's corner (7), Mrs. Bessie's chair (16), the chaise as two chairs (17), Dove's chair (20), the Dawes chair (21), Aunt Jenifer's (22), the Lyte kitchen's two (23), the knitting woman's (25), Warren's (26). A plain ladder-back."
+  },
+  {
+   "id": "workbench",
+   "name": "Silversmith's bench (notched top)",
+   "worklistModel": "Workbench and workshop accessories",
+   "slot": "assets/johnny-tremain/models/workbench.glb",
+   "size": [
+    1.8,
+    0.9,
+    0.7
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "CGTrader royalty-free; no credit",
+   "home": [
+    {
+     "x": -1.6,
+     "y": 0,
+     "z": 2.9,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -7.0,
+    "y": 0.0,
+    "z": 5.6,
+    "rotY": 90,
+    "fits": "yes — narrow side 0.70 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    3,
+    {
+     "n": 5,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": 2.0,
+       "y": 0,
+       "z": 2.2,
+       "rotY": -15
+      }
+     ]
+    },
+    6
+   ],
+   "notes": "1.8 x 0.7 x 0.9 with one or two semicircular notches in the front edge and a leather apron under. Lapham's (3, 6); with the neat tool dress it is Revere's (5), moved to stage right."
+  },
+  {
+   "id": "bench-tools",
+   "name": "Silversmith's tools (cluttered and neat dress)",
+   "worklistModel": "Free Blacksmith Tool Set",
+   "slot": "assets/johnny-tremain/models/bench-tools.glb",
+   "size": [
+    0.8,
+    0.15,
+    0.4
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "itch.io free / pay-what-you-want, not CC; credit optional",
+   "home": [
+    {
+     "x": -1.6,
+     "y": 0.9,
+     "z": 2.9,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    3,
+    {
+     "n": 5,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": 2.0,
+       "y": 0.9,
+       "z": 2.2,
+       "rotY": -15
+      }
+     ]
+    },
+    6
+   ]
+  },
+  {
+   "id": "polishing-wheel",
+   "name": "Polishing wheel (treadle)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/polishing-wheel.glb",
+   "size": [
+    0.8,
+    1.1,
+    0.6
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 0.4,
+     "y": 0,
+     "z": 3.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -8.6,
+    "y": 0.0,
+    "z": 5.6,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.60 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    3,
+    6
+   ],
+   "notes": "The 'wheel' Dove and Dusty work at in the shop. NOT in the worklist: a treadle polishing lathe, wood and iron."
+  },
+  {
+   "id": "water-bucket",
+   "name": "Water bucket",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/water-bucket.glb",
+   "size": [
+    0.32,
+    0.3,
+    0.32
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -2.6,
+     "y": 0,
+     "z": 4.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 1,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -0.4,
+       "y": 0,
+       "z": 1.0,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": -2.6,
+       "y": 0,
+       "z": 4.0,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 24,
+     "seg": [
+      4
+     ],
+     "at": [
+      {
+       "x": 1.2,
+       "y": 0.9,
+       "z": 1.3,
+       "rotY": 0
+      }
+     ]
+    }
+   ],
+   "notes": "Johnny's bucket (1), the bucket his burned hand goes into (6), the well's bucket (24). Not in the worklist."
+  },
+  {
+   "id": "crucible-and-tongs",
+   "name": "Crucible, tongs and the mould",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/crucible-and-tongs.glb",
+   "size": [
+    0.4,
+    0.15,
+    0.2
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -3.0,
+     "y": 0.9,
+     "z": 4.6,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    6
+   ],
+   "notes": "The cracked crucible of molten silver lifted in tongs (6): its own glow is a lighting effect. Not in the worklist (the script's notes list a RenderHub crucible-tongs model)."
+  },
+  {
+   "id": "hancock-creamer",
+   "name": "Hancock's silver cream pitcher (winged handle)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/hancock-creamer.glb",
+   "size": [
+    0.15,
+    0.15,
+    0.1
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -1.6,
+     "y": 0.9,
+     "z": 2.9,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    3
+   ]
+  },
+  {
+   "id": "parrot-cage",
+   "name": "Parrot in a cage",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/parrot-cage.glb",
+   "size": [
+    0.4,
+    0.6,
+    0.4
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 0,
+     "y": 0,
+     "z": -1.3,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 1,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": 0.6,
+       "y": 0,
+       "z": -1.4,
+       "rotY": 0
+      }
+     ]
+    }
+   ],
+   "notes": "Carried through the street by the company (1)."
+  },
+  {
+   "id": "family-bible",
+   "name": "The great family Bible",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/family-bible.glb",
+   "size": [
+    0.35,
+    0.12,
+    0.45
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -1.8,
+     "y": 0.74,
+     "z": 2.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    2,
+    {
+     "n": 17,
+     "seg": [
+      4
+     ],
+     "at": [
+      {
+       "x": 2.4,
+       "y": 0,
+       "z": 2.6,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -1.2,
+       "y": 0.74,
+       "z": 1.8,
+       "rotY": 0
+      }
+     ]
+    }
+   ],
+   "notes": "The Laphams' (2); the Lytes' with the begats Johnny cuts out (17); the Green Dragon's oath Bible (20)."
+  },
+  {
+   "id": "three-boy-bed",
+   "name": "The three-boy bed (on the loft)",
+   "worklistModel": "Indian Bed (Charpayi)",
+   "slot": "assets/johnny-tremain/models/three-boy-bed.glb",
+   "size": [
+    1.9,
+    0.5,
+    1.4
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"Indian Bed (Charpayi)\" by Prem Rastogi (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -2.2,
+     "y": 2.4,
+     "z": 5.2,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": -6.0,
+    "y": 0.0,
+    "z": 8.0,
+    "rotY": 0,
+    "note": "handed down off the loft's SL end in the 2-3 change, then round to the crossover",
+    "fits": "yes — narrow side 1.40 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    1,
+    2
+   ],
+   "notes": "Widened charpayi, plain square legs, hemp rope, coarse blanket; lies along x on the loft (x -3.15...-1.25, z 4.50...5.90)."
+  },
+  {
+   "id": "truckle-beds",
+   "name": "Truckle beds",
+   "worklistModel": "Trundle Bed",
+   "slot": "assets/johnny-tremain/models/truckle-beds.glb",
+   "size": [
+    0.9,
+    0.3,
+    1.8
+   ],
+   "kind": "travel",
+   "count": 2,
+   "credit": null,
+   "licenceNote": "TurboSquid royalty-free; Maya-only file (needs converting)",
+   "home": [
+    {
+     "x": -2.95,
+     "y": 2.4,
+     "z": 5.3,
+     "rotY": 0
+    },
+    {
+     "x": -1.95,
+     "y": 2.4,
+     "z": 5.3,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -8.6,
+    "y": 0.0,
+    "z": 4.6,
+    "rotY": 0,
+    "note": "handed down off the loft's SL end",
+    "fits": "yes — narrow side 0.90 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    {
+     "n": 11,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -2.8,
+       "y": 0,
+       "z": 1.6,
+       "rotY": 90
+      }
+     ]
+    },
+    {
+     "n": 19,
+     "seg": [
+      2
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      6
+     ]
+    },
+    {
+     "n": 21,
+     "seg": [
+      2
+     ]
+    },
+    {
+     "n": 22,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "Low wooden frames on wooden wheels, rope or canvas base; along z on the loft. #1 doubles as the jail cot (11). Ripped by bayonets in 22. If the Maya file cannot be converted, build them from the charpayi."
+  },
+  {
+   "id": "feather-bed",
+   "name": "Aunt Jenifer's feather bed",
+   "worklistModel": "Indian Bed (Charpayi)",
+   "slot": "assets/johnny-tremain/models/feather-bed.glb",
+   "size": [
+    1.4,
+    0.8,
+    1.9
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"Indian Bed (Charpayi)\" by Prem Rastogi (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 2.4,
+     "y": 0,
+     "z": 1.8,
+     "rotY": 90
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
+    "rotY": 0,
+    "note": "via the centre doors (1.4 wide side)",
+    "fits": "yes — narrow side 1.40 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 22,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "The three-boy bed's frame with a 30 cm feather mattress and white coverlet; Uncle Lorne rolls out of it. Feathers everywhere (22)."
+  },
+  {
+   "id": "trestle-table",
+   "name": "Loft trestle table (the Observers' long table)",
+   "worklistModel": "Wooden table with benches",
+   "slot": "assets/johnny-tremain/models/trestle-table.glb",
+   "size": [
+    1.8,
+    0.74,
+    0.6
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "CGTrader royalty-free, NO AI USE; no credit",
+   "home": [
+    {
+     "x": -2.25,
+     "y": 2.4,
+     "z": 5.6,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -7.6,
+    "y": 0.0,
+    "z": 5.0,
+    "rotY": 90,
+    "note": "folds; handed down off the loft",
+    "fits": "yes — narrow side 0.60 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    {
+     "n": 13,
+     "seg": [
+      1
+     ]
+    },
+    {
+     "n": 19,
+     "seg": [
+      1
+     ]
+    }
+   ],
+   "notes": "A narrow folding trestle (the kitchen model cut to 1.8 x 0.6) so that a 'long table' fits a 1.8 m deep loft with one bench behind it: the Observers sit in a line facing the house."
+  },
+  {
+   "id": "punch-bowl",
+   "name": "Punch bowl",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/punch-bowl.glb",
+   "size": [
+    0.4,
+    0.2,
+    0.4
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -2.2,
+     "y": 3.14,
+     "z": 5.6,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 13,
+     "seg": [
+      1
+     ]
+    },
+    {
+     "n": 19,
+     "seg": [
+      1
+     ]
+    }
+   ],
+   "notes": "Still missing (the script's notes say: model from scratch). Pewter or delftware, 40 cm."
+  },
+  {
+   "id": "tankards",
+   "name": "Pewter tankards",
+   "worklistModel": "Pewter Tankard",
+   "slot": "assets/johnny-tremain/models/tankards.glb",
+   "size": [
+    0.1,
+    0.17,
+    0.1
+   ],
+   "kind": "hand",
+   "count": 8,
+   "credit": null,
+   "licenceNote": "RenderHub free, commercial use; credit optional",
+   "home": [
+    {
+     "x": -2.9,
+     "y": 3.14,
+     "z": 5.6,
+     "rotY": 0
+    },
+    {
+     "x": -2.65,
+     "y": 3.14,
+     "z": 5.6,
+     "rotY": 0
+    },
+    {
+     "x": -2.4,
+     "y": 3.14,
+     "z": 5.6,
+     "rotY": 0
+    },
+    {
+     "x": -2.15,
+     "y": 3.14,
+     "z": 5.6,
+     "rotY": 0
+    },
+    {
+     "x": -1.9,
+     "y": 3.14,
+     "z": 5.6,
+     "rotY": 0
+    },
+    {
+     "x": -1.65,
+     "y": 3.14,
+     "z": 5.6,
+     "rotY": 0
+    },
+    {
+     "x": -1.4,
+     "y": 3.14,
+     "z": 5.6,
+     "rotY": 0
+    },
+    {
+     "x": -1.15,
+     "y": 3.14,
+     "z": 5.6,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 13,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -2.9,
+       "y": 3.14,
+       "z": 5.6,
+       "rotY": 0
+      },
+      {
+       "x": -2.6,
+       "y": 3.14,
+       "z": 5.6,
+       "rotY": 0
+      },
+      {
+       "x": -1.9,
+       "y": 3.14,
+       "z": 5.6,
+       "rotY": 0
+      },
+      {
+       "x": -1.6,
+       "y": 3.14,
+       "z": 5.6,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 15,
+     "at": [
+      {
+       "x": 1.0,
+       "y": 0.9,
+       "z": 1.2,
+       "rotY": 0
+      },
+      {
+       "x": 1.2,
+       "y": 0.9,
+       "z": 1.2,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 19,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -2.9,
+       "y": 3.14,
+       "z": 5.6,
+       "rotY": 0
+      },
+      {
+       "x": -2.6,
+       "y": 3.14,
+       "z": 5.6,
+       "rotY": 0
+      },
+      {
+       "x": -1.9,
+       "y": 3.14,
+       "z": 5.6,
+       "rotY": 0
+      },
+      {
+       "x": -1.6,
+       "y": 3.14,
+       "z": 5.6,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      3
+     ],
+     "at": [
+      {
+       "x": 1.3,
+       "y": 0.0,
+       "z": 1.3,
+       "rotY": 0
+      }
+     ]
+    }
+   ],
+   "notes": "Dull grey pewter, not silver. The Observers' table (13, 19), Otis's (19), Stranger's two in the yard (15), Dove's ale (20)."
+  },
+  {
+   "id": "lyte-table",
+   "name": "Lyte's dining table (mahogany, Marlborough legs)",
+   "worklistModel": "Mahogany Table (c.1880)",
+   "slot": "assets/johnny-tremain/models/lyte-table.glb",
+   "size": [
+    2.2,
+    0.73,
+    1.1
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"Mahogany Table\" by myndman (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 0.2,
+     "y": 0,
+     "z": 1.8,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
+    "rotY": 90,
+    "note": "via the centre doors, long side along z",
+    "fits": "yes — narrow side 1.10 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 10,
+     "seg": [
+      3
+     ]
+    },
+    {
+     "n": 17,
+     "seg": [
+      3,
+      4
+     ]
+    }
+   ],
+   "notes": "2.2 x 1.1 x 0.73; replace the barley-twist legs with straight Marlborough legs. In 17 it is laid with the abandoned dinner."
+  },
+  {
+   "id": "lyte-chairs",
+   "name": "Lyte's dining chairs",
+   "worklistModel": "Side Chair, Pergolesi style c.1785",
+   "slot": "assets/johnny-tremain/models/lyte-chairs.glb",
+   "size": [
+    0.5,
+    0.95,
+    0.5
+   ],
+   "kind": "travel",
+   "count": 6,
+   "credit": null,
+   "licenceNote": "CC0 (Smithsonian)",
+   "home": [
+    {
+     "x": 1.65,
+     "y": 0,
+     "z": 1.8,
+     "rotY": 90
+    },
+    {
+     "x": -1.25,
+     "y": 0,
+     "z": 1.8,
+     "rotY": -90
+    },
+    {
+     "x": -0.45,
+     "y": 0,
+     "z": 2.7,
+     "rotY": 0
+    },
+    {
+     "x": 0.2,
+     "y": 0,
+     "z": 2.7,
+     "rotY": 0
+    },
+    {
+     "x": 0.85,
+     "y": 0,
+     "z": 2.7,
+     "rotY": 0
+    },
+    {
+     "x": -1.0,
+     "y": 0,
+     "z": 0.75,
+     "rotY": 160
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -8.6,
+    "y": 0.0,
+    "z": 2.2,
+    "rotY": 0,
+    "note": "stacked in pairs",
+    "fits": "yes — narrow side 0.50 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    {
+     "n": 10,
+     "seg": [
+      3
+     ]
+    },
+    {
+     "n": 17,
+     "seg": [
+      3,
+      4
+     ],
+     "atBySeg": {
+      "3": [
+       {
+        "x": 1.65,
+        "y": 0,
+        "z": 1.8,
+        "rotY": 90
+       },
+       {
+        "x": -1.25,
+        "y": 0,
+        "z": 1.8,
+        "rotY": -90
+       },
+       {
+        "x": -0.45,
+        "y": 0,
+        "z": 2.7,
+        "rotY": 0
+       },
+       {
+        "x": 0.2,
+        "y": 0,
+        "z": 2.7,
+        "rotY": 0
+       },
+       {
+        "x": 0.85,
+        "y": 0,
+        "z": 2.7,
+        "rotY": 0
+       }
+      ],
+      "4": [
+       {
+        "x": 0.9,
+        "y": 0,
+        "z": 3.0,
+        "rotY": 0,
+        "tipped": true
+       }
+      ]
+     }
+    }
+   ],
+   "notes": "Repainted dark mahogany. Head of the table at the SR end (Lyte), Lavinia at the far (SL) end, three along the upstage side facing the house, one empty and angled downstage 'for effect'. In 17 one is the tipped chair in the office."
+  },
+  {
+   "id": "sideboard",
+   "name": "Lyte's sideboard",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/sideboard.glb",
+   "size": [
+    1.8,
+    0.95,
+    0.55
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -2.6,
+     "y": 0,
+     "z": 3.3,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": -6.5,
+    "y": 0.0,
+    "z": 10.4,
+    "rotY": 90,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.55 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 10,
+     "seg": [
+      3
+     ]
+    },
+    {
+     "n": 17,
+     "seg": [
+      3,
+      4
+     ]
+    }
+   ],
+   "notes": "NOT in the worklist (the script's notes found a Georgian mahogany sideboard on TurboSquid, $39). The four cups stand on it in a row (10, 17) with a candlestick at each end. x -3.50...-1.70, z 3.03...3.58: clear of the bellows and the ladder."
+  },
+  {
+   "id": "candelabra",
+   "name": "Candelabra and candlesticks (Lyte's)",
+   "worklistModel": "Brass Candleholders",
+   "slot": "assets/johnny-tremain/models/candelabra.glb",
+   "size": [
+    0.35,
+    0.5,
+    0.35
+   ],
+   "kind": "hand",
+   "count": 3,
+   "credit": null,
+   "licenceNote": "CC0 (Poly Haven)",
+   "home": [
+    {
+     "x": 0.2,
+     "y": 0.73,
+     "z": 1.8,
+     "rotY": 0
+    },
+    {
+     "x": -3.38,
+     "y": 0.95,
+     "z": 3.3,
+     "rotY": 0
+    },
+    {
+     "x": -1.85,
+     "y": 0.95,
+     "z": 3.3,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 10,
+     "seg": [
+      3
+     ]
+    },
+    {
+     "n": 17,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "Practicals: emissive flames / candle LEDs. One on the table, a pair on the sideboard. Cilla lights twenty candles at Milton (17): add tapers on the table."
+  },
+  {
+   "id": "candlesticks",
+   "name": "Single candlesticks",
+   "worklistModel": "Brass Candleholders",
+   "slot": "assets/johnny-tremain/models/candlesticks.glb",
+   "size": [
+    0.12,
+    0.35,
+    0.12
+   ],
+   "kind": "hand",
+   "count": 3,
+   "credit": null,
+   "licenceNote": "CC0 (Poly Haven)",
+   "home": [
+    {
+     "x": -1.6,
+     "y": 0.74,
+     "z": 1.8,
+     "rotY": 0
+    },
+    {
+     "x": -1.2,
+     "y": 0.74,
+     "z": 1.8,
+     "rotY": 0
+    },
+    {
+     "x": -0.8,
+     "y": 0.74,
+     "z": 1.8,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 11,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": 2.0,
+       "y": 1.55,
+       "z": 4.75,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -1.8,
+       "y": 0.74,
+       "z": 1.8,
+       "rotY": 0
+      },
+      {
+       "x": -0.6,
+       "y": 0.74,
+       "z": 1.8,
+       "rotY": 0
+      },
+      {
+       "x": -1.4,
+       "y": 0.74,
+       "z": 2.0,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 25,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": 1.4,
+       "y": 0.58,
+       "z": 2.2,
+       "rotY": 0
+      }
+     ]
+    }
+   ],
+   "notes": "Practicals. The judge's (11), the Green Dragon's candles (20), the pewter candlestick at Buckman's whose maker's mark Johnny reads (25: pewter, not brass)."
+  },
+  {
+   "id": "lyte-cup",
+   "name": "The Lyte cup (hero) and its three brothers",
+   "worklistModel": "Antique Silver Goblets Type A",
+   "slot": "assets/johnny-tremain/models/lyte-cup.glb",
+   "size": [
+    0.12,
+    0.29,
+    0.12
+   ],
+   "kind": "hand",
+   "count": 4,
+   "credit": "\"Antique Silver Goblets Type A\" by Mad_Lobster_Workshop (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -3.05,
+     "y": 0.95,
+     "z": 3.3,
+     "rotY": 0
+    },
+    {
+     "x": -2.75,
+     "y": 0.95,
+     "z": 3.3,
+     "rotY": 0
+    },
+    {
+     "x": -2.45,
+     "y": 0.95,
+     "z": 3.3,
+     "rotY": 0
+    },
+    {
+     "x": -2.15,
+     "y": 0.95,
+     "z": 3.3,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 4,
+     "at": [
+      {
+       "x": 1.6,
+       "y": 0.35,
+       "z": -2.35,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 10,
+     "atBySeg": {
+      "1": [
+       {
+        "x": -2.3,
+        "y": 0.9,
+        "z": 0.6,
+        "rotY": 0
+       }
+      ],
+      "2": [
+       {
+        "x": -0.6,
+        "y": 1.1,
+        "z": 1.6,
+        "rotY": 0
+       }
+      ]
+     }
+    },
+    {
+     "n": 11,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": -0.85,
+       "y": 0.74,
+       "z": 3.0,
+       "rotY": 0
+      },
+      {
+       "x": -0.55,
+       "y": 0.74,
+       "z": 3.0,
+       "rotY": 0
+      },
+      {
+       "x": -0.25,
+       "y": 0.74,
+       "z": 3.0,
+       "rotY": 0
+      },
+      {
+       "x": 0.05,
+       "y": 0.74,
+       "z": 3.0,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 17,
+     "seg": [
+      3,
+      4
+     ]
+    }
+   ],
+   "notes": "Standing cup 28-30 cm, the eye-from-the-sea crest facing the house. Index 0 is the HERO (polished; with Johnny), 1-3 duller. LIT EVERY TIME IT APPEARS (a pin special at each of its places: see LIGHTING-NEEDS). Physical prop can be printed and weighted."
+  },
+  {
+   "id": "clerk-desks",
+   "name": "Clerks' high desks",
+   "worklistModel": "Desk (lectern)",
+   "slot": "assets/johnny-tremain/models/clerk-desks.glb",
+   "size": [
+    0.9,
+    1.15,
+    0.6
+   ],
+   "kind": "travel",
+   "count": 3,
+   "credit": "\"Desk (lectern)\" by Maxime66410 (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 0.9,
+     "y": 0,
+     "z": 2.6,
+     "rotY": 0
+    },
+    {
+     "x": 2.0,
+     "y": 0,
+     "z": 2.6,
+     "rotY": 0
+    },
+    {
+     "x": 3.1,
+     "y": 0,
+     "z": 2.6,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 4.0,
+    "y": 0.0,
+    "z": 8.0,
+    "rotY": 0,
+    "note": "three in a row",
+    "fits": "yes — narrow side 0.60 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 10,
+     "seg": [
+      2
+     ]
+    }
+   ]
+  },
+  {
+   "id": "clerk-stools",
+   "name": "Clerks' tall stools",
+   "worklistModel": "Painted Wooden Stool",
+   "slot": "assets/johnny-tremain/models/clerk-stools.glb",
+   "size": [
+    0.35,
+    0.75,
+    0.35
+   ],
+   "kind": "travel",
+   "count": 3,
+   "credit": null,
+   "licenceNote": "CC0 (Poly Haven)",
+   "home": [
+    {
+     "x": 0.9,
+     "y": 0,
+     "z": 3.1,
+     "rotY": 0
+    },
+    {
+     "x": 2.0,
+     "y": 0,
+     "z": 3.1,
+     "rotY": 0
+    },
+    {
+     "x": 3.1,
+     "y": 0,
+     "z": 3.1,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 4.0,
+    "y": 0.0,
+    "z": 9.0,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.35 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 10,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "Legs stretched to a 75 cm seat. The clerks perch behind the desks facing the house."
+  },
+  {
+   "id": "low-stool",
+   "name": "Low stool",
+   "worklistModel": "Painted Wooden Stool",
+   "slot": "assets/johnny-tremain/models/low-stool.glb",
+   "size": [
+    0.35,
+    0.58,
+    0.35
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "CC0 (Poly Haven)",
+   "home": [
+    {
+     "x": -1.4,
+     "y": 0,
+     "z": 1.2,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -8.6,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.35 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    {
+     "n": 11,
+     "seg": [
+      1
+     ]
+    },
+    {
+     "n": 25,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": 1.4,
+       "y": 0,
+       "z": 2.2,
+       "rotY": 0
+      }
+     ]
+    }
+   ],
+   "notes": "The jail's stool (11); the stool the pewter candlestick stands on at Buckman's (25). Unstretched."
+  },
+  {
+   "id": "lyte-great-chair",
+   "name": "Lyte's great chair (counting house)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/lyte-great-chair.glb",
+   "size": [
+    0.8,
+    1.2,
+    0.75
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -1.4,
+     "y": 0,
+     "z": 1.6,
+     "rotY": -30
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": -4.0,
+    "y": 0.0,
+    "z": 8.0,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.75 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 10,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "NOT in the worklist: a big upholstered wing chair. Not the armchair: that one is Lapham's."
+  },
+  {
+   "id": "printing-press",
+   "name": "The Observer's press (intact)",
+   "worklistModel": "Gutenberg-style printing press",
+   "slot": "assets/johnny-tremain/models/printing-press.glb",
+   "size": [
+    1.1,
+    1.95,
+    2.0
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"Gutenberg-style printing press\" by PLEE_0123 (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -2.3,
+     "y": 0,
+     "z": 5.2,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -7.8,
+    "y": 0.0,
+    "z": 3.6,
+    "rotY": 0,
+    "note": "on its wagon; rolls downstage out from under the loft, then SL",
+    "fits": "yes — narrow side 1.10 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    9,
+    12,
+    {
+     "n": 13,
+     "seg": [
+      1,
+      2
+     ]
+    },
+    19,
+    {
+     "n": 20,
+     "seg": [
+      3,
+      6
+     ]
+    },
+    {
+     "n": 21,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "All-wood press with an iron screw, 1.95 h, frame 1.1 w, 2.0 long WITH ITS LENGTH UP/DOWNSTAGE under the loft (x -2.85...-1.75, z 4.20...6.20: the bed's rails overhang the loft line by 0.2). Clear under the loft (2.20) by 0.25. On a low wagon; must assemble in under ten seconds."
+  },
+  {
+   "id": "printing-press-smashed",
+   "name": "The Observer's press (smashed)",
+   "worklistModel": "Gutenberg-style printing press",
+   "slot": "assets/johnny-tremain/models/printing-press-smashed.glb",
+   "size": [
+    1.5,
+    1.2,
+    2.2
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"Gutenberg-style printing press\" by PLEE_0123 (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -2.4,
+     "y": 0,
+     "z": 5.1,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -7.8,
+    "y": 0.0,
+    "z": 3.6,
+    "rotY": 0,
+    "note": "swaps with the intact press on its wagon",
+    "fits": "yes — narrow side 1.50 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    {
+     "n": 22,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "Bar and platen broken off, frame tipped, type pied and paper scattered (22). A break-away build in a real show."
+  },
+  {
+   "id": "type-case",
+   "name": "Type case on its stand",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/type-case.glb",
+   "size": [
+    1.0,
+    1.4,
+    0.5
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -3.0,
+     "y": 0,
+     "z": 3.4,
+     "rotY": -90
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -8.6,
+    "y": 0.0,
+    "z": 6.2,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.50 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    9
+   ],
+   "notes": "Rab sets type at it in profile, facing stage left. Not in the worklist."
+  },
+  {
+   "id": "counter",
+   "name": "Print-shop counter",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/counter.glb",
+   "size": [
+    1.6,
+    1.0,
+    0.6
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -1.0,
+     "y": 0,
+     "z": 2.2,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -7.8,
+    "y": 0.0,
+    "z": 6.2,
+    "rotY": 90,
+    "fits": "yes — narrow side 0.60 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    9
+   ],
+   "notes": "Bread, cheese and a mug on it (9). Not in the worklist."
+  },
+  {
+   "id": "drawing-board",
+   "name": "Drawing board (sloped table)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/drawing-board.glb",
+   "size": [
+    1.0,
+    1.0,
+    0.8
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -0.4,
+     "y": 0,
+     "z": 2.6,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -7.0,
+    "y": 0.0,
+    "z": 1.8,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.80 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    {
+     "n": 20,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "Where the torn-up letter is reassembled (20). Not in the worklist."
+  },
+  {
+   "id": "observer-sign-smashed",
+   "name": "The Observer's sign, stamped to kindling",
+   "worklistModel": "Colonial House",
+   "slot": "assets/johnny-tremain/models/observer-sign-smashed.glb",
+   "size": [
+    0.9,
+    0.15,
+    0.6
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "EDITORIAL ONLY: previs use only until the author grants permission for a ticketed show",
+   "home": [
+    {
+     "x": -2.0,
+     "y": 0,
+     "z": 3.4,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 22,
+     "seg": [
+      3
+     ]
+    }
+   ]
+  },
+  {
+   "id": "sea-chest",
+   "name": "Johnny's sea chest",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/sea-chest.glb",
+   "size": [
+    0.9,
+    0.5,
+    0.5
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -1.05,
+     "y": 2.4,
+     "z": 5.6,
+     "rotY": 90
+    }
+   ],
+   "storage": {
+    "where": "SL wing",
+    "x": -8.6,
+    "y": 0.0,
+    "z": 1.6,
+    "rotY": 0,
+    "note": "handed down off the loft",
+    "fits": "yes — narrow side 0.50 m; SL wing behind the legs: x -9.30...-6.30 (3.0 m), z 0.2...6.4"
+   },
+   "scenes": [
+    {
+     "n": 20,
+     "seg": [
+      6
+     ]
+    }
+   ],
+   "notes": "On the loft (20): the four smocks his mother made. Not in the worklist."
+  },
+  {
+   "id": "door-frame",
+   "name": "Free-standing door frame (with door)",
+   "worklistModel": "Colonial House",
+   "slot": "assets/johnny-tremain/models/door-frame.glb",
+   "size": [
+    1.3,
+    2.4,
+    0.3
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "EDITORIAL ONLY: previs use only until the author grants permission for a ticketed show",
+   "home": [
+    {
+     "x": 3.6,
+     "y": 0,
+     "z": 1.6,
+     "rotY": -45
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 7.4,
+    "y": 0.0,
+    "z": 4.4,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.30 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 3,
+     "at": [
+      {
+       "x": 3.6,
+       "y": 0,
+       "z": 1.6,
+       "rotY": -45
+      }
+     ]
+    },
+    {
+     "n": 6,
+     "at": [
+      {
+       "x": 3.6,
+       "y": 0,
+       "z": 1.6,
+       "rotY": -45
+      }
+     ]
+    },
+    {
+     "n": 12,
+     "at": [
+      {
+       "x": -2.3,
+       "y": 0,
+       "z": 3.7,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 15,
+     "at": [
+      {
+       "x": 3.4,
+       "y": 0,
+       "z": 2.4,
+       "rotY": 45
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      2,
+      5
+     ],
+     "atBySeg": {
+      "2": [
+       {
+        "x": 3.4,
+        "y": 0,
+        "z": 2.4,
+        "rotY": 45
+       }
+      ],
+      "5": [
+       {
+        "x": 3.2,
+        "y": 0,
+        "z": 1.8,
+        "rotY": 45
+       }
+      ]
+     }
+    },
+    {
+     "n": 21,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": 3.4,
+       "y": 0,
+       "z": 2.4,
+       "rotY": 45
+      }
+     ]
+    },
+    {
+     "n": 23,
+     "at": [
+      {
+       "x": 0.2,
+       "y": 0,
+       "z": 3.3,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 25,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -2.8,
+       "y": 0,
+       "z": 2.4,
+       "rotY": -45
+      }
+     ]
+    }
+   ],
+   "notes": "One door in a frame on a braced base: the Lapham shop door to the street (3, 6), the Observer's shop door the press is seen through (12), the Afric Queen's stable door (15, 20, 21; the order pinned on it in 21), the Lytes' back gate (20), the Lyte front door Lavinia stands in (23, at the centre path, the stage doors open behind it), Buckman's Tavern (25). Strip the Colonial House model for the door and fanlight, or build it."
+  },
+  {
+   "id": "window-flat",
+   "name": "Free-standing window flat",
+   "worklistModel": "Colonial House",
+   "slot": "assets/johnny-tremain/models/window-flat.glb",
+   "size": [
+    1.0,
+    2.0,
+    0.1
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "EDITORIAL ONLY: previs use only until the author grants permission for a ticketed show",
+   "home": [
+    {
+     "x": -3.4,
+     "y": 0,
+     "z": 2.2,
+     "rotY": -60
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 8.9,
+    "y": 0.0,
+    "z": 4.4,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.10 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 15,
+     "at": [
+      {
+       "x": -2.6,
+       "y": 2.4,
+       "z": 4.55,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 21,
+     "seg": [
+      3,
+      6
+     ]
+    },
+    {
+     "n": 22,
+     "seg": [
+      1
+     ]
+    },
+    {
+     "n": 25,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": -2.4,
+       "y": 0,
+       "z": 2.8,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 26,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": -2.4,
+       "y": 0,
+       "z": 2.8,
+       "rotY": 0
+      }
+     ]
+    }
+   ],
+   "notes": "A sash window in a 1.0 x 2.0 flat, sill at 0.9. Stands on the loft as the Afric Queen's window Colonel Smith leans out of (15); Warren's surgery window (21, 22); Buckman's chamber and parlour windows (25, 26)."
+  },
+  {
+   "id": "shop-doors",
+   "name": "Street of shop doors (carried by the company)",
+   "worklistModel": "Colonial House",
+   "slot": "assets/johnny-tremain/models/shop-doors.glb",
+   "size": [
+    1.0,
+    2.1,
+    0.1
+   ],
+   "kind": "hand",
+   "count": 4,
+   "credit": null,
+   "licenceNote": "EDITORIAL ONLY: previs use only until the author grants permission for a ticketed show",
+   "home": [
+    {
+     "x": -3.6,
+     "y": 0,
+     "z": -1.2,
+     "rotY": 0
+    },
+    {
+     "x": -1.2,
+     "y": 0,
+     "z": -1.2,
+     "rotY": 0
+    },
+    {
+     "x": 1.2,
+     "y": 0,
+     "z": -1.2,
+     "rotY": 0
+    },
+    {
+     "x": 3.6,
+     "y": 0,
+     "z": -1.2,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 8.4,
+    "y": 0.0,
+    "z": 6.0,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.10 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    8
+   ],
+   "notes": "Light door-in-a-frame flats each actor carries on and holds (8); or the company simply stands as the doors. Editorial-only source: build from boxes if refused."
+  },
+  {
+   "id": "gravestone",
+   "name": "Gravestone",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/gravestone.glb",
+   "size": [
+    0.6,
+    0.9,
+    0.12
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -2.6,
+     "y": 0,
+     "z": 0.9,
+     "rotY": 20
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 9.0,
+    "y": 0.0,
+    "z": 3.2,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.12 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 10,
+     "seg": [
+      1
+     ]
+    },
+    {
+     "n": 21,
+     "seg": [
+      5
+     ]
+    }
+   ],
+   "notes": "Copp's Hill (10 at dawn, 21 at night). Not in the worklist; slate, winged death's head."
+  },
+  {
+   "id": "mounting-block",
+   "name": "Mounting block / step",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/mounting-block.glb",
+   "size": [
+    0.6,
+    0.45,
+    0.45
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 2.4,
+     "y": 0,
+     "z": 0.8,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 6.8,
+    "y": 0.0,
+    "z": 3.2,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.45 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 11,
+     "seg": [
+      3
+     ],
+     "at": [
+      {
+       "x": 2.6,
+       "y": 0,
+       "z": -1.4,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 14,
+     "seg": [
+      3
+     ]
+    },
+    {
+     "n": 17,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -1.6,
+       "y": 0,
+       "z": 1.8,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 25,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": 1.0,
+       "y": 0,
+       "z": 1.0,
+       "rotY": 0
+      }
+     ]
+    }
+   ],
+   "notes": "Lavinia's gig's step (11), North Square's mounting block (14), the guardhouse step (17), the Harrington house steps (25). Not in the worklist."
+  },
+  {
+   "id": "hitch-rail",
+   "name": "Hitching rail and straw",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/hitch-rail.glb",
+   "size": [
+    2.5,
+    1.1,
+    0.4
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 1.6,
+     "y": 0,
+     "z": 1.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 3.5,
+    "y": 0.0,
+    "z": 10.6,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.40 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    12
+   ],
+   "notes": "The Observer's yard (12). Not in the worklist."
+  },
+  {
+   "id": "judge-bench",
+   "name": "The Justice's bench",
+   "worklistModel": "Courtroom Judge Desk",
+   "slot": "assets/johnny-tremain/models/judge-bench.glb",
+   "size": [
+    2.4,
+    1.5,
+    0.9
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"Courtroom Judge Desk\" by clarkelsmith (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 2.7,
+     "y": 0.45,
+     "z": 4.85,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 3.0,
+    "y": 0.0,
+    "z": 9.0,
+    "rotY": 0,
+    "note": "on a wagon via the centre doors, 0.9 side first",
+    "fits": "yes — narrow side 0.90 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 11,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "Stand-in (the Georgian bench is still missing): modern parts stripped, Georgian panelling, desktop ~1.1 over its floor. Stands ON THE WHARF DECK, which is the courtroom's 40 cm platform (x 1.50...3.90, z 4.40...5.30)."
+  },
+  {
+   "id": "judge-chair",
+   "name": "The Justice's high-backed chair",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/judge-chair.glb",
+   "size": [
+    0.6,
+    1.4,
+    0.6
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 2.7,
+     "y": 0.45,
+     "z": 5.65,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 3.0,
+    "y": 0.0,
+    "z": 10.0,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.60 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 11,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "Plain high-backed chair behind the bench, on the wharf (x 2.40...3.00, z 5.35...5.95). Not the Windsor."
+  },
+  {
+   "id": "bar-rail",
+   "name": "The bar rail (court)",
+   "worklistModel": "Wooden Fence Painted White",
+   "slot": "assets/johnny-tremain/models/bar-rail.glb",
+   "size": [
+    3.6,
+    1.0,
+    0.1
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"Wooden Fence Painted White\" by julix00 (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 0.6,
+     "y": 0,
+     "z": 2.3,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": -1.5,
+    "y": 0.0,
+    "z": 8.0,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.10 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 11,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "1.0 high, 3.6 long with a 0.8 m gate at its centre, stained dark (not white)."
+  },
+  {
+   "id": "ship-rail",
+   "name": "The Dartmouth's rail",
+   "worklistModel": "Rustic Wooden Dock",
+   "slot": "assets/johnny-tremain/models/ship-rail.glb",
+   "size": [
+    5.0,
+    1.0,
+    0.25
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"Rustic Wooden Dock\" by Evan16 (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -0.5,
+     "y": 0,
+     "z": 0.5,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 10.0,
+    "rotY": 0,
+    "note": "in two 2.5 m halves via the centre doors",
+    "fits": "yes — narrow side 0.25 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 13,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "A length of the dock's edge with posts (x -3.00...+2.00, z 0.38...0.63). The deck is the stage; the harbour is the apron and the house: the tea goes over the rail toward the audience, and so does Dove."
+  },
+  {
+   "id": "tea-chests",
+   "name": "Tea chests",
+   "worklistModel": "Wooden Crate 1",
+   "slot": "assets/johnny-tremain/models/tea-chests.glb",
+   "size": [
+    0.5,
+    0.5,
+    0.5
+   ],
+   "kind": "travel",
+   "count": 12,
+   "credit": null,
+   "licenceNote": "CC0 (ShareTextures)",
+   "home": [
+    {
+     "x": -2.6,
+     "y": 0,
+     "z": 1.3,
+     "rotY": 0
+    },
+    {
+     "x": -1.7,
+     "y": 0,
+     "z": 1.3,
+     "rotY": 0
+    },
+    {
+     "x": -0.8,
+     "y": 0,
+     "z": 1.3,
+     "rotY": 0
+    },
+    {
+     "x": 0.1,
+     "y": 0,
+     "z": 1.3,
+     "rotY": 0
+    },
+    {
+     "x": 1.0,
+     "y": 0,
+     "z": 1.3,
+     "rotY": 0
+    },
+    {
+     "x": 1.9,
+     "y": 0,
+     "z": 1.3,
+     "rotY": 0
+    },
+    {
+     "x": -2.6,
+     "y": 0,
+     "z": 2.2,
+     "rotY": 0
+    },
+    {
+     "x": -1.7,
+     "y": 0,
+     "z": 2.2,
+     "rotY": 0
+    },
+    {
+     "x": -0.8,
+     "y": 0,
+     "z": 2.2,
+     "rotY": 0
+    },
+    {
+     "x": 0.1,
+     "y": 0,
+     "z": 2.2,
+     "rotY": 0
+    },
+    {
+     "x": 1.0,
+     "y": 0,
+     "z": 2.2,
+     "rotY": 0
+    },
+    {
+     "x": 1.9,
+     "y": 0,
+     "z": 2.2,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 6.0,
+    "y": 0.0,
+    "z": 8.0,
+    "rotY": 0,
+    "note": "stacked four high",
+    "fits": "yes — narrow side 0.50 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 13,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "0.5 m boxes with the East India Company mark and lead lining showing (the 'tea chest' of the missing list). A dozen on stage, the rest implied."
+  },
+  {
+   "id": "plank-run",
+   "name": "Plank run to the lip (the wharf's end; the ferry slip)",
+   "worklistModel": "Rustic Wooden Dock",
+   "slot": "assets/johnny-tremain/models/plank-run.glb",
+   "size": [
+    1.2,
+    0.08,
+    5.2
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"Rustic Wooden Dock\" by Evan16 (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 1.6,
+     "y": 0,
+     "z": 0.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 8.4,
+    "y": 0.0,
+    "z": 4.8,
+    "rotY": 0,
+    "note": "in three sections",
+    "fits": "yes — narrow side 1.20 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    4,
+    {
+     "n": 14,
+     "seg": [
+      1
+     ]
+    },
+    {
+     "n": 24,
+     "seg": [
+      1
+     ]
+    }
+   ],
+   "notes": "Low planks laid from mid-stage to the apron's lip (z -2.60...+2.60). Scene 4: Johnny sits at its end legs dangling over the edge; the rest of the floor is black water (light). Scene 14 by day; Scene 24 the ferry slip, Colonel Smith lifted out of a dory at its end."
+  },
+  {
+   "id": "tents",
+   "name": "Camp tents (forced perspective, 3 sizes)",
+   "worklistModel": "Stylized Low-Poly Medieval Camping Tent",
+   "slot": "assets/johnny-tremain/models/tents.glb",
+   "size": [
+    2.1,
+    2.0,
+    2.1
+   ],
+   "kind": "travel",
+   "count": 3,
+   "credit": "\"Stylized Low-Poly Medieval Camping Tent\" by PedroDev (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -2.4,
+     "y": 0,
+     "z": 2.3,
+     "rotY": 0
+    },
+    {
+     "x": 2.3,
+     "y": 0.45,
+     "z": 4.8,
+     "rotY": 0,
+     "scale": 0.7
+    },
+    {
+     "x": 3.75,
+     "y": 0.45,
+     "z": 4.75,
+     "rotY": 0,
+     "scale": 0.62
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 8.0,
+    "y": 0.0,
+    "z": 2.6,
+    "rotY": 0,
+    "note": "struck flat",
+    "fits": "yes — narrow side 2.10 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 14,
+     "seg": [
+      2
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      5
+     ]
+    }
+   ],
+   "notes": "Stand-in for the missing wedge tent: off-white linen, dirty hem. The full-size one on the deck SL; the two smaller ones on the wharf deck (scale 0.70 and 0.62) so the camp reads deep."
+  },
+  {
+   "id": "stacked-arms",
+   "name": "Stand of stacked muskets",
+   "worklistModel": "British Land Pattern Musket (Brown Bess)",
+   "slot": "assets/johnny-tremain/models/stacked-arms.glb",
+   "size": [
+    0.9,
+    1.6,
+    0.9
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"British Land Pattern Musket\" by GeorgePickett (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 0.3,
+     "y": 0,
+     "z": 1.6,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 5.6,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.90 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 14,
+     "seg": [
+      2
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      5
+     ]
+    }
+   ],
+   "notes": "Three Brown Bess copies piled into a tripod, bayonets crossing (the missing 'stand of stacked muskets'). Just upstage of the rope line so Rab can reach the lock (14)."
+  },
+  {
+   "id": "rope-line",
+   "name": "Rope line on stanchions",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/rope-line.glb",
+   "size": [
+    5.0,
+    0.9,
+    0.1
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 0.0,
+     "y": 0,
+     "z": 1.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 9.0,
+    "y": 0.0,
+    "z": 5.0,
+    "rotY": 90,
+    "fits": "yes — narrow side 0.10 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 14,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "The camp's spectator rope (14). Not in the worklist."
+  },
+  {
+   "id": "redcoat-muskets",
+   "name": "Redcoats' muskets",
+   "worklistModel": "British Land Pattern Musket (Brown Bess)",
+   "slot": "assets/johnny-tremain/models/redcoat-muskets.glb",
+   "size": [
+    0.06,
+    1.58,
+    0.12
+   ],
+   "kind": "hand",
+   "count": 8,
+   "credit": "\"British Land Pattern Musket\" by GeorgePickett (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -1.75,
+     "y": 0,
+     "z": 4.0,
+     "rotY": 0
+    },
+    {
+     "x": -1.25,
+     "y": 0,
+     "z": 4.0,
+     "rotY": 0
+    },
+    {
+     "x": -0.75,
+     "y": 0,
+     "z": 4.0,
+     "rotY": 0
+    },
+    {
+     "x": -0.25,
+     "y": 0,
+     "z": 4.0,
+     "rotY": 0
+    },
+    {
+     "x": 0.25,
+     "y": 0,
+     "z": 4.0,
+     "rotY": 0
+    },
+    {
+     "x": 0.75,
+     "y": 0,
+     "z": 4.0,
+     "rotY": 0
+    },
+    {
+     "x": 1.25,
+     "y": 0,
+     "z": 4.0,
+     "rotY": 0
+    },
+    {
+     "x": 1.75,
+     "y": 0,
+     "z": 4.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 14,
+     "seg": [
+      2
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      5,
+      7
+     ]
+    },
+    {
+     "n": 22,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "1.58 m (+0.43 with bayonet). Eight for the firing squad's 'eight round eyes' (20)."
+  },
+  {
+   "id": "rab-musket",
+   "name": "Rab's musket (Pumpkin's, re-stocked)",
+   "worklistModel": "British Land Pattern Musket (Brown Bess)",
+   "slot": "assets/johnny-tremain/models/rab-musket.glb",
+   "size": [
+    0.06,
+    1.58,
+    0.12
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": "\"British Land Pattern Musket\" by GeorgePickett (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 3.4,
+     "y": 0,
+     "z": 2.8,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 25,
+     "seg": [
+      2
+     ]
+    },
+    {
+     "n": 26,
+     "seg": [
+      2,
+      3
+     ],
+     "atBySeg": {
+      "2": [
+       {
+        "x": -1.9,
+        "y": 0,
+        "z": 2.7,
+        "rotY": 0
+       }
+      ],
+      "3": [
+       {
+        "x": 0.4,
+        "y": 0,
+        "z": -0.8,
+        "rotY": 0
+       }
+      ]
+     }
+    }
+   ],
+   "notes": "The SCRIPT makes Rab's gun Pumpkin's British musket with a better stock and a knapped flint (20, 25, 26), so it is a Brown Bess; the worklist gave Rab the Arizona replica. That civilian gun suits Grandsire instead."
+  },
+  {
+   "id": "grandsire-gun",
+   "name": "Grandsire Silsbee's old gun",
+   "worklistModel": "18th Century Musket Replica",
+   "slot": "assets/johnny-tremain/models/grandsire-gun.glb",
+   "size": [
+    0.06,
+    1.5,
+    0.12
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": "\"18th Century Musket Replica\" by The Center for Digital Humanities, University of Arizona (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 0,
+     "y": 0.6,
+     "z": 2.2,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 26,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "Gone from over the hearth (26), then across his knees in the chaise at the finale."
+  },
+  {
+   "id": "powder-horn",
+   "name": "Powder horn",
+   "worklistModel": "Powder Horn 1775 (Massachusetts Historical Society)",
+   "slot": "assets/johnny-tremain/models/powder-horn.glb",
+   "size": [
+    0.33,
+    0.1,
+    0.1
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": "\"Powder Horn 1775\" by Boston College Digital Scholarship, object courtesy of the Massachusetts Historical Society (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 0,
+     "y": 0.9,
+     "z": 2.2,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SL",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 0.3,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 26,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "Grandsire's Louisburg horn, worn in the chaise (26)."
+  },
+  {
+   "id": "drum",
+   "name": "Regimental drum",
+   "worklistModel": "Rope-Tuned Wooden Drum",
+   "slot": "assets/johnny-tremain/models/drum.glb",
+   "size": [
+    0.4,
+    0.4,
+    0.4
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": "\"Rope-Tuned Wooden Drum\" by papuga_lab (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 0.0,
+     "y": 0.6,
+     "z": 5.2,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 20,
+     "seg": [
+      7
+     ]
+    },
+    {
+     "n": 22,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "Execution roll (20); Percy's brigade (22). AI-made model: reference only."
+  },
+  {
+   "id": "fife",
+   "name": "Fife",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/fife.glb",
+   "size": [
+    0.4,
+    0.02,
+    0.02
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 0,
+     "y": 1.4,
+     "z": 1.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 13,
+     "seg": [
+      3
+     ]
+    },
+    {
+     "n": 17,
+     "seg": [
+      6
+     ]
+    },
+    {
+     "n": 22,
+     "seg": [
+      2
+     ]
+    },
+    {
+     "n": 26,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "Yankee Doodle, always played badly (13, 17, 22, 26). Not in the worklist."
+  },
+  {
+   "id": "flag",
+   "name": "The King's Colour on a pike",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/flag.glb",
+   "size": [
+    1.5,
+    3.0,
+    0.05
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 1.0,
+     "y": 0,
+     "z": 3.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 9.2,
+    "y": 0.0,
+    "z": 6.2,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.05 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 22,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "Percy's brigade (22). Not in the worklist."
+  },
+  {
+   "id": "hurdles",
+   "name": "Jumping hurdles (two rails)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/hurdles.glb",
+   "size": [
+    2.4,
+    0.9,
+    0.3
+   ],
+   "kind": "travel",
+   "count": 2,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -1.8,
+     "y": 0,
+     "z": 1.4,
+     "rotY": 20
+    },
+    {
+     "x": 1.8,
+     "y": 0,
+     "z": 2.6,
+     "rotY": -20
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 6.5,
+    "y": 0.0,
+    "z": 9.4,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.30 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 20,
+     "seg": [
+      4,
+      7
+     ]
+    }
+   ],
+   "notes": "Two-rail post-and-rail hurdles, the Common (20). Not in the worklist."
+  },
+  {
+   "id": "campfires",
+   "name": "Camp fires (practicals)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/campfires.glb",
+   "size": [
+    0.6,
+    0.3,
+    0.6
+   ],
+   "kind": "hand",
+   "count": 2,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -0.6,
+     "y": 0,
+     "z": 1.2,
+     "rotY": 0
+    },
+    {
+     "x": 1.6,
+     "y": 0,
+     "z": 2.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 20,
+     "seg": [
+      5
+     ]
+    }
+   ],
+   "notes": "Log-and-ember practicals (flicker LED) the runaway leaps (20). Not in the worklist."
+  },
+  {
+   "id": "clothesline",
+   "name": "Clothesline on two posts, with sheets",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/clothesline.glb",
+   "size": [
+    4.4,
+    1.9,
+    0.1
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -0.7,
+     "y": 0,
+     "z": 1.6,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 9.2,
+    "y": 0.0,
+    "z": 3.2,
+    "rotY": 90,
+    "fits": "yes — narrow side 0.10 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    15,
+    {
+     "n": 20,
+     "seg": [
+      2
+     ]
+    },
+    {
+     "n": 24,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "Posts at x -2.90 and +1.50; Lydia's sheets; the sheet that fills with wind like a sail (15). Also Charlestown's clothesline (24). Not in the worklist."
+  },
+  {
+   "id": "laundry-basket",
+   "name": "Lydia's basket of wet sheets",
+   "worklistModel": "Laundry Baskets",
+   "slot": "assets/johnny-tremain/models/laundry-basket.glb",
+   "size": [
+    0.65,
+    0.3,
+    0.45
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": "\"Laundry Baskets\" by leelooyleeloo (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": -1.6,
+     "y": 0,
+     "z": 1.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    15,
+    {
+     "n": 20,
+     "seg": [
+      2
+     ]
+    }
+   ]
+  },
+  {
+   "id": "afric-queen-sign",
+   "name": "The Afric Queen's swing sign",
+   "worklistModel": "Colonial House",
+   "slot": "assets/johnny-tremain/models/afric-queen-sign.glb",
+   "size": [
+    0.9,
+    0.6,
+    0.05
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "EDITORIAL ONLY: previs use only until the author grants permission for a ticketed show",
+   "home": [
+    {
+     "x": 3.6,
+     "y": 2.2,
+     "z": 1.6,
+     "rotY": -45
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 7.4,
+    "y": 0.0,
+    "z": 4.4,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.05 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 15,
+     "at": [
+      {
+       "x": 3.4,
+       "y": 2.2,
+       "z": 2.4,
+       "rotY": 45
+      }
+     ]
+    },
+    {
+     "n": 20,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": 3.4,
+       "y": 2.2,
+       "z": 2.4,
+       "rotY": 45
+      }
+     ]
+    },
+    {
+     "n": 21,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": 3.4,
+       "y": 2.2,
+       "z": 2.4,
+       "rotY": 45
+      }
+     ]
+    }
+   ],
+   "notes": "Hung on the door frame when it is the stable door. The worklist plans it; the script never names it."
+  },
+  {
+   "id": "saddle-stand",
+   "name": "Saddle stand with the campaign saddle and bridle",
+   "worklistModel": "Leather Riding Saddle Set – Tooled & Worn",
+   "slot": "assets/johnny-tremain/models/saddle-stand.glb",
+   "size": [
+    0.5,
+    1.2,
+    0.9
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"Leather Riding Saddle Set – Tooled & Worn\" by Pigcraft (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 1.6,
+     "y": 0,
+     "z": 1.8,
+     "rotY": -30
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 6.8,
+    "y": 0.0,
+    "z": 4.6,
+    "rotY": 0,
+    "fits": "yes — narrow side 0.50 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 21,
+     "seg": [
+      1
+     ]
+    }
+   ],
+   "notes": "Heavy black military saddle, three girths, map-case hooks, no horn (21); the bridle ('Bridle', CC BY YaredGmGm) hung on its peg. The stand itself is not in the worklist."
+  },
+  {
+   "id": "sofa",
+   "name": "Sofa (dove-grey drawing room; Warren's surgery)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/sofa.glb",
+   "size": [
+    1.9,
+    0.9,
+    0.8
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -1.6,
+     "y": 0,
+     "z": 2.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": -2.5,
+    "y": 0.0,
+    "z": 10.4,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.80 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 16,
+     "seg": [
+      2,
+      3
+     ]
+    },
+    {
+     "n": 21,
+     "seg": [
+      3,
+      6
+     ]
+    },
+    {
+     "n": 22,
+     "seg": [
+      1
+     ]
+    }
+   ],
+   "notes": "Not in the worklist."
+  },
+  {
+   "id": "mirror",
+   "name": "Cheval mirror",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/mirror.glb",
+   "size": [
+    0.7,
+    1.9,
+    0.4
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -3.2,
+     "y": 0,
+     "z": 2.6,
+     "rotY": -35
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": -4.0,
+    "y": 0.0,
+    "z": 10.4,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.40 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 16,
+     "seg": [
+      2,
+      3
+     ]
+    }
+   ],
+   "notes": "Lavinia's drawing room (16). Not in the worklist."
+  },
+  {
+   "id": "dressing-table",
+   "name": "Dressing table (Lavinia's room, Milton)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/dressing-table.glb",
+   "size": [
+    1.0,
+    1.5,
+    0.5
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 3.4,
+     "y": 0,
+     "z": 2.7,
+     "rotY": -30
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": -8.0,
+    "y": 0.0,
+    "z": 8.0,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.50 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 17,
+     "seg": [
+      4
+     ]
+    }
+   ],
+   "notes": "Revealed by the lantern (17). Not in the worklist."
+  },
+  {
+   "id": "wig-stand",
+   "name": "Wig stand with Lyte's best wig",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/wig-stand.glb",
+   "size": [
+    0.3,
+    1.6,
+    0.3
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 3.0,
+     "y": 0,
+     "z": 1.2,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 17,
+     "seg": [
+      4
+     ]
+    }
+   ],
+   "notes": "Revealed by the lantern (17). Not in the worklist."
+  },
+  {
+   "id": "lantern",
+   "name": "Hand lantern",
+   "worklistModel": "Colonial Style Lantern",
+   "slot": "assets/johnny-tremain/models/lantern.glb",
+   "size": [
+    0.3,
+    0.45,
+    0.3
+   ],
+   "kind": "hand",
+   "count": 1,
+   "credit": "\"Colonial Style Lantern\" by trinityscsp (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 2.1,
+     "y": 0.08,
+     "z": -1.9,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    4,
+    {
+     "n": 13,
+     "seg": [
+      2
+     ],
+     "at": [
+      {
+       "x": 0.0,
+       "y": 1.4,
+       "z": 1.5,
+       "rotY": 0
+      }
+     ]
+    },
+    {
+     "n": 17,
+     "seg": [
+      2,
+      4,
+      5
+     ],
+     "atBySeg": {
+      "2": [
+       {
+        "x": 0.6,
+        "y": 0.8,
+        "z": 1.0,
+        "rotY": 0
+       }
+      ],
+      "4": [
+       {
+        "x": 1.0,
+        "y": 0.8,
+        "z": 1.6,
+        "rotY": 0
+       }
+      ],
+      "5": [
+       {
+        "x": -2.6,
+        "y": 0.9,
+        "z": 3.0,
+        "rotY": 0
+       }
+      ]
+     }
+    }
+   ],
+   "notes": "Practical (candle LED). The wharf at midnight (4), Old South's one lantern (13), Johnny's lantern on the road and through the Milton house (17). Punched-tin lantern still missing."
+  },
+  {
+   "id": "torches",
+   "name": "Torches on stands",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/torches.glb",
+   "size": [
+    0.3,
+    1.8,
+    0.3
+   ],
+   "kind": "hand",
+   "count": 2,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -3.0,
+     "y": 0,
+     "z": 1.0,
+     "rotY": 0
+    },
+    {
+     "x": -0.2,
+     "y": 0,
+     "z": 1.4,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "props table SR",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 2.0,
+    "rotY": 0,
+    "fits": "yes"
+   },
+   "scenes": [
+    {
+     "n": 17,
+     "seg": [
+      1
+     ]
+    },
+    {
+     "n": 24,
+     "seg": [
+      1
+     ],
+     "at": [
+      {
+       "x": -1.2,
+       "y": 0,
+       "z": 2.6,
+       "rotY": 0
+      },
+      {
+       "x": 2.2,
+       "y": 0,
+       "z": 3.0,
+       "rotY": 0
+      }
+     ]
+    }
+   ],
+   "notes": "Flicker practicals: the town gate (17), the ferry slip (24). Not in the worklist."
+  },
+  {
+   "id": "ruby-coach",
+   "name": "The Lytes' ruby coach (half-coach)",
+   "worklistModel": "19th Century Carriage",
+   "slot": "assets/johnny-tremain/models/ruby-coach.glb",
+   "size": [
+    2.0,
+    2.1,
+    1.3
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": "\"19th Century Carriage\" by Digital Goblin (sketchfab.com), CC BY 4.0",
+   "licenceNote": "CC BY: print the credit line",
+   "home": [
+    {
+     "x": 2.8,
+     "y": 0,
+     "z": 1.8,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 2.0,
+    "y": 0.0,
+    "z": 10.2,
+    "rotY": 0,
+    "note": "through the centre doors 1.3 m side first",
+    "fits": "yes — narrow side 1.30 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 17,
+     "seg": [
+      1
+     ]
+    }
+   ],
+   "notes": "The script suggests it with its two lamps and one wheel (17); the worklist plans a half-coach body (2.0 x 1.3, door 1.6, wheels 1.2) with C-springs and the Lyte eye on the door. Its lamps are practicals. The script never brings it on in Scene 10."
+  },
+  {
+   "id": "chaise",
+   "name": "Two-wheeled chaise (Grandsire's)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/chaise.glb",
+   "size": [
+    1.6,
+    1.8,
+    2.6
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 0.0,
+     "y": 0,
+     "z": 2.4,
+     "rotY": 90
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 7.8,
+    "y": 0.0,
+    "z": 4.2,
+    "rotY": 90,
+    "note": "enters from the SL wing, crosses the Green and parks SR",
+    "fits": "yes — narrow side 1.60 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 26,
+     "seg": [
+      3
+     ]
+    }
+   ],
+   "notes": "Still missing. The script: Warren's chaise is two chairs in 17 and stands OFFSTAGE in 26; only Grandsire's old chaise crosses the Green in the finale (26). Shafts implied, the horse is the company."
+  },
+  {
+   "id": "warehouse-corner",
+   "name": "Warehouse / tavern corner (an L of two flats)",
+   "worklistModel": "Colonial House",
+   "slot": "assets/johnny-tremain/models/warehouse-corner.glb",
+   "size": [
+    1.6,
+    3.6,
+    0.6
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "EDITORIAL ONLY: previs use only until the author grants permission for a ticketed show",
+   "home": [
+    {
+     "x": -3.4,
+     "y": 0,
+     "z": 2.6,
+     "rotY": 30
+    }
+   ],
+   "storage": {
+    "where": "SR wing",
+    "x": 9.0,
+    "y": 0.0,
+    "z": 2.6,
+    "rotY": 90,
+    "note": "too tall (3.6) for the stage doors",
+    "fits": "yes — narrow side 0.60 m; SR wing behind the legs: x +6.30...+9.40 (3.1 m), z 1.7...6.4"
+   },
+   "scenes": [
+    {
+     "n": 24,
+     "seg": [
+      1,
+      2
+     ]
+    }
+   ],
+   "notes": "The ferry slip's warehouse corner, then Charlestown's tavern corner (24). Editorial-only source."
+  },
+  {
+   "id": "tanning-shed",
+   "name": "Tanning shed (lean-to)",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/tanning-shed.glb",
+   "size": [
+    1.6,
+    2.2,
+    1.2
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 3.3,
+     "y": 0,
+     "z": 2.3,
+     "rotY": -20
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 8.5,
+    "y": 0.0,
+    "z": 10.2,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 1.20 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 24,
+     "seg": [
+      1
+     ]
+    }
+   ],
+   "notes": "Johnny rolls in its muck and tears his coat on its nail (24). Not in the worklist."
+  },
+  {
+   "id": "pump",
+   "name": "Village pump",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/pump.glb",
+   "size": [
+    0.4,
+    1.4,
+    0.6
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": -1.0,
+     "y": 0,
+     "z": 2.0,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 6.2,
+    "y": 0.0,
+    "z": 10.6,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.40 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 24,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "Charlestown (24). Not in the worklist."
+  },
+  {
+   "id": "flour-barrel",
+   "name": "Flour barrel",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/flour-barrel.glb",
+   "size": [
+    0.6,
+    0.85,
+    0.6
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 2.6,
+     "y": 0,
+     "z": 1.4,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 7.0,
+    "y": 0.0,
+    "z": 10.6,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.60 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 24,
+     "seg": [
+      2
+     ]
+    }
+   ],
+   "notes": "The girl hides behind it (24). Not in the worklist."
+  },
+  {
+   "id": "well",
+   "name": "Well with windlass",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/well.glb",
+   "size": [
+    1.2,
+    1.8,
+    1.2
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 0.6,
+     "y": 0,
+     "z": 1.6,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 8.5,
+    "y": 0.0,
+    "z": 8.0,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 1.20 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 24,
+     "seg": [
+      4
+     ]
+    }
+   ],
+   "notes": "The well at the Lexington line (24). Not in the worklist."
+  },
+  {
+   "id": "belfry",
+   "name": "Lexington meeting house's tiny belfry",
+   "worklistModel": null,
+   "slot": "assets/johnny-tremain/models/belfry.glb",
+   "size": [
+    0.9,
+    1.4,
+    0.9
+   ],
+   "kind": "travel",
+   "count": 1,
+   "credit": null,
+   "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
+   "home": [
+    {
+     "x": 2.6,
+     "y": 0.45,
+     "z": 5.45,
+     "rotY": 0
+    }
+   ],
+   "storage": {
+    "where": "backstage",
+    "x": 5.0,
+    "y": 0.0,
+    "z": 10.4,
+    "rotY": 0,
+    "note": "via the centre doors",
+    "fits": "yes — narrow side 0.90 m; through the centre stage doors (2.0 x 3.4) along the 1.6 m centre path into the crossover (stage z 7.0...11.1)"
+   },
+   "scenes": [
+    {
+     "n": 25,
+     "seg": [
+      1
+     ]
+    }
+   ],
+   "notes": "Small (forced perspective) on the wharf deck: the smashed meeting house (25). The worklist's 'New England meeting house' (still missing), reduced to its belfry."
+  }
+ ],
+ "scenes": [
+  {
+   "n": 1,
+   "title": "Up and About",
+   "act": 1,
+   "location": "The Lapham loft and kitchen, Hancock's Wharf; the street on the apron",
+   "look": "interior-dawn-warm",
+   "furnace": "dark",
+   "pieces": [
+    "armchair",
+    "bellows",
+    "bench",
+    "crates",
+    "furnace",
+    "kitchen-benches",
+    "kitchen-table",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "parrot-cage",
+    "three-boy-bed",
+    "water-bucket",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Lapham loft and kitchen (morning, July 1773)",
+     "look": "interior-dawn-warm",
+     "pieces": [
+      "armchair",
+      "kitchen-benches",
+      "kitchen-table",
+      "three-boy-bed",
+      "water-bucket"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The street on the apron, the kitchen lit behind",
+     "look": "exterior-morning-bright",
+     "pieces": [
+      "armchair",
+      "kitchen-benches",
+      "kitchen-table",
+      "parrot-cage",
+      "three-boy-bed"
+     ]
+    }
+   ],
+   "notes": "Pre-show dark, a gull, a bell; Johnny enters down a house aisle (followspot). Loft lit first (three boys), then the kitchen; the town pours across the apron as the street while the kitchen stays lit behind. Mrs. Lapham 'at the fire' is the hearth: an ember glow is optional."
+  },
+  {
+   "n": 2,
+   "title": "Pride Goeth",
+   "act": 1,
+   "location": "The Lapham kitchen (no change)",
+   "look": "interior-morning-warm",
+   "furnace": "dark",
+   "pieces": [
+    "armchair",
+    "bellows",
+    "bench",
+    "crates",
+    "family-bible",
+    "furnace",
+    "kitchen-benches",
+    "kitchen-table",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "three-boy-bed",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Lapham kitchen at breakfast",
+     "look": "interior-morning-warm",
+     "pieces": [
+      "armchair",
+      "family-bible",
+      "kitchen-benches",
+      "kitchen-table",
+      "three-boy-bed"
+     ]
+    }
+   ],
+   "notes": "Breakfast round the table, the great Bible on it. No set change from 1. The three-boy bed stays on the dark loft and is struck in the 2-to-3 change."
+  },
+  {
+   "n": 3,
+   "title": "The Sugar Basin",
+   "act": 1,
+   "location": "The Lapham shop",
+   "look": "interior-day-warm",
+   "furnace": "dark",
+   "pieces": [
+    "armchair",
+    "bellows",
+    "bench",
+    "bench-tools",
+    "crates",
+    "door-frame",
+    "furnace",
+    "hancock-creamer",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "polishing-wheel",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step",
+    "workbench"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Lapham shop",
+     "look": "interior-day-warm",
+     "pieces": [
+      "armchair",
+      "bench-tools",
+      "door-frame",
+      "hancock-creamer",
+      "polishing-wheel",
+      "workbench"
+     ]
+    }
+   ],
+   "notes": "Change: table off; workbench and polishing wheel on, the furnace cold; the armchair into the shop's corner; the door frame is the shop's way out to the street. The SCRIPT says the furnace is DARK here (the worklist says it glows in 3 and 6)."
+  },
+  {
+   "n": 4,
+   "title": "The End of the Wharf",
+   "act": 1,
+   "location": "The end of Hancock's Wharf at midnight, to dawn",
+   "look": "night-exterior-moon",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "crates",
+    "furnace",
+    "ladder",
+    "lantern",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "lyte-cup",
+    "masking-border",
+    "masking-legs",
+    "plank-run",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The end of Hancock's Wharf, midnight to dawn",
+     "look": "night-exterior-moon",
+     "pieces": [
+      "lantern",
+      "lyte-cup",
+      "plank-run"
+     ]
+    }
+   ],
+   "notes": "Change: the shop goes; planks run out to the edge of the stage, the floor round them lit as dark water, a single lantern. Dawn light finds the cup at the end."
+  },
+  {
+   "n": 5,
+   "title": "Handles",
+   "act": 1,
+   "location": "Paul Revere's shop, North Square; the bare apron",
+   "look": "interior-evening-bright",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "bench-tools",
+    "crates",
+    "furnace",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step",
+    "workbench"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "Revere's shop, Friday evening",
+     "look": "interior-evening-bright",
+     "pieces": [
+      "bench-tools",
+      "workbench"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The walk home across the apron",
+     "look": "exterior-dusk-apron",
+     "pieces": []
+    }
+   ],
+   "notes": "Revere's bench, stage right: tidier and brighter than Lapham's, tools laid out in order, a teapot. At the end Johnny crosses the empty apron on his way home."
+  },
+  {
+   "n": 6,
+   "title": "The Crucible",
+   "act": 1,
+   "location": "The Lapham shop, Saturday afternoon then Sunday dawn",
+   "look": "interior-afternoon-firelit",
+   "furnace": "lit",
+   "pieces": [
+    "armchair",
+    "bellows",
+    "bench",
+    "bench-tools",
+    "crates",
+    "crucible-and-tongs",
+    "door-frame",
+    "furnace",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "polishing-wheel",
+    "water-bucket",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step",
+    "workbench"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The shop, Saturday afternoon",
+     "look": "interior-afternoon-firelit",
+     "pieces": [
+      "armchair",
+      "bench-tools",
+      "crucible-and-tongs",
+      "door-frame",
+      "polishing-wheel",
+      "workbench"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The shop, Sunday dawn (half light, the furnace roaring)",
+     "look": "dawn-interior-firelit",
+     "pieces": [
+      "armchair",
+      "bench-tools",
+      "crucible-and-tongs",
+      "door-frame",
+      "polishing-wheel",
+      "water-bucket",
+      "workbench"
+     ]
+    }
+   ],
+   "notes": "Back to the shop as in 3, the furnace lit and glowing. Blackout, rooster, Sunday dawn half-lit with the furnace roaring. The pour, the burn; the light closes to the bucket, the boy and the furnace.",
+   "furnaceLitSegments": [
+    1,
+    2
+   ]
+  },
+  {
+   "n": 7,
+   "title": "What Was Left",
+   "act": 1,
+   "location": "The Lapham kitchen, weeks later",
+   "look": "interior-day-grey",
+   "furnace": "dark",
+   "pieces": [
+    "armchair",
+    "bellows",
+    "bench",
+    "crates",
+    "furnace",
+    "kitchen-benches",
+    "kitchen-chairs",
+    "kitchen-table",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Lapham kitchen, weeks later",
+     "look": "interior-day-grey",
+     "pieces": [
+      "armchair",
+      "kitchen-benches",
+      "kitchen-chairs",
+      "kitchen-table"
+     ]
+    }
+   ],
+   "notes": "The kitchen again, the furnace dark behind. Johnny in the big armchair (moved centre); a small chair in Mr. Lapham's corner."
+  },
+  {
+   "n": 8,
+   "title": "Another Boy",
+   "act": 1,
+   "location": "The street",
+   "look": "exterior-day-street",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "crates",
+    "furnace",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "shop-doors",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "Boston, a street of shop doors",
+     "look": "exterior-day-street",
+     "pieces": [
+      "shop-doors"
+     ]
+    }
+   ],
+   "notes": "The kitchen goes; actors bring on door flats in a line across the apron (or become the doors themselves). Bare stage behind. Faster and funnier until it is not; Johnny alone; Cilla and the lime."
+  },
+  {
+   "n": 9,
+   "title": "Salt Lane",
+   "act": 1,
+   "location": "Salt Lane and the Boston Observer's print shop",
+   "look": "interior-day-cool",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "counter",
+    "crates",
+    "furnace",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "observer-sign",
+    "printing-press",
+    "type-case",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Observer's print shop",
+     "look": "interior-day-cool",
+     "pieces": [
+      "counter",
+      "observer-sign",
+      "printing-press",
+      "type-case"
+     ]
+    }
+   ],
+   "notes": "The swing sign flies in; press, type case and counter come on. This set recurs: under ten seconds to assemble. Johnny shows his hand for the first time."
+  },
+  {
+   "n": 10,
+   "title": "Let There Be Lyte",
+   "act": 1,
+   "location": "Copp's Hill at dawn; Lyte's counting house; the Lyte dining room",
+   "look": "dawn-exterior-cold",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "candelabra",
+    "clerk-desks",
+    "clerk-stools",
+    "crates",
+    "furnace",
+    "gravestone",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "lyte-chairs",
+    "lyte-cup",
+    "lyte-great-chair",
+    "lyte-table",
+    "masking-border",
+    "masking-legs",
+    "sideboard",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "Copp's Hill burying ground, dawn",
+     "look": "dawn-exterior-cold",
+     "pieces": [
+      "gravestone",
+      "lyte-cup"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "Lyte's counting house on Long Wharf",
+     "look": "interior-day-cool",
+     "pieces": [
+      "clerk-desks",
+      "clerk-stools",
+      "lyte-cup",
+      "lyte-great-chair"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "The Lyte dining room, eight o'clock",
+     "look": "interior-night-candle",
+     "pieces": [
+      "candelabra",
+      "lyte-chairs",
+      "lyte-cup",
+      "lyte-table",
+      "sideboard"
+     ]
+    }
+   ],
+   "notes": "Three places in sequence. The four cups gleaming in a row on the sideboard; the light warms when Lavinia is seen; the arrest."
+  },
+  {
+   "n": 11,
+   "title": "Lyte v. Tremain",
+   "act": 1,
+   "location": "The jail; the courtroom; the street outside",
+   "look": "interior-day-cool",
+   "furnace": "dark",
+   "pieces": [
+    "bar-rail",
+    "bellows",
+    "bench",
+    "candlesticks",
+    "crates",
+    "furnace",
+    "judge-bench",
+    "judge-chair",
+    "kitchen-benches",
+    "kitchen-table",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "low-stool",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "lyte-cup",
+    "masking-border",
+    "masking-legs",
+    "mounting-block",
+    "truckle-beds",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The jail (a gentleman's room)",
+     "look": "interior-morning-barred",
+     "pieces": [
+      "low-stool",
+      "truckle-beds"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The courtroom",
+     "look": "interior-day-court",
+     "pieces": [
+      "bar-rail",
+      "bench",
+      "candlesticks",
+      "judge-bench",
+      "judge-chair",
+      "kitchen-benches",
+      "kitchen-table",
+      "lyte-cup"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "The street outside, sunshine",
+     "look": "exterior-day-sun",
+     "pieces": [
+      "mounting-block"
+     ]
+    }
+   ],
+   "notes": "Jail: cot and stool, the window only a pattern of bars in light. Courtroom: the Justice raised on the platform (the wharf deck), the dark bar rail, benches for the crowd, the cups on a table; eleven strikes. Outside: an empty sunlit apron and a step standing in for Lavinia's gig."
+  },
+  {
+   "n": 12,
+   "title": "Goblin",
+   "act": 1,
+   "location": "The yard behind the Observer",
+   "look": "exterior-day-warm",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "crates",
+    "door-frame",
+    "furnace",
+    "hitch-rail",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "observer-sign",
+    "printing-press",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Observer's yard",
+     "look": "exterior-day-warm",
+     "pieces": [
+      "door-frame",
+      "hitch-rail",
+      "observer-sign",
+      "printing-press"
+     ]
+    }
+   ],
+   "notes": "The print shop (sign and press) glimpsed through its door; a hitching rail and straw. The horse is the company in a line; it does a lap of the yard."
+  },
+  {
+   "n": 13,
+   "title": "Salt-Water Tea",
+   "act": 1,
+   "location": "The loft over the Observer; Old South Meeting House; the deck of the Dartmouth",
+   "look": "night-interior-candle",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "crates",
+    "fife",
+    "furnace",
+    "kitchen-benches",
+    "ladder",
+    "lantern",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "printing-press",
+    "punch-bowl",
+    "ship-masts",
+    "ship-rail",
+    "tankards",
+    "tea-chests",
+    "trestle-table",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The loft over the Observer, late November",
+     "look": "night-interior-candle",
+     "pieces": [
+      "kitchen-benches",
+      "printing-press",
+      "punch-bowl",
+      "tankards",
+      "trestle-table"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "Old South Meeting House, in darkness",
+     "look": "night-interior-dark-crowd",
+     "pieces": [
+      "lantern",
+      "printing-press"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "The deck of the Dartmouth",
+     "look": "night-exterior-harbour",
+     "pieces": [
+      "fife",
+      "ship-masts",
+      "ship-rail",
+      "tea-chests"
+     ]
+    }
+   ],
+   "notes": "Loft: long table, punch bowl, bench, rafters; the Observers climb the ladder one at a time until the loft is full (it holds a line of six; the rest crowd the ladder and its foot). Old South: the loft is cleared and goes dark; the whole company crammed onto the floor round a single lantern. The Dartmouth: the wharf's timber becomes the ship's rail, tea chests, the auditorium is the harbour; Montague looks on from the apron. Fife. Blackout. END OF ACT ONE."
+  },
+  {
+   "n": 14,
+   "title": "The Fiddler's Bill",
+   "act": 2,
+   "location": "The wharf by day; the camp on the Common; North Square",
+   "look": "exterior-day-overcast",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "crates",
+    "furnace",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "mounting-block",
+    "plank-run",
+    "redcoat-muskets",
+    "rope-line",
+    "ship-masts",
+    "stacked-arms",
+    "tents",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The wharf, daylight (the port closed)",
+     "look": "exterior-day-overcast",
+     "pieces": [
+      "plank-run",
+      "ship-masts"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The camp on the Common",
+     "look": "exterior-day-sun",
+     "pieces": [
+      "redcoat-muskets",
+      "rope-line",
+      "stacked-arms",
+      "tents"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "North Square, one o'clock",
+     "look": "exterior-day-sun",
+     "pieces": [
+      "mounting-block"
+     ]
+    }
+   ],
+   "notes": "June 1774. Wharf with ships' masts behind; the camp (tents, stacked muskets, rope line; Rab struck down); North Square at one o'clock (bare, a mounting block)."
+  },
+  {
+   "n": 15,
+   "title": "Commandeer",
+   "act": 2,
+   "location": "The stable yard of the Afric Queen",
+   "look": "exterior-day-bright",
+   "furnace": "dark",
+   "pieces": [
+    "afric-queen-sign",
+    "bellows",
+    "bench",
+    "clothesline",
+    "crates",
+    "door-frame",
+    "furnace",
+    "ladder",
+    "laundry-basket",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "tankards",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step",
+    "window-flat"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Afric Queen's stable yard",
+     "look": "exterior-day-bright",
+     "pieces": [
+      "afric-queen-sign",
+      "clothesline",
+      "door-frame",
+      "laundry-basket",
+      "tankards",
+      "window-flat"
+     ]
+    }
+   ],
+   "notes": "Stays the whole scene: the stable door, the clothesline, Colonel Smith's window up on the loft, Lydia's basket. The sheet fills with wind like a sail."
+  },
+  {
+   "n": 16,
+   "title": "Queen of Spades",
+   "act": 2,
+   "location": "The Lyte kitchen on Beacon Hill; the dove-grey drawing room; the kitchen",
+   "look": "interior-day-warm",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "crates",
+    "furnace",
+    "kitchen-chairs",
+    "kitchen-table",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "mirror",
+    "sofa",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Lyte kitchen",
+     "look": "interior-day-warm",
+     "pieces": [
+      "kitchen-chairs",
+      "kitchen-table"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The dove-grey drawing room",
+     "look": "interior-day-dovegrey",
+     "pieces": [
+      "kitchen-chairs",
+      "kitchen-table",
+      "mirror",
+      "sofa"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "The kitchen again (the brandy)",
+     "look": "interior-day-warm",
+     "pieces": [
+      "kitchen-chairs",
+      "kitchen-table",
+      "mirror",
+      "sofa"
+     ]
+    }
+   ],
+   "notes": "Played as a split stage so nothing moves: the kitchen stage right (table, kettle, Mrs. Bessie's chair), the drawing room stage left (sofa, mirror, costume pieces, the tailor on the floor)."
+  },
+  {
+   "n": 17,
+   "title": "The Haunted House",
+   "act": 2,
+   "location": "The town gate on the Neck; the road; the Lyte house at Milton; the Milton road at dawn",
+   "look": "night-exterior-torch",
+   "furnace": "lit",
+   "pieces": [
+    "bellows",
+    "bench",
+    "candelabra",
+    "crates",
+    "dressing-table",
+    "family-bible",
+    "fife",
+    "furnace",
+    "kitchen-chairs",
+    "ladder",
+    "lantern",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "lyte-chairs",
+    "lyte-cup",
+    "lyte-table",
+    "masking-border",
+    "masking-legs",
+    "mounting-block",
+    "ruby-coach",
+    "sideboard",
+    "torches",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step",
+    "wig-stand"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The town gate on the Neck, night",
+     "look": "night-exterior-torch",
+     "pieces": [
+      "mounting-block",
+      "ruby-coach",
+      "torches"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The road to Milton",
+     "look": "night-exterior-moon",
+     "pieces": [
+      "kitchen-chairs",
+      "lantern"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "The Lyte house at Milton: the dining room",
+     "look": "night-interior-candle",
+     "pieces": [
+      "candelabra",
+      "lyte-chairs",
+      "lyte-cup",
+      "lyte-table",
+      "sideboard"
+     ]
+    },
+    {
+     "seg": 4,
+     "location": "Through the house by lantern",
+     "look": "night-interior-lantern",
+     "pieces": [
+      "dressing-table",
+      "family-bible",
+      "lantern",
+      "lyte-chairs",
+      "lyte-cup",
+      "lyte-table",
+      "sideboard",
+      "wig-stand"
+     ]
+    },
+    {
+     "seg": 5,
+     "location": "The kitchen hearth; the shutters",
+     "look": "night-interior-hearth",
+     "pieces": [
+      "lantern"
+     ]
+    },
+    {
+     "seg": 6,
+     "location": "Dawn on the Milton road",
+     "look": "dawn-exterior-warm",
+     "pieces": [
+      "fife"
+     ]
+    }
+   ],
+   "notes": "The gate by torchlight: a step for the guardhouse, the ruby coach no more than two lamps and a wheel. The road (two chairs for the chaise, a lantern). Milton: the abandoned dinner, twenty candles lit one by one, four cups; the lantern through the dark house picking out, one by one, Lavinia's dressing table, the wig on its stand and an overturned chair; the kitchen hearth where the pages burn; every shutter closing is a bang from offstage. Dawn on the road, the Minute Men crossing. Johnny's question to the house, and the wait for an answer.",
+   "furnaceLitSegments": [
+    5
+   ]
+  },
+  {
+   "n": 18,
+   "title": "Green Apples",
+   "act": 2,
+   "location": "The orchard behind the Lyte house; the loft windowsill",
+   "look": "exterior-afternoon-dappled",
+   "furnace": "dark",
+   "pieces": [
+    "apple-branches",
+    "bellows",
+    "bench",
+    "crates",
+    "furnace",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The orchard, Beacon Hill",
+     "look": "exterior-afternoon-dappled",
+     "pieces": [
+      "apple-branches",
+      "bench"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The loft windowsill",
+     "look": "interior-day-loft",
+     "pieces": [
+      "bench"
+     ]
+    }
+   ],
+   "notes": "The orchard bench under hanging branches, the apron lit as the sea below the hill; a short cut to the loft rail, where the apple is left and Rab eats it."
+  },
+  {
+   "n": 19,
+   "title": "A Man Can Stand Up",
+   "act": 2,
+   "location": "The loft over the Observer (the last meeting); the truckle beds",
+   "look": "night-interior-candle",
+   "furnace": "dark",
+   "pieces": [
+    "armchair",
+    "bellows",
+    "bench",
+    "crates",
+    "furnace",
+    "kitchen-benches",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "printing-press",
+    "punch-bowl",
+    "tankards",
+    "trestle-table",
+    "truckle-beds",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The loft, the last meeting of the Observers",
+     "look": "night-interior-candle",
+     "pieces": [
+      "armchair",
+      "kitchen-benches",
+      "printing-press",
+      "punch-bowl",
+      "tankards",
+      "trestle-table"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The truckle beds, later",
+     "look": "night-interior-moonlit",
+     "pieces": [
+      "printing-press",
+      "truckle-beds"
+     ]
+    }
+   ],
+   "notes": "As in 13 (trestle, punch bowl), plus the armchair given to Otis; the rafters he shoves upward. Then the table goes and two truckle beds are laid on the same loft; Johnny alone to the house (a hinge: do not rush)."
+  },
+  {
+   "n": 20,
+   "title": "Eyes and Ears",
+   "act": 2,
+   "location": "Green Dragon; the Afric Queen yard; the Observer; the Common; the camp and the runaway; the loft; the salt marsh",
+   "look": "interior-night-candle",
+   "furnace": "dark",
+   "pieces": [
+    "afric-queen-sign",
+    "bellows",
+    "bench",
+    "campfires",
+    "candlesticks",
+    "clothesline",
+    "crates",
+    "door-frame",
+    "drawing-board",
+    "drum",
+    "family-bible",
+    "furnace",
+    "hurdles",
+    "kitchen-benches",
+    "kitchen-chairs",
+    "kitchen-table",
+    "ladder",
+    "laundry-basket",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "observer-sign",
+    "printing-press",
+    "redcoat-muskets",
+    "sea-chest",
+    "stacked-arms",
+    "tankards",
+    "tents",
+    "truckle-beds",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Green Dragon's back room",
+     "look": "interior-night-candle",
+     "pieces": [
+      "candlesticks",
+      "family-bible",
+      "kitchen-benches",
+      "kitchen-table"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The Afric Queen yard",
+     "look": "exterior-day-winter",
+     "pieces": [
+      "afric-queen-sign",
+      "clothesline",
+      "door-frame",
+      "laundry-basket"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "The Observer (the torn letter; Dove drunk)",
+     "look": "interior-day-cool",
+     "pieces": [
+      "drawing-board",
+      "kitchen-chairs",
+      "observer-sign",
+      "printing-press",
+      "tankards"
+     ]
+    },
+    {
+     "seg": 4,
+     "location": "The Common: the hurdles",
+     "look": "exterior-day-spring",
+     "pieces": [
+      "hurdles"
+     ]
+    },
+    {
+     "seg": 5,
+     "location": "The encampment; the runaway; the Lytes' back gate",
+     "look": "exterior-day-chase",
+     "pieces": [
+      "campfires",
+      "door-frame",
+      "redcoat-muskets",
+      "stacked-arms",
+      "tents"
+     ]
+    },
+    {
+     "seg": 6,
+     "location": "The loft: the sea chest",
+     "look": "interior-day-loft",
+     "pieces": [
+      "printing-press",
+      "sea-chest",
+      "truckle-beds"
+     ]
+    },
+    {
+     "seg": 7,
+     "location": "The salt marsh: the execution",
+     "look": "exterior-dawn-grey",
+     "pieces": [
+      "drum",
+      "hurdles",
+      "redcoat-muskets"
+     ]
+    }
+   ],
+   "notes": "Seven places, winter to April. The hurdles; the runaway (the company builds and strikes each obstacle; ends dead still at the Lytes' back gate); the smock; the pewter going into the crucible; the execution on the marsh (drums, the volley, eight round eyes)."
+  },
+  {
+   "n": 21,
+   "title": "New Evolutions",
+   "act": 2,
+   "location": "The Afric Queen; the loft; Warren's surgery; the Dawes kitchen; North Square and Copp's Hill; the surgery",
+   "look": "interior-day-stable",
+   "furnace": "dark",
+   "pieces": [
+    "afric-queen-sign",
+    "bellows",
+    "bench",
+    "church-lanterns",
+    "crates",
+    "door-frame",
+    "furnace",
+    "gravestone",
+    "kitchen-chairs",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "printing-press",
+    "saddle-stand",
+    "sofa",
+    "steeple",
+    "truckle-beds",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step",
+    "window-flat"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Afric Queen: the posted order; the stable",
+     "look": "interior-day-stable",
+     "pieces": [
+      "afric-queen-sign",
+      "door-frame",
+      "saddle-stand"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The loft: Rab leaves",
+     "look": "interior-day-loft",
+     "pieces": [
+      "printing-press",
+      "truckle-beds"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "Warren's surgery",
+     "look": "interior-night-lamp",
+     "pieces": [
+      "sofa",
+      "window-flat"
+     ]
+    },
+    {
+     "seg": 4,
+     "location": "The Dawes kitchen",
+     "look": "interior-night-warm",
+     "pieces": [
+      "kitchen-chairs"
+     ]
+    },
+    {
+     "seg": 5,
+     "location": "North Square; Copp's Hill; Salem Street; the alley",
+     "look": "night-exterior-moon",
+     "pieces": [
+      "church-lanterns",
+      "gravestone",
+      "steeple"
+     ]
+    },
+    {
+     "seg": 6,
+     "location": "The surgery again; midnight; dawn at Lexington (sound)",
+     "look": "night-interior-lamp",
+     "pieces": [
+      "sofa",
+      "window-flat"
+     ]
+    }
+   ],
+   "notes": "April 15-18, the company announcing each date like a clock striking, every section quicker. Rab leaves Boston (up the ladder's foot, out through the centre doors as Salt Lane). The campaign saddle. Copp's Hill by moonlight; the two lanterns come on high in the spire. Almost midnight; Johnny sleeps. Dawn: one shot, a volley."
+  },
+  {
+   "n": 22,
+   "title": "Yankee Doodle",
+   "act": 2,
+   "location": "Warren's surgery at dawn; the street and the Common; Salt Lane; the pasture behind Beacon Hill",
+   "look": "dawn-interior-cold",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "crates",
+    "drum",
+    "feather-bed",
+    "fife",
+    "flag",
+    "furnace",
+    "kitchen-chairs",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "observer-sign-smashed",
+    "printing-press-smashed",
+    "redcoat-muskets",
+    "sofa",
+    "truckle-beds",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step",
+    "window-flat"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "Warren's surgery, dawn",
+     "look": "dawn-interior-cold",
+     "pieces": [
+      "sofa",
+      "window-flat"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The street and the Common: Percy's brigade",
+     "look": "exterior-day-bright",
+     "pieces": [
+      "drum",
+      "fife",
+      "flag",
+      "redcoat-muskets"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "Salt Lane wrecked; Aunt Jenifer's kitchen",
+     "look": "exterior-afternoon-flat",
+     "pieces": [
+      "feather-bed",
+      "kitchen-chairs",
+      "observer-sign-smashed",
+      "printing-press-smashed",
+      "truckle-beds"
+     ]
+    },
+    {
+     "seg": 4,
+     "location": "The pasture behind Beacon Hill, sunset",
+     "look": "exterior-sunset-distant",
+     "pieces": []
+    }
+   ],
+   "notes": "April 19. The surgery; children chanting; Percy's brigade on the Common, the flag, the drums, Yankee Doodle; Salt Lane wrecked (sign, press, the boys' bed) and Aunt Jenifer's kitchen across the way with the feather bed; the pasture at sunset, distant lights, musket flashes like fireflies."
+  },
+  {
+   "n": 23,
+   "title": "Aunt Lavinia",
+   "act": 2,
+   "location": "The Lyte kitchen; the front of the house beyond as light and noise",
+   "look": "night-interior-warm",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "crates",
+    "door-frame",
+    "furnace",
+    "kitchen-chairs",
+    "kitchen-table",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The Lyte kitchen, the house emptying",
+     "look": "night-interior-warm",
+     "pieces": [
+      "door-frame",
+      "kitchen-chairs",
+      "kitchen-table"
+     ]
+    }
+   ],
+   "notes": "Stays in the kitchen: table, two chairs. The front of the house (carts, trunks, portraits going out) is light and noise beyond: the centre stage doors open behind the door frame Lavinia stands in. The uniform goes on; Johnny exits down the hill."
+  },
+  {
+   "n": 24,
+   "title": "Across the Water",
+   "act": 2,
+   "location": "The ferry slip at night; Charlestown; the Cambridge road and Menotomy; a well at the Lexington line",
+   "look": "night-exterior-torch",
+   "furnace": "dark",
+   "pieces": [
+    "bellows",
+    "bench",
+    "clothesline",
+    "crates",
+    "flour-barrel",
+    "furnace",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "plank-run",
+    "pump",
+    "tanning-shed",
+    "torches",
+    "warehouse-corner",
+    "water-bucket",
+    "well",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "The ferry slip, North Boston, night",
+     "look": "night-exterior-torch",
+     "pieces": [
+      "plank-run",
+      "tanning-shed",
+      "torches",
+      "warehouse-corner"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "Charlestown",
+     "look": "night-exterior-moon",
+     "pieces": [
+      "clothesline",
+      "flour-barrel",
+      "pump",
+      "warehouse-corner"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "The Cambridge road; Menotomy",
+     "look": "exterior-morning-cold",
+     "pieces": []
+    },
+    {
+     "seg": 4,
+     "location": "A well at the Lexington line",
+     "look": "exterior-day-spring",
+     "pieces": [
+      "water-bucket",
+      "well"
+     ]
+    }
+   ],
+   "notes": "The slip, a warehouse corner and a tanning shed either side and two torches; the boats exist only as light and sound coming from the auditorium; Colonel Smith and Stranger lifted from a dory. Charlestown: clothesline, pump, tavern corner, flour barrel. The road at morning (burials). The well; eight names."
+  },
+  {
+   "n": 25,
+   "title": "Better So",
+   "act": 2,
+   "location": "Lexington Green; the back chamber upstairs at Buckman's",
+   "look": "exterior-afternoon-leaves",
+   "furnace": "dark",
+   "pieces": [
+    "armchair",
+    "belfry",
+    "bellows",
+    "bench",
+    "candlesticks",
+    "crates",
+    "door-frame",
+    "furnace",
+    "kitchen-chairs",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "low-stool",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "mounting-block",
+    "rab-musket",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step",
+    "window-flat"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "Lexington Green, late afternoon",
+     "look": "exterior-afternoon-leaves",
+     "pieces": [
+      "belfry",
+      "door-frame",
+      "mounting-block"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The back chamber upstairs at Buckman's",
+     "look": "interior-afternoon-window",
+     "pieces": [
+      "armchair",
+      "candlesticks",
+      "kitchen-chairs",
+      "low-stool",
+      "rab-musket",
+      "window-flat"
+     ]
+    }
+   ],
+   "notes": "The Green in late-afternoon leaf shadow, the tiny belfry, Buckman's as a doorway, the Harrington steps. The chamber: Rab propped in the armchair on pillows, a window, his musket leaning in a corner, the pewter candlestick. Johnny tells the house he will stop for a bit (a hinge)."
+  },
+  {
+   "n": 26,
+   "title": "Stand Up",
+   "act": 2,
+   "location": "Silsbee's Cove; the lower parlour at Buckman's; Lexington Green at sunset (finale)",
+   "look": "interior-day-empty",
+   "furnace": "dark",
+   "pieces": [
+    "armchair",
+    "bellows",
+    "bench",
+    "chaise",
+    "crates",
+    "fife",
+    "furnace",
+    "grandsire-gun",
+    "kitchen-chairs",
+    "kitchen-table",
+    "ladder",
+    "loft",
+    "loft-rafters",
+    "lumber-pile-a",
+    "lumber-pile-b",
+    "masking-border",
+    "masking-legs",
+    "powder-horn",
+    "rab-musket",
+    "wharf-deck",
+    "wharf-piles",
+    "wharf-step",
+    "window-flat"
+   ],
+   "segments": [
+    {
+     "seg": 1,
+     "location": "Silsbee's Cove",
+     "look": "interior-day-empty",
+     "pieces": [
+      "armchair"
+     ]
+    },
+    {
+     "seg": 2,
+     "location": "The lower parlour at Buckman's",
+     "look": "interior-afternoon-window",
+     "pieces": [
+      "kitchen-chairs",
+      "kitchen-table",
+      "rab-musket",
+      "window-flat"
+     ]
+    },
+    {
+     "seg": 3,
+     "location": "Lexington Green at sunset: the finale",
+     "look": "exterior-sunset-long",
+     "pieces": [
+      "chaise",
+      "fife",
+      "grandsire-gun",
+      "powder-horn",
+      "rab-musket"
+     ]
+    }
+   ],
+   "notes": "Silsbee's Cove: the empty red armchair by the hearth, hens as sound, Grandsire's gun gone. The parlour: table, window, the musket; Warren frees the hand. The Green at sunset: everything struck back to the unit set, every member of the company in low sunset light, the dead among them and Rab at the back; Grandsire's chaise passes; Johnny's hand open at his side; fife; blackout."
+  }
+ ]
+}
