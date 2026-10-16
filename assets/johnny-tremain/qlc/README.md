@@ -31,6 +31,51 @@ haze, the practicals). Tick an output for each:
 
 Nothing is patched to an output in the file, so opening it never sends anything until you choose.
 
+## Light Theatre 2 in midtown.html live from QLC+
+
+The page's Theatre 2 rig follows QLC+ while QLC+ is sending: every fixture reads its own channels in its own QLC+ mode
+(levels, colour mixing, the Encores' colour wheel and gobos, the movers' pan/tilt, the hazers' haze). A web page cannot
+receive Art-Net itself, so a small relay passes it on. It needs only Python, which is already installed.
+
+1. **Start the relay** in a terminal, from the repository folder, and leave it running:
+
+       python tools/artnet-relay.py
+
+   It listens for Art-Net on 127.0.0.1 (this computer only) and prints a status line every 3 seconds, e.g.
+   `1 page(s) · U1 (Art-Net 0): 44 pkt/s, 1320 in · U2 (Art-Net 1): 44 pkt/s, 1320 in`. Start it **before** QLC+. If
+   it says the port is in use, close QLC+, start the relay, then reopen QLC+.
+2. **In QLC+, the Inputs/Outputs tab:** select **Universe 1**. In the **Art-Net** row whose device is **127.0.0.1**
+   (the loopback line; QLC+ lists one Art-Net line per network card), tick **Output**. Then select **Universe 2** and tick
+   Output on the same 127.0.0.1 line. Open that line's settings (the wrench icon) and check that Universe 1 sends
+   **Art-Net universe 0** and Universe 2 sends **Art-Net universe 1**. Those are QLC+'s defaults. QLC+ counts its
+   universes from 1 and Art-Net counts from 0. If the output IP can be set, set it to 127.0.0.1.
+3. **Open the page from this computer:** `python -m http.server 8080` in the repository folder, then
+   <http://localhost:8080/midtown.html>. The GitHub Pages copy may work too, but Chrome may ask permission to reach
+   local devices.
+4. **Press "T2 rig"** (top bar). The page starts listening when that panel first opens. Press **Theatre 2** to look at
+   the stage. Then run the cue list in QLC+ (Virtual Console, Space = GO).
+
+The last line of the T2 rig panel says what is happening:
+
+| Status line | Meaning |
+|---|---|
+| `Desk: QLC+ live — U1 44 fps, U2 44 fps` | The desk has the rig. These are the packets per second QLC+ is sending. When a look is held still, QLC+ sends fewer, so the number can drop to 1 or 2. |
+| `Desk: relay up, no Art-Net from QLC+` | The page reached the relay, but nothing has arrived from QLC+ in the last 5 s. Check step 2. If the relay's status line names "other universes seen", the Art-Net universe numbers are wrong. |
+| `Desk: no relay — python tools/artnet-relay.py` | The relay is not running. The page checks again every 5 s while the panel is open, and every 30 s while it is closed. |
+
+While QLC+ drives the rig, the page's own scene and look menus are held: whatever you choose is noted and comes back when
+QLC+ stops. About 2 s after the relay reports QLC+ silent (5 s without a packet), the rig fades back to that look.
+
+Not drawn: strobe, zoom, focus, iris, frost, the framing blades and the FX channels. The Generic dimmers, the practicals
+and the followspots have only a level, so they show the colour the page's own looks give them. To test without QLC+, run
+`python tools/artnet-test.py chase`, `full`, `blackout`, or `look <tag>` while the relay is running. `look <tag>`
+sends a look exactly as the workspace's scene encodes it.
+
+**Not yet proven with QLC+ itself.** The relay and the page were tested with `tools/artnet-test.py`, which sends real
+ArtDmx packets to 127.0.0.1:6454. QLC+ was not installed for that test. One risk: QLC+'s Art-Net plugin also opens UDP
+port 6454 on this computer. If QLC+ is sending but the status line still says "no Art-Net from QLC+", that is the likely
+cause. Say so, and the relay can be changed to receive on the network card's address instead.
+
 ## What is in it
 
 - **128 fixtures**, named by unit and purpose (`BR-13 Cup pin, the wharf's lip (S4)`), at the addresses on the

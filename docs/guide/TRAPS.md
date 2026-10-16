@@ -2110,3 +2110,19 @@ include the place a failure would show — the corridor behind the house, not on
 - **`show.check()` plus a whole-show dump in one `javascript_tool` call runs past its 45 s limit.** The page keeps working, so
   the files land late and partly. The audit that ran meanwhile read half a show. Split the dump (`DUMPALL(0, 23)`,
   `DUMPALL(23, 46)`) and count the files before reading them.
+
+## From the Theatre 2 desk round (2026-10-16)
+
+- **A refused WebSocket is an error line in Chrome's console, every time, and no page code can stop it.** `onerror` is
+  silent and nothing throws, but Chrome itself prints "WebSocket connection to 'ws://127.0.0.1:9454/' failed" for each
+  attempt. A refused `fetch` prints a line too. A hidden iframe whose load is refused prints nothing. So the T2 desk knocks
+  with the relay's `/probe` page in a hidden iframe, which answers with a `postMessage`, and only then opens the socket.
+- **Chrome will not navigate an iframe again once it shows a refused load's error page.** The second `src` set on the
+  same iframe failed with `net::ERR_BLOCKED_BY_CLIENT`, so after the first try the knock never reached the relay. Make a new
+  iframe for each knock.
+- **This page's colours are linear, and DMX colour is not.** three r160 has colour management on, so `new
+  THREE.Color('#eb3d33')` holds (0.83, 0.05, 0.03). `tools/jt-qlc.py` writes a look's hex into the channels as sRGB
+  fractions, so decoded channels go in with `setRGB(r, g, b, THREE.SRGBColorSpace)`. A wheel colour parsed with
+  `Color.set` and then mixed with channel values gets converted twice.
+- **The Browser pane's console log is kept across reloads in one tab.** A "console clean" read after a reload still shows
+  the errors of the page before. Open a fresh tab for the reading that counts.
