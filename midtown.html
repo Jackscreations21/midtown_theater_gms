@@ -11607,14 +11607,15 @@ function underBlocked(L, what) {
   const s = L.spec, dx = Math.max(s.x0 - p.x, 0, p.x - s.x1), dz = Math.max(s.z0 - p.z, 0, p.z - s.z1), out = Math.hypot(dx, dz);
   return out > 0 && out < R + 0.10 ? 'someone at the edge' : null;
 }
-// One frame of a lift: rails up and gate shut before it travels; travel (eased, off dt); at the bottom the gate opens, at
-// the top the rails go down. → whether anything moved
+// One frame of a lift: gate shut before it travels; travel (eased, off dt); at the bottom the gate opens. The rails stay
+// down in the deck (RULING GK, Jack 2026-10-16: "dont make the railings come up when the lift moves"), so nothing guards
+// the hole while a lift is away. → whether anything moved
 function underLiftTick(L, dt) {
   const S = UNDER.lift, eps = 1e-4;
   const atTop = L.y >= L.top - eps, atBot = L.y <= L.bottom + eps;
   let ready = true, moved = false;
   L.hold = null;
-  const railWant = L.target === 'up' && atTop ? 0 : 1;
+  const railWant = 0;                                        // GK: the rails never rise (kept, and lowered if a lift was caught with them up)
   if (L.railU !== railWant) {
     const why = underBlocked(L, 'rail');
     if (why) L.hold = why; else { L.railU = railWant ? Math.min(1, L.railU + dt / S.tRail) : Math.max(0, L.railU - dt / S.tRail); L.railAt(L.railU); moved = true; }
