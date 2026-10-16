@@ -1,4 +1,4 @@
-# STATE — 2026-10-16, evening (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#8 merged; nothing is local-only)
+# STATE — 2026-10-16, evening (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#10 merged; nothing is local-only)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -54,16 +54,15 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Open, in the order it will bite
 
-000. **The models + live QLC+ PR (open), then his first real QLC+ run:** run `python tools/artnet-relay.py`, in QLC+
+000. **His first real QLC+ run (PR #10 MERGED 2026-10-16, `main` `8aded0b`; it also landed #9; post-merge done — `jt-models`,
+   `t2-artnet`, `record-8` deleted both sides, the worktree removed):** run `python tools/artnet-relay.py`, in QLC+
    tick Art-Net output on 127.0.0.1 for universes 1 and 2, open localhost:8080/midtown.html, press "T2 rig" — the panel
    should read "Desk: QLC+ live". Unverified with real QLC+ (not installed here). If it reads "relay up, no Art-Net",
    QLC+ holds port 6454: bind the relay to the NIC address. His models: 45 fitted (10 local-only, CGTrader); left: a real
    press model, crates/tea chests, the signs, candelabra/candlesticks/tankards/lumber (not downloaded). HANDOFF's newest block.
 00. **His eye on Johnny Tremain (PR #8, merged)** — the "Johnny Tremain" button (Next/Prev or PageDown/PageUp,
-   Auto), "Lifts", "Understage", "T2 rig"; Pages serves it. **His models** are in `Downloads\jt-models\` (25
-   Sketchfab GLBs, 4 CGTrader, his 4 .blend/.zip; Blender 5.2 is installed for conversions): fit each into
-   `assets/johnny-tremain/models/<id>.glb` + a `manifest.json` line (`models/README.md`), decimating the press (2.3M
-   faces), saddle, goblets and lantern; still to get: Brass Candleholders (Poly Haven API, he has not said yes), Old
+   Auto), "Lifts", "Understage", "T2 rig"; Pages serves it. **His models are FITTED** (item 000; the sources stay in `Downloads\jt-models\`, refit
+   any piece with `tools/jt-fit/`); still to get: Brass Candleholders (Poly Haven API, he has not said yes), Old
    lumber stack (Fab), Pewter Tankard (RenderHub). Colonial House is EDITORIAL-only (ask the author before a show).
    21 CGTrader `.tmp` copies sit in his Downloads — delete only on his word. Decisions it raises: the loft and wharf
    turned up/downstage at the sides; a second border (the 8 m masts show their lowest 3 m at out-trim; the 3rd/4th

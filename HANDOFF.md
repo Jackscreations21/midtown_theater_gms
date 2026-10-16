@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-16 (evening): his models in the set, and QLC+ driving Theatre 2 live (one PR; four Opus agents)
+## DONE — 2026-10-16 (evening): his models in the set, and QLC+ driving Theatre 2 live (PR #10, merged `8aded0b`, which also landed #9; four Opus agents; post-merge done)
 
 Two asks, both *"Do this task here"*: **fit his downloaded models into the set**, and, after *"if i put that file into
 qlc+ will i be able to connect to the lights in theater 2"* (it could not: the page had no DMX input), **drive Theatre 2's
