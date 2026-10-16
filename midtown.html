@@ -11061,8 +11061,8 @@ const JTL = {
   stage: { x: [10.20, 30.00], z0: -0.6, z1: 8.95, soft: 1.0 },     // where the stage's own light goes down while the rig is active (eased in over `soft` m downstage of z0)
   amb: 0.10,                 // the scan's baked light inside the stage while active (1 = as it was)
   litAmb: 0.12,              // the hemisphere and house 1's lights on lit materials inside the stage while active
-  gain: 2.4, lift: 0.10,     // the scan: colour × (amb + gain·K) + its colour × lift·K
-  litK: 2.5,                 // lit materials: irradiance per unit of K
+  gain: 3.0, lift: 0.12,     // the scan: colour × (amb + gain·K) + its colour × lift·K
+  litK: 3.2,                 // lit materials: irradiance per unit of K
   decay: 1.6,                // the falloff exponent (as the worklight's and the engine's real lights)
   beamGain: 0.90,            // a beam's strength per level × haze
   hazeDefault: 0.35,
@@ -11102,35 +11102,42 @@ float jtGobo(float g, vec3 D, vec3 ax, float co) {
   if (g < 6.5) return smoothstep(0.34, 0.24, abs(q.x));                                                                    // a door's slice
   return smoothstep(1.0, 0.92, abs(q.x)) * smoothstep(0.26, 0.20, abs(q.y));                                               // the sideboard's strip
 }
-// K at P: the summed light (linear colour), N the world normal (unnormalised ok), two: a double-sided scan face
+// One term's light at P (linear colour). N the world normal (unnormalised ok), nl its length, two: a double-sided scan face.
+vec3 jtTerm(vec3 P, vec3 N, float nl, bool two, vec4 A, vec4 B, vec4 C) {
+  vec3 L = A.xyz - P; float d2 = max(dot(L, L), 1e-4);
+  float ax = -dot(L, B.xyz);
+  if (A.w > -1.5 && (ax <= 0.0 || ax * ax < A.w * A.w * d2)) return vec3(0.0);   // outside the cone: no square root
+  float id = inversesqrt(d2); L *= id;
+  float c = 1.0, g = C.w;
+  if (A.w > -1.5) {
+    c = smoothstep(A.w, B.w, ax * id);
+    if (g > 15.5) {                       // a front-of-house unit, shuttered to the proscenium opening: no spill on the arch's wall
+      g -= 16.0;
+      if (P.z > ${(JTL.arch.z - 0.04).toFixed(2)}) { float t = (${JTL.arch.z.toFixed(2)} - A.z) / (P.z - A.z); vec2 h = A.xy + (P.xy - A.xy) * t;
+        if (h.x < ${JTL.arch.x[0].toFixed(2)} || h.x > ${JTL.arch.x[1].toFixed(2)} || h.y > ${JTL.arch.top.toFixed(2)}) return vec3(0.0); }
+      else if (P.y > ${JTL.arch.apronTop.toFixed(2)}) return vec3(0.0);
+    }
+    if (g > 0.5) c *= jtGobo(g, P - A.xyz, B.xyz, A.w);
+  }
+  float lam = 1.0;
+  if (nl > 1e-5) {
+    float a = dot(N, L) / nl;
+    if (two) { if (a * dot(N, cameraPosition - P) <= 0.0) return vec3(0.0); lam = 0.3 + 0.7 * abs(a); }
+    else { if (a <= 0.0) return vec3(0.0); lam = a; }
+  }
+  return C.rgb * (c * lam / max(pow(d2, ${(JTL.decay / 2).toFixed(2)}), 0.04));
+}
+// K at P: the summed light. The loop is UNROLLED (three's pragma: constant indices) — a uniform array read with a
+// variable index costs ~0.3 ms a term on the Intel chip (ANGLE/D3D), even for a term that is skipped.
 vec3 jtK(vec3 P, vec3 N, bool two) {
   vec3 k = vec3(0.0);
   if (any(lessThan(P, uJtBox0)) || any(greaterThan(P, uJtBox1))) return k;
   float nl = length(N);
+  #pragma unroll_loop_start
   for (int i = 0; i < ${JTL.N}; i++) {
-    if (i >= uJtN) break;
-    vec4 A = uJtA[i], B = uJtB[i], C = uJtC[i];
-    vec3 L = A.xyz - P; float d2 = max(dot(L, L), 1e-4); L *= inversesqrt(d2);
-    float c = 1.0, g = C.w;
-    if (A.w > -1.5) {
-      c = smoothstep(A.w, B.w, dot(-L, B.xyz));
-      if (c <= 0.0) continue;
-      if (g > 15.5) {                       // a front-of-house unit, shuttered to the proscenium opening: no spill on the arch's wall
-        g -= 16.0;
-        if (P.z > ${(JTL.arch.z - 0.04).toFixed(2)}) { float t = (${JTL.arch.z.toFixed(2)} - A.z) / (P.z - A.z); vec2 h = A.xy + (P.xy - A.xy) * t;
-          if (h.x < ${JTL.arch.x[0].toFixed(2)} || h.x > ${JTL.arch.x[1].toFixed(2)} || h.y > ${JTL.arch.top.toFixed(2)}) continue; }
-        else if (P.y > ${JTL.arch.apronTop.toFixed(2)}) continue;
-      }
-      if (g > 0.5) c *= jtGobo(g, P - A.xyz, B.xyz, A.w);
-    }
-    float lam = 1.0;
-    if (nl > 1e-5) {
-      float a = dot(N, L) / nl;
-      if (two) { if (a * dot(N, cameraPosition - P) <= 0.0) continue; lam = 0.3 + 0.7 * abs(a); }
-      else { if (a <= 0.0) continue; lam = a; }
-    }
-    k += C.rgb * (c * lam / max(pow(d2, ${(JTL.decay / 2).toFixed(2)}), 0.04));
+    if (UNROLLED_LOOP_INDEX < uJtN) k += jtTerm(P, N, nl, two, uJtA[ i ], uJtB[ i ], uJtC[ i ]);
   }
+  #pragma unroll_loop_end
   return k;
 }`;
 const JT_VERT = `
@@ -11472,7 +11479,7 @@ function jtlTick(dt) {
     JT_U.uJtOn.value = S.onFrom + (S.onTo - S.onFrom) * S.onT; moved = true;
     if (S.onT >= 1) JT_U.uJtOn.value = S.onTo;
   }
-  if (S.fadeT < 1) { JT_U.uJtTime.value += dt; S.fadeT = Math.min(1, S.fadeT + (S.fadeDur > 0 ? dt / S.fadeDur : 1)); jtlStep(S.fadeT); moved = true; }
+  if (S.fadeT < 1) { JT_U.uJtTime.value += dt; S.fadeT = Math.min(1, S.fadeT + (S.fadeDur > 0 ? dt / S.fadeDur : 1)); jtlStep(S.fadeT); moved = true; if (S.fadeT >= 1) jtlUI(); }
   else if (S.animated && S.active) { JT_U.uJtTime.value += dt; jtlApply(); moved = true; }
   if (S.active && (S.patchT += dt) > 1) { S.patchT = 0; if (jtlPatchScene()) moved = true; }
   return moved;

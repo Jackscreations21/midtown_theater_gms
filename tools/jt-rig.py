@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Johnny Tremain in Theatre 2 — the lighting rig, written as data.
 
-    python tools/jt-rig.py          # writes assets/johnny-tremain/rig.json
+    python tools/jt-rig.py          # writes assets/johnny-tremain/rig.json and docs/johnny-tremain/LIGHT-PLOT.md
 
 One record per unit (position, hang point and aim in WORLD metres, the fixture, its QLC+ definition, universe and address,
 what it is for), every look tag set.json's segments use resolved to per-unit levels and colours, and the per-segment
@@ -165,8 +165,8 @@ add('PB-R', 'Pros boom house left', 'cs-spot', [25.50, 3.0, 0.60], W(-1.0, 1.4, 
 # ---------------------------------------------------------------- the four electrics (cross-stage pipes above the iron, out of the front row's sight)
 # Heights: the front row's eye (stage 0, 0.32, -4.30) sees through the arch (header 4.40 over the deck) and, upstage of the
 # masking border (z 3.0, 4.40-5.00), over the border's top: anything under 0.32 + 0.949 (z + 4.30) over the deck shows. So the
-# 1st and 2nd hang at 8.5 (7.7 over the deck; their bodies' bottoms ~7.75 world), the 3rd at 9.9, the 4th at 11.4.
-EY = {1: 8.50, 2: 8.50, 3: 9.90, 4: 11.40}
+# 1st and 2nd hang at 8.5 (7.7 over the deck; their bodies' bottoms ~7.75 world), the 3rd at 10.1, the 4th at 11.6.
+EY = {1: 8.50, 2: 8.50, 3: 10.10, 4: 11.60}
 EZ = {1: W(0, 0, 0.6)[2], 2: W(0, 0, 2.4)[2], 3: W(0, 0, 4.2)[2], 4: W(0, 0, 5.7)[2]}   # the 4th at 5.7, clear of the masts' lane (6.33)
 # never over the iron's centre walkway x 19.2…21.1 (it would shade them): units at ≤ 18.9 or ≥ 21.4
 elec = {1: [], 2: [], 3: [], 4: []}
@@ -188,23 +188,23 @@ E(1, 22.0, 'cs-spot', W(3.0, 1.4, 1.2), 'Lantern reveal: the wig (S24)', 'specia
 E(1, 22.7, 'cs-par', A('APR'), 'Back light APR', 'back', area='APR')
 E(1, 23.6, 'cs-par', A('DSR'), 'Top light DSR', 'top', area='DSR')
 E(1, 25.0, 'encore', W(3.0, 0, 1.5), 'Mover: leaves / the ride (S21, S29)', 'mv1', gobo='leaves', beam=True)
-# 2nd (stage z 2.4): MS top, DS back, the sideboard strip, two reveals, two movers
+# 2nd (stage z 2.4): MS top, DS back, the sideboard strip, two reveals, the sheet, two movers
 E(2, 15.0, 'encore', W(-2.5, 0, 3.0), 'Mover: moon and cloud breakup (S18)', 'mv2', gobo='moon', beam=True)
 E(2, 16.4, 'cs-par', A('MSL'), 'Top light MSL', 'top', area='MSL')
 E(2, 17.0, 's4', W(-2.6, 1.1, 3.3), 'The cups on the sideboard, shuttered strip (S5)', 'special', special='S5', pool=1.8, gobo='strip', colour='L202 half CTB, shuttered 1.8 × 0.4')
 E(2, 17.6, 'cs-par', A('DSL'), 'Back light DSL', 'back', area='DSL')
 E(2, 18.9, 'cs-par', A('MSC'), 'Top light MSC', 'top', area='MSC')
+E(2, 18.25, 'cs-spot', W(0, 1.5, 1.6), 'The sheet, backlit (S32)', 'special', special='S32', pool=3.0, beam=True)
 E(2, 21.4, 'cs-par', A('DSC'), 'Back light DSC', 'back', area='DSC')
 E(2, 22.0, 'cs-spot', W(0.9, 0.6, 3.0), 'Lantern reveal: the tipped chair (S24)', 'special', special='S24c', pool=0.9)
 E(2, 22.7, 'cs-par', A('DSR'), 'Back light DSR', 'back', area='DSR')
 E(2, 23.4, 'cs-spot', W(3.4, 1.0, 2.7), 'Lantern reveal: the dressing table (S24)', 'special', special='S24a', pool=0.9)
 E(2, 24.0, 'cs-par', A('MSR'), 'Top light MSR', 'top', area='MSR')
 E(2, 25.0, 'encore', W(2.5, 0, 3.0), 'Mover: moon breakup / the ride (S18, S29)', 'mv2', gobo='moon', beam=True)
-# 3rd (stage z 4.2): upstage top, MS back, the loft from over it, the steeple pin, the sheet
+# 3rd (stage z 4.2): upstage top, MS back, the loft from over it, the steeple pin
 E(3, 15.6, 'cs-par', W(-3.3, 2.4 + 1.6, 5.3), 'Top light LOFT, SL half (S11)', 'top', area='LOFT')
 E(3, 16.6, 'cs-par', W(-1.5, 2.4 + 1.6, 5.3), 'Top light LOFT, SR half and the ladder head (S11)', 'top', area='LOFT')
 E(3, 17.4, 'cs-par', A('MSL'), 'Back light MSL', 'back', area='MSL')
-E(3, 18.2, 'cs-spot', W(0, 1.5, 1.6), 'The sheet, backlit (S32)', 'special', special='S32', pool=3.0, beam=True)
 E(3, 18.9, 'cs-par', A('PATH'), 'Top light PATH', 'top', area='PATH')
 E(3, 21.4, 'cs-par', A('MSC'), 'Back light MSC', 'back', area='MSC')
 E(3, 22.2, 'cs-spot', W(2.6, 3.7, 6.45), 'Steeple lanterns pin (S22)', 'special', special='S22', pool=1.0, beam=True)
@@ -669,3 +669,98 @@ for u in units:
     by[u['type']] = by.get(u['type'], 0) + 1
 print(f'jt-rig: {len(units)} units ({", ".join(f"{n} {t}" for t, n in sorted(by.items()))}); universe 1 {addr[1] - 1} ch, universe 2 {addr[2] - 1} ch; '
       f'{len(tags)} looks, {len(EXTRAS)} segment extras, {len(segments)} segments → {os.path.relpath(OUT, ROOT)}')
+
+# ---------------------------------------------------------------- the plot, written from the same data
+PLOT = os.path.join(ROOT, 'docs', 'johnny-tremain', 'LIGHT-PLOT.md')
+f3 = lambda v: f'{v:.2f}'
+st = lambda p: f'{p[0] - 20:+.2f}, {p[1] - 0.80:.2f}, {p[2] - 2.30:+.2f}'
+L = []
+w = L.append
+w('# Johnny Tremain — the light plot (Theatre 2)\n')
+w('Written by `tools/jt-rig.py` from the same data as `assets/johnny-tremain/rig.json` — edit the script, not this file. '
+  'The QLC+ workspace is `assets/johnny-tremain/qlc/johnny-tremain.qxw` (`tools/jt-qlc.py`; how to open it: '
+  '[`assets/johnny-tremain/qlc/README.md`](../../assets/johnny-tremain/qlc/README.md)). The brief is '
+  '[LIGHTING-NEEDS.md](LIGHTING-NEEDS.md). In the page: the **T2 rig** header button, or `MIDTOWN.jtLights`.\n')
+w('World metres (stage → world: x + 20.00, y + 0.80, z + 2.30). "Stage" columns are the stage frame: +x stage right, '
+  'z upstage of the proscenium plane, y over the deck. Units are numbered stage left → stage right (low x first), '
+  'booms bottom → top.\n')
+by = {}
+for u in units:
+    by[u['type']] = by.get(u['type'], 0) + 1
+w('## The rig in numbers\n')
+w('| fixture | QLC+ definition (manufacturer / model / mode) | ch | units |')
+w('|---|---|---|---|')
+for k, n in sorted(by.items(), key=lambda kv: -kv[1]):
+    t = TYPES[k]
+    w(f"| {t['name']} | {' / '.join(t['qlc'])} | {len(t['chans'])} | {n} |")
+w(f"\n**{len(units)} units** ({len(units) - by.get('practical', 0)} instruments, {by.get('practical', 0)} practicals); "
+  f"universe 1 uses {addr[1] - 1} channels, universe 2 {addr[2] - 1}. Every definition ships with QLC+ (checked against "
+  "the library's own .qxf files) or is a Generic dimmer: **no custom fixture files are needed.**\n")
+w('## Positions\n')
+w('| position | where (world) | units | what hangs there |')
+w('|---|---|---|---|')
+positions = {}
+for u in units:
+    positions.setdefault(u['position'], []).append(u)
+for p, us in positions.items():
+    xs = [u['pos'][0] for u in us]; ys = [u['pos'][1] for u in us]; zs = [u['pos'][2] for u in us]
+    rng = lambda a: f3(min(a)) if max(a) - min(a) < 0.01 else f'{f3(min(a))}…{f3(max(a))}'
+    kinds = {}
+    for u in us:
+        kinds[TYPES[u['type']]['name']] = kinds.get(TYPES[u['type']]['name'], 0) + 1
+    w(f"| {p} | x {rng(xs)}, y {rng(ys)}, z {rng(zs)} | {len(us)} | {', '.join(f'{n} × {k}' for k, n in kinds.items())} |")
+w("\nThe electrics hang on cross-stage pipes x 13.8…26.2 at 8.5 (1st, 2nd), 10.1 (3rd) and 11.6 (4th): over the venue's iron "
+  "(5.9–6.2) and high enough that the front row does not see them through the arch, under the header or over the masking "
+  "border (`MIDTOWN.jtLights.check()` proves it from six seats). No unit hangs over the iron's centre walkway (x 19.2…21.1). "
+  "Nothing stands in either lift's travel (front x 17…23, z 2.6…5.0; back x 17.5…22.5, z 5.9…8.3; y −4.4…5.2).\n")
+w('## Patch sheet (address order)\n')
+w('| U | address | ch | unit | position | fixture | mode | purpose | colour |')
+w('|---|---|---|---|---|---|---|---|---|')
+for u in sorted(units, key=lambda u: (u['universe'], u['address'])):
+    w(f"| {u['universe']} | {u['address']}–{u['address'] + u['channels'] - 1} | {u['channel']} | {u['id']} | {u['position']} | "
+      f"{TYPES[u['type']]['name']} | {TYPES[u['type']]['qlc'][2]} | {u['purpose']} | {u['colour']} |")
+w('\n"ch" is the desk channel (one per unit, in patch order) the hookup below uses.\n')
+w('## Hookup: the area systems\n')
+w('| area | centre (stage x, z) | front | box (side-front) | top | back |')
+w('|---|---|---|---|---|---|')
+for a, (x, z, fl) in AREAS.items():
+    cell = lambda s: ', '.join(f"{u['id']} (ch {u['channel']})" for u in units if u['system'] == s and u['area'] == a) or '—'
+    w(f'| {a} | {x:+.2f}, {z:+.2f}{" (floor " + str(fl) + ")" if fl else ""} | {cell("front")} | {cell("box")} | {cell("top")} | {cell("back")} |')
+w('\n| system | units |')
+w('|---|---|')
+for s, label in (('sideSL', 'side light from SL (booms)'), ('sideSR', 'side light from SR (booms)'), ('pros', 'pros booms (apron side)'),
+                 ('long', 'long low light from SR (dawn, sunset)'), ('sky', 'the back brick from above'), ('ground', 'the ground row'),
+                 ('mvFOH', 'movers: water (bridge)'), ('mv1', 'movers: leaves / ride (1st)'), ('mv2', 'movers: moon / ride (2nd)'),
+                 ('aura', 'wash movers (4th)'), ('follow', 'followspots'), ('haze', 'haze')):
+    w(f"| {label} | {', '.join(u['id'] + ' (ch ' + str(u['channel']) + ')' for u in units if u['system'] == s)} |")
+w('\n## Specials\n')
+w('| special | unit | ch | from | focus (stage x, y, z) | field ° | gobo |')
+w('|---|---|---|---|---|---|---|')
+for u in sorted([u for u in units if u['special']], key=lambda u: (int(''.join(c for c in u['special'][1:] if c.isdigit()) or 0), u['special'])):
+    w(f"| {u['special']} {u['purpose']} | {u['id']} | {u['channel']} | {u['position']} | {st(u['aim'])} | {u['field']} | {u['gobo'] or '—'} |")
+w('\n## Practicals (each its own dimmer)\n')
+w('| unit | ch | U / address | what | where (stage x, y, z) |')
+w('|---|---|---|---|---|')
+for u in units:
+    if u['type'] == 'practical':
+        w(f"| {u['id']} | {u['channel']} | {u['universe']} / {u['address']} | {u['purpose']} | {st(u['pos'])} |")
+w('\n## Looks\n')
+w(f"{len(tags)} looks, one per tag set.json's segments use, and {len(EXTRAS)} segments that add to theirs (a lit furnace, candles, "
+  'lanterns, a special). In QLC+ each look is a Scene ("Look: <tag>"), each segment with extras a Scene ("Seg n.s …"), and the '
+  f'chaser "Johnny Tremain" has one step per segment in show order ({len(segments)}), 2 s fades, held until GO.\n')
+w('| tag | the look |')
+w('|---|---|')
+for t in tags:
+    w(f"| `{t}` | {LOOKS[t]['note']} |")
+w("\n## Decisions left (Jack's)\n")
+w("- The 3rd and 4th electrics hang at 10.1 and 11.6 because the masking border (0.6 m deep at 4.4 over the deck) lets the "
+  "front row see over it; a deeper border (or a second one at stage z ~4.5) would let them come down to ~8.5.\n"
+  "- The movers' pan/tilt values in the QLC+ scenes assume each mover hung with its front to the house — touch up the focus "
+  "on the day (QLC+'s Position tool); the Encore gobo slots (water 1, leaves 2, moon 3, window 4) stand in for the real wheel.\n"
+  "- The followspots are on dimmer channels (D'Artagnan 934SNX) so the desk can fade them; the operators aim them.\n"
+  "- The practicals' circuits (radio dimmers for the hand lantern and the steeple, a DMX LED for the furnace) are the "
+  "production electrician's; the channels are reserved.\n")
+os.makedirs(os.path.dirname(PLOT), exist_ok=True)
+with open(PLOT, 'w', encoding='utf-8', newline='\n') as f:
+    f.write('\n'.join(L) + '\n')
+print(f'jt-rig: the plot → {os.path.relpath(PLOT, ROOT)}')
