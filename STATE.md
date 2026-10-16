@@ -6,6 +6,13 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
+- **PR `jt-shader-compile` (2026-10-16, late) is OPEN:** Jack, *"the game lags insanely bad and sometimes it gets stuck on
+  cmpiling."* The JT rig's shader term loop was unrolled 32×, so each lit program took ~6.5 s to compile cold on the
+  Intel chip (~70 programs: minutes on "Compiling…"; 6 s freezes as late models appeared and when the rig came on). Now
+  a texture and a real loop: same picture to the pixel, same frame time. A cold load took ~10 s in the pane. `warmLate()`
+  precompiles the late JT models and the actors, so the rig's first frame went from 10 s to 0.36 s. **Still slow:** a
+  1080p frame on the Intel UHD is ~100 ms with the T2 rig up. If he still lags, the first question is which GPU his Chrome
+  prints at load (`midtown: rendering on …`); the RTX 5060 is unverified (TRAPS, "the compile-and-lag round").
 - **This repository is the Midtown theatre's own**, split out of `gms-theater` (the Palace game, "THE HOUSE") at
   Jack's word on 2026-10-15: *"can you move everything for the midtown theater to that repository."* Its history is
   `gms-theater`'s history filtered to the Midtown files (279 of them) as of `gms-theater` `main` `14af651` (the merge

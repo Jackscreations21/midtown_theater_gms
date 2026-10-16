@@ -2126,3 +2126,20 @@ include the place a failure would show — the corridor behind the house, not on
   `Color.set` and then mixed with channel values gets converted twice.
 - **The Browser pane's console log is kept across reloads in one tab.** A "console clean" read after a reload still shows
   the errors of the page before. Open a fresh tab for the reading that counts.
+
+## From the compile-and-lag round (2026-10-16)
+
+- **An unrolled loop in a patch goes into every material that takes the patch, and on the Intel chip (ANGLE/D3D11) it
+  takes seconds to compile.** The JT rig's `jtK` unrolled 32 copies of `jtTerm` (gobos and all) into every lit material.
+  Each program took ~6.5 s to compile cold, against ~0.2 s plain, and there were ~70 of them, so the load sat on
+  "Compiling…" for minutes. Every material that loaded late (the JT set's models) then froze a frame for its compile, and
+  so did every material when the rig first came on. Now the terms are rows of a float texture (`JT_U.uJtTex`, filled in
+  `jtlApply`), read with `texelFetch` in a real loop: the same picture to the pixel, the same frame time, ~0.5 s a
+  program. Measure a cold compile with a random `defines` entry: Chrome caches compiled shaders by source, so changing
+  only `customProgramCacheKey` times a cache hit (85 ms, not 6.5 s).
+- **Anything that loads after the load's `compileAsync` compiles on its first frame on screen, on the main thread.**
+  `warmLate()` patches it (the worklights, the JT rig) and runs `compileAsync` as soon as the JT models and the actors are
+  in. Something new that loads late should call it too.
+- **The Browser pane runs on the Intel UHD**, and so may his Chrome. The page prints the GPU at load (`midtown: rendering
+  on …`). With the T2 rig up, a 1080p frame costs ~100 ms there (~55 ms with no terms); the CPU floor is ~15 ms (≈800
+  draw calls).

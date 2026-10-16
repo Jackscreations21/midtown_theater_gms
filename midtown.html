@@ -7326,6 +7326,7 @@ async function actInit() {
   ACT.ready = true;
   actBuildPanel();
   await actLoadFile();
+  warmLate();
   ACT.btn.disabled = false; ACT.btn.title = 'Automatic actors: their paths through the show (again to hide the panel)';
   console.info(`actors: ${ACT.actors.length} from ${ACT_URL.blocking}, the mannequin ${ACT.geo.index ? ACT.geo.index.count / 3 : ACT.geo.attributes.position.count / 3} triangles`
     + (RIG.parts ? `, jointed (${RIG.url}: ${RIG.parts.length} parts, ${RIG.parts.reduce((n, d) => n + d.geo.index.count / 3, 0)} triangles)` : ', not jointed'));
@@ -12639,6 +12640,7 @@ buildLightsPanel = () => {
     JT.btn.disabled = false; JT.btn.title = "Johnny Tremain on Theatre 2: the set, scene by scene (again to hide the panel)";
     jtCheck(true).pass || console.error(jtCheck(true).lines.join('\n'));
     await jtModels();
+    warmLate();
   })().catch(e => { console.error('jt set: the set failed to build —', e); JT.btn.title = 'The set failed to load: ' + (e && e.message || e); });
 };
 
@@ -12692,12 +12694,16 @@ const JT_U = {
   uJtA: { value: Array.from({ length: JTL.N }, () => new THREE.Vector4()) },   // lens xyz, cos(outer half-angle) (−2: a point source)
   uJtB: { value: Array.from({ length: JTL.N }, () => new THREE.Vector4()) },   // axis xyz, cos(inner half-angle)
   uJtC: { value: Array.from({ length: JTL.N }, () => new THREE.Vector4()) },   // colour × level × candela (linear), gobo
+  // A, B and C reach the shader as rows 0, 1, 2 of this texture (jtlApply copies them in), read in a real loop: the old
+  // uniform arrays needed the loop UNROLLED, which put 32 copies of jtTerm in every lit material — ~6.5 s to compile a
+  // program on the Intel chip (ANGLE/D3D), ~80 of them, so the load sat on "Compiling…" and each late material froze a frame
+  uJtTex: { value: Object.assign(new THREE.DataTexture(new Float32Array(JTL.N * 3 * 4), JTL.N, 3, THREE.RGBAFormat, THREE.FloatType), { needsUpdate: true }) },
   uJtBox0: { value: new THREE.Vector3(JTL.box.x[0], JTL.box.y[0], JTL.box.z[0]) }, uJtBox1: { value: new THREE.Vector3(JTL.box.x[1], JTL.box.y[1], JTL.box.z[1]) },
   uJtStage: { value: new THREE.Vector4(JTL.stage.x[0], JTL.stage.x[1], JTL.stage.z0, JTL.stage.z1) },
   uJtK: { value: new THREE.Vector4(JTL.amb, JTL.gain, JTL.lift, JTL.litAmb) }, uJtLitK: { value: JTL.litK },
 };
 const JT_GLSL = `
-uniform float uJtOn; uniform int uJtN; uniform float uJtTime; uniform vec4 uJtA[${JTL.N}]; uniform vec4 uJtB[${JTL.N}]; uniform vec4 uJtC[${JTL.N}];
+uniform float uJtOn; uniform int uJtN; uniform float uJtTime; uniform highp sampler2D uJtTex;
 uniform vec3 uJtBox0; uniform vec3 uJtBox1; uniform vec4 uJtStage; uniform vec4 uJtK; uniform float uJtLitK;
 varying vec3 vJtP;
 float jtStageIn(vec3 P) {
@@ -12743,17 +12749,19 @@ vec3 jtTerm(vec3 P, vec3 N, float nl, bool two, vec4 A, vec4 B, vec4 C) {
   }
   return C.rgb * (c * lam / max(pow(d2, ${(JTL.decay / 2).toFixed(2)}), 0.04));
 }
-// K at P: the summed light. The loop is UNROLLED (three's pragma: constant indices) — a uniform array read with a
-// variable index costs ~0.3 ms a term on the Intel chip (ANGLE/D3D), even for a term that is skipped.
+// K at P: the summed light. A real loop over the texture's columns (texelFetch), NOT unrolled: unrolled, every lit
+// material carried 32 copies of jtTerm and took seconds to compile (JT_U.uJtTex). It stops at uJtN.
 vec3 jtK(vec3 P, vec3 N, bool two) {
   vec3 k = vec3(0.0);
   if (any(lessThan(P, uJtBox0)) || any(greaterThan(P, uJtBox1))) return k;
   float nl = length(N);
-  #pragma unroll_loop_start
   for (int i = 0; i < ${JTL.N}; i++) {
-    if (UNROLLED_LOOP_INDEX < uJtN) k += jtTerm(P, N, nl, two, uJtA[ i ], uJtB[ i ], uJtC[ i ]);
+    if (i >= uJtN) break;
+    vec4 A = texelFetch(uJtTex, ivec2(i, 0), 0), B = texelFetch(uJtTex, ivec2(i, 1), 0);
+    vec3 L = A.xyz - P; float ax = -dot(L, B.xyz);
+    if (A.w > -1.5 && (ax <= 0.0 || ax * ax < A.w * A.w * max(dot(L, L), 1e-4))) continue;   // outside its cone: skip before reading C
+    k += jtTerm(P, N, nl, two, A, B, texelFetch(uJtTex, ivec2(i, 2), 0));
   }
-  #pragma unroll_loop_end
   return k;
 }`;
 const JT_VERT = `
@@ -12807,6 +12815,13 @@ function jtlPatchScene() {
     }
   });
   return n;
+}
+// What loads after the load's compileAsync (the JT set's models, the actors): patched now (the worklights, the rig) and
+// compiled in the background as it arrives, so its first frame on screen does not stall on its compile (~0.5 s a program
+// on the Intel chip) — and the rig coming on later finds every program it needs already built.
+function warmLate() {
+  try { wlPatchScene(); jtlPatchScene(); } catch (e) { console.warn('warmLate: patching failed —', e); return; }
+  renderer.compileAsync(scene, camera).then(requestRender, e => console.warn('warmLate: compile failed —', e));
 }
 // ---- posing a unit: its hang point at pos, its lens's beam along dir. The pan turns the unit (a mover: its yoke) about
 // the vertical; the rest turns the head (the minimal rotation from the model's rest beam, in the panned frame — a tilt
@@ -13063,6 +13078,9 @@ function jtlApply() {
     C.set(r.col.r * k, r.col.g * k, r.col.b * k, r.practical ? 0 : r.gobo + (r.lensPos.z < JTL.arch.z - 0.3 ? 16 : 0));
   }
   JT_U.uJtN.value = n;
+  { const tex = JT_U.uJtTex.value, d = tex.image.data, row = JTL.N * 4;        // the shader's copy (rows A, B, C)
+    for (let i = 0; i < n; i++) { JT_U.uJtA.value[i].toArray(d, i * 4); JT_U.uJtB.value[i].toArray(d, row + i * 4); JT_U.uJtC.value[i].toArray(d, 2 * row + i * 4); }
+    tex.needsUpdate = true; }
   S.terms = n; S.lit = _jsel.length;
   // the lenses
   if (S.lens) {
