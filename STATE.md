@@ -41,6 +41,24 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 - Local server: any static server over the repository root, e.g. `python -m http.server 8080`, then
   `http://localhost:8080/midtown.html` (Jack's Chrome for pointer lock; the Claude Browser pane for checks only).
 
+## PAUSED 2026-10-15 22:15 — his act-1 and act-2 notes round, mid-flight (branch `his-notes`, no PR yet)
+
+Jack: *"work on all the notes i put for the first and second half of hamilton using opus agents … fix the spotlights"*,
+then *"pause by 10:15"*. **Where it stands:** the three blocking agents' branches (`notes-seg12` `205150c`, `notes-seg34`
+`37e0c69`, `notes-act2` `5bbb746`) and the engine fix (`prop-standing` `2c179e7`: an explicit `y` at a placed prop's top
+stands the body on it) are MERGED into `his-notes` (`af46423`; merge 0/0, 7,323 waypoints, `actors.check()` green per the
+agents; the lead has NOT rendered the merged page himself). The cue agent (branch `his-notes-cues`, worktree
+`.claude/.claude/worktrees/cues` — one folder too deep, a lead's `cd` slip) was mid-way through his LIGHTING notes
+(1-01, 1-04, 1-14, 2-06, 2-07, 2-23) and the hand-offs when paused; it was told to commit a WIP and write
+`docs/WIP-cues-2026-10-15.md` saying where it stopped. The show-wide spotlight audit (`tools/spot-audit.py`, re-aiming
+every person light to where the actors now stand) was NOT started. **Not done:** the cue work, the lead's own check of
+the merged page, the one-line replies into his checklist rows, the PR, HANDOFF's DONE block (a draft is in the lead
+session's scratchpad `worklight/notes-handoff.md`). **Resume:** read `docs/WIP-cues-2026-10-15.md` on `his-notes-cues`,
+merge it into `his-notes` (regenerate the blocking file WITHOUT `--check` if the generators moved — `--check` does not
+write), finish the cue notes and the audit (the brief is in HANDOFF's next DONE block once written; until then the
+agents' reports are in the lead session), check the page, reply per row, open the PR. Worktrees to remove after: the
+five under `.claude/worktrees/` and the deep one.
+
 ## Open, in the order it will bite
 
 0. **His eye on the worklights** (PR #5, 2026-10-15): the `Worklight` header buttons, or walk to the grey switch box
