@@ -1,4 +1,4 @@
-# STATE — 2026-10-16, evening (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#7 merged; the Johnny Tremain PR open)
+# STATE — 2026-10-16, evening (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#8 merged; nothing is local-only)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -42,7 +42,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   each stage house; the show takes Stage 1's out at every Play and Stop puts it back. Built by one Opus agent, checked by
   a second, its one bug fixed by the lead (HANDOFF.md's newest block). Record files in the PR. Post-merge: fast-forward
   `main`, delete `worklight` both sides, remove the worktree `.claude/worktrees/worklight`.
-- **Johnny Tremain on Theatre 2 (branch `johnny-tremain`, PR open):** his own play, two acts, 26 scenes — the set as
+- **Johnny Tremain on Theatre 2 — PR #8 MERGED (2026-10-16, `main` `daa9bcd`), post-merge done (branches deleted both sides, worktrees removed):** his own play, two acts, 26 scenes — the set as
   sized stand-ins with model slots, two stage lifts and an underground under Theatre 2 (RULINGS GI, GJ), a 128-unit rig
   with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's newest DONE block.
 - **Rulings are at GJ (GK next).** GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
@@ -54,9 +54,8 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Open, in the order it will bite
 
-00. **Land the Johnny Tremain PR, then his eye on it** — the "Johnny Tremain" button (Next/Prev or PageDown/PageUp,
-   Auto), "Lifts", "Understage", "T2 rig". Post-merge: delete `johnny-tremain`, `jt-sets`, `jt-under`, `jt-lights`
-   both sides and the three worktrees under `.claude/worktrees/`. **His models** are in `Downloads\jt-models\` (25
+00. **His eye on Johnny Tremain (PR #8, merged)** — the "Johnny Tremain" button (Next/Prev or PageDown/PageUp,
+   Auto), "Lifts", "Understage", "T2 rig"; Pages serves it. **His models** are in `Downloads\jt-models\` (25
    Sketchfab GLBs, 4 CGTrader, his 4 .blend/.zip; Blender 5.2 is installed for conversions): fit each into
    `assets/johnny-tremain/models/<id>.glb` + a `manifest.json` line (`models/README.md`), decimating the press (2.3M
    faces), saddle, goblets and lantern; still to get: Brass Candleholders (Poly Haven API, he has not said yes), Old

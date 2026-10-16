@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-16: Johnny Tremain on Theatre 2 — the set, the stage lifts, the underground, the rig and the QLC+ file (branch `johnny-tremain`; five Opus agents)
+## DONE — 2026-10-16: Johnny Tremain on Theatre 2 — the set, the stage lifts, the underground, the rig and the QLC+ file (PR #8, merged `daa9bcd`; five Opus agents)
 
 Jack: *"for the second stage in the theater i want to do a play i created myself. here is the script and an md file with
 all the files for the set. get the sets ready to be put in and put up lights. then make a file i can put into qlc+ and
