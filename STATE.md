@@ -6,13 +6,13 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **PR `jt-shader-compile` (2026-10-16, late) is OPEN:** Jack, *"the game lags insanely bad and sometimes it gets stuck on
-  cmpiling."* The JT rig's shader term loop was unrolled 32×, so each lit program took ~6.5 s to compile cold on the
-  Intel chip (~70 programs: minutes on "Compiling…"; 6 s freezes as late models appeared and when the rig came on). Now
-  a texture and a real loop: same picture to the pixel, same frame time. A cold load took ~10 s in the pane. `warmLate()`
-  precompiles the late JT models and the actors, so the rig's first frame went from 10 s to 0.36 s. **Still slow:** a
-  1080p frame on the Intel UHD is ~100 ms with the T2 rig up. If he still lags, the first question is which GPU his Chrome
-  prints at load (`midtown: rendering on …`); the RTX 5060 is unverified (TRAPS, "the compile-and-lag round").
+- **The lag (2026-10-16, late; PRs #12 and #13 merged, `main` `b78c183`).** #12 cut the JT rig's cold compile from ~6.5 s
+  to ~0.5 s a program (HANDOFF's newest DONE block). His Chrome is on the **RTX 5060** (verified 2026-10-16: `ANGLE (NVIDIA,
+  NVIDIA GeForce RTX 5060 Laptop GPU …)`, pixel ratio 1, canvas 981×639). After #12, his first load still lagged for 1–2
+  minutes. His long-frame record showed the page's own code done within 10 s, so the rest was Chrome's GPU process
+  compiling the new shaders once. A reload lags only ~5 s. **Open:** the first load after any shader change will lag
+  like that again; the textures (196, ~950 MB with mips, 160 uploaded on first sight) could go up behind the loader
+  (~0.6 s); Midtown has no room culling (hiding all of house 1 saves only 20–50% of a frame).
 - **This repository is the Midtown theatre's own**, split out of `gms-theater` (the Palace game, "THE HOUSE") at
   Jack's word on 2026-10-15: *"can you move everything for the midtown theater to that repository."* Its history is
   `gms-theater`'s history filtered to the Midtown files (279 of them) as of `gms-theater` `main` `14af651` (the merge
@@ -53,7 +53,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   sized stand-ins with model slots, two stage lifts and an underground under Theatre 2 (RULINGS GI, GJ), a 128-unit rig
   with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's newest DONE block.
 - **Rulings are at GK (GL next).** GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
-  rails stay down in the deck, so nothing guards the hole while a lift is away (branch `lift-no-rails`). GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
+  rails stay down in the deck, so nothing guards the hole while a lift is away (PR #13, merged). GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
   them off. GJ (2026-10-16): an underground under Theatre 2 for storage. Earlier: **GH**. The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
   the house; **GH** (2026-10-15) a closed curtain stops the walker, like a closed door. FF is the mannequin.

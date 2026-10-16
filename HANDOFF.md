@@ -229,6 +229,17 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-16 (late): the compile freezes (PR #12) and the lift rails stay down (PR #13, RULING GK)
+
+Jack: *"the game lags insanely bad and sometimes it gets stuck on cmpiling."* The JT rig's `jtK` unrolled 32 copies of
+`jtTerm` into every lit material: ~6.5 s per program cold on ANGLE/D3D11, ~70 programs. #12 (merged `e7d00dd`) moves the
+terms to a float texture (`JT_U.uJtTex`) read in a real loop: the same frame to the pixel and the same frame time, at ~0.5 s a
+program. It also adds `warmLate()` to patch and `compileAsync` the late JT models and the actors. His long-frame record
+(`long-animation-frame`, buffered, read after the lag) put his Chrome on the RTX 5060 and the page's code done in 10 s. The
+1–2 minutes after that were the GPU process compiling the new shaders once; a reload lags ~5 s. TRAPS has "the
+compile-and-lag round". #13 (merged `b78c183`), Jack: *"dont make the railings come up when the lift moves"* (GK): the
+rails never rise, and the gate still works. `under.check()` passes 16/16. Both branches are deleted on both sides.
+
 ## DONE — 2026-10-16 (evening): his models in the set, and QLC+ driving Theatre 2 live (PR #10, merged `8aded0b`, which also landed #9; four Opus agents; post-merge done)
 
 Two asks, both *"Do this task here"*: **fit his downloaded models into the set**, and, after *"if i put that file into
