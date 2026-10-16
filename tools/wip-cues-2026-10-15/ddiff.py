@@ -22,6 +22,7 @@ for f in sorted(glob.glob(os.path.join(B, '[12]-*.json'))):
             dl = abs(x['level'] - y['level'])
             hx, hy = x.get('hit'), y.get('hit')
             dm = math.dist(hx, hy) if hx and hy else (0 if hx == hy else 99)
-            if dl > 0.02 or dm > 0.1:
-                ch.append(f'{k}' + (f' lv{x["level"]}>{y["level"]}' if dl > 0.02 else '') + (f' ({hx[0]},{hx[2]})>({hy[0]},{hy[2]})' if dm > 0.1 and hx and hy else (' hit?' if dm > 0.1 else '')))
+            dz = abs(x['zoom'] - y['zoom']) > 0.2; dg = x.get('gobo') != y.get('gobo'); dc = x['color'] != y['color']
+            if dl > 0.02 or dm > 0.1 or dz or dg or dc:
+                ch.append(f'{k}' + (f' lv{x["level"]}>{y["level"]}' if dl > 0.02 else '') + (f' ({hx[0]},{hx[2]})>({hy[0]},{hy[2]})' if dm > 0.1 and hx and hy else (' hit?' if dm > 0.1 else '')) + (f' z{x["zoom"]}>{y["zoom"]}' if dz else '') + (f' g{x.get("gobo")}>{y.get("gobo")}' if dg else '') + (f' {x["color"]}>{y["color"]}' if dc else ''))
         if ch: print(f'{t} {cb["q"]} @{cb["at"]}: ' + '; '.join(ch[:14]) + (f' ... +{len(ch) - 14}' if len(ch) > 14 else ''))
