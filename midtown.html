@@ -40,6 +40,15 @@
   lead straight into the corridor; from Theatre 2's stage a pair of steel doors cut through its back brick (HOUSE2_CUTS)
   swing into the backstage on E, as every room's door swings into its room. Lit like the lobby: glowing surfaces,
   fluorescent battens, blue running lights and two real lights; signs to the rooms, the stages and the exits.
+
+  THE WORKLIGHTS (Jack: "make a worklight i can turn on for both stages"; "HOUSE WORKS: THE WORKLIGHTS" below): one on each
+  stage, the same fixture at the same place in each house — a caged work flood on a bracket high on the stage-left fly wall,
+  10.6 m over the deck (over the set and the rig's grid), aimed down across the stage — and its switch box on the stage-left
+  wall 1 m upstage of that house's proscenium, a conduit up the wall between them. Both off on load; the header's Worklight
+  buttons, E at the switch while walking, or MIDTOWN.worklight turn either on. No light is added to the scene: the light is a
+  term in the materials' shaders clipped to that stage house (the unlit scan brightened, the set, the rig and the actors
+  given its irradiance), so nothing behind the back brick sees it. The show takes Stage 1's out with the work look; Stop
+  puts it back.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,6 +75,7 @@ button:disabled { opacity: .45; cursor: default; }
 button:disabled:hover { border-color: var(--line); }
 .bright { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); margin-left: auto; }
 .bright input { width: 110px; accent-color: var(--accent); }
+.wl-label { align-self: center; font-size: 13px; color: var(--muted); }
 #stage { position: relative; flex: 1; min-height: 0; }
 canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 .hint { position: absolute; left: 16px; bottom: 14px; font: 12px var(--mono); color: var(--muted); background: rgba(13,12,15,.72); padding: 6px 10px; border-radius: 4px; pointer-events: none; max-width: calc(100% - 32px); }
@@ -219,6 +229,11 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
   </div>
   <div class="mode" role="group" aria-label="Lighting rig">
     <button id="r-rig" aria-pressed="true" disabled title="Hanging the rig…">Rig</button>
+  </div>
+  <div class="mode" role="group" aria-label="Worklights">
+    <span class="wl-label" aria-hidden="true">Worklight</span>
+    <button id="w-1" aria-pressed="false" disabled title="Hanging the worklights…">Stage 1</button>
+    <button id="w-2" aria-pressed="false" disabled title="Hanging the worklights…">Theatre 2</button>
   </div>
   <label class="bright" for="bright">House light <input id="bright" type="range" min="0.4" max="3" step="0.05" value="1.4"></label>
   <div class="mode" role="group" aria-label="Movement">
@@ -4362,6 +4377,7 @@ function showStart(play = true) {
   SHW.cam = tween ? { p: tween.p1.clone(), t: tween.t1.clone() } : { p: camera.position.clone(), t: orbit.target.clone() };
   if (rig && !rig.visible) setRig(true);
   LX_API.work(0, SHW_WORK_FADE);
+  wlShow(true);                                              // Stage 1's worklight out with it, if on (THE WORKLIGHTS)
   SHW.haze = { from: LX.hazeBase, to: SHW_HAZE, t: 0, dur: SHW_HAZE_FADE };
   SHW.on = true; SHW.playing = false; SHW.hold = false; SHW.houseUp = true;   // the house lights stay up over the preshow look; the first Play takes them out
   showSeekT(showT());
@@ -4408,6 +4424,7 @@ function showStop(camBack = true) {
   SND.bins.length = 0; SND.check = null; SND.note = '';
   const ytBox = document.getElementById('sh-yt'); if (ytBox) ytBox.hidden = true;
   lxjRestore(SHW.save); lxdCmRestore(SHW.cm);
+  wlShow(false);                                             // and Stage 1's worklight back if the show took it out
   if (camBack && SHW.cam && !walking) {
     tween = { t: 0, start: performance.now(), p0: camera.position.clone(), t0: orbit.target.clone(), p1: SHW.cam.p.clone(), t1: SHW.cam.t.clone() };
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) tween.t = 1;
@@ -9912,6 +9929,576 @@ function backstageFittingsCheck(bf, quiet) {
   return { pass, worst, violations };
 }
 
+/* ---------------------------------------------------------------- HOUSE WORKS: THE WORKLIGHTS
+   Jack: "make a worklight i can turn on for both stages". One on each stage, the same fixture at the same place in each
+   house's own frame (wlBuild, called twice with { dx, root, archZ, … } as the booth and the desk are, measured against its
+   own scan): a caged work flood on a wall bracket high on the stage-left fly wall (local x −9.80, y 11.40, z 4.60) —
+   over the set's top (WALL_SET.stage.top 10.17) and the rig's grid (y 7.67), clear of every boom, where a full stage's
+   house worklights hang — aimed down across the stage at (0, deck, 5.5). Its switch box is on the stage-left wall in the
+   prompt corner, 1.0 m upstage of that house's proscenium (house 1's is at z 0.20, Theatre 2's at 2.30), 1.3 m over the
+   deck, and a conduit runs up the wall from the box to the lamp.
+   HOW THE STAGE READS LIT (no real lights). The scan is drawn unlit, so a three.js light cannot touch it; and a real cone
+   from anywhere on these stages lights the backstage corridor through the back brick — the corridor floor behind the
+   stage lies within a degree or two of the upstage deck as the lamp sees it, and a SpotLight casts nothing here (TRAPS).
+   So the light is in the materials' shaders, clipped to that stage house's box (wlPatchScan, wlPatchLit; one set of
+   uniforms, WL_U, for both worklights): the scan's colour × (1 + gain·k) plus a lift in its own colour (its deck is
+   near-black), k the lamp's falloff, on a face only from the lamp's side of it (the scan is double-sided); on every lit material
+   (the set, the rig, the actors, built and baked pieces, the doors in Theatre 2's brick) the lamp's Lambert irradiance,
+   as a SpotLight would add it, inside the box only. At level 0 the shaders skip it, so off is the page as it was; the
+   House light slider writes the scan's colour and the worklight a uniform, so they multiply and neither undoes the
+   other (nor the show's house fade). No light is added to the scene: nothing costs a frame while both are off.
+   SWITCHING. One state per stage (want), three ways in, all through wlSet: the header's Worklight buttons; E at the
+   switch box while walking (a target of THE DOORS' aim, doorAim — the hint reads "E — worklight on" / "E — worklight
+   off"); MIDTOWN.worklight.set / toggle. The light follows want over WORKLIGHT.fade s, off the frame's dt (wlTick).
+   The show takes Stage 1's out with the work look (SHW_WORK_FADE) and Stop puts it back if it was on and nobody
+   switched it meanwhile (wlShow); Theatre 2's is no business of the show. Both off on load. Not in the walk's grid
+   (the walker never reaches the lamp, and stands 0.25 m off the wall the switch box is on). */
+const WORKLIGHT = {
+  lamp: { y: 11.40, z: 4.60, arm: 0.50 },   // the yoke's pivot: arm metres off the fly wall's face (measured at y, z), house frame
+  aim: [0.0, HOUSE.deckY, 5.50],            // where its axis meets the deck, house frame
+  sw: { h: 1.30, dz: 1.00 },                // the switch box's middle over the deck, and how far upstage of that house's proscenium (house 1's
+                                            // rig grid has a pipe end 3 cm off this wall at z 1.04…1.09: the conduit rises clear of it)
+  lit: { cd: 300, decay: 1.6, cone: 0.80, inner: 0.40 },          // on lit materials: candela, decay, the cone's half-angle and full-strength half-angle (rad)
+  // on the scan: colour × (1 + gain·k) + its own colour × lift·k, k = cone · (floor + (1 − floor)·lambert) / (1 + d²/range²) —
+  // the lift because the scan's deck is a near-black stand-in (~0.9 %, as the engine's pools found): a multiplier alone leaves it dark
+  scan: { gain: 8.0, lift: 0.08, range: 14, cone: 1.05, inner: 0.50, floor: 0.35 },
+  colour: 0xffe4bc,                         // a tungsten-halogen work flood, warm
+  fade: 0.3,                                // seconds, 0 → full (a worklight is nearer instant than a cue)
+  list: [],                                 // one record per stage: { house, name, want, u, … } (wlBuild)
+};
+// The two worklights' terms, shared by every patched material (the values change; the shaders never recompile for it).
+const WL_U = {
+  uWlAny: { value: 0 },                     // the larger of the two levels: 0 skips the whole term
+  uWlLevel: { value: [0, 0] },
+  uWlPos: { value: [new THREE.Vector3(), new THREE.Vector3()] },   // the lens
+  uWlDir: { value: [new THREE.Vector3(0, -1, 0), new THREE.Vector3(0, -1, 0)] },   // the axis
+  uWlBox0: { value: [new THREE.Vector3(), new THREE.Vector3()] },  // the stage house's box: no light outside it
+  uWlBox1: { value: [new THREE.Vector3(), new THREE.Vector3()] },
+  uWlCol: { value: new THREE.Color(WORKLIGHT.colour) },            // linear
+  uWlScan: { value: new THREE.Vector4(WORKLIGHT.scan.gain, 1 / (WORKLIGHT.scan.range * WORKLIGHT.scan.range), Math.cos(WORKLIGHT.scan.cone), Math.cos(WORKLIGHT.scan.inner)) },
+  uWlLit: { value: new THREE.Vector4(WORKLIGHT.lit.cd, WORKLIGHT.lit.decay, Math.cos(WORKLIGHT.lit.cone), Math.cos(WORKLIGHT.lit.inner)) },
+  uWlFloor: { value: WORKLIGHT.scan.floor }, uWlLift: { value: WORKLIGHT.scan.lift },
+};
+const WL_GLSL = `
+uniform float uWlAny; uniform float uWlLevel[2]; uniform vec3 uWlPos[2]; uniform vec3 uWlDir[2]; uniform vec3 uWlBox0[2]; uniform vec3 uWlBox1[2];
+uniform vec3 uWlCol; uniform vec4 uWlScan; uniform vec4 uWlLit; uniform float uWlFloor; uniform float uWlLift;
+varying vec3 vWlP;
+float wlCone(vec3 P, vec3 lp, vec3 ld, vec3 b0, vec3 b1, float c0, float c1, out vec3 L, out float d2) {
+  L = vec3(0.0, 1.0, 0.0); d2 = 1.0;
+  if (any(lessThan(P, b0)) || any(greaterThan(P, b1))) return 0.0;
+  L = lp - P; d2 = max(dot(L, L), 1e-4); L *= inversesqrt(d2);
+  return smoothstep(c0, c1, dot(-L, ld)) * smoothstep(b0.z, b0.z + 0.5, P.z);   // eased in over the box's downstage half-metre: no hard line on the deck at the proscenium
+}`;
+const WL_VERT = `
+{ vec4 wlW = vec4(transformed, 1.0);
+#ifdef USE_INSTANCING
+  wlW = instanceMatrix * wlW;
+#endif
+  vWlP = (modelMatrix * wlW).xyz; }`;
+// The scan (MeshBasicMaterial, unlit, double-sided): k, the lamp's reach at P. N is the world normal, unnormalised. The scan is
+// drawn double-sided, so a face takes the light only when the lamp and the eye are on the same side of it (else the
+// audience face of the proscenium lit up from behind, through the wall).
+const WL_SCAN_FS = `
+varying vec3 vWlN;
+float wlScan(vec3 P, vec3 N) {
+  float k = 0.0, nl = length(N), d2; vec3 L;
+  for (int i = 0; i < 2; i++) {
+    if (uWlLevel[i] <= 0.0) continue;
+    float c = wlCone(P, uWlPos[i], uWlDir[i], uWlBox0[i], uWlBox1[i], uWlScan.z, uWlScan.w, L, d2);
+    if (c <= 0.0) continue;
+    float lam = 1.0;
+    if (nl > 1e-5) { float a = dot(N, L); if (a * dot(N, cameraPosition - P) <= 0.0) continue; lam = abs(a) / nl; }
+    k += uWlLevel[i] * c * (uWlFloor + (1.0 - uWlFloor) * lam) / (1.0 + d2 * uWlScan.y);
+  }
+  return k;
+}`;
+// Lit materials: the irradiance a SpotLight at the lens would give (physical: cd · NdotL / d^decay), diffuse only.
+const WL_LIT_FS = `
+vec3 wlLit(vec3 P, vec3 N) {
+  float e = 0.0, d2; vec3 L;
+  for (int i = 0; i < 2; i++) {
+    if (uWlLevel[i] <= 0.0) continue;
+    float c = wlCone(P, uWlPos[i], uWlDir[i], uWlBox0[i], uWlBox1[i], uWlLit.z, uWlLit.w, L, d2);
+    if (c <= 0.0) continue;
+    e += uWlLevel[i] * c * max(dot(N, L), 0.0) * uWlLit.x / max(pow(d2, 0.5 * uWlLit.y), 0.01);
+  }
+  return uWlCol * e;
+}`;
+const wlPatched = new WeakSet();
+// Chain onto a material's own onBeforeCompile (the fittings' bsColour has one) and extend its program key.
+function wlChain(m, fn) {
+  const prev = m.onBeforeCompile, key = m.customProgramCacheKey();
+  m.onBeforeCompile = function (sh, r) { prev.call(this, sh, r); fn(sh); };
+  m.customProgramCacheKey = () => key + '|worklight';
+  wlPatched.add(m); m.needsUpdate = true;
+}
+function wlPatchScan(m) {
+  if (wlPatched.has(m)) return;
+  wlChain(m, sh => {
+    if (!sh.fragmentShader.includes('#include <map_fragment>') || !sh.vertexShader.includes('#include <project_vertex>')) return;
+    Object.assign(sh.uniforms, WL_U);
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWlP; varying vec3 vWlN;')
+      .replace('#include <project_vertex>', '#include <project_vertex>' + WL_VERT + '\n\tvWlN = mat3(modelMatrix) * normal;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>' + WL_GLSL + WL_SCAN_FS)
+      .replace('#include <map_fragment>', '#include <map_fragment>\n\tif (uWlAny > 0.0) { float wlK = wlScan(vWlP, vWlN); diffuseColor.rgb = diffuseColor.rgb * (1.0 + uWlCol * (uWlScan.x * wlK)) + diffuse * uWlCol * (uWlLift * wlK); }');
+  });
+}
+const wlLitKind = m => m && (m.isMeshStandardMaterial || m.isMeshLambertMaterial || m.isMeshPhongMaterial || m.isMeshToonMaterial);
+function wlPatchLit(m) {
+  if (wlPatched.has(m) || !wlLitKind(m) || m.userData.noWorklight) return;
+  wlChain(m, sh => {
+    if (!sh.fragmentShader.includes('#include <lights_fragment_end>') || !sh.vertexShader.includes('#include <project_vertex>')) return;
+    Object.assign(sh.uniforms, WL_U);
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWlP;')
+      .replace('#include <project_vertex>', '#include <project_vertex>' + WL_VERT);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>' + WL_GLSL + WL_LIT_FS)
+      .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\n\tif (uWlAny > 0.0) reflectedLight.directDiffuse += wlLit(vWlP, inverseTransformDirection(normal, viewMatrix)) * BRDF_Lambert(material.diffuseColor);');
+  });
+}
+// Every material in the scene that should take the light: the scan's (houseMats) one way, every lit one the other. Run at
+// build, at a switch, and once a second of frame time (wlTick, ~0.6 ms over ~5,300 objects), so what loads or is built
+// later (the actors and their props come after the shaders compile; Build mode's pieces) takes it too — a material
+// patched after its first draw compiles once more, then. → how many it patched.
+const wlHouseMats = new Set();
+function wlPatchScene() {
+  let n = 0;
+  scene.traverse(o => {
+    if (!(o.isMesh || o.isSkinnedMesh || o.isInstancedMesh)) return;
+    for (const m of Array.isArray(o.material) ? o.material : [o.material]) {
+      if (!m || wlPatched.has(m)) continue;
+      if (wlHouseMats.has(m)) { wlPatchScan(m); n++; } else if (wlLitKind(m) && !m.userData.noWorklight) { wlPatchLit(m); n++; }
+    }
+  });
+  return n;
+}
+// The stage-left wall's face (world x) at (y, z) in one house: the first scan hit looking −x from 1.5 m off it, or null.
+const wlRay = new THREE.Raycaster(), wlO = new THREE.Vector3(), wlD = new THREE.Vector3(-1, 0, 0);
+function wlWallX(root, dx, y, z) {
+  wlRay.set(wlO.set(dx - 8.0, y, z), wlD); wlRay.far = 3;
+  const h = wlRay.intersectObject(root, true).find(h => !h.object.userData.cutter && h.object.visible);
+  return h ? h.point.x : null;
+}
+// The most inward (+x) point of the walk's collision triangles inside a box (each triangle's furthest x, held to the box):
+// what a conduit or a box on the stage-left wall must stand clear of, or null when the box is empty.
+function wlFaceMax(x0, x1, y0, y1, z0, z1) {
+  if (col.stale) buildCollider();
+  const b0 = new THREE.Vector3(x0, y0, z0), b1 = new THREE.Vector3(x1, y1, z1), seen = new Set();
+  let best = null;
+  for (let j = cellJ(z0); j <= cellJ(z1); j++) for (let i = cellI(x0); i <= cellI(x1); i++) {
+    const ci = j * col.nx + i;
+    for (let k = col.start[ci], e = col.start[ci + 1]; k < e; k++) {
+      const t = col.list[k];
+      if (seen.has(t)) continue; seen.add(t);
+      if (col.Y0[t] > y1 || col.Y1[t] < y0 || !wlTriBox(col.T, t * 9, b0, b1)) continue;
+      const o = t * 9, T = col.T, mx = Math.min(x1, Math.max(T[o], T[o] + T[o + 3], T[o] + T[o + 6]));
+      if (best === null || mx > best) best = mx;
+    }
+  }
+  return best;
+}
+const wlStd = (color, roughness, glow, metal = 0) => { const m = lobbyStd(color, roughness, glow); m.metalness = metal; return m; };
+const WL_MAT = {
+  body: wlStd(0x2f3134, 0.55, 0.10, 0.35),  // stove-enamelled steel: the housing, the yoke, the bracket, the switch's lever
+  wire: wlStd(0x8c8f92, 0.40, 0.12, 0.60),  // galvanised: the guard, the conduit
+  box: wlStd(0x6f7376, 0.50, 0.12, 0.30),   // the switch box, grey
+  cable: wlStd(0x161616, 0.80, 0.05),       // the lamp's rubber lead
+};
+const WL_LENS_OFF = new THREE.Color(0x26241f), WL_LENS_ON = new THREE.Color(0xfff1d8);
+const WL_PILOT_OFF = new THREE.Color(0x2a0c08), WL_PILOT_ON = new THREE.Color(0xff3a1c);
+let wlGlowTex = null, wlLabelTex = null;
+function wlTextures() {
+  if (wlGlowTex) return;
+  let c = document.createElement('canvas'); c.width = c.height = 64;
+  let g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, 'rgba(255,240,215,1)'); gr.addColorStop(0.22, 'rgba(255,228,190,0.55)'); gr.addColorStop(1, 'rgba(255,220,170,0)');
+  g.fillStyle = gr; g.fillRect(0, 0, 64, 64);
+  wlGlowTex = new THREE.CanvasTexture(c); wlGlowTex.colorSpace = THREE.SRGBColorSpace;
+  c = document.createElement('canvas'); c.width = 256; c.height = 64;
+  g = c.getContext('2d'); g.fillStyle = '#e8e2d2'; g.fillRect(0, 0, 256, 64);
+  g.fillStyle = '#141414'; g.font = '600 34px "IBM Plex Mono", Consolas, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('WORK LIGHT', 128, 34);
+  wlLabelTex = new THREE.CanvasTexture(c); wlLabelTex.colorSpace = THREE.SRGBColorSpace;
+}
+// A rod (cylinder) from a to b, radius r, sides n.
+function wlRod(a, b, r, n = 8) {
+  const d = new THREE.Vector3().subVectors(b, a), len = d.length();
+  const g = new THREE.CylinderGeometry(r, r, len, n, 1, false);
+  g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()));
+  return g.translate((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
+}
+function wlMesh(name, geos, mat) {
+  const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose());
+  const m = new THREE.Mesh(g, mat); m.name = name; m.castShadow = m.receiveShadow = false;
+  g.computeBoundingBox(); g.computeBoundingSphere();
+  return m;
+}
+// One worklight: the fixture, its switch box and conduit in one house, its record in WORKLIGHT.list. i: its slot in WL_U.
+// box: the stage house's box (world), the light's whole reach.
+function wlBuild({ i, house, name, dx, root, archZ, box }) {
+  const W = WORKLIGHT, Lp = W.lamp, deck = HOUSE.deckY, t0 = performance.now();
+  wlTextures();
+  root.updateMatrixWorld(true);
+  const fly = wlWallX(root, dx, Lp.y, Lp.z), flyX = fly === null ? dx - 9.80 : fly;
+  if (fly === null) console.warn(`worklight, ${name}: no fly wall found at y ${Lp.y}, z ${Lp.z} — hung at x ${flyX}`);
+  const P = new THREE.Vector3(flyX + Lp.arm, Lp.y, Lp.z), aim = new THREE.Vector3(W.aim[0] + dx, W.aim[1], W.aim[2]);
+  const dir = aim.clone().sub(P).normalize(), pan = Math.atan2(dir.x, dir.z), tilt = Math.asin(-dir.y);
+  const Myoke = new THREE.Matrix4().compose(P, new THREE.Quaternion().setFromEuler(new THREE.Euler(0, pan, 0)), new THREE.Vector3(1, 1, 1));
+  const Mhead = Myoke.clone().multiply(new THREE.Matrix4().makeRotationX(tilt));
+  const B = (w, h, d, x, y, z) => new THREE.BoxGeometry(w, h, d).translate(x, y, z);
+  const at = (g, M) => g.applyMatrix4(M);
+  const body = [], wire = [], cable = [];
+  // the head, modelled facing +z, pivot at the origin: housing, cooling fins, front bezel, top handle
+  body.push(at(B(0.46, 0.38, 0.20, 0, 0, -0.02), Mhead));
+  for (let k = -2; k <= 2; k++) body.push(at(B(0.012, 0.30, 0.05, k * 0.085, 0, -0.145), Mhead));
+  body.push(at(B(0.46, 0.035, 0.03, 0, 0.1725, 0.095), Mhead), at(B(0.46, 0.035, 0.03, 0, -0.1725, 0.095), Mhead));
+  body.push(at(B(0.035, 0.31, 0.03, 0.2125, 0, 0.095), Mhead), at(B(0.035, 0.31, 0.03, -0.2125, 0, 0.095), Mhead));
+  body.push(at(B(0.24, 0.02, 0.02, 0, 0.245, -0.02), Mhead), at(B(0.02, 0.055, 0.02, 0.11, 0.2125, -0.02), Mhead), at(B(0.02, 0.055, 0.02, -0.11, 0.2125, -0.02), Mhead));
+  // the guard: five uprights and two rails 4 cm proud of the lens, on four standoffs
+  const v = (x, y, z) => new THREE.Vector3(x, y, z).applyMatrix4(Mhead);
+  for (let k = -2; k <= 2; k++) wire.push(wlRod(v(k * 0.08, -0.17, 0.15), v(k * 0.08, 0.17, 0.15), 0.004, 6));
+  for (const y of [-0.085, 0.085]) wire.push(wlRod(v(-0.205, y, 0.15), v(0.205, y, 0.15), 0.004, 6));
+  for (const [x, y] of [[-0.19, -0.15], [0.19, -0.15], [-0.19, 0.15], [0.19, 0.15]]) wire.push(wlRod(v(x, y, 0.105), v(x, y, 0.152), 0.004, 6));
+  // the yoke (turned by pan only): two arms, the crossbar, the stem up to the bracket, a tilt knob each side
+  body.push(at(B(0.02, 0.30, 0.05, 0.255, 0.12, 0), Myoke), at(B(0.02, 0.30, 0.05, -0.255, 0.12, 0), Myoke), at(B(0.53, 0.03, 0.05, 0, 0.27, 0), Myoke));
+  body.push(at(new THREE.CylinderGeometry(0.022, 0.022, 0.13, 10).translate(0, 0.35, 0), Myoke));
+  for (const s of [-1, 1]) body.push(at(new THREE.CylinderGeometry(0.035, 0.035, 0.035, 12).rotateZ(Math.PI / 2).translate(s * 0.283, 0, 0), Myoke));
+  // the bracket: a wall plate on the fly wall, the arm out to the stem, a brace under it
+  const armY = P.y + 0.43;
+  body.push(B(0.02, 0.46, 0.30, flyX + 0.01, P.y + 0.28, P.z));
+  body.push(B(P.x - flyX, 0.05, 0.05, (flyX + P.x) / 2, armY, P.z));
+  body.push(wlRod(new THREE.Vector3(flyX + 0.02, P.y + 0.12, P.z), new THREE.Vector3(flyX + 0.30, armY - 0.02, P.z), 0.014, 8));
+  // the lens (glows), and the glow over it (light, not a solid: no shadow, no collision, left out of the check's boxes)
+  const lensMat = new THREE.MeshBasicMaterial({ color: WL_LENS_OFF.clone(), toneMapped: false });
+  const lens = new THREE.Mesh(at(B(0.39, 0.31, 0.006, 0, 0, 0.083), Mhead), lensMat);
+  const glowMat = new THREE.MeshBasicMaterial({ map: wlGlowTex, color: 0xffffff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+  const glow = new THREE.Mesh(at(new THREE.CircleGeometry(0.62, 28).translate(0, 0, 0.16), Mhead), glowMat);
+  glow.visible = false; glow.userData.noCheck = true; glow.raycast = () => {};
+  const lensPos = v(0, 0, 0.09);
+  // THE SWITCH: a steel box on the stage-left wall, its face clear of the wall's most inward point behind it
+  const zs = archZ + W.sw.dz, ys = deck + W.sw.h;
+  const swFace = wlFaceMax(flyX - 0.05, flyX + 0.60, ys - 0.13, ys + 0.13, zs - 0.09, zs + 0.09) ?? dx - 9.50;
+  const sx0 = swFace + 0.004, sx1 = sx0 + 0.09;
+  const swGeo = [B(0.09, 0.24, 0.16, (sx0 + sx1) / 2, ys, zs), B(0.012, 0.07, 0.07, sx1 + 0.006, ys + 0.02, zs)];   // the box, the lever's boss
+  const leverMat = WL_MAT.body;
+  const lever = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.016, 0.016).translate(0.03, 0, 0), leverMat);
+  lever.name = `worklight ${name}: lever`; lever.position.set(sx1 + 0.012, ys + 0.02, zs); lever.castShadow = lever.receiveShadow = false;
+  const pilotMat = new THREE.MeshBasicMaterial({ color: WL_PILOT_OFF.clone(), toneMapped: false });
+  const pilot = new THREE.Mesh(new THREE.SphereGeometry(0.011, 10, 6).translate(sx1 + 0.004, ys + 0.085, zs), pilotMat);
+  const labelMat = new THREE.MeshBasicMaterial({ map: wlLabelTex, toneMapped: false });
+  const label = new THREE.Mesh(new THREE.PlaneGeometry(0.14, 0.035).rotateY(Math.PI / 2).translate(sx1 + 0.001, ys - 0.075, zs), labelMat);
+  // THE CONDUIT: up the lower wall from the box, over that wall's top onto the fly wall, along the fly wall above
+  // everything on it to the lamp's z, and up to the plate. Faces are read off the walk's triangles (wlFaceMax), not rays:
+  // a horizontal lip (house 1 has one at y 3.44, 4 cm proud of the wall) is invisible to a level ray. The heights differ
+  // by house (house 1's lower wall stands to ~7.6 at its switch, Theatre 2's to ~6.2): each is measured.
+  const cR = 0.012, win = [flyX - 0.05, flyX + 0.60];
+  const topAt = z => { for (let y = Lp.y; y > ys; y -= 0.05) if (wlFaceMax(win[0] + 0.10, win[1], y - 0.05, y, z - 0.04, z + 0.04) !== null) return y; return ys; };
+  const yH = Math.max(topAt(zs), topAt(Lp.z)) + 0.15;       // the run along the fly wall: over both lower walls' tops (and the rig's pipe ends)
+  const xLow = (wlFaceMax(win[0], win[1], ys + 0.12, yH, zs - cR - 0.01, zs + cR + 0.01) ?? dx - 9.50) + cR + 0.012;
+  const xFly = (wlFaceMax(win[0], win[1], yH - cR - 0.01, P.y + 0.07, Math.min(zs, Lp.z) - 0.02, Math.max(zs, Lp.z) + 0.02) ?? flyX) + cR + 0.012;
+  const ledge = yH - 0.15;
+  for (const [n, x] of [['up the lower wall', xLow], ['along the fly wall', xFly]]) if (x - cR - 0.012 >= win[1] - 1e-6) console.warn(`worklight, ${name}: something crosses the conduit's line ${n} (x ${x.toFixed(3)}) — it stands off the wall`);
+  const C = [[xLow, ys + 0.12, zs], [xLow, yH, zs], [xFly, yH, zs], [xFly, yH, Lp.z], [xFly, P.y + 0.06, Lp.z]].map(p => new THREE.Vector3(...p));
+  const runs = [];
+  for (let k = 0; k + 1 < C.length; k++) { wire.push(wlRod(C[k], C[k + 1], cR, 8)); runs.push([C[k].clone(), C[k + 1].clone()]); }
+  for (let k = 1; k + 1 < C.length; k++) wire.push(new THREE.SphereGeometry(cR * 1.5, 8, 6).translate(C[k].x, C[k].y, C[k].z));
+  // the lamp's lead, from the plate's foot to the housing's back
+  cable.push(wlRod(new THREE.Vector3(xFly, P.y + 0.06, Lp.z), v(0, -0.05, -0.17), 0.008, 6));
+  const lamp = new THREE.Group(); lamp.name = 'lamp';
+  lamp.add(wlMesh(`worklight ${name}: lamp`, body, WL_MAT.body), wlMesh(`worklight ${name}: guard`, wire.splice(0, 5 + 2 + 4), WL_MAT.wire), lens, glow);
+  lens.name = `worklight ${name}: lens`; glow.name = `worklight ${name}: glow`;
+  const conduit = wlMesh(`worklight ${name}: conduit`, wire, WL_MAT.wire), lead = wlMesh(`worklight ${name}: lead`, cable, WL_MAT.cable);
+  conduit.userData.runs = runs; conduit.userData.r = cR;
+  const sw = new THREE.Group(); sw.name = 'switch';
+  sw.add(wlMesh(`worklight ${name}: switch box`, swGeo, WL_MAT.box), lever, pilot, label);
+  pilot.name = `worklight ${name}: pilot`; label.name = `worklight ${name}: label`;
+  const group = new THREE.Group(); group.name = `worklight: ${name}`; group.userData.house = house;
+  group.add(lamp, sw, conduit, lead);
+  scene.add(group); group.updateMatrixWorld(true);
+  // its slot in the shaders' uniforms (the box is the light's whole reach)
+  WL_U.uWlPos.value[i].copy(lensPos); WL_U.uWlDir.value[i].copy(dir);
+  WL_U.uWlBox0.value[i].copy(box.min); WL_U.uWlBox1.value[i].copy(box.max);
+  const r = { i, house, name, dx, root, archZ, box: box.clone(), group, lamp, sw, conduit, lead, lens, lensMat, glow, glowMat, lever, pilot, pilotMat,
+    P, aim, dir, lensPos, flyX, swFace, ledge, want: 0, u: 0, dur: W.fade, showWas: false, ms: 0,
+    btn: null, target: null };
+  // the switch as THE DOORS' aim sees it: its middle on the box's face, the floor it stands over
+  r.target = { name: name, kind: 'worklight switch', cx: sx1, cz: zs, fy: deck, wl: r,
+    label: () => `E — worklight ${r.want ? 'off' : 'on'}`, use: () => wlSet(r, !r.want) };
+  r.ms = performance.now() - t0;
+  console.info(`worklight: ${name} — the lamp on the stage-left fly wall (face x ${flyX.toFixed(3)}), pivot (${P.x.toFixed(2)}, ${P.y.toFixed(2)}, ${P.z.toFixed(2)}), `
+    + `aimed at (${aim.x.toFixed(2)}, ${aim.y.toFixed(2)}, ${aim.z.toFixed(2)}) — pan ${(pan * 180 / Math.PI).toFixed(1)}°, tilt ${(tilt * 180 / Math.PI).toFixed(1)}° down; `
+    + `the switch at (${sx1.toFixed(3)}, ${ys.toFixed(2)}, ${zs.toFixed(2)}) (wall x ${swFace.toFixed(3)}), the conduit ${runs.length} runs over the ledge at y ${ledge.toFixed(2)}; `
+    + `the light inside x ${box.min.x.toFixed(2)}…${box.max.x.toFixed(2)}, y ${box.min.y.toFixed(2)}…${box.max.y.toFixed(2)}, z ${box.min.z.toFixed(2)}…${box.max.z.toFixed(2)} · ${r.ms.toFixed(0)} ms`);
+  return r;
+}
+// Both worklights, then every material that takes their light. Called by the loader after the backstage (its doors are
+// lit materials in Theatre 2's brick), before the shaders compile.
+function wlBuildAll(house1, house2) {
+  for (const m of houseMats) wlHouseMats.add(m);
+  const deck = HOUSE.deckY, V = (x, y, z) => new THREE.Vector3(x, y, z);
+  // each stage house's box: its fly walls (x −9.80 / +10.00, house frame) to 0.1 m past them, the deck to the fly roof,
+  // its proscenium (house 1's set front, which stands 0.55 m downstage of its moved arch) to its stage-side backstage wall
+  const h1 = wlBuild({ i: 0, house: 1, name: 'Stage 1', dx: 0, root: house1, archZ: HOUSE.archZ,
+    box: new THREE.Box3(V(-9.90, deck - 0.2, WALL_SET.front.z0 - 0.05), V(10.10, WALL.flyRoof + 0.2, BACKSTAGE.stageZ.h1 - 0.05)) });
+  const h2 = wlBuild({ i: 1, house: 2, name: 'Theatre 2', dx: HOUSE2.dx, root: house2, archZ: HOUSE.glbArchZ,
+    box: new THREE.Box3(V(HOUSE2.dx - 9.90, deck - 0.2, HOUSE.glbArchZ - 0.02), V(HOUSE2.dx + 10.10, WALL.flyRoof + 0.2, HOUSE.backZ + 0.30)) });
+  WORKLIGHT.list = [h1, h2];
+  const n = wlPatchScene();
+  wlUI();
+  console.info(`worklight: ${n} materials take the light (${wlHouseMats.size} of the scan's, the rest lit) — no light added to the scene; both off`);
+  return WORKLIGHT.list;
+}
+// Its look at its level u (linear): the shaders' uniform, the lens, the glow; the switch's lever and pilot show want.
+function wlApply(r) {
+  const k = r.u;
+  WL_U.uWlLevel.value[r.i] = k;
+  WL_U.uWlAny.value = Math.max(...WORKLIGHT.list.map(w => w === r ? k : WL_U.uWlLevel.value[w.i]), 0);
+  r.lensMat.color.copy(WL_LENS_OFF).lerp(WL_LENS_ON, k);
+  r.glowMat.opacity = 0.55 * k; r.glow.visible = k > 0.002;
+  r.pilotMat.color.copy(r.want ? WL_PILOT_ON : WL_PILOT_OFF);
+  r.lever.rotation.z = r.want ? 0.5 : -0.5; r.lever.updateMatrixWorld(true);
+  requestRender();
+}
+// Switch one: on or off over fade seconds (0: now). His switch (not the show's) forgets what the show will put back.
+function wlSet(r, on, fade = WORKLIGHT.fade, byShow = false) {
+  r.want = on ? 1 : 0;
+  if (!byShow) r.showWas = false;
+  r.dur = Math.max(0, +fade || 0);
+  if (!r.dur) r.u = r.want;
+  if (r.want) wlPatchScene();                                // anything made since the last look takes the light (compiles once)
+  wlApply(r); wlUI();
+  if (walking) doorAimTick();
+  return r.want === 1;
+}
+// One frame: each toward want, linear in time over dur for the whole 0 → 1 (so a show's 3 s fade from full takes 3 s).
+// → whether anything changed (the frame then draws).
+let wlPatchT = 0;
+function wlTick(dt) {
+  let moved = false;
+  for (const r of WORKLIGHT.list) {
+    if (r.u === r.want) continue;
+    const step = r.dur > 0 ? dt / r.dur : 1;
+    r.u = r.want > r.u ? Math.min(1, r.u + step) : Math.max(0, r.u - step);
+    wlApply(r); moved = true;
+  }
+  if ((wlPatchT += dt) > 1) { wlPatchT = 0; if (wlPatchScene()) requestRender(); }   // ~0.6 ms a second: what loaded or was built since takes the light
+  return moved;
+}
+// The show (showStart / showStop): Stage 1's out with the work look, and back at Stop if it was on and still is wanted off.
+function wlShow(start) {
+  const r = WORKLIGHT.list.find(w => w.house === 1);
+  if (!r) return;
+  if (start) { r.showWas = r.want === 1; if (r.want) wlSet(r, false, SHW_WORK_FADE, true); }
+  else { if (r.showWas && !r.want) wlSet(r, true, WORKLIGHT.fade, true); r.showWas = false; }
+}
+// The header's buttons, one a stage: aria-pressed is want.
+function wlUI() {
+  for (const r of WORKLIGHT.list) {
+    if (!r.btn) { r.btn = document.getElementById(r.house === 1 ? 'w-1' : 'w-2'); if (r.btn) { r.btn.disabled = false; r.btn.title = `The ${r.name} worklight, on the stage-left fly wall (or E at its switch by the proscenium)`; r.btn.addEventListener('click', () => wlSet(r, !r.want)); } }
+    if (r.btn) r.btn.setAttribute('aria-pressed', String(r.want === 1));
+  }
+}
+function wlFind(house) {
+  const L = WORKLIGHT.list, s = String(house).toLowerCase();
+  return L.find(r => r.house === +house) || L.find(r => r.name.toLowerCase() === s) || (/theatre|2/.test(s) ? L.find(r => r.house === 2) : /stage|1/.test(s) ? L.find(r => r.house === 1) : null);
+}
+// A triangle (corner a, edges e1 e2 — the collision grid's form) against a box: the separating-axis test.
+function wlTriBox(T, o, b0, b1) {
+  const c = [(b0.x + b1.x) / 2, (b0.y + b1.y) / 2, (b0.z + b1.z) / 2], h = [(b1.x - b0.x) / 2, (b1.y - b0.y) / 2, (b1.z - b0.z) / 2];
+  const v0 = [T[o] - c[0], T[o + 1] - c[1], T[o + 2] - c[2]];
+  const v1 = [v0[0] + T[o + 3], v0[1] + T[o + 4], v0[2] + T[o + 5]], v2 = [v0[0] + T[o + 6], v0[1] + T[o + 7], v0[2] + T[o + 8]];
+  const V = [v0, v1, v2];
+  for (let a = 0; a < 3; a++) if (Math.min(v0[a], v1[a], v2[a]) > h[a] || Math.max(v0[a], v1[a], v2[a]) < -h[a]) return false;
+  const e = [[v1[0] - v0[0], v1[1] - v0[1], v1[2] - v0[2]], [v2[0] - v1[0], v2[1] - v1[1], v2[2] - v1[2]], [v0[0] - v2[0], v0[1] - v2[1], v0[2] - v2[2]]];
+  const cross = (p, q) => [p[1] * q[2] - p[2] * q[1], p[2] * q[0] - p[0] * q[2], p[0] * q[1] - p[1] * q[0]], dot = (p, q) => p[0] * q[0] + p[1] * q[1] + p[2] * q[2];
+  const n = cross(e[0], e[1]), r0 = h[0] * Math.abs(n[0]) + h[1] * Math.abs(n[1]) + h[2] * Math.abs(n[2]);
+  if (Math.abs(dot(n, v0)) > r0) return false;
+  const axes = [[1, 0, 0], [0, 1, 0], [0, 0, 1]];
+  for (const ed of e) for (const ax of axes) {
+    const L = cross(ax, ed), r = h[0] * Math.abs(L[0]) + h[1] * Math.abs(L[1]) + h[2] * Math.abs(L[2]);
+    const p = V.map(q => dot(q, L));
+    if (Math.min(...p) > r || Math.max(...p) < -r) return false;
+  }
+  return true;
+}
+// Whether any triangle of a mesh (world space, as it stands) touches a box: behind a box test, for merged meshes whose own
+// box is far bigger than they are (the rig's grid of pipes is one mesh, x −9.70…9.90).
+function wlMeshIn(o, box) {
+  const g = o.geometry, P = g && g.attributes.position;
+  if (!P) return false;
+  const idx = g.index ? g.index.array : null, m = idx ? idx.length : P.count, a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), T = new Float32Array(9);
+  for (let t = 0; t + 2 < m; t += 3) {
+    a.fromBufferAttribute(P, idx ? idx[t] : t).applyMatrix4(o.matrixWorld);
+    b.fromBufferAttribute(P, idx ? idx[t + 1] : t + 1).applyMatrix4(o.matrixWorld);
+    c.fromBufferAttribute(P, idx ? idx[t + 2] : t + 2).applyMatrix4(o.matrixWorld);
+    if (Math.max(a.y, b.y, c.y) < box.min.y || Math.min(a.y, b.y, c.y) > box.max.y || Math.max(a.x, b.x, c.x) < box.min.x || Math.min(a.x, b.x, c.x) > box.max.x) continue;
+    T[0] = a.x; T[1] = a.y; T[2] = a.z; T[3] = b.x - a.x; T[4] = b.y - a.y; T[5] = b.z - a.z; T[6] = c.x - a.x; T[7] = c.y - a.y; T[8] = c.z - a.z;
+    if (wlTriBox(T, 0, box.min, box.max)) return true;
+  }
+  return false;
+}
+// The collision grid's triangles touching a box. → the count.
+function wlGridIn(b0, b1) {
+  if (col.stale) buildCollider();
+  const i0 = cellI(b0.x), i1 = cellI(b1.x), j0 = cellJ(b0.z), j1 = cellJ(b1.z), seen = new Set();
+  let n = 0;
+  for (let j = j0; j <= j1; j++) for (let i = i0; i <= i1; i++) {
+    const ci = j * col.nx + i;
+    for (let k = col.start[ci], e = col.start[ci + 1]; k < e; k++) {
+      const t = col.list[k];
+      if (seen.has(t)) continue; seen.add(t);
+      if (col.Y0[t] > b1.y || col.Y1[t] < b0.y) continue;
+      if (wlTriBox(col.T, t * 9, b0, b1)) n++;
+    }
+  }
+  return n;
+}
+// One small frame of a view into a target: its pixels' hash and mean (the pools' screen layer left out: it is the main view's).
+function wlShot(eye, look) {
+  const W = 160, H = 100;
+  if (!wlShot.rt) { wlShot.rt = new THREE.WebGLRenderTarget(W, H, { samples: 0 }); wlShot.cam = new THREE.PerspectiveCamera(65, W / H, 0.05, 200); wlShot.px = new Uint8Array(W * H * 4); }
+  const cam = wlShot.cam; cam.position.copy(eye); cam.lookAt(look); cam.updateMatrixWorld(true);
+  const q = LXACC.quad, qv = q ? q.visible : false;
+  if (q) q.visible = false;
+  const prev = renderer.getRenderTarget();
+  renderer.setRenderTarget(wlShot.rt); renderer.render(scene, cam); renderer.setRenderTarget(prev);
+  if (q) q.visible = qv;
+  renderer.readRenderTargetPixels(wlShot.rt, 0, 0, W, H, wlShot.px);
+  let x = 2166136261, sum = 0;
+  const p = wlShot.px;
+  for (let i = 0; i < p.length; i++) { x ^= p[i]; x = Math.imul(x, 16777619); if ((i & 3) !== 3) sum += p[i]; }
+  return { hash: (x >>> 0).toString(16), mean: sum / (W * H * 3), px: p.slice() };
+}
+// THE CHECK. Each fixture: inside its stage house's box and over the deck; clear of the set's bounds (WALL_SET's two
+// boxes, at real size), every rig mesh's box, the walk's collision triangles (its wall side trimmed off), every door's and
+// curtain's swath; the light's box clear of the backstage's rooms and corridor. Each switch: a spot a walker can stand on
+// within E's reach and aim, found the walk's own way, and a walk from centre stage that ends in reach. The states: off →
+// on → slider moved → off restores every scan colour, every uniform, the lens and the pixels exactly, the slider still
+// multiplies, and one stage's light changes none of the other's pixels. → { pass, fails, … }, one console line.
+function wlCheck() {
+  const W = WORKLIGHT, fails = [], rows = [], f3 = v => v.toFixed(3);
+  const fail = (s) => { fails.push(s); return false; };
+  scene.updateMatrixWorld(true);
+  const S = WALL_SET, real = setGroup.scale.x === 1, deck = HOUSE.deckY;
+  const setBoxes = real ? [new THREE.Box3(new THREE.Vector3(-S.front.x, deck, S.front.z0), new THREE.Vector3(S.front.x, S.front.top, S.split)),
+    new THREE.Box3(new THREE.Vector3(-S.stage.x, deck, S.split), new THREE.Vector3(S.stage.x, S.stage.top, S.stage.z1))] : (() => {
+      const b = new THREE.Box3(); setGroup.traverse(o => { if (o.isMesh && !o.userData.rig && !(rig && isIn(o, rig))) b.expandByObject(o); }); return [b]; })();
+  function isIn(o, root) { for (let p = o; p; p = p.parent) if (p === root) return true; return false; }
+  const rigBoxes = [];
+  if (rig) rig.traverse(o => { if (o.isMesh) rigBoxes.push([o.name || o.parent && o.parent.name || 'rig', new THREE.Box3().setFromObject(o), o]); });
+  const swaths = [...DOORS.list.map(e => [e.name + ' ' + e.kind, e.box]), ...CURTAINS.list.map(c => [c.name, c.box])]
+    .map(([n, b]) => [n, new THREE.Box3(new THREE.Vector3(b[0], b[2], b[4]), new THREE.Vector3(b[1], b[3], b[5]))]);
+  const solid = o => { const b = new THREE.Box3(); o.traverse(m => { if (m.isMesh && !m.userData.noCheck) b.expandByObject(m); }); return b; };
+  const Bk = BACKSTAGE;
+  for (const r of W.list) {
+    const out = [];
+    const lampB = solid(r.lamp), swB = solid(r.sw), leadB = solid(r.lead);
+    // the conduit's runs as they stand (moved with its mesh), each its own box
+    const M = r.conduit.matrixWorld, cr = r.conduit.userData.r;
+    const runB = r.conduit.userData.runs.map(([a, b]) => new THREE.Box3().setFromPoints([a.clone().applyMatrix4(M), b.clone().applyMatrix4(M)]).expandByScalar(cr));
+    const parts = [['lamp', lampB, r.flyX + 0.03], ['switch', swB, r.swFace + 0.012], ['lead', leadB, r.flyX + 0.03], ...runB.map((b, k) => ['conduit ' + (k + 1), b, Math.min(b.min.x + cr * 0.4, b.max.x)])];
+    for (const [n, b, wallX] of parts) {
+      if (!r.box.containsBox(b)) fail(`${r.name} ${n} is not inside its stage house's box`);
+      if (!(b.min.y > deck + 0.3)) fail(`${r.name} ${n} reaches the deck (bottom y ${f3(b.min.y)})`);
+      for (const sb of setBoxes) if (sb.intersectsBox(b)) fail(`${r.name} ${n} is inside the set's bounds`);
+      for (const [rn, rb, rm] of rigBoxes) if (rb.intersectsBox(b) && wlMeshIn(rm, b)) { fail(`${r.name} ${n} meets the rig (${rn})`); break; }
+      for (const [dn, db] of swaths) if (db.intersectsBox(b)) fail(`${r.name} ${n} is in ${dn}'s swath`);
+      const t0 = b.min.clone(), t1 = b.max.clone(); t0.x = Math.max(t0.x, wallX); t0.addScalar(0.002); t1.addScalar(-0.002);
+      const tris = t1.x > t0.x ? wlGridIn(t0, t1) : 0;
+      if (tris) fail(`${r.name} ${n} meets ${tris} of the walk's collision triangles off its wall`);
+    }
+    const clearSet = setBoxes.length ? Math.min(...setBoxes.map(sb => Math.max(sb.min.x - lampB.max.x, lampB.min.x - sb.max.x, lampB.min.y - sb.max.y, sb.min.y - lampB.max.y, sb.min.z - lampB.max.z, lampB.min.z - sb.max.z))) : Infinity;
+    const clearRig = rigBoxes.length ? Math.min(...rigBoxes.map(([, rb]) => Math.max(rb.min.x - lampB.max.x, lampB.min.x - rb.max.x, lampB.min.y - rb.max.y, rb.min.y - lampB.max.y, rb.min.z - lampB.max.z, lampB.min.z - rb.max.z))) : Infinity;
+    out.push(`lamp x ${f3(lampB.min.x)}…${f3(lampB.max.x)} y ${f3(lampB.min.y)}…${f3(lampB.max.y)} z ${f3(lampB.min.z)}…${f3(lampB.max.z)}, ${(lampB.min.y - deck).toFixed(2)} m over the deck, ${clearSet === Infinity ? 'no set' : f3(clearSet) + ' m off the set\'s bounds'}, ${f3(clearRig)} m off the rig`);
+    // the light's reach against the backstage: its rooms and corridor start at the stage-side wall behind this house
+    const zWall = r.house === 1 ? Bk.stageZ.h1 : Bk.stageZ.h2;
+    if (!(r.box.max.z < zWall)) fail(`${r.name}'s light reaches past the backstage's stage-side wall (z ${zWall})`);
+    // the switch: a standing spot in reach, found the walk's way (feet on the floor, the body's rays clear, room for the head)
+    const T = r.target, p0 = player.pos.clone(), yaw0 = yaw, keep = { vel: player.vel.clone(), on: player.onGround, cr: player.crouched };
+    let spot = null;
+    for (let d = 0.4; d <= 1.6 && !spot; d += 0.1) for (const oz of [0, -0.3, 0.3]) {
+      const x = T.cx + d, z = T.cz + oz, g = groundAt(x, z, deck + 1.0);
+      if (g === null || Math.abs(g - deck) > 0.15) continue;
+      let clear = rayUp(x, g + WALK.step, z, WALK.head - WALK.step) === Infinity;
+      for (const h of WALK.rays) for (let a = 0; a < 8 && clear; a++) if (rayH(x, g + h, z, Math.cos(a * Math.PI / 4), Math.sin(a * Math.PI / 4), WALK.radius) !== Infinity) clear = false;
+      if (!clear) continue;
+      player.pos.set(x, g, z); yaw = Math.atan2(-(T.cx - x), -(T.cz - z));
+      if (doorAim() === T) { spot = [x, g, z]; break; }
+    }
+    if (!spot) fail(`${r.name}'s switch has no standing spot in E's reach`);
+    // and a walker gets there: from centre stage, walking stage left (−x) for 4 s of frame time on the switch's own line or,
+    // where something stands in that line (house 1's SL Boom 2 does, and the set's front posts some others), on one of three
+    // lines just upstage of the proscenium; then turning to face it
+    const wasWalking = walking, camP = camera.position.clone(), camQ = camera.quaternion.clone(), heldKeys = [...keys], perf0 = { ...walkPerf };   // walkPerf: its one console line is the real walker's, not this
+    let end = null, reached = false, via = null;
+    walking = true;
+    for (const z of [T.cz, r.archZ + 0.4, r.archZ + 0.6, r.archZ + 0.8]) {
+      keys.clear(); keys.add('KeyW');
+      player.pos.set(r.dx, deck + 0.1, z); player.vel.set(0, 0, 0); player.onGround = false; player.crouched = false;
+      yaw = Math.PI / 2;                                      // facing −x, stage left
+      for (let k = 0; k < 80; k++) walkStep(0.05);
+      keys.clear();
+      end = player.pos.clone(); yaw = Math.atan2(-(T.cx - end.x), -(T.cz - end.z));
+      if (doorAim() === T) { reached = true; via = z; break; }
+    }
+    for (const k of heldKeys) keys.add(k); walking = wasWalking; Object.assign(walkPerf, perf0);
+    player.pos.copy(p0); player.vel.copy(keep.vel); player.onGround = keep.on; player.crouched = keep.cr; yaw = yaw0;
+    camera.position.copy(camP); camera.quaternion.copy(camQ); camera.updateMatrixWorld(true);
+    if (!reached) fail(`${r.name}'s switch: a walk from centre stage toward it stopped at (${f3(end.x)}, ${f3(end.z)}), out of E's reach`);
+    out.push(`switch at (${f3(T.cx)}, ${f3(deck + W.sw.h)}, ${f3(T.cz)}): stand at ${spot ? `(${spot.map(f3).join(', ')})` : '—'}; walked from centre stage${via !== null ? ` (on z ${f3(via)})` : ''} to (${f3(end.x)}, ${f3(end.z)}) ${reached ? 'and turned: in reach' : 'OUT of reach'}`);
+    rows.push(`${r.name}: ${out.join('; ')}`);
+  }
+  // THE STATES. Everything off and settled; a frame of each stage; each on alone; the slider moved and back; off again.
+  const keepW = W.list.map(r => [r.want, r.u, r.showWas]), b0 = bright.value;
+  const colours = () => houseMats.map(m => m.color.toArray().join(',')).join(';');
+  const looks = () => W.list.map(r => [WL_U.uWlLevel.value[r.i], r.lensMat.color.getHex(), r.glow.visible, r.glowMat.opacity, r.pilotMat.color.getHex(), r.lever.rotation.z].join(',')).join(';') + ';' + WL_U.uWlAny.value;
+  const views = W.list.map(r => [new THREE.Vector3(r.dx + 1.5, deck + 1.6, r.archZ + 0.8), new THREE.Vector3(r.dx - 1.0, deck + 1.8, r.archZ + 4.8)]);
+  for (const r of W.list) wlSet(r, false, 0, true);
+  const c0 = colours(), l0 = looks(), shots0 = views.map(v => wlShot(...v));
+  const lift = [];
+  for (const r of W.list) {
+    wlSet(r, true, 0, true);
+    if (colours() !== c0) fail(`${r.name} on changed the scan's colours (it must only set a uniform)`);
+    if (!(WL_U.uWlLevel.value[r.i] === 1 && WL_U.uWlAny.value === 1)) fail(`${r.name} on: its level is ${WL_U.uWlLevel.value[r.i]}, any ${WL_U.uWlAny.value}`);
+    const shots = views.map(v => wlShot(...v));
+    W.list.forEach((o, k) => {
+      if (o === r) { let n = 0; for (let j = 0; j < shots[k].px.length; j += 4) if (shots[k].px[j] !== shots0[k].px[j] || shots[k].px[j + 1] !== shots0[k].px[j + 1] || shots[k].px[j + 2] !== shots0[k].px[j + 2]) n++;
+        const pc = n / (shots[k].px.length / 4) * 100; lift.push(`${r.name} on: its stage view ${pc.toFixed(0)}% of pixels changed, mean ${shots0[k].mean.toFixed(1)} → ${shots[k].mean.toFixed(1)}`);
+        if (!(pc > 20 && shots[k].mean > shots0[k].mean * 1.15)) fail(`${r.name} on: its stage barely changed (${pc.toFixed(0)}% of pixels, mean ×${(shots[k].mean / shots0[k].mean).toFixed(2)})`); }
+      else if (shots[k].hash !== shots0[k].hash) fail(`${r.name} on changed ${o.name}'s view`);
+    });
+    // the slider while it is on: the scan's colours are the slider's alone, and the light stays on
+    bright.value = '2.2'; applyBright();
+    let bad = 0; for (const m of houseMats) { const e = m.userData.base.clone().multiplyScalar(2.2); if (!m.color.equals(e)) bad++; }
+    if (bad) fail(`${r.name} on: the House light slider left ${bad} scan colours off base × 2.2`);
+    if (WL_U.uWlLevel.value[r.i] !== 1) fail(`${r.name} on: the House light slider put the worklight out`);
+    bright.value = b0; applyBright();
+    wlSet(r, false, 0, true);
+    if (colours() !== c0) fail(`${r.name} off: the scan's colours did not come back`);
+    if (looks() !== l0) fail(`${r.name} off: the lamp or a uniform did not come back (${looks()} vs ${l0})`);
+    const back = views.map(v => wlShot(...v));
+    back.forEach((s, k) => { if (s.hash !== shots0[k].hash) fail(`${r.name} off: ${W.list[k].name}'s view is not the frame it was off`); });
+  }
+  bright.value = b0; applyBright();
+  W.list.forEach((r, k) => { r.want = keepW[k][0]; r.u = keepW[k][1]; r.showWas = keepW[k][2]; wlApply(r); });
+  wlUI(); requestRender();
+  const pass = fails.length === 0;
+  const s = `worklight: ${pass ? 'PASS' : 'FAIL'} — ${rows.join(' · ')} · ${lift.join('; ')}; off → on → off restores the scan's ${houseMats.length} colours, the uniforms, the lamps and both views' pixels exactly, and the slider multiplies${pass ? '' : ' · FAILS: ' + fails.join('; ')}`;
+  (pass ? console.info : console.warn)(s);
+  return { pass, fails, rows, lift, summary: s };
+}
+const WORKLIGHT_API = {
+  spec: WORKLIGHT, uniforms: WL_U,
+  get list() { return WORKLIGHT.list; },
+  // house: 1 / 2 / 'Stage 1' / 'Theatre 2'; fade in seconds (default WORKLIGHT.fade). → the state line
+  set(house, on = true, fade) { const r = wlFind(house); if (!r) { console.warn(`worklight: no stage "${house}" — 1 (Stage 1) or 2 (Theatre 2)`); return null; } wlSet(r, on, fade); return this.state(); },
+  toggle(house) { const r = wlFind(house); if (!r) return this.set(house); wlSet(r, !r.want); return this.state(); },
+  state() {
+    const s = WORKLIGHT.list.map(r => `${r.name}: ${r.want ? 'on' : 'off'}${r.u !== r.want ? ` (${(r.u * 100).toFixed(0)}%, ${r.want ? 'coming up' : 'going out'})` : ''}${r.showWas ? ', back on at the show\'s Stop' : ''}`).join('; ')
+      + (walking && doorAimNow.t && doorAimNow.t.wl ? ` · E: ${doorAimNow.label}` : '');
+    console.info('worklight: ' + s); return s;
+  },
+  check: wlCheck, tick: wlTick, patchScene: wlPatchScene,
+};
+
 /* ---------------------------------------------------------------- HOUSE WORKS: THE DOORS
    Jack: "add doors to both theaters". A pair of hinged timber doors in each of the four passages (LOBBY.doors), hung
    at the lobby end: the frame (jambs on the reveals' faces through the house-side wall's depth, a head under the
@@ -10056,6 +10643,7 @@ function doorAim() {
   };
   for (const e of D.list) look(e);
   for (const c of CURTAINS.list) look(c);
+  for (const w of WORKLIGHT.list) look(w.target);           // the worklights' switch boxes (THE WORKLIGHTS)
   return best;
 }
 // The hint line while walking: what E would do, when something is in reach (walkHint reads doorAimNow.label); written
@@ -10063,7 +10651,7 @@ function doorAim() {
 const doorAimNow = { t: null, label: null };
 function doorAimTick() {
   const t = walking ? doorAim() : null;
-  const label = t ? `E — ${t.want ? 'close' : 'open'} the ${t.kind}` : null;   // kind: 'doors' (a pair), 'door' (one leaf, backstage), 'curtain'
+  const label = t ? (t.label ? t.label() : `E — ${t.want ? 'close' : 'open'} the ${t.kind}`) : null;   // kind: 'doors' (a pair), 'door' (one leaf, backstage), 'curtain'; a worklight switch words its own
   doorAimNow.t = t;
   if (label !== doorAimNow.label) { doorAimNow.label = label; if (walking) walkHint(); }
 }
@@ -10071,7 +10659,7 @@ function doorAimTick() {
 function doorsUse() {
   const t = doorAim();
   if (!t) return false;
-  t.want = t.want ? 0 : 1;
+  if (t.use) t.use(); else t.want = t.want ? 0 : 1;          // a worklight switch flips its light (wlSet); a door or curtain turns round
   doorAimTick(); requestRender();
   return true;
 }
@@ -10375,6 +10963,8 @@ function buildHouse2(src) {
   MIDTOWN.backstage = backstageReport();                     // the block measured as it now stands (the set at real size, the cuts made), one console line
   const [p, t] = VIEWS['v-back']; camera.position.set(...p); orbit.target.set(...t); orbit.update();
   MIDTOWN.backstageFittings = backstageFittings;             // { group, bulbs, byRoom, items, triangles, check() } (BACKSTAGE — THE FITTINGS)
+  try { wlBuildAll(house.scene, house2Root); } catch (e) { console.error('worklight: building the worklights failed —', e); }   // one a stage, both off; every material takes their light (THE WORKLIGHTS)
+  MIDTOWN.worklight = WORKLIGHT_API;                         // MIDTOWN.worklight.set(1 | 2, on), .toggle(house), .state(), .check()
   // Compile every shader and draw one frame (texture uploads, the shadow maps) behind the loader, so the
   // first visible frame does not freeze for a second.
   loadtxt.textContent = 'Compiling…'; bar.style.width = '100%';
@@ -10817,6 +11407,7 @@ renderer.setAnimationLoop(() => {
   else if (orbit.update()) moving = true;                    // true while the camera moved: input, or damping still settling
   if (ready && lxTick(dt)) moving = true;                    // the lights' fades, movers travelling, gobos turning: off this frame's dt
   if (ready && doorsTick(dt)) moving = true;                 // the auditorium doors and curtains moving on E, and what E would reach: off this frame's dt
+  if (ready && wlTick(dt)) moving = true;                    // the worklights coming up or going out: off this frame's dt (THE WORKLIGHTS)
   if (ready && lxPanelTick(dt)) moving = true;               // the lights panel: Step through's Play (off this frame's dt), the selection's outline
   drewLast = ready && (needsRender || moving);               // render on demand: an idle page draws nothing
   if (drewLast) { needsRender = false; lxDrawn(clock.elapsedTime); renderer.render(scene, camera); }
