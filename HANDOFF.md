@@ -229,6 +229,54 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-16: Johnny Tremain on Theatre 2 — the set, the stage lifts, the underground, the rig and the QLC+ file (branch `johnny-tremain`; five Opus agents)
+
+Jack: *"for the second stage in the theater i want to do a play i created myself. here is the script and an md file with
+all the files for the set. get the sets ready to be put in and put up lights. then make a file i can put into qlc+ and
+it will have all the lighting fixtures in there. use agents"* — then, mid-build, **RULING GI**: *"make it so there is a
+stage lift that is used to bring on and off big sets like the ship. make a front and back one. the front one is used to
+bring sets on and the back one to take sets off"* / *"only add the stage lifts to the second stage"*; **RULING GJ**:
+*"also make an entire underground area for storage and stuff"*; and *"can you make something that i can cycle through
+the sets and it moves them in correct order"*. His script (PDF, 82 pages) and his set-models worklist stayed in his
+Downloads: **the repository is public — no script text is committed** (checked: no 10-word run of the script in any
+committed file); the breakdown is in our own words.
+
+- **Phase 1 (one agent):** `docs/johnny-tremain/BREAKDOWN.md` (26 scenes, 66 segments, 35 lighting specials, the piece ×
+  scene matrix, Theatre 2 measured: his "11.6 m between side walls" is the apron; the wings are ~5 m, not 1.5; the fly
+  roof 15.2 m over the deck; the venue's iron uncut at 5.1–5.4 m), `assets/johnny-tremain/set.json` (the ground plan:
+  97 pieces, frame `world = (20 + x, 0.80 + y, 2.30 + z)`, +x stage RIGHT), `LIGHTING-NEEDS.md`, `set-format.md`.
+- **The contract** (`docs/johnny-tremain/CONTRACT.md`): the lifts' fixed footprints (front x 17–23 z 2.6–5.0; back x
+  17.5–22.5 z 5.9–8.3; deck 0.80 ↔ basement −4.40), the `MIDTOWN.under` API, three banner sections, the hook rules.
+- **The underground and the lifts** (`THEATRE 2: THE UNDERGROUND AND THE LIFTS`, `MIDTOWN.under`): a basement x 10.6–29.8
+  z 1.0–16.95 (under the backstage too), five `HOUSE2_CUTS`; two lifts with scissor packs, rails that rise round an open
+  hole, beacons, gates; a walker on a platform rides it; a scenery dock with six bays and a painted loop back → front; a
+  trap room, an SM booth with the lift panel (E), prop/furniture racks, a paint shop; stairs from Theatre 2's SL wing and
+  from the backstage corridor; "Lifts" header buttons and an "Understage" view. `under.check()` 16/16.
+- **The set** (`THEATRE 2: JOHNNY TREMAIN — THE SET`, `MIDTOWN.jt`): the ground plan re-laid round the lifts (loft + furnace
+  SL, wharf SR, both running up/downstage); every piece a sized stand-in; **slots** — `assets/johnny-tremain/models/
+  manifest.json` lists the GLBs he drops into `models/` (empty now; `models/README.md` names each file); six big sets
+  (courtroom, ship, counting-house, coach, camp, chaise) travel bay → front lift → stage → back lift → bay; the "Johnny
+  Tremain" panel steps all 66 segments in order (strike → big sets off → big sets on → set → lights), PageDown/PageUp,
+  1×/2×/4×, Skip, Auto, Snap; `jt.check()` PASS and `tools/jt-set-check.py` PASS (stair hole and the worklight walkway
+  as keep-outs). `PROGRAMME-CREDITS.md` lists the CC credits.
+- **The lights** (`THEATRE 2: JOHNNY TREMAIN — THE LIGHTS`, `MIDTOWN.jtLights`): 114 instruments + 14 practicals (ColorSource
+  Spot/PAR, S4 LED Lustr, MAC Encore/Aura, Ovation CYC, 2 followspots, 2 hazers), electrics hung ABOVE the iron (8.5 /
+  8.5 / 10.1 / 11.6), 48 looks for the 66 segments, shader terms only (no new three.js lights); "T2 rig" button.
+  `assets/johnny-tremain/rig.json`, `docs/johnny-tremain/LIGHT-PLOT.md`. `jtLights.check()` pass.
+- **The QLC+ file:** `assets/johnny-tremain/qlc/johnny-tremain.qxw` (from `tools/jt-qlc.py rig.json`): 128 fixtures, two
+  universes (U1 479 ch, U2 489 ch, no overlaps), 41 groups, 81 scenes, the chaser "Johnny Tremain" (66 steps, 2 s fades,
+  GO on Space). Every fixture is in QLC+'s shipped library (manufacturer/model/mode checked against the library files;
+  the lead spot-checked ColorSource PAR "5-channel" and MAC Encore "CLD" on GitHub) — no custom `.qxf`. `qlc/README.md`.
+- **The lead's merge:** two conflicts (the collider regex; both sections before BUILD MODE); `underCheck`'s bay test
+  now reads the basement's own floor (the parked wagons are in the walk's collider); the set had packed the SL wing across
+  the only route to Theatre 2's worklight switch (`worklight.check()` failed) — the set agent cleared a 0.8 m walkway.
+- **Checked on the final branch** (localhost:8080): `jt.check()` PASS, `under.check()` 16/16, `jtLights.check()` pass,
+  `worklight.check()` pass, `lx.check()` 301/313 (show stopped), `show.check()` 0 problems, `actors`/`backstageFittings`
+  pass, console clean; 13.3 → 14.1 ran the ship onto the back lift and down; the five looks rendered from the stalls.
+- **His models:** 25 Sketchfab GLBs, 4 CGTrader models and his own 4 downloads are in `Downloads\jt-models\` (not
+  committed — they are third-party files; they go into `assets/johnny-tremain/models/` one by one, fitted, with the credit).
+- **Agents stalled** (a stream timeout, ~600 s) four times across the round; each resumed from its worktree. Commit often.
+
 ## NEXT SESSION: **HIS EYE ON THE NOTES ROUND, HIS FOUR RULINGS; THEN THE NEXT ROUND OF NOTES** (2026-10-16; PRs #1–#6 merged)
 
 Rulings at **GH** (GI next). `main` is **`6d65226`** (PR #6: his act-1 and act-2 notes, standing on a prop, his lighting
