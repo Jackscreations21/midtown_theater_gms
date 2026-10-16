@@ -1,4 +1,4 @@
-# STATE — 2026-10-15 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#5 merged, #6 open; public, Pages live; nothing is local-only)
+# STATE — 2026-10-16 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#6 merged; public, Pages live; nothing is local-only)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -29,14 +29,14 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   new repo's checkout: console clean, `walls`/`lx` (301/313)/`actors`/`doors` (13/13) unchanged, the fittings check
   PASS. Walk lobby → house → wing → slot → corridor → Theatre 2's doors → its stage is the agents' evidence (driven
   by hand in the pane); the lead walked none of it live.
-- **PR #6 (`his-notes`, off `main`) is OPEN** (2026-10-16): https://github.com/Jackscreations21/midtown_theater_gms/pull/6 —
+- **PR #6 (`his-notes`) MERGED** (2026-10-16, `main` `6d65226`): https://github.com/Jackscreations21/midtown_theater_gms/pull/6 —
   *"work on all the notes i put for the first and second half of hamilton using opus agents … fix the spotlights"*:
   every note in his blocking checklist (act 1 and act 2) applied by three Opus agents, standing on a prop by a fourth,
   his lighting notes, the hand-offs and a show-wide spotlight audit (`tools/spot-audit.py`, 84 re-aims, 17 swaps) by a
-  fifth; the replies are in his checklist rows (status left for him to flip). HANDOFF.md's newest block. Post-merge:
-  fast-forward `main`, delete `his-notes` both sides, remove the worktrees under `.claude/worktrees/` (and the deep
-  `.claude/.claude/worktrees/cues`).
-- **PR #5 (`worklight`) MERGED** (2026-10-15, `badd196`) (2026-10-15): https://github.com/Jackscreations21/midtown_theater_gms/pull/5 —
+  fifth; the replies are in his checklist rows (status left for him to flip). HANDOFF.md's newest DONE block. Post-merge
+  protocol done the same night: `main` fast-forwarded, `his-notes` deleted both sides, every worktree removed. Pages
+  serves it.
+- **PR #5 (`worklight`) MERGED** (2026-10-15, `badd196`): https://github.com/Jackscreations21/midtown_theater_gms/pull/5 —
   *"make a worklight i can turn on for both stages"*: a caged work flood on each stage's stage-left fly wall with a wall
   switch (E while walking), `Worklight` header buttons and `MIDTOWN.worklight`; no real light, a shader term clipped to
   each stage house; the show takes Stage 1's out at every Play and Stop puts it back. Built by one Opus agent, checked by
@@ -50,7 +50,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Open, in the order it will bite
 
-0a. **His eye on the notes round** (PR #6): watch both acts again with the checklist open — every row he marked has a
+0a. **His eye on the notes round** (PR #6, merged): watch both acts again with the checklist open — every row he marked has a
    "— Claude (10-16)" reply under his note; he flips the status. Decisions it raises: **2-07's switch** to Hamilton's
    lights is at 77.27 (the first downbeat after Washington's call), alternatives 79.19 / 81.11 / the old 82.1;
    **Eacker's box** (2-16: every unit stops on the SL gallery rail — move his mark, or rule him onto the deck where
