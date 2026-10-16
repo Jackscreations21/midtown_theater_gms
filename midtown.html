@@ -5308,6 +5308,9 @@ showUI = force => { showUIDesk(force); deskScreensDraw(force); };
      are SET-LOCAL metres (the set GLB's own frame: upstage −z, the house +z, the deck y 0, stage right −x) and Real size / Set
      fitted scale and turn the actors with the set. The floor (FI): straight down from the path's own height + ACT_STEP through
      the walk's collision grid (rayDown: the set, the house, the baked pieces), so she rises onto the gallery and up the stairs.
+     ON A PROP (his notes, 1-18): props are not in that grid, so a waypoint's EXPLICIT `y` more than ACT_ONPROP.gap over the
+     floor found, with her inside the footprint of a placed, seen prop whose top is within ACT_ONPROP.top of it, stands her on
+     the top (actGround) — she steps up as she crosses its edge onto it, and down (a jump) as she leaves it. No `y`, no change.
      Actors, markers and labels are marked userData.rig — the build tools, the walk's grid and the pools' landing rays skip them.
    - WHEN (FH): a waypoint is { track, at, x, z, y?, dwell?, facing?, off? } on the SHOW PLAYER'S clock (the album track and the
      seconds into it — the cues' own). She ARRIVES at a waypoint at its time, stands, and LEAVES after `dwell` s (none = when she
@@ -5354,7 +5357,7 @@ function actCompile(a) {
     if (tr && !t) { probs.push(`waypoint ${k + 1}: no track "${w.track}"`); return; }
     const at = actF(w.at) ?? 0;
     if (t && (at < -t.pre - 1e-6 || at > t.len + t.post + 1e-6)) probs.push(`waypoint ${k + 1}: at ${at} is outside ${t.id} (${-t.pre}–${Number.isFinite(t.post) ? t.len + t.post : '∞'} s)`);   // FQ: lead-ins and tails
-    P.push({ w, k, T: t ? t.start + at : 0, x: actF(w.x) ?? 0, z: actF(w.z) ?? 0, y: actF(w.y) ?? 0, dwell: actF(w.dwell), facing: actF(w.facing), off: !!w.off,
+    P.push({ w, k, T: t ? t.start + at : 0, x: actF(w.x) ?? 0, z: actF(w.z) ?? 0, y: actF(w.y) ?? 0, ey: actF(w.y), dwell: actF(w.dwell), facing: actF(w.facing), off: !!w.off,
       label: typeof w.label === 'string' && w.label.trim() ? w.label.trim() : null });
   });
   if (tr) P.sort((p, q) => p.T - q.T || p.k - q.k);
@@ -5436,7 +5439,8 @@ function actPose(a, T) {
   const p = P[i], q = P[i + 1];
   if (!c.timed || T < p.T || !q || T < p.leave || q.T - p.leave <= 1e-6) {          // standing at p (before her first, at a stop, after her last)
     const k = c.timed && i > 0 && p.arrive !== null && T >= p.T ? actSmooth((T - p.T) / ACT_TURN) : 1;
-    return { x: p.x, y: actFloor(p.x, p.z, p.y), z: p.z, yaw: k < 1 ? actYawLerp(p.arrive, p.yaw, k) : p.yaw, visible: !p.off, speed: 0, dist: p.dist,
+    return { x: p.x, y: actGround(p.x, p.z, p.y, p.ey, null, T), z: p.z, yaw: k < 1 ? actYawLerp(p.arrive, p.yaw, k) : p.yaw, visible: !p.off, speed: 0, dist: p.dist,
+      ey: p.ey, ey2: null,                                                             // her explicit y (actGround: on a prop)
       label: c.timed && T < p.T ? actHead(a) : p.lab,
       turn: k < 1 ? actYawLerp(p.arrive, p.yaw, 1) - p.arrive : 0, turnK: k };          // FS: a turn on the spot (radians, how far through)
   }
@@ -5445,7 +5449,8 @@ function actPose(a, T) {
   const u = actArcU(s, f), at = actCR(s, u), ref = p.y + (q.y - p.y) * f;
   let yaw = s.len > 1e-3 ? actTanYaw(s, u) : p.yaw;
   if (p.stop) yaw = actYawLerp(p.yaw, yaw, actSmooth(t / ACT_TURN));                  // out of her stance into the walk
-  return { x: at.x, y: actFloor(at.x, at.z, ref), z: at.z, yaw, visible: !(p.off && q.off), speed: v * s.len, dist: s.dist0 + f * s.len, label: p.lab, turn: 0, turnK: 1 };
+  return { x: at.x, y: actGround(at.x, at.z, ref, p.ey, q.ey, T), z: at.z, yaw, visible: !(p.off && q.off), speed: v * s.len, dist: s.dist0 + f * s.len, label: p.lab, turn: 0, turnK: 1,
+    ey: p.ey, ey2: q.ey };
 }
 // The floor under set-local (x, z) for a body at height ref: the highest surface within ACT_STEP above ref, or anything below —
 // the walk's own ray through its collision grid, in the world, back into the set's frame. Nothing under her (a hole in the scan):
@@ -5459,6 +5464,41 @@ function actFloor(x, z, ref) {
   if (g === null) return ref;
   actV.y = g;
   return ACT.root.worldToLocal(actV).y;
+}
+// ON A PROP (his notes, 1-18: "lafayette is on top of the table"): the walk's collider holds the set, not the props, so the ray
+// above passes through a table. A waypoint's EXPLICIT `y` (ey, ey2: the leg's two ends; null = none) more than ACT_ONPROP.gap over
+// the floor the ray finds, with (x, z) inside the footprint of a PLACED, seen prop (not carried, not off) whose top (its floor +
+// h) is within ACT_ONPROP.top of that y, stands her on the top. Only an explicit y asks — a body written standing inside a piece
+// with no y stays as written. On a leg she steps up as she crosses the piece's edge, and down (a jump) as she leaves it.
+const ACT_ONPROP = { gap: 0.25, top: 0.1 };
+const actTops = { T: NaN, cs: [], L: [] };
+function actPropTops(T) {                 // the placed, seen props at T as footprints and tops — once per show time (and compile)
+  const C = actTops, n = ACT.props.length;
+  if (C.T === T && C.cs.length === n && ACT.props.every((p, i) => p.c === C.cs[i])) return C.L;
+  for (const p of ACT.props) if (!p.c) p.c = propCompile(p);
+  C.T = T; C.cs = ACT.props.map(p => p.c); C.L = [];
+  for (const p of ACT.props) {
+    const P = p.c.P; if (!P.length || T < P[0].T) continue;
+    let lo = 0, hi = P.length - 1;
+    while (lo < hi) { const m = (lo + hi + 1) >> 1; if (P[m].T <= T) lo = m; else hi = m - 1; }
+    if (P[lo].byId || P[lo].off) continue;                   // carried or off (and never asks a carrier's pose: no recursion)
+    const q = propPose(p, T); if (!q.visible) continue;
+    C.L.push({ id: p.id, x: q.x, z: q.z, c: Math.cos(q.yaw), s: Math.sin(q.yaw), hw: p.size[0] / 2, hd: p.size[2] / 2, top: q.y + p.size[1] });
+  }
+  return C.L;
+}
+function actGround(x, z, ref, ey, ey2, T) {
+  const g = actFloor(x, z, ref);
+  if ((ey === null || ey === undefined) && (ey2 === null || ey2 === undefined)) return g;   // no explicit y: the ray's floor, as ever
+  for (const y of [ey, ey2]) {
+    if (y === null || y === undefined || !(y > g + ACT_ONPROP.gap)) continue;
+    for (const t of actPropTops(T)) {
+      if (Math.abs(t.top - y) > ACT_ONPROP.top) continue;
+      const dx = x - t.x, dz = z - t.z;                       // into the prop's own frame (its group turned by yaw about y)
+      if (Math.abs(dx * t.c - dz * t.s) <= t.hw && Math.abs(dx * t.s + dz * t.c) <= t.hd) return t.top;
+    }
+  }
+  return g;
 }
 
 // ---- the actors in the scene
@@ -6739,7 +6779,7 @@ function actUpdate(T) {
     o.visible = ACT.shown && p.visible; o.userData.pose = p; actTagSet(a, p.label); a.tag.visible = ACT.names;
     if (held && o.visible) {                                 // FS: what the limbs read besides FL's fields — all pure functions of T
       p.T = T;
-      p.rise = p.speed > 0.05 ? actFloor(p.x + Math.sin(p.yaw) * 0.35, p.z + Math.cos(p.yaw) * 0.35, p.y) - p.y : 0;   // the floor ahead (stairs)
+      p.rise = p.speed > 0.05 ? actGround(p.x + Math.sin(p.yaw) * 0.35, p.z + Math.cos(p.yaw) * 0.35, p.y, p.ey, p.ey2, T) - p.y : 0;   // the floor ahead (stairs; a prop's top she stands on)
       const h = held.get(a.id);
       p.carry = h ? propCarryPose(h.p, h.q, p) : null;
     }
@@ -6976,9 +7016,9 @@ function actHelpers() {
   ACT.root.updateWorldMatrix(true, false);
   const pts = [], c = a.c;
   c.P.forEach((p, i) => {
-    const s = c.segs[i], y0 = actFloor(p.x, p.z, p.y);
+    const s = c.segs[i], y0 = actGround(p.x, p.z, p.y, p.ey, null, p.T);
     pts.push(new THREE.Vector3(p.x, y0 + 0.03, p.z));
-    if (s && s.len > 1e-3) for (let k = 1; k < 16; k++) { const f = k / 16, q = actCR(s, actArcU(s, f)); pts.push(new THREE.Vector3(q.x, actFloor(q.x, q.z, p.y + (c.P[i + 1].y - p.y) * f) + 0.03, q.z)); }
+    if (s && s.len > 1e-3) for (let k = 1; k < 16; k++) { const f = k / 16, q = actCR(s, actArcU(s, f)); pts.push(new THREE.Vector3(q.x, actGround(q.x, q.z, p.y + (c.P[i + 1].y - p.y) * f, p.ey, c.P[i + 1].ey, s.t0 + (s.t1 - s.t0) * f) + 0.03, q.z)); }
   });
   if (pts.length > 1) {
     const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: a.color, transparent: true, opacity: 0.9, depthTest: false, depthWrite: false, toneMapped: false }));
@@ -6988,7 +7028,7 @@ function actHelpers() {
     const w = p.w, k = a.path.indexOf(w), sel = k === ACT.wsel;
     const m = new THREE.Mesh(new THREE.CylinderGeometry(sel ? 0.2 : 0.14, sel ? 0.2 : 0.14, 0.05, 20),
       new THREE.MeshBasicMaterial({ color: sel ? 0xffffff : a.color, transparent: true, opacity: p.off ? 0.3 : 0.55, depthTest: false, depthWrite: false, toneMapped: false }));
-    m.position.set(p.x, actFloor(p.x, p.z, p.y) + 0.03, p.z); m.renderOrder = 9; m.userData.rig = true; m.userData.wp = k;
+    m.position.set(p.x, actGround(p.x, p.z, p.y, p.ey, null, p.T) + 0.03, p.z); m.renderOrder = 9; m.userData.rig = true; m.userData.wp = k;
     H.add(m);
     if (p.facing !== null) {                       // a stop's facing: a short tick out of the disc
       const t = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.03, 0.32), m.material.clone());
@@ -7371,7 +7411,7 @@ buildLightsPanel = () => {
       pose: (id, T = actNow()) => { const a = ACT.actors.find(x => x.id === id) || ACT.actors[id]; if (!a) return null; if (!a.c) a.c = actCompile(a); ACT.root.updateWorldMatrix(true, false); return actPose(a, T); },
       select: i => actSelect(typeof i === 'number' ? i : ACT.actors.findIndex(a => a.id === i)), place: (x, z, y) => actPlace(x, z, y ?? actFloor(x, z, 0)),
       floor: (x, z, ref = 0) => actFloor(x, z, ref), check: opts => actCheck(opts), panel: on => actPanel(on !== false), drop: on => actSetDrop(on !== false),
-      group: ACT.group, state: ACT, tune: { ACT_STEP, ACT_WALK, ACT_EASE, ACT_TURN, ACT_H, PROP_HOLD, PROP_KINDS, RIG_GAIT },
+      group: ACT.group, state: ACT, tune: { ACT_STEP, ACT_WALK, ACT_EASE, ACT_TURN, ACT_H, PROP_HOLD, PROP_KINDS, RIG_GAIT, ACT_ONPROP },
       rig: RIG,                                              // FS: the jointed body (parts, joints, bones; null parts: the whole mannequin)
       moves: DANCE, beats: BEAT, beatAt: (id, t) => beatAt(id, t),   // FV: the move library, the beat grid
       dance: (id, T = actNow()) => { const a = ACT.actors.find(x => x.id === id) || ACT.actors[id]; if (!a) return null; const d = danceAt(a, T); return d && { move: d.cur.m.move, from: d.cur.T0, to: d.cur.T1, beats: danceK(d.cur, T, false), prev: d.prev && d.prev.m.move }; },

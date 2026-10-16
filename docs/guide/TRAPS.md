@@ -2030,7 +2030,16 @@ include the place a failure would show — the corridor behind the house, not on
   props are not in it. Lafayette's waypoint with `y` 0.8 (gs-table's top) passed the merge without a word (any number
   over 0.1 is kept, and only gallery heights are checked against the map), and the page still posed him at y 0.045,
   inside the table. "On top of a piece" needs the page to treat a placed prop's top as floor; until then, check
-  `MIDTOWN.actors.pose(id, T).y`, not the file.
+  `MIDTOWN.actors.pose(id, T).y`, not the file. **Since `prop-standing` it does** (`actGround`): an explicit `y` within
+  0.1 m of a placed prop's top, more than 0.25 m over the ray's floor, with her inside its footprint. A `y` that is NOT at the
+  top (a desk's 0.8 written for a 0.5 box) still leaves her inside, silently. Check the pose.
+- **A merge can commit its conflict markers into `assets/hamilton-blocking.json`, and the page then stands NOBODY.**
+  `60d0cd8` (his-notes ← notes-seg34) holds a `<<<<<<< HEAD` hunk in Lafayette's 1-20 / 1-21 / 2-01 waypoints. The page's
+  only sign is one console warning (`actors: the blocking could not be loaded — Unexpected token '<'`) and "0 actors"; every
+  check still passes, because there is nothing to check. Before any page work on a merged branch, run
+  `grep -n '^<<<<<<<' assets/*.json`. To verify engine work meanwhile without touching the file, load a resolved copy from
+  the console: fetch the text, drop one side of the hunk, `MIDTOWN.actors.load(JSON.parse(...))`. The fix is to
+  re-run the merge from the generators, not to hand-pick a side.
 - **"After the blackout" can be in the next segment.** 1-17's button fade ends at exactly the track's end (175.3 + 2.7 =
   178.0), and the next track has no lead-in or tail, so 1-17 178.0 and 1-18 0.0 are the SAME instant on the global clock: a
   waypoint at each is "time does not increase". An exit after the fade is written as a dwell on the last waypoint in one
