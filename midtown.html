@@ -47,8 +47,8 @@
   wall 1 m upstage of that house's proscenium, a conduit up the wall between them. Both off on load; the header's Worklight
   buttons, E at the switch while walking, or MIDTOWN.worklight turn either on. No light is added to the scene: the light is a
   term in the materials' shaders clipped to that stage house (the unlit scan brightened, the set, the rig and the actors
-  given its irradiance), so nothing behind the back brick sees it. The show takes Stage 1's out with the work look; Stop
-  puts it back.
+  given its irradiance), so nothing behind the back brick sees it. The show takes Stage 1's out with the work look (at the
+  panel's open and at every Play); Stop puts it back.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -4406,11 +4406,12 @@ function showPause(on = SHW.playing) {
   if (!SHW.on) return showStart(!on);
   if (!on && SHW.hold) {                                     // Play at the interval: into the held track
     SHW.hold = false; SHW.ti++; SHW.lt = -SHW.d.tracks[SHW.ti].pre; SHW.playing = true;   // from the top of its lead-in (FQ)
-    showHouse(false); showTrackAudio(); showFireTo(showT()); showUI(true); requestRender();
+    showHouse(false); wlShow(true); showTrackAudio(); showFireTo(showT()); showUI(true); requestRender();
     return true;
   }
   SHW.playing = !on;
   if (SHW.playing && SHW.houseUp) showHouse(false);
+  if (SHW.playing) wlShow(true);                             // Stage 1's worklight out at every Play (THE WORKLIGHTS)
   const A = SHW.A;
   if (A && SHW.audioOn) { if (SHW.playing && !SHW.gap && (A !== SHW.stA || A.src)) { A.play().catch(e => showAudioFail(e)); if (A === SHW.stA) sndStart(A); } else A.pause(); }   // a lead-in or a tail: silent; the Play click is the gesture the sound tap needs
   showUI(true); requestRender();
@@ -9950,8 +9951,8 @@ function backstageFittingsCheck(bf, quiet) {
    SWITCHING. One state per stage (want), three ways in, all through wlSet: the header's Worklight buttons; E at the
    switch box while walking (a target of THE DOORS' aim, doorAim — the hint reads "E — worklight on" / "E — worklight
    off"); MIDTOWN.worklight.set / toggle. The light follows want over WORKLIGHT.fade s, off the frame's dt (wlTick).
-   The show takes Stage 1's out with the work look (SHW_WORK_FADE) and Stop puts it back if it was on and nobody
-   switched it meanwhile (wlShow); Theatre 2's is no business of the show. Both off on load. Not in the walk's grid
+   The show takes Stage 1's out with the work look (SHW_WORK_FADE) at the panel's open and at every Play, and Stop puts
+   it back if the show took it out and nobody switched it meanwhile (wlShow); Theatre 2's is no business of the show. Both off on load. Not in the walk's grid
    (the walker never reaches the lamp, and stands 0.25 m off the wall the switch box is on). */
 const WORKLIGHT = {
   lamp: { y: 11.40, z: 4.60, arm: 0.50 },   // the yoke's pivot: arm metres off the fly wall's face (measured at y, z), house frame
@@ -10282,11 +10283,13 @@ function wlTick(dt) {
   if ((wlPatchT += dt) > 1) { wlPatchT = 0; if (wlPatchScene()) requestRender(); }   // ~0.6 ms a second: what loaded or was built since takes the light
   return moved;
 }
-// The show (showStart / showStop): Stage 1's out with the work look, and back at Stop if it was on and still is wanted off.
+// The show: Stage 1's out with the work look at the panel's open (the preshow) and at EVERY Play (showStart, showPause —
+// switched on while the show stood at its preshow or paused, it would otherwise burn through the act), and back at Stop if
+// the show took it out and nobody switched it meanwhile. Idempotent: a Play with it already out keeps what Stop will restore.
 function wlShow(start) {
   const r = WORKLIGHT.list.find(w => w.house === 1);
   if (!r) return;
-  if (start) { r.showWas = r.want === 1; if (r.want) wlSet(r, false, SHW_WORK_FADE, true); }
+  if (start) { if (r.want) { r.showWas = true; wlSet(r, false, SHW_WORK_FADE, true); } }
   else { if (r.showWas && !r.want) wlSet(r, true, WORKLIGHT.fade, true); r.showWas = false; }
 }
 // The header's buttons, one a stage: aria-pressed is want.
@@ -10410,7 +10413,9 @@ function wlCheck() {
     out.push(`lamp x ${f3(lampB.min.x)}…${f3(lampB.max.x)} y ${f3(lampB.min.y)}…${f3(lampB.max.y)} z ${f3(lampB.min.z)}…${f3(lampB.max.z)}, ${(lampB.min.y - deck).toFixed(2)} m over the deck, ${clearSet === Infinity ? 'no set' : f3(clearSet) + ' m off the set\'s bounds'}, ${f3(clearRig)} m off the rig`);
     // the light's reach against the backstage: its rooms and corridor start at the stage-side wall behind this house
     const zWall = r.house === 1 ? Bk.stageZ.h1 : Bk.stageZ.h2;
-    if (!(r.box.max.z < zWall)) fail(`${r.name}'s light reaches past the backstage's stage-side wall (z ${zWall})`);
+    const u0 = WL_U.uWlBox0.value[r.i], u1 = WL_U.uWlBox1.value[r.i];   // the box the shader clips with — r.box is only its record
+    if (!u0.equals(r.box.min) || !u1.equals(r.box.max)) fail(`${r.name}'s shader box (${f3(u0.x)},${f3(u0.y)},${f3(u0.z)})…(${f3(u1.x)},${f3(u1.y)},${f3(u1.z)}) is not its record's`);
+    if (!(u1.z < zWall)) fail(`${r.name}'s light reaches past the backstage's stage-side wall (z ${zWall})`);
     // the switch: a standing spot in reach, found the walk's way (feet on the floor, the body's rays clear, room for the head)
     const T = r.target, p0 = player.pos.clone(), yaw0 = yaw, keep = { vel: player.vel.clone(), on: player.onGround, cr: player.crouched };
     let spot = null;
