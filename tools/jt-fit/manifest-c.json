@@ -1,0 +1,76 @@
+{
+ "lyte-cup": {
+  "file": "lyte-cup.glb",
+  "rotY": 180,
+  "fit": "h"
+ },
+ "lantern": {
+  "file": "lantern.glb",
+  "rotY": 180,
+  "fit": "h"
+ },
+ "church-lanterns": {
+  "file": "church-lanterns.glb",
+  "rotY": 180,
+  "fit": "h"
+ },
+ "stacked-arms": {
+  "file": "stacked-arms.glb",
+  "rotY": 180,
+  "fit": "w"
+ },
+ "redcoat-muskets": {
+  "file": "redcoat-muskets.glb",
+  "rotY": 180,
+  "fit": "h"
+ },
+ "rab-musket": {
+  "file": "rab-musket.glb",
+  "rotY": 180,
+  "fit": "h"
+ },
+ "grandsire-gun": {
+  "file": "grandsire-gun.glb",
+  "rotY": 180,
+  "fit": "h"
+ },
+ "powder-horn": {
+  "file": "powder-horn.glb",
+  "rotY": 180,
+  "fit": "w"
+ },
+ "drum": {
+  "file": "drum.glb",
+  "rotY": 180,
+  "fit": "h"
+ },
+ "laundry-basket": {
+  "file": "laundry-basket.glb",
+  "rotY": 180,
+  "fit": "w"
+ },
+ "door-frame": {
+  "file": "door-frame.glb",
+  "rotY": 180,
+  "fit": "h",
+  "licence": "editorial-only (previs; ask the author before a show)"
+ },
+ "window-flat": {
+  "file": "window-flat.glb",
+  "rotY": 180,
+  "fit": "h",
+  "licence": "editorial-only (previs; ask the author before a show)"
+ },
+ "shop-doors": {
+  "file": "shop-doors.glb",
+  "rotY": 180,
+  "fit": "h",
+  "licence": "editorial-only (previs; ask the author before a show)"
+ },
+ "warehouse-corner": {
+  "file": "warehouse-corner.glb",
+  "rotY": 180,
+  "fit": "h",
+  "licence": "editorial-only (previs; ask the author before a show)"
+ }
+}

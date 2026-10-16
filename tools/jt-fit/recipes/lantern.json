@@ -1,0 +1,2 @@
+{"id":"lantern","src":"colonial_lantern.glb","size":[0.3,0.45,0.3],"fit":"h","faces":20000,
+ "notes":"the whole lantern, decimated 445k -> 20k; the glass (Object_34, alpha 0.6 BLEND) kept see-through; height fitted"}

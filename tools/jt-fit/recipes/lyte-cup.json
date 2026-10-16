@@ -1,0 +1,3 @@
+{"id":"lyte-cup","src":"goblets.glb","keep":["^Object_12$"],"size":[0.12,0.29,0.12],"fit":"h",
+ "paint":{"metallic":1.0,"roughness":0.22},
+ "notes":"one goblet of the ten identical shapes (Object_12, the brightest polished-silver texture of the row); made fully metallic and smooth; height fitted, so it is wider (0.19) than the 0.12 box"}

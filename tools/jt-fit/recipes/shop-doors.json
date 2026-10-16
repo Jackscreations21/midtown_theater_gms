@@ -1,0 +1,33 @@
+{
+ "id": "shop-doors",
+ "src": "colonial-house_3d-model.fbx.zip",
+ "inner": "3d-model.fbx",
+ "keep": [
+  "^Layer0_001$",
+  "DoorKnob_06[45]"
+ ],
+ "crop": [
+  [
+   0.53708,
+   0.18846,
+   0.14046
+  ],
+  [
+   0.59322,
+   0.20788,
+   0.8896
+  ]
+ ],
+ "size": [
+  1.0,
+  2.1,
+  0.1
+ ],
+ "fit": "h",
+ "rot": [
+  0,
+  0,
+  -90
+ ],
+ "notes": "EDITORIAL-ONLY source. The side door on the east (+X) face of the house wing (Layer0_001 + DoorKnob_064/065; source x 3.8..4.05, y 0.55..1.7, z 0.45..2.85 m), turned to face the house: a half-glazed (nine-light) single door with its casing and head. Height fitted; it is deeper (0.22) than the 0.1 box (the casing)."
+}

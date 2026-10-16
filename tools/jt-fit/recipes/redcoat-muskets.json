@@ -1,0 +1,2 @@
+{"id":"redcoat-muskets","src":"brown_bess.glb","rot":[0,90,90],"crop":[[0,0,0],[1,1,0.7645]],"size":[0.06,1.58,0.12],"fit":"h",
+ "notes":"the whole Brown Bess (5 meshes) stood muzzle up; the fixed bayonet cropped off at the muzzle (the socket ring stays as a band); lock side faces stage left/right (the box is 0.06 wide); height fitted, so the stock's drop makes it deeper than the 0.12 box"}

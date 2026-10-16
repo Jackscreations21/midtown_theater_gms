@@ -1,0 +1,2 @@
+{"id":"powder-horn","src":"powder_horn.glb","rot":[130,20,60],"size":[0.33,0.1,0.1],"fit":"w","faces":15000,
+ "notes":"the whole scanned horn (one mesh) laid on its side, long axis across stage, its curve lying near-flat; decimated 35k -> 15k; the 8K scan texture taken down to 1K; width (length) fitted"}

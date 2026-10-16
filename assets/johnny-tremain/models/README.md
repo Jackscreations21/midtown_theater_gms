@@ -5,6 +5,25 @@ cylinders at its real size. To swap a stand-in for a real model, drop a GLB in t
 `manifest.json`. Nothing else changes: the page reads the manifest at load, loads each GLB it lists, fits it to the
 piece's size and hides the stand-in. A piece not in the manifest keeps its stand-in (and the page fetches nothing for it).
 
+## Where it stands (2026-10-16)
+
+**45 pieces are fitted** from Jack's downloads by `tools/jt-fit/` (one recipe per piece in `tools/jt-fit/recipes/`; rebuild
+any piece with the command in `tools/jt-fit/README.md`). **35 are committed**. **10 are local only**: the armchair, bench,
+kitchen table, kitchen benches, trestle table, workbench, door frame, window flat, shop doors and warehouse corner. Those
+were made from CGTrader downloads, whose royalty-free and editorial licences do not allow passing the model file on, so
+they are `.gitignore`d and marked `"local": true` in the manifest. The page tries them only when it is served from this
+machine; on Pages those pieces keep their stand-ins.
+
+`ladder.glb` is CC BY-SA 4.0, because it is a changed copy of "Wooden Ladder" by romullus.
+
+**Not fitted, so the stand-in stays:**
+- **The printing press and the smashed press.** The download is a squat box with rollers, not a press.
+- **The crates and the tea chests.** The crate download is a shallow open tray; a closed box would mean modelling from scratch.
+- **The Observer and Afric Queen signs.** The Colonial House has no swing sign.
+- **The candelabra, candlesticks, tankards and lumber piles.** Not downloaded yet.
+- **The bench tools.** Optional.
+- **Every piece with no worklist model.** See the table.
+
 ## The recipe (one model)
 
 1. Do the worklist's routine in Blender (import, scale, decimate if it says so, retexture if it says so).

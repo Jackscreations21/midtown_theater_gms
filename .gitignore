@@ -30,3 +30,16 @@ video/*
 tools/vision/cache/
 tools/vision/.venv/
 tools/vision/*.pt
+
+# Johnny Tremain models fitted from CGTrader downloads (royalty-free / editorial: the model file may not be passed on).
+# Local only; manifest.json marks them "local": true and the page tries them only on localhost.
+assets/johnny-tremain/models/armchair.glb
+assets/johnny-tremain/models/bench.glb
+assets/johnny-tremain/models/kitchen-table.glb
+assets/johnny-tremain/models/kitchen-benches.glb
+assets/johnny-tremain/models/trestle-table.glb
+assets/johnny-tremain/models/workbench.glb
+assets/johnny-tremain/models/door-frame.glb
+assets/johnny-tremain/models/window-flat.glb
+assets/johnny-tremain/models/shop-doors.glb
+assets/johnny-tremain/models/warehouse-corner.glb

@@ -1,0 +1,87 @@
+{
+ "wharf-deck": {
+  "file": "wharf-deck.glb",
+  "rotY": 180,
+  "fit": "auto"
+ },
+ "wharf-step": {
+  "file": "wharf-step.glb",
+  "rotY": 180,
+  "fit": "auto"
+ },
+ "plank-run": {
+  "file": "plank-run.glb",
+  "rotY": 180,
+  "fit": "d"
+ },
+ "ship-rail": {
+  "file": "ship-rail.glb",
+  "rotY": 180,
+  "fit": "w"
+ },
+ "wharf-piles": {
+  "file": "wharf-piles.glb",
+  "rotY": 180,
+  "fit": "w"
+ },
+ "loft": {
+  "file": "loft.glb",
+  "rotY": 180,
+  "fit": "auto"
+ },
+ "loft-rafters": {
+  "file": "loft-rafters.glb",
+  "rotY": 180,
+  "fit": "auto"
+ },
+ "furnace": {
+  "file": "furnace.glb",
+  "rotY": 180,
+  "fit": "h"
+ },
+ "bellows": {
+  "file": "bellows.glb",
+  "rotY": 180,
+  "fit": "auto"
+ },
+ "bench": {
+  "file": "bench.glb",
+  "rotY": 180,
+  "fit": "auto"
+ },
+ "kitchen-table": {
+  "file": "kitchen-table.glb",
+  "rotY": 180,
+  "fit": "auto"
+ },
+ "kitchen-benches": {
+  "file": "kitchen-benches.glb",
+  "rotY": 180,
+  "fit": "auto"
+ },
+ "trestle-table": {
+  "file": "trestle-table.glb",
+  "rotY": 180,
+  "fit": "auto"
+ },
+ "workbench": {
+  "file": "workbench.glb",
+  "rotY": 180,
+  "fit": "w"
+ },
+ "steeple": {
+  "file": "steeple.glb",
+  "rotY": 180,
+  "fit": "h"
+ },
+ "ship-masts": {
+  "file": "ship-masts.glb",
+  "rotY": 180,
+  "fit": "h"
+ },
+ "ladder": {
+  "file": "ladder.glb",
+  "rotY": 180,
+  "fit": "h"
+ }
+}

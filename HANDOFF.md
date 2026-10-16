@@ -229,7 +229,39 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-16: Johnny Tremain on Theatre 2 — the set, the stage lifts, the underground, the rig and the QLC+ file (branch `johnny-tremain`; five Opus agents)
+## DONE — 2026-10-16 (evening): his models in the set, and QLC+ driving Theatre 2 live (one PR; four Opus agents)
+
+Two asks, both *"Do this task here"*: **fit his downloaded models into the set**, and, after *"if i put that file into
+qlc+ will i be able to connect to the lights in theater 2"* (it could not: the page had no DMX input), **drive Theatre 2's
+rig live from QLC+ over Art-Net**.
+
+- **The models** (`tools/jt-fit/`, three Opus agents by batch): a headless Blender pipeline — `inventory.py`, `fit.py` + one
+  recipe per piece (keep/drop parts, rotate, crop, decimate, scale to set.json's box, paint, 1K JPEG textures, GLB with the
+  front to +Z → manifest `rotY 180`), pre-steps `prep_a.py` (loft, rafters, steeple, masts), `stack_arms.py`, `weld.py`
+  (split vertices shred under decimation). **45 pieces fitted, 25 MB; 35 committed, 10 local-only**: the CGTrader-derived
+  ones (armchair, bench, kitchen table/benches, trestle, workbench, door frame, window flat, shop doors, warehouse corner)
+  are `.gitignore`d and `"local": true` — the loader tries them only on localhost (royalty-free/editorial licences do not
+  allow passing the file on; the repository is public). `ladder.glb` is CC BY-SA (a changed copy). **Not fitted:** the
+  press (the download is a squat box with rollers, no screw or platen), crates/tea chests (the crate is an open tray),
+  the three swing signs (no source), and what is not downloaded (candelabra, candlesticks, tankards, lumber). The lead
+  refitted `wharf-piles` and `loft-rafters` exactly to their boxes (back brick, the arch). Credits updated.
+- **The desk** (one Opus agent, worktree `t2-artnet`): `tools/artnet-relay.py` (stdlib: UDP 6454 ArtDmx → a hand-written
+  WebSocket on 127.0.0.1:9454; QLC+ universes 1/2 = Art-Net 0/1; the Palace relay's length/sequence guards; a universe
+  "alive" 5 s after its last packet, since QLC+ sends ~0.5 pps on a held look); `tools/artnet-test.py` (full, blackout,
+  chase, look <tag>); in the LIGHTS section a Desk mode — per-mode channel maps from QLC+'s shipped .qxf files (Lustr
+  Direct 7-colour, ColorSource 5-ch, Ovation 7-ch, Encore CLD with 16-bit pan/tilt and gobos, Aura Standard, Generic,
+  ATMe haze), the page's look held while the desk drives and handed back 2 s after quiet; the page knocks on the relay's
+  `/probe` in a hidden iframe first so no refused-WebSocket error reaches the console. `jtLights.check()` 12 rows.
+  `assets/johnny-tremain/qlc/README.md` has the QLC+ steps. **QLC+ itself is not installed here: the real QLC+
+  round-trip is unverified** (risk: QLC+'s Art-Net plugin may hold UDP 6454 — then the relay must bind the NIC address).
+- **Checked on the combined branch** (localhost:8080): 45 models loaded; `jt.check()` PASS, `under.check()` 16/16,
+  `jtLights.check()` pass (12 rows), `worklight.check()` pass, `lx.check()` 301/313, console clean; the relay running and
+  `artnet-test.py look night-exterior-moon` → the panel read **"Desk: QLC+ live — U1 44 fps, U2 44 fps"**. The Browser
+  pane stopped painting mid-round (canvas readback is empty on this ANGLE/D3D11 driver) — the models were judged in the
+  agents' Blender previews, not from the stalls.
+- PR #9 (the record of #8) is merged into this branch as well, so it lands either way.
+
+## DONE — 2026-10-16: Johnny Tremain on Theatre 2 — the set, the stage lifts, the underground, the rig and the QLC+ file (PR #8, merged `daa9bcd`; five Opus agents)
 
 Jack: *"for the second stage in the theater i want to do a play i created myself. here is the script and an md file with
 all the files for the set. get the sets ready to be put in and put up lights. then make a file i can put into qlc+ and

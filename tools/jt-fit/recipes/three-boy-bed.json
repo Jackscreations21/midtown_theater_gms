@@ -1,0 +1,3 @@
+{"id": "three-boy-bed", "src": "charpayi.glb", "size": [1.9, 0.5, 1.4], "fit": "stretch",
+ "paint": {"color": [0.28, 0.17, 0.08], "roughness": 0.8, "metallic": 0.0},
+ "notes": "The whole charpayi (one mesh), long side across the stage, STRETCHED to 1.9 x 0.5 x 1.4 (a rope frame; source 2.36 x 1.03 x 1.21). The source is a bent-tube cot with woven tape, not turned wooden legs: painted one warm wood/hemp colour all over to lose the grey steel (the weave survives in the normal map). No blanket (the source has none); legs not re-made square."}

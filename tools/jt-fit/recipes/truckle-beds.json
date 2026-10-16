@@ -1,0 +1,3 @@
+{"id": "truckle-beds", "src": "charpayi.glb", "rot": [0, 0, 90], "size": [0.9, 0.3, 1.8], "fit": "stretch",
+ "paint": {"color": [0.28, 0.17, 0.08], "roughness": 0.8, "metallic": 0.0},
+ "notes": "The Trundle Bed is Maya-only, so the worklist's fallback: the charpayi frame turned long side up/down stage and STRETCHED low to 0.9 x 0.3 x 1.8, painted wood/hemp. No wheels."}

@@ -1,0 +1,3 @@
+{"id": "armchair", "src": "windsor-chair_windsor.fbx", "rot": [0, 0, -90], "size": [0.65, 1.0, 0.6], "fit": "h",
+ "paint": {"color": [0.45, 0.05, 0.04], "roughness": 0.6, "metallic": 0.0},
+ "notes": "The CGTrader Windsor is a SIDE chair (no arms); the worklist's added arm rail is a remodel, not done here. FBX used (the .blend is Y-up with a stray Plane). Front turned from +X to -Y. Fit by height 1.0 m; painted one strong red per set.json."}

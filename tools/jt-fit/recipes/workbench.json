@@ -1,0 +1,46 @@
+{
+  "id": "workbench",
+  "src": "workbench_3d-model.fbx.zip",
+  "inner": "3d-model.fbx",
+  "drop": [
+    "bolt",
+    "nut",
+    "bearing",
+    "shaft",
+    "inner",
+    "flange",
+    "wheel",
+    "^4in",
+    "Component#4[89]",
+    "^Group",
+    "Component#(3[3-9]|41)_"
+  ],
+  "crop": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0.28,
+      1,
+      1
+    ]
+  ],
+  "size": [
+    1.8,
+    0.9,
+    0.7
+  ],
+  "fit": "w",
+  "paint": {
+    "color": [
+      0.22,
+      0.14,
+      0.08
+    ],
+    "roughness": 0.85,
+    "metallic": 0.0
+  },
+  "notes": "Workbench and workshop accessories: the bench only (the two cabinets cropped away; the casters, wheel brackets, bolts, nuts and hardware dropped, and the open drawer dropped so nothing sticks out of the front). Painted an old dark oak. No vise or power tools in this file. The silversmith's notches are NOT cut (fit.py cannot)."
+}

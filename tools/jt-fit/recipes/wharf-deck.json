@@ -1,0 +1,9 @@
+{
+  "id": "wharf-deck",
+  "src": "rustic_wooden_dock.glb",
+  "drop": ["^defaultMaterial$", "^defaultMaterial[.]001$"],
+  "crop": [[0, 0.306, 0.4926], [1, 0.8142, 0.6939]],
+  "size": [2.0, 0.45, 3.35],
+  "fit": "w",
+  "notes": "Rustic Wooden Dock: the two rope swags dropped; a 13.1 m run of the walkway cropped (5 pairs of posts), the posts cut at the plank tops and 1.8 m below them, so the deck stands 0.45 on its posts. The dock already runs along Y, so the deck runs up and down stage. Planks come out ~29 cm, posts ~15 cm."
+}
