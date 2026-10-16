@@ -1395,7 +1395,7 @@
    "type": "lustr",
    "fixture": "ETC Source Four LED Series 2 Lustr",
    "pos": [
-    13.85,
+    14.15,
     3.0,
     -2.5
    ],
@@ -1434,7 +1434,7 @@
    "type": "lustr",
    "fixture": "ETC Source Four LED Series 2 Lustr",
    "pos": [
-    13.85,
+    14.15,
     4.2,
     -2.5
    ],
@@ -1473,7 +1473,7 @@
    "type": "lustr",
    "fixture": "ETC Source Four LED Series 2 Lustr",
    "pos": [
-    13.85,
+    14.15,
     5.4,
     -2.5
    ],
@@ -1512,7 +1512,7 @@
    "type": "lustr",
    "fixture": "ETC Source Four LED Series 2 Lustr",
    "pos": [
-    26.55,
+    26.25,
     3.0,
     -2.5
    ],
@@ -1551,7 +1551,7 @@
    "type": "lustr",
    "fixture": "ETC Source Four LED Series 2 Lustr",
    "pos": [
-    26.55,
+    26.25,
     4.2,
     -2.5
    ],
@@ -1590,7 +1590,7 @@
    "type": "lustr",
    "fixture": "ETC Source Four LED Series 2 Lustr",
    "pos": [
-    26.55,
+    26.25,
     5.4,
     -2.5
    ],
@@ -1629,7 +1629,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    14.62,
+    14.8,
     3.0,
     0.6
    ],
@@ -1668,7 +1668,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    25.68,
+    25.5,
     3.0,
     0.6
    ],
@@ -1708,7 +1708,7 @@
    "fixture": "Martin MAC Encore Performance CLD",
    "pos": [
     15.0,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -1750,7 +1750,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     16.4,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -1789,7 +1789,7 @@
    "fixture": "ETC Source Four 750 W (tungsten) on a dimmer",
    "pos": [
     17.0,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -1797,7 +1797,7 @@
     1.3,
     3.9
    ],
-   "field": 16.8,
+   "field": 15.7,
    "purpose": "Jail bars (S15)",
    "system": "special",
    "area": null,
@@ -1828,7 +1828,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     17.6,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -1867,7 +1867,7 @@
    "fixture": "ETC ColorSource Spot",
    "pos": [
     18.3,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -1875,7 +1875,7 @@
     2.4,
     2.8
    ],
-   "field": 11.7,
+   "field": 10.8,
    "purpose": "The eight eyes: tight cold top (S28)",
    "system": "special",
    "area": null,
@@ -1906,7 +1906,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     18.9,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -1945,7 +1945,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     21.4,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -1984,7 +1984,7 @@
    "fixture": "ETC ColorSource Spot",
    "pos": [
     22.0,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -1992,7 +1992,7 @@
     2.2,
     3.5
    ],
-   "field": 8.7,
+   "field": 8.0,
    "purpose": "Lantern reveal: the wig (S24)",
    "system": "special",
    "area": null,
@@ -2023,7 +2023,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     22.7,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -2062,7 +2062,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     23.6,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -2101,7 +2101,7 @@
    "fixture": "Martin MAC Encore Performance CLD",
    "pos": [
     25.0,
-    8.0,
+    8.5,
     2.9
    ],
    "aim": [
@@ -2143,7 +2143,7 @@
    "fixture": "Martin MAC Encore Performance CLD",
    "pos": [
     15.0,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2185,7 +2185,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     16.4,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2224,7 +2224,7 @@
    "fixture": "ETC Source Four 750 W (tungsten) on a dimmer",
    "pos": [
     17.0,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2232,7 +2232,7 @@
     1.9,
     5.6
    ],
-   "field": 16.6,
+   "field": 15.4,
    "purpose": "The cups on the sideboard, shuttered strip (S5)",
    "system": "special",
    "area": null,
@@ -2263,7 +2263,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     17.6,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2302,7 +2302,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     18.9,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2341,7 +2341,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     21.4,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2380,7 +2380,7 @@
    "fixture": "ETC ColorSource Spot",
    "pos": [
     22.0,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2388,7 +2388,7 @@
     1.4,
     5.3
    ],
-   "field": 7.7,
+   "field": 7.1,
    "purpose": "Lantern reveal: the tipped chair (S24)",
    "system": "special",
    "area": null,
@@ -2419,7 +2419,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     22.7,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2458,7 +2458,7 @@
    "fixture": "ETC ColorSource Spot",
    "pos": [
     23.4,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2466,7 +2466,7 @@
     1.8,
     5.0
    ],
-   "field": 8.3,
+   "field": 7.7,
    "purpose": "Lantern reveal: the dressing table (S24)",
    "system": "special",
    "area": null,
@@ -2497,7 +2497,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     24.0,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2536,7 +2536,7 @@
    "fixture": "Martin MAC Encore Performance CLD",
    "pos": [
     25.0,
-    8.0,
+    8.5,
     4.7
    ],
    "aim": [
@@ -2578,7 +2578,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     15.6,
-    8.0,
+    9.9,
     6.5
    ],
    "aim": [
@@ -2617,7 +2617,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     16.6,
-    8.0,
+    9.9,
     6.5
    ],
    "aim": [
@@ -2656,7 +2656,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     17.4,
-    8.0,
+    9.9,
     6.5
    ],
    "aim": [
@@ -2695,7 +2695,7 @@
    "fixture": "ETC ColorSource Spot",
    "pos": [
     18.2,
-    8.0,
+    9.9,
     6.5
    ],
    "aim": [
@@ -2703,7 +2703,7 @@
     2.3,
     3.9
    ],
-   "field": 25.9,
+   "field": 20.7,
    "purpose": "The sheet, backlit (S32)",
    "system": "special",
    "area": null,
@@ -2734,7 +2734,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     18.9,
-    8.0,
+    9.9,
     6.5
    ],
    "aim": [
@@ -2773,7 +2773,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     21.4,
-    8.0,
+    9.9,
     6.5
    ],
    "aim": [
@@ -2812,7 +2812,7 @@
    "fixture": "ETC ColorSource Spot",
    "pos": [
     22.2,
-    8.0,
+    9.9,
     6.5
    ],
    "aim": [
@@ -2820,7 +2820,7 @@
     4.5,
     8.75
    ],
-   "field": 13.6,
+   "field": 9.7,
    "purpose": "Steeple lanterns pin (S22)",
    "system": "special",
    "area": null,
@@ -2851,7 +2851,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     22.9,
-    8.0,
+    9.9,
     6.5
    ],
    "aim": [
@@ -2890,7 +2890,7 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     23.8,
-    8.0,
+    9.9,
     6.5
    ],
    "aim": [
@@ -2929,8 +2929,8 @@
    "fixture": "Chauvet Ovation CYC 1 FC",
    "pos": [
     14.6,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     15.5,
@@ -2968,8 +2968,8 @@
    "fixture": "Martin MAC Aura",
    "pos": [
     15.0,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     17.0,
@@ -3010,8 +3010,8 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     16.0,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     17.6,
@@ -3049,15 +3049,15 @@
    "fixture": "ETC ColorSource Spot",
    "pos": [
     16.8,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     18.0,
     5.0,
     7.6
    ],
-   "field": 25.8,
+   "field": 13.1,
    "purpose": "Otis at the rafters (S12)",
    "system": "special",
    "area": null,
@@ -3088,8 +3088,8 @@
    "fixture": "Chauvet Ovation CYC 1 FC",
    "pos": [
     17.4,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     18.2,
@@ -3127,8 +3127,8 @@
    "fixture": "Martin MAC Aura",
    "pos": [
     18.2,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     19.0,
@@ -3169,15 +3169,15 @@
    "fixture": "ETC ColorSource Spot",
    "pos": [
     18.9,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     20.2,
     2.4,
     7.3
    ],
-   "field": 17.6,
+   "field": 11.3,
    "purpose": "Rab at the back: soft cool backlight (S33)",
    "system": "special",
    "area": null,
@@ -3208,8 +3208,8 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     21.4,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     20.2,
@@ -3247,8 +3247,8 @@
    "fixture": "Martin MAC Aura",
    "pos": [
     21.9,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     21.0,
@@ -3289,8 +3289,8 @@
    "fixture": "Chauvet Ovation CYC 1 FC",
    "pos": [
     22.6,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     21.8,
@@ -3328,8 +3328,8 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     23.0,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     22.7,
@@ -3367,8 +3367,8 @@
    "fixture": "ETC ColorSource PAR",
    "pos": [
     24.2,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     20.0,
@@ -3406,8 +3406,8 @@
    "fixture": "Martin MAC Aura",
    "pos": [
     25.0,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     23.0,
@@ -3448,8 +3448,8 @@
    "fixture": "Chauvet Ovation CYC 1 FC",
    "pos": [
     25.4,
-    8.0,
-    8.1
+    11.4,
+    8.0
    ],
    "aim": [
     24.5,
@@ -3486,7 +3486,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     1.2,
     3.4
    ],
@@ -3525,7 +3525,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     2.2,
     3.4
    ],
@@ -3564,7 +3564,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     3.4,
     3.4
    ],
@@ -3603,7 +3603,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     4.2,
     3.4
    ],
@@ -3612,7 +3612,7 @@
     2.4,
     3.2
    ],
-   "field": 32.2,
+   "field": 34.8,
    "purpose": "The SL in-1 doorway (S14)",
    "system": "special",
    "area": null,
@@ -3642,7 +3642,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     1.2,
     5.6
    ],
@@ -3681,7 +3681,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     2.2,
     5.6
    ],
@@ -3720,7 +3720,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     3.4,
     5.6
    ],
@@ -3759,7 +3759,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     4.0,
     5.6
    ],
@@ -3768,7 +3768,7 @@
     1.6,
     6.7
    ],
-   "field": 33.0,
+   "field": 34.8,
    "purpose": "Bucket, boy and furnace isolation (S10)",
    "system": "special",
    "area": null,
@@ -3798,7 +3798,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     4.8,
     5.6
    ],
@@ -3807,7 +3807,7 @@
     1.6,
     4.8
    ],
-   "field": 22.9,
+   "field": 23.8,
    "purpose": "Window light through the window flat (S16)",
    "system": "special",
    "area": null,
@@ -3837,7 +3837,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     1.2,
     7.6
    ],
@@ -3876,7 +3876,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     2.2,
     7.6
    ],
@@ -3915,7 +3915,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     3.4,
     7.6
    ],
@@ -3954,7 +3954,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    13.5,
+    13.8,
     1.8,
     7.6
    ],
@@ -3963,7 +3963,7 @@
     1.8,
     6.9
    ],
-   "field": 15.9,
+   "field": 17.4,
    "purpose": "The crucible pour: hot low snap (S9)",
    "system": "special",
    "area": null,
@@ -3993,7 +3993,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    25.75,
+    25.45,
     2.2,
     3.1
    ],
@@ -4032,7 +4032,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    25.75,
+    25.45,
     3.4,
     3.1
    ],
@@ -4071,7 +4071,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    26.5,
+    26.2,
     1.2,
     5.6
    ],
@@ -4110,7 +4110,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    26.5,
+    26.2,
     2.2,
     5.6
    ],
@@ -4149,7 +4149,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    26.5,
+    26.2,
     3.4,
     5.6
    ],
@@ -4188,7 +4188,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    26.5,
+    26.2,
     4.8,
     5.6
    ],
@@ -4227,7 +4227,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    26.5,
+    26.2,
     1.2,
     7.6
    ],
@@ -4266,7 +4266,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    26.5,
+    26.2,
     2.2,
     7.6
    ],
@@ -4305,7 +4305,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    26.5,
+    26.2,
     3.4,
     7.6
    ],
@@ -4344,7 +4344,7 @@
    "type": "cs-spot",
    "fixture": "ETC ColorSource Spot",
    "pos": [
-    26.5,
+    26.2,
     4.8,
     7.6
    ],
@@ -32155,5 +32155,1312 @@
  "universes": {
   "1": 479,
   "2": 489
- }
+ },
+ "structures": [
+  {
+   "kind": "boom",
+   "name": "Box boom house right",
+   "a": [
+    13.85,
+    2.55,
+    -2.5
+   ],
+   "b": [
+    13.85,
+    5.95,
+    -2.5
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "arm",
+   "name": "Box boom house right wall arm",
+   "a": [
+    13.48,
+    2.9,
+    -2.5
+   ],
+   "b": [
+    13.85,
+    2.9,
+    -2.5
+   ],
+   "r": 0.02
+  },
+  {
+   "kind": "arm",
+   "name": "Box boom house right wall arm",
+   "a": [
+    13.48,
+    5.7,
+    -2.5
+   ],
+   "b": [
+    13.85,
+    5.7,
+    -2.5
+   ],
+   "r": 0.02
+  },
+  {
+   "kind": "arm",
+   "name": "Box boom house right side arm",
+   "a": [
+    13.85,
+    3.02,
+    -2.5
+   ],
+   "b": [
+    14.15,
+    3.02,
+    -2.5
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "Box boom house right side arm",
+   "a": [
+    13.85,
+    4.22,
+    -2.5
+   ],
+   "b": [
+    14.15,
+    4.22,
+    -2.5
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "Box boom house right side arm",
+   "a": [
+    13.85,
+    5.42,
+    -2.5
+   ],
+   "b": [
+    14.15,
+    5.42,
+    -2.5
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "boom",
+   "name": "Box boom house left",
+   "a": [
+    26.55,
+    2.55,
+    -2.5
+   ],
+   "b": [
+    26.55,
+    5.95,
+    -2.5
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "arm",
+   "name": "Box boom house left wall arm",
+   "a": [
+    26.92,
+    2.9,
+    -2.5
+   ],
+   "b": [
+    26.55,
+    2.9,
+    -2.5
+   ],
+   "r": 0.02
+  },
+  {
+   "kind": "arm",
+   "name": "Box boom house left wall arm",
+   "a": [
+    26.92,
+    5.7,
+    -2.5
+   ],
+   "b": [
+    26.55,
+    5.7,
+    -2.5
+   ],
+   "r": 0.02
+  },
+  {
+   "kind": "arm",
+   "name": "Box boom house left side arm",
+   "a": [
+    26.55,
+    3.02,
+    -2.5
+   ],
+   "b": [
+    26.25,
+    3.02,
+    -2.5
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "Box boom house left side arm",
+   "a": [
+    26.55,
+    4.22,
+    -2.5
+   ],
+   "b": [
+    26.25,
+    4.22,
+    -2.5
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "Box boom house left side arm",
+   "a": [
+    26.55,
+    5.42,
+    -2.5
+   ],
+   "b": [
+    26.25,
+    5.42,
+    -2.5
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "boom",
+   "name": "Pros boom house right",
+   "a": [
+    14.5,
+    1.8,
+    0.6
+   ],
+   "b": [
+    14.5,
+    3.8,
+    0.6
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "arm",
+   "name": "Pros boom house right wall arm",
+   "a": [
+    14.37,
+    2.0,
+    0.6
+   ],
+   "b": [
+    14.5,
+    2.0,
+    0.6
+   ],
+   "r": 0.02
+  },
+  {
+   "kind": "arm",
+   "name": "Pros boom house right wall arm",
+   "a": [
+    14.37,
+    3.6,
+    0.6
+   ],
+   "b": [
+    14.5,
+    3.6,
+    0.6
+   ],
+   "r": 0.02
+  },
+  {
+   "kind": "arm",
+   "name": "Pros boom house right side arm",
+   "a": [
+    14.5,
+    3.02,
+    0.6
+   ],
+   "b": [
+    14.8,
+    3.02,
+    0.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "boom",
+   "name": "Pros boom house left",
+   "a": [
+    25.8,
+    1.8,
+    0.6
+   ],
+   "b": [
+    25.8,
+    3.8,
+    0.6
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "arm",
+   "name": "Pros boom house left wall arm",
+   "a": [
+    25.93,
+    2.0,
+    0.6
+   ],
+   "b": [
+    25.8,
+    2.0,
+    0.6
+   ],
+   "r": 0.02
+  },
+  {
+   "kind": "arm",
+   "name": "Pros boom house left wall arm",
+   "a": [
+    25.93,
+    3.6,
+    0.6
+   ],
+   "b": [
+    25.8,
+    3.6,
+    0.6
+   ],
+   "r": 0.02
+  },
+  {
+   "kind": "arm",
+   "name": "Pros boom house left side arm",
+   "a": [
+    25.8,
+    3.02,
+    0.6
+   ],
+   "b": [
+    25.5,
+    3.02,
+    0.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "boom",
+   "name": "SL boom 1 (in 1)",
+   "a": [
+    13.5,
+    0.8,
+    3.4
+   ],
+   "b": [
+    13.5,
+    4.45,
+    3.4
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "base",
+   "name": "SL boom 1 (in 1) base",
+   "a": [
+    13.5,
+    0.8,
+    3.4
+   ],
+   "b": [
+    13.5,
+    0.83,
+    3.4
+   ],
+   "r": 0.3
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 1 (in 1) side arm",
+   "a": [
+    13.5,
+    1.2200000000000002,
+    3.4
+   ],
+   "b": [
+    13.8,
+    1.2200000000000002,
+    3.4
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 1 (in 1) side arm",
+   "a": [
+    13.5,
+    2.22,
+    3.4
+   ],
+   "b": [
+    13.8,
+    2.22,
+    3.4
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 1 (in 1) side arm",
+   "a": [
+    13.5,
+    3.4200000000000004,
+    3.4
+   ],
+   "b": [
+    13.8,
+    3.4200000000000004,
+    3.4
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 1 (in 1) side arm",
+   "a": [
+    13.5,
+    4.22,
+    3.4
+   ],
+   "b": [
+    13.8,
+    4.22,
+    3.4
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "boom",
+   "name": "SL boom 2 (in 2)",
+   "a": [
+    13.5,
+    0.8,
+    5.6
+   ],
+   "b": [
+    13.5,
+    5.05,
+    5.6
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "base",
+   "name": "SL boom 2 (in 2) base",
+   "a": [
+    13.5,
+    0.8,
+    5.6
+   ],
+   "b": [
+    13.5,
+    0.83,
+    5.6
+   ],
+   "r": 0.3
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 2 (in 2) side arm",
+   "a": [
+    13.5,
+    1.2200000000000002,
+    5.6
+   ],
+   "b": [
+    13.8,
+    1.2200000000000002,
+    5.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 2 (in 2) side arm",
+   "a": [
+    13.5,
+    2.22,
+    5.6
+   ],
+   "b": [
+    13.8,
+    2.22,
+    5.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 2 (in 2) side arm",
+   "a": [
+    13.5,
+    3.4200000000000004,
+    5.6
+   ],
+   "b": [
+    13.8,
+    3.4200000000000004,
+    5.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 2 (in 2) side arm",
+   "a": [
+    13.5,
+    4.02,
+    5.6
+   ],
+   "b": [
+    13.8,
+    4.02,
+    5.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 2 (in 2) side arm",
+   "a": [
+    13.5,
+    4.819999999999999,
+    5.6
+   ],
+   "b": [
+    13.8,
+    4.819999999999999,
+    5.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "boom",
+   "name": "SL boom 3 (in 3)",
+   "a": [
+    13.5,
+    0.8,
+    7.6
+   ],
+   "b": [
+    13.5,
+    3.6500000000000004,
+    7.6
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "base",
+   "name": "SL boom 3 (in 3) base",
+   "a": [
+    13.5,
+    0.8,
+    7.6
+   ],
+   "b": [
+    13.5,
+    0.83,
+    7.6
+   ],
+   "r": 0.3
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 3 (in 3) side arm",
+   "a": [
+    13.5,
+    1.2200000000000002,
+    7.6
+   ],
+   "b": [
+    13.8,
+    1.2200000000000002,
+    7.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 3 (in 3) side arm",
+   "a": [
+    13.5,
+    2.22,
+    7.6
+   ],
+   "b": [
+    13.8,
+    2.22,
+    7.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 3 (in 3) side arm",
+   "a": [
+    13.5,
+    3.4200000000000004,
+    7.6
+   ],
+   "b": [
+    13.8,
+    3.4200000000000004,
+    7.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SL boom 3 (in 3) side arm",
+   "a": [
+    13.5,
+    1.82,
+    7.6
+   ],
+   "b": [
+    13.8,
+    1.82,
+    7.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "boom",
+   "name": "SR boom 1 (in 1, the pocket)",
+   "a": [
+    25.75,
+    0.8,
+    3.0999999999999996
+   ],
+   "b": [
+    25.75,
+    3.6500000000000004,
+    3.0999999999999996
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "base",
+   "name": "SR boom 1 (in 1, the pocket) base",
+   "a": [
+    25.75,
+    0.8,
+    3.0999999999999996
+   ],
+   "b": [
+    25.75,
+    0.83,
+    3.0999999999999996
+   ],
+   "r": 0.3
+  },
+  {
+   "kind": "arm",
+   "name": "SR boom 1 (in 1, the pocket) side arm",
+   "a": [
+    25.75,
+    2.22,
+    3.0999999999999996
+   ],
+   "b": [
+    25.45,
+    2.22,
+    3.0999999999999996
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SR boom 1 (in 1, the pocket) side arm",
+   "a": [
+    25.75,
+    3.4200000000000004,
+    3.0999999999999996
+   ],
+   "b": [
+    25.45,
+    3.4200000000000004,
+    3.0999999999999996
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "boom",
+   "name": "SR boom 2 (in 2)",
+   "a": [
+    26.5,
+    0.8,
+    5.6
+   ],
+   "b": [
+    26.5,
+    5.05,
+    5.6
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "base",
+   "name": "SR boom 2 (in 2) base",
+   "a": [
+    26.5,
+    0.8,
+    5.6
+   ],
+   "b": [
+    26.5,
+    0.83,
+    5.6
+   ],
+   "r": 0.3
+  },
+  {
+   "kind": "arm",
+   "name": "SR boom 2 (in 2) side arm",
+   "a": [
+    26.5,
+    1.2200000000000002,
+    5.6
+   ],
+   "b": [
+    26.2,
+    1.2200000000000002,
+    5.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SR boom 2 (in 2) side arm",
+   "a": [
+    26.5,
+    2.22,
+    5.6
+   ],
+   "b": [
+    26.2,
+    2.22,
+    5.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SR boom 2 (in 2) side arm",
+   "a": [
+    26.5,
+    3.4200000000000004,
+    5.6
+   ],
+   "b": [
+    26.2,
+    3.4200000000000004,
+    5.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SR boom 2 (in 2) side arm",
+   "a": [
+    26.5,
+    4.819999999999999,
+    5.6
+   ],
+   "b": [
+    26.2,
+    4.819999999999999,
+    5.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "boom",
+   "name": "SR boom 3 (in 3)",
+   "a": [
+    26.5,
+    0.8,
+    7.6
+   ],
+   "b": [
+    26.5,
+    5.05,
+    7.6
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "base",
+   "name": "SR boom 3 (in 3) base",
+   "a": [
+    26.5,
+    0.8,
+    7.6
+   ],
+   "b": [
+    26.5,
+    0.83,
+    7.6
+   ],
+   "r": 0.3
+  },
+  {
+   "kind": "arm",
+   "name": "SR boom 3 (in 3) side arm",
+   "a": [
+    26.5,
+    1.2200000000000002,
+    7.6
+   ],
+   "b": [
+    26.2,
+    1.2200000000000002,
+    7.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SR boom 3 (in 3) side arm",
+   "a": [
+    26.5,
+    2.22,
+    7.6
+   ],
+   "b": [
+    26.2,
+    2.22,
+    7.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SR boom 3 (in 3) side arm",
+   "a": [
+    26.5,
+    3.4200000000000004,
+    7.6
+   ],
+   "b": [
+    26.2,
+    3.4200000000000004,
+    7.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "SR boom 3 (in 3) side arm",
+   "a": [
+    26.5,
+    4.819999999999999,
+    7.6
+   ],
+   "b": [
+    26.2,
+    4.819999999999999,
+    7.6
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "pipe",
+   "name": "FOH 1 — the bridge pipe",
+   "a": [
+    14.95,
+    6.974,
+    -3.15
+   ],
+   "b": [
+    24.85,
+    6.974,
+    -3.15
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "arm",
+   "name": "FOH 1 rail clamp",
+   "a": [
+    15.3,
+    6.974,
+    -3.15
+   ],
+   "b": [
+    15.3,
+    7.2,
+    -3.3
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "FOH 1 rail clamp",
+   "a": [
+    17.5,
+    6.974,
+    -3.15
+   ],
+   "b": [
+    17.5,
+    7.2,
+    -3.3
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "FOH 1 rail clamp",
+   "a": [
+    20.0,
+    6.974,
+    -3.15
+   ],
+   "b": [
+    20.0,
+    7.2,
+    -3.3
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "FOH 1 rail clamp",
+   "a": [
+    22.5,
+    6.974,
+    -3.15
+   ],
+   "b": [
+    22.5,
+    7.2,
+    -3.3
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "arm",
+   "name": "FOH 1 rail clamp",
+   "a": [
+    24.6,
+    6.974,
+    -3.15
+   ],
+   "b": [
+    24.6,
+    7.2,
+    -3.3
+   ],
+   "r": 0.016
+  },
+  {
+   "kind": "pipe",
+   "name": "FOH 2 pipe",
+   "a": [
+    15.2,
+    7.224,
+    -5.2
+   ],
+   "b": [
+    23.8,
+    7.224,
+    -5.2
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "drop",
+   "name": "FOH 2 drop",
+   "a": [
+    15.6,
+    7.224,
+    -5.2
+   ],
+   "b": [
+    15.6,
+    8.05,
+    -5.2
+   ],
+   "r": 0.012
+  },
+  {
+   "kind": "drop",
+   "name": "FOH 2 drop",
+   "a": [
+    19.5,
+    7.224,
+    -5.2
+   ],
+   "b": [
+    19.5,
+    8.05,
+    -5.2
+   ],
+   "r": 0.012
+  },
+  {
+   "kind": "drop",
+   "name": "FOH 2 drop",
+   "a": [
+    23.4,
+    7.224,
+    -5.2
+   ],
+   "b": [
+    23.4,
+    8.05,
+    -5.2
+   ],
+   "r": 0.012
+  },
+  {
+   "kind": "pipe",
+   "name": "1st Electric pipe",
+   "a": [
+    13.8,
+    8.524,
+    2.9
+   ],
+   "b": [
+    26.2,
+    8.524,
+    2.9
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "drop",
+   "name": "1st Electric lift line",
+   "a": [
+    14.2,
+    8.548,
+    2.9
+   ],
+   "b": [
+    14.2,
+    15.9,
+    2.9
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "1st Electric lift line",
+   "a": [
+    18.0,
+    8.548,
+    2.9
+   ],
+   "b": [
+    18.0,
+    15.9,
+    2.9
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "1st Electric lift line",
+   "a": [
+    22.0,
+    8.548,
+    2.9
+   ],
+   "b": [
+    22.0,
+    15.9,
+    2.9
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "1st Electric lift line",
+   "a": [
+    25.8,
+    8.548,
+    2.9
+   ],
+   "b": [
+    25.8,
+    15.9,
+    2.9
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "pipe",
+   "name": "2nd Electric pipe",
+   "a": [
+    13.8,
+    8.524,
+    4.7
+   ],
+   "b": [
+    26.2,
+    8.524,
+    4.7
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "drop",
+   "name": "2nd Electric lift line",
+   "a": [
+    14.2,
+    8.548,
+    4.7
+   ],
+   "b": [
+    14.2,
+    15.9,
+    4.7
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "2nd Electric lift line",
+   "a": [
+    18.0,
+    8.548,
+    4.7
+   ],
+   "b": [
+    18.0,
+    15.9,
+    4.7
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "2nd Electric lift line",
+   "a": [
+    22.0,
+    8.548,
+    4.7
+   ],
+   "b": [
+    22.0,
+    15.9,
+    4.7
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "2nd Electric lift line",
+   "a": [
+    25.8,
+    8.548,
+    4.7
+   ],
+   "b": [
+    25.8,
+    15.9,
+    4.7
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "pipe",
+   "name": "3rd Electric pipe",
+   "a": [
+    13.8,
+    9.924,
+    6.5
+   ],
+   "b": [
+    26.2,
+    9.924,
+    6.5
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "drop",
+   "name": "3rd Electric lift line",
+   "a": [
+    14.2,
+    9.948,
+    6.5
+   ],
+   "b": [
+    14.2,
+    15.9,
+    6.5
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "3rd Electric lift line",
+   "a": [
+    18.0,
+    9.948,
+    6.5
+   ],
+   "b": [
+    18.0,
+    15.9,
+    6.5
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "3rd Electric lift line",
+   "a": [
+    22.0,
+    9.948,
+    6.5
+   ],
+   "b": [
+    22.0,
+    15.9,
+    6.5
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "3rd Electric lift line",
+   "a": [
+    25.8,
+    9.948,
+    6.5
+   ],
+   "b": [
+    25.8,
+    15.9,
+    6.5
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "pipe",
+   "name": "4th Electric pipe",
+   "a": [
+    13.8,
+    11.424,
+    8.0
+   ],
+   "b": [
+    26.2,
+    11.424,
+    8.0
+   ],
+   "r": 0.024
+  },
+  {
+   "kind": "drop",
+   "name": "4th Electric lift line",
+   "a": [
+    14.2,
+    11.448,
+    8.0
+   ],
+   "b": [
+    14.2,
+    15.9,
+    8.0
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "4th Electric lift line",
+   "a": [
+    18.0,
+    11.448,
+    8.0
+   ],
+   "b": [
+    18.0,
+    15.9,
+    8.0
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "4th Electric lift line",
+   "a": [
+    22.0,
+    11.448,
+    8.0
+   ],
+   "b": [
+    22.0,
+    15.9,
+    8.0
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "drop",
+   "name": "4th Electric lift line",
+   "a": [
+    25.8,
+    11.448,
+    8.0
+   ],
+   "b": [
+    25.8,
+    15.9,
+    8.0
+   ],
+   "r": 0.005
+  },
+  {
+   "kind": "boom",
+   "name": "Doorway stand (backstage corridor)",
+   "a": [
+    20.0,
+    0.8,
+    10.5
+   ],
+   "b": [
+    20.0,
+    3.02,
+    10.5
+   ],
+   "r": 0.022
+  },
+  {
+   "kind": "base",
+   "name": "Doorway stand base",
+   "a": [
+    20.0,
+    0.8,
+    10.5
+   ],
+   "b": [
+    20.0,
+    0.83,
+    10.5
+   ],
+   "r": 0.35
+  }
+ ]
 }

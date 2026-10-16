@@ -141,18 +141,33 @@ for i, (x, key) in enumerate([(15.6, 'SHOP'), (16.8, 'MSL'), (18.0, 'LOFT'), (19
     add(f'F2-{i:02d}', 'FOH 2 — behind the bridge', 'lustr', [x, F2_Y, F2_Z], A(key), f'Front light {key}', 'front', area=key)
 
 # ---------------------------------------------------------------- box booms on the splay walls (side-front, crossed)
-for side, x, areas in (('HR', 13.85, ['APR', 'DSR', 'MSR']), ('HL', 26.55, ['APL', 'DSL', 'MSL'])):
+STRUCT = []      # what the units hang on: {kind, name, a, b (world), r} — pipes, booms, arms, drops; the page draws them
+for side, x, wx, areas in (('HR', 13.85, 13.48, ['APR', 'DSR', 'MSR']), ('HL', 26.55, 26.92, ['APL', 'DSL', 'MSL'])):
+    sgn = 1 if side == 'HR' else -1
+    name = f'Box boom house {"right" if side == "HR" else "left"}'
+    STRUCT.append(dict(kind='boom', name=name, a=[x, 2.55, -2.50], b=[x, 5.95, -2.50], r=0.024))
+    for y in (2.9, 5.7):
+        STRUCT.append(dict(kind='arm', name=name + ' wall arm', a=[wx, y, -2.50], b=[x, y, -2.50], r=0.02))
     for i, (y, key) in enumerate(zip([3.0, 4.2, 5.4], areas), 1):
-        add(f'BB{side}-{i}', f'Box boom house {"right" if side == "HR" else "left"}', 'lustr', [x, y, -2.50], A(key),
-            f'Side-front {key}', 'box', area=key)
+        ux = x + 0.30 * sgn
+        STRUCT.append(dict(kind='arm', name=name + ' side arm', a=[x, y + 0.02, -2.50], b=[ux, y + 0.02, -2.50], r=0.016))
+        add(f'BB{side}-{i}', name, 'lustr', [ux, y, -2.50], A(key), f'Side-front {key}', 'box', area=key)
 
 # ---------------------------------------------------------------- pros booms on the apron walls (apron side light)
-add('PB-L', 'Pros boom house right', 'cs-spot', [14.62, 3.0, 0.60], W(1.0, 1.4, -1.3), 'Apron side light from SL', 'pros', row='AP')
-add('PB-R', 'Pros boom house left', 'cs-spot', [25.68, 3.0, 0.60], W(-1.0, 1.4, -1.3), 'Apron side light from SR', 'pros', row='AP')
+for nm, x, wx, ux in (('Pros boom house right', 14.50, 14.37, 14.80), ('Pros boom house left', 25.80, 25.93, 25.50)):
+    STRUCT.append(dict(kind='boom', name=nm, a=[x, 1.8, 0.60], b=[x, 3.8, 0.60], r=0.024))
+    for y in (2.0, 3.6):
+        STRUCT.append(dict(kind='arm', name=nm + ' wall arm', a=[wx, y, 0.60], b=[x, y, 0.60], r=0.02))
+    STRUCT.append(dict(kind='arm', name=nm + ' side arm', a=[x, 3.02, 0.60], b=[ux, 3.02, 0.60], r=0.016))
+add('PB-L', 'Pros boom house right', 'cs-spot', [14.80, 3.0, 0.60], W(1.0, 1.4, -1.3), 'Apron side light from SL', 'pros', row='AP')
+add('PB-R', 'Pros boom house left', 'cs-spot', [25.50, 3.0, 0.60], W(-1.0, 1.4, -1.3), 'Apron side light from SR', 'pros', row='AP')
 
-# ---------------------------------------------------------------- the four electrics (cross-stage pipes at y 8.0, above the iron)
-E_Y = 8.00
-EZ = {1: W(0, 0, 0.6)[2], 2: W(0, 0, 2.4)[2], 3: W(0, 0, 4.2)[2], 4: W(0, 0, 5.8)[2]}   # the 4th at 5.8, clear of the masts' lane (6.33)
+# ---------------------------------------------------------------- the four electrics (cross-stage pipes above the iron, out of the front row's sight)
+# Heights: the front row's eye (stage 0, 0.32, -4.30) sees through the arch (header 4.40 over the deck) and, upstage of the
+# masking border (z 3.0, 4.40-5.00), over the border's top: anything under 0.32 + 0.949 (z + 4.30) over the deck shows. So the
+# 1st and 2nd hang at 8.5 (7.7 over the deck; their bodies' bottoms ~7.75 world), the 3rd at 9.9, the 4th at 11.4.
+EY = {1: 8.50, 2: 8.50, 3: 9.90, 4: 11.40}
+EZ = {1: W(0, 0, 0.6)[2], 2: W(0, 0, 2.4)[2], 3: W(0, 0, 4.2)[2], 4: W(0, 0, 5.7)[2]}   # the 4th at 5.7, clear of the masts' lane (6.33)
 # never over the iron's centre walkway x 19.2…21.1 (it would shade them): units at ≤ 18.9 or ≥ 21.4
 elec = {1: [], 2: [], 3: [], 4: []}
 
@@ -211,14 +226,21 @@ E(4, 25.0, 'aura', W(3.0, 0, 3.5), 'Wash mover: back light colour, the ride', 'a
 
 for n in (1, 2, 3, 4):
     for i, (x, typ, aim, purpose, system, kw) in enumerate(sorted(elec[n], key=lambda e: e[0]), 1):
-        add(f'E{n}-{i:02d}', f'{"1st 2nd 3rd 4th".split()[n - 1]} Electric', typ, [x, E_Y, EZ[n]], aim, purpose, system, **kw)
+        add(f'E{n}-{i:02d}', f'{"1st 2nd 3rd 4th".split()[n - 1]} Electric', typ, [x, EY[n], EZ[n]], aim, purpose, system, **kw)
 
 # ---------------------------------------------------------------- side booms in the wings (the dance, the ride, the specials)
 # SL x 13.5 at stage z 1.1 / 3.3 / 5.3; SR in-1 inside the SR pocket (x 25.75, z 3.1), SR x 26.5 at 3.3 / 5.3.
 # shin 0.4, mid 1.4, head 2.6 over the deck; each crosses to the far side of its row at that height.
 def boom(code, label, x, sz, units_):
+    top = max(h for h, *_ in units_) + 0.25
+    z = 2.30 + sz
+    sgn = 1 if x < 20 else -1                      # the side arms reach onstage
+    STRUCT.append(dict(kind='boom', name=label, a=[x, 0.80, z], b=[x, 0.80 + top, z], r=0.024))
+    STRUCT.append(dict(kind='base', name=label + ' base', a=[x, 0.80, z], b=[x, 0.83, z], r=0.30))
     for i, (h, typ, aim, purpose, system, kw) in enumerate(units_, 1):
-        add(f'{code}-{i}', label, typ, [x, 0.80 + h, 2.30 + sz], aim, purpose, system, **kw)
+        ux = x + 0.30 * sgn
+        STRUCT.append(dict(kind='arm', name=label + ' side arm', a=[x, 0.80 + h + 0.02, z], b=[ux, 0.80 + h + 0.02, z], r=0.016))
+        add(f'{code}-{i}', label, typ, [ux, 0.80 + h, z], aim, purpose, system, **kw)
 
 
 def side(h, sx, sz, row, frm):
@@ -272,6 +294,20 @@ PRACTICALS = [
 ]
 for pid, label, p, kind, power in PRACTICALS:
     add(pid, 'Practicals', 'practical', p, p, label, 'practical', colour=kind, power=power)
+
+STRUCT.append(dict(kind='pipe', name='FOH 1 — the bridge pipe', a=[14.95, BR_Y + 0.024, BR_Z], b=[24.85, BR_Y + 0.024, BR_Z], r=0.024))
+for x in (15.3, 17.5, 20.0, 22.5, 24.6):          # clamped back to the bridge's rail (its face z -3.30, top 7.23)
+    STRUCT.append(dict(kind='arm', name='FOH 1 rail clamp', a=[x, BR_Y + 0.024, BR_Z], b=[x, 7.20, -3.30], r=0.016))
+STRUCT.append(dict(kind='pipe', name='FOH 2 pipe', a=[15.2, F2_Y + 0.024, F2_Z], b=[23.8, F2_Y + 0.024, F2_Z], r=0.024))
+for x in (15.6, 19.5, 23.4):                       # dropped from the auditorium ceiling (y 8.05)
+    STRUCT.append(dict(kind='drop', name='FOH 2 drop', a=[x, F2_Y + 0.024, F2_Z], b=[x, 8.05, F2_Z], r=0.012))
+for n in (1, 2, 3, 4):
+    nm = f'{"1st 2nd 3rd 4th".split()[n - 1]} Electric'
+    STRUCT.append(dict(kind='pipe', name=nm + ' pipe', a=[13.8, EY[n] + 0.024, EZ[n]], b=[26.2, EY[n] + 0.024, EZ[n]], r=0.024))
+    for x in (14.2, 18.0, 22.0, 25.8):             # its lift lines up to the grid under the fly roof (y 16.0)
+        STRUCT.append(dict(kind='drop', name=nm + ' lift line', a=[x, EY[n] + 0.048, EZ[n]], b=[x, 15.9, EZ[n]], r=0.005))
+STRUCT.append(dict(kind='boom', name='Doorway stand (backstage corridor)', a=[20.0, 0.80, 10.5], b=[20.0, 3.02, 10.5], r=0.022))
+STRUCT.append(dict(kind='base', name='Doorway stand base', a=[20.0, 0.80, 10.5], b=[20.0, 0.83, 10.5], r=0.35))
 
 # ---------------------------------------------------------------- the patch
 U1_SYSTEMS_FIRST = ('FOH 1', 'FOH 2', 'Box', 'Pros', '1st', '2nd', '3rd', '4th', 'Floor', 'Backstage', "Theatre 2's")
@@ -622,6 +658,7 @@ out = dict(
     extras={k: resolve_extra(v) for k, v in sorted(EXTRAS.items(), key=lambda kv: [int(n) for n in kv[0].split('.')])},
     segments=segments,
     universes={str(u): addr[u] - 1 for u in (1, 2)},
+    structures=STRUCT,
 )
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
 with open(OUT, 'w', encoding='utf-8', newline='\n') as f:

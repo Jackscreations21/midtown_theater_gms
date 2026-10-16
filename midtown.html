@@ -11010,6 +11010,8 @@ function buildHouse2(src) {
   MIDTOWN.backstageFittings = backstageFittings;             // { group, bulbs, byRoom, items, triangles, check() } (BACKSTAGE — THE FITTINGS)
   try { wlBuildAll(house.scene, house2Root); } catch (e) { console.error('worklight: building the worklights failed —', e); }   // one a stage, both off; every material takes their light (THE WORKLIGHTS)
   MIDTOWN.worklight = WORKLIGHT_API;                         // MIDTOWN.worklight.set(1 | 2, on), .toggle(house), .state(), .check()
+  try { await jtlBuild(); } catch (e) { console.error('jtLights: hanging the Theatre 2 Johnny Tremain rig failed —', e); }   // THEATRE 2: JOHNNY TREMAIN — THE LIGHTS
+  MIDTOWN.jtLights = JTL_API;                                // MIDTOWN.jtLights.look(scene, seg), .level(id, v), .blackout(), .off(), .check()
   // Compile every shader and draw one frame (texture uploads, the shadow maps) behind the loader, so the
   // first visible frame does not freeze for a second.
   loadtxt.textContent = 'Compiling…'; bar.style.width = '100%';
@@ -11024,6 +11026,633 @@ function buildHouse2(src) {
   try { buildLightsPanel(); } catch (e) { console.error('lx: the lights panel failed to build —', e); }
   ready = true; requestRender();
 })().catch(fail);
+
+/* ---------------------------------------------------------------- THEATRE 2: JOHNNY TREMAIN — THE LIGHTS
+   Jack: "put up lights. then make a file i can put into qlc+ and it will have all the lighting fixtures in there." The rig
+   for Johnny Tremain hung in Theatre 2, from assets/johnny-tremain/rig.json (tools/jt-rig.py; the plot is
+   docs/johnny-tremain/LIGHT-PLOT.md, the QLC+ workspace assets/johnny-tremain/qlc/, tools/jt-qlc.py): 114 units on the
+   scan's own bridge (FOH 1), a pipe behind it (FOH 2), box booms and pros booms, four electrics at y 8.0 over the iron,
+   six side booms in the wings, a ground row, a floor unit, a unit in the backstage corridor through the stage doors, the
+   booth's two followspots, two hazers, and 14 practicals on their own channels.
+   DRAWN with the repo's fixture models (assets/fixtures/lod/: 800–1,000 triangles a unit — Theatre 2 is seen from its
+   stalls): every fixed unit posed at its hang point and aimed at its focus, then baked into ONE mesh per material (a dozen
+   draw calls for ~100 units) and one lens mesh whose vertex colours are the units' lenses; the ten movers are live objects
+   (their yokes pan, their heads tilt); the pipes, booms, arms and lift lines one more mesh. The followspots are the
+   booth's own Lycian props (THE SECOND HOUSE's boothProps), re-aimed when they pick someone up.
+   LIT without real lights, the worklights' way (HOUSE WORKS: THE WORKLIGHTS): the units are shader terms, clipped to
+   Theatre 2 — up to JTL.N of them at once (the strongest of what is lit; the rest are too faint to see), each a cone (its
+   field, a soft edge), a throw-normalised brightness (each unit gives the same light at its focus whatever its throw, so
+   a wash reads even), and a gobo drawn in the shader (bars, a window, leaves, water, the moon's clouds, a door's slice, the
+   sideboard's strip). On the unlit scan: colour × (ambient + gain·K) + a lift; on every lit material (the set pieces, the
+   actors, built pieces): the irradiance added to its direct diffuse. While the rig is ACTIVE (any look, a level, a
+   blackout) the stage house's own baked light drops to JTL.amb and the hemisphere / house 1's lights on lit materials
+   inside it to JTL.litAmb, so a night look reads as night; off (the panel, off()) it is the page as it was. House 1 is
+   untouched: no light added to the scene, none of its units, materials' looks or lx state change (lx.check() stays).
+   BEAMS in haze for the movers, the backlights, the specials that cut shafts (window, doorway, Rab, Otis, the steeple) and
+   the followspots: an open cone each, additive, its strength level × the hazers' level.
+   LOOKS: look(sceneN, seg) takes the segment's look tag from rig.json (set.json's tags, every one mapped) plus that
+   segment's extras (the furnace, candles, lanterns, specials), and crossfades everything over JTL.fade s off the frame's dt
+   (never a timer); movers travel to their new focus in the same time. level(id, v), blackout(), off(), check(). */
+const JTL = {
+  url: 'assets/johnny-tremain/rig.json',
+  N: 32,                     // shader terms at once
+  fade: 2.0,                 // s, a look's crossfade
+  box: { x: [10.20, 30.00], y: [-1.0, 16.5], z: [-3.6, 8.95] },   // the light's reach: Theatre 2's stage house, the apron and the first rows; never the backstage (z ≥ 9.1)
+  stage: { x: [10.20, 30.00], z0: -0.6, z1: 8.95, soft: 1.0 },     // where the stage's own light goes down while the rig is active (eased in over `soft` m downstage of z0)
+  amb: 0.10,                 // the scan's baked light inside the stage while active (1 = as it was)
+  litAmb: 0.12,              // the hemisphere and house 1's lights on lit materials inside the stage while active
+  gain: 2.4, lift: 0.10,     // the scan: colour × (amb + gain·K) + its colour × lift·K
+  litK: 2.5,                 // lit materials: irradiance per unit of K
+  decay: 1.6,                // the falloff exponent (as the worklight's and the engine's real lights)
+  beamGain: 0.90,            // a beam's strength per level × haze
+  hazeDefault: 0.35,
+  movers: new Set(['encore', 'aura']),
+  gobos: { none: 0, bars: 1, window: 2, leaves: 3, water: 4, moon: 5, slice: 6, strip: 7 },
+  arch: { z: 2.30, x: [15.70, 24.30], top: 5.25, apronTop: 3.6 },   // a FOH unit's light: through the opening (its header 5.20), or on the apron below apronTop
+  state: null,               // the build's record (jtlBuild)
+};
+const JT_U = {
+  uJtOn: { value: 0 }, uJtN: { value: 0 }, uJtTime: { value: 0 },
+  uJtA: { value: Array.from({ length: JTL.N }, () => new THREE.Vector4()) },   // lens xyz, cos(outer half-angle) (−2: a point source)
+  uJtB: { value: Array.from({ length: JTL.N }, () => new THREE.Vector4()) },   // axis xyz, cos(inner half-angle)
+  uJtC: { value: Array.from({ length: JTL.N }, () => new THREE.Vector4()) },   // colour × level × candela (linear), gobo
+  uJtBox0: { value: new THREE.Vector3(JTL.box.x[0], JTL.box.y[0], JTL.box.z[0]) }, uJtBox1: { value: new THREE.Vector3(JTL.box.x[1], JTL.box.y[1], JTL.box.z[1]) },
+  uJtStage: { value: new THREE.Vector4(JTL.stage.x[0], JTL.stage.x[1], JTL.stage.z0, JTL.stage.z1) },
+  uJtK: { value: new THREE.Vector4(JTL.amb, JTL.gain, JTL.lift, JTL.litAmb) }, uJtLitK: { value: JTL.litK },
+};
+const JT_GLSL = `
+uniform float uJtOn; uniform int uJtN; uniform float uJtTime; uniform vec4 uJtA[${JTL.N}]; uniform vec4 uJtB[${JTL.N}]; uniform vec4 uJtC[${JTL.N}];
+uniform vec3 uJtBox0; uniform vec3 uJtBox1; uniform vec4 uJtStage; uniform vec4 uJtK; uniform float uJtLitK;
+varying vec3 vJtP;
+float jtStageIn(vec3 P) {
+  if (P.x < uJtStage.x || P.x > uJtStage.y || P.z > uJtStage.w || P.y > uJtBox1.y) return 0.0;
+  return smoothstep(uJtStage.z - ${JTL.stage.soft.toFixed(2)}, uJtStage.z, P.z);
+}
+float jtGobo(float g, vec3 D, vec3 ax, float co) {
+  vec3 up = abs(ax.y) > 0.95 ? vec3(0.0, 0.0, 1.0) : vec3(0.0, 1.0, 0.0);
+  vec3 r = normalize(cross(ax, up)); vec3 u = cross(r, ax);
+  float z = max(dot(D, ax), 1e-3), tn = sqrt(max(1.0 - co * co, 1e-6)) / max(co, 1e-3);
+  vec2 q = vec2(dot(D, r), dot(D, u)) / z / tn;
+  float t = uJtTime;
+  if (g < 1.5) return mix(0.06, 1.0, smoothstep(0.30, 0.42, abs(fract(q.x * 3.0) - 0.5) * 2.0));                       // bars
+  if (g < 2.5) { float f = step(max(abs(q.x), abs(q.y)), 0.72) * (1.0 - max(step(abs(q.x), 0.05), step(abs(q.y), 0.05))); return mix(0.03, 1.0, f); }   // a window, four panes
+  if (g < 3.5) { float n = sin(q.x * 9.0 + 1.7 * sin(q.y * 7.0 + t * 0.35)) * sin(q.y * 8.5 + 1.4 * sin(q.x * 6.0 - t * 0.25)); return mix(0.18, 1.0, smoothstep(-0.15, 0.45, n)); }   // leaves
+  if (g < 4.5) { float n = sin(q.x * 11.0 + 1.6 * sin(q.y * 5.0 + t * 0.8) + t * 0.6) + sin(q.y * 9.0 - 1.3 * sin(q.x * 4.0 - t * 0.6) - t * 0.5); return mix(0.25, 1.0, smoothstep(-0.4, 1.2, n)); }   // water
+  if (g < 5.5) { float n = sin(q.x * 4.0 + 1.2 * sin(q.y * 3.0 + t * 0.05)) + 0.8 * sin(q.y * 5.0 + 1.1 * sin(q.x * 2.5)); return mix(0.3, 1.0, smoothstep(-0.6, 1.0, n)); }   // the moon's clouds
+  if (g < 6.5) return smoothstep(0.34, 0.24, abs(q.x));                                                                    // a door's slice
+  return smoothstep(1.0, 0.92, abs(q.x)) * smoothstep(0.26, 0.20, abs(q.y));                                               // the sideboard's strip
+}
+// K at P: the summed light (linear colour), N the world normal (unnormalised ok), two: a double-sided scan face
+vec3 jtK(vec3 P, vec3 N, bool two) {
+  vec3 k = vec3(0.0);
+  if (any(lessThan(P, uJtBox0)) || any(greaterThan(P, uJtBox1))) return k;
+  float nl = length(N);
+  for (int i = 0; i < ${JTL.N}; i++) {
+    if (i >= uJtN) break;
+    vec4 A = uJtA[i], B = uJtB[i], C = uJtC[i];
+    vec3 L = A.xyz - P; float d2 = max(dot(L, L), 1e-4); L *= inversesqrt(d2);
+    float c = 1.0, g = C.w;
+    if (A.w > -1.5) {
+      c = smoothstep(A.w, B.w, dot(-L, B.xyz));
+      if (c <= 0.0) continue;
+      if (g > 15.5) {                       // a front-of-house unit, shuttered to the proscenium opening: no spill on the arch's wall
+        g -= 16.0;
+        if (P.z > ${(JTL.arch.z - 0.04).toFixed(2)}) { float t = (${JTL.arch.z.toFixed(2)} - A.z) / (P.z - A.z); vec2 h = A.xy + (P.xy - A.xy) * t;
+          if (h.x < ${JTL.arch.x[0].toFixed(2)} || h.x > ${JTL.arch.x[1].toFixed(2)} || h.y > ${JTL.arch.top.toFixed(2)}) continue; }
+        else if (P.y > ${JTL.arch.apronTop.toFixed(2)}) continue;
+      }
+      if (g > 0.5) c *= jtGobo(g, P - A.xyz, B.xyz, A.w);
+    }
+    float lam = 1.0;
+    if (nl > 1e-5) {
+      float a = dot(N, L) / nl;
+      if (two) { if (a * dot(N, cameraPosition - P) <= 0.0) continue; lam = 0.3 + 0.7 * abs(a); }
+      else { if (a <= 0.0) continue; lam = a; }
+    }
+    k += C.rgb * (c * lam / max(pow(d2, ${(JTL.decay / 2).toFixed(2)}), 0.04));
+  }
+  return k;
+}`;
+const JT_VERT = `
+{ vec4 jtW = vec4(transformed, 1.0);
+#ifdef USE_INSTANCING
+  jtW = instanceMatrix * jtW;
+#endif
+  vJtP = (modelMatrix * jtW).xyz; }`;
+const jtlPatched = new WeakSet();
+function jtlChain(m, fn) {
+  const prev = m.onBeforeCompile, key = m.customProgramCacheKey();
+  m.onBeforeCompile = function (sh, r) { prev.call(this, sh, r); fn(sh); };
+  m.customProgramCacheKey = () => key + '|jtlights';
+  jtlPatched.add(m); m.needsUpdate = true;
+}
+// Theatre 2's scan (unlit, double-sided): darkened inside the stage while active, then lit by the terms
+function jtlPatchScan(m) {
+  if (jtlPatched.has(m)) return;
+  jtlChain(m, sh => {
+    if (!sh.fragmentShader.includes('#include <map_fragment>') || !sh.vertexShader.includes('#include <project_vertex>')) return;
+    Object.assign(sh.uniforms, JT_U);
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vJtP; varying vec3 vJtN;')
+      .replace('#include <project_vertex>', '#include <project_vertex>' + JT_VERT + '\n\tvJtN = mat3(modelMatrix) * normal;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>' + JT_GLSL + '\nvarying vec3 vJtN;')
+      .replace('#include <map_fragment>', '#include <map_fragment>\n\tif (uJtOn > 0.0) { float jtS = jtStageIn(vJtP) * uJtOn; vec3 jtL = jtK(vJtP, vJtN, true) * uJtOn; diffuseColor.rgb = diffuseColor.rgb * (1.0 - jtS * (1.0 - uJtK.x) + uJtK.y * jtL) + diffuse * uJtK.z * jtL; }');
+  });
+}
+const jtlLitKind = m => m && (m.isMeshStandardMaterial || m.isMeshLambertMaterial || m.isMeshPhongMaterial || m.isMeshToonMaterial);
+function jtlPatchLit(m) {
+  if (jtlPatched.has(m) || !jtlLitKind(m) || m.userData.noWorklight) return;
+  jtlChain(m, sh => {
+    if (!sh.fragmentShader.includes('#include <lights_fragment_end>') || !sh.vertexShader.includes('#include <project_vertex>')) return;
+    Object.assign(sh.uniforms, JT_U);
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vJtP;')
+      .replace('#include <project_vertex>', '#include <project_vertex>' + JT_VERT);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>' + JT_GLSL)
+      .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\n\tif (uJtOn > 0.0) { float jtS = jtStageIn(vJtP) * uJtOn; float jtM = 1.0 - jtS * (1.0 - uJtK.w); reflectedLight.directDiffuse *= jtM; reflectedLight.indirectDiffuse *= jtM; reflectedLight.directSpecular *= jtM; reflectedLight.indirectSpecular *= jtM; reflectedLight.directDiffuse += jtK(vJtP, inverseTransformDirection(normal, viewMatrix), false) * (uJtLitK * uJtOn) * BRDF_Lambert(material.diffuseColor); }');
+  });
+}
+// Theatre 2's scan materials one way, every lit material in the scene the other (clipped to the box in the shader). Run at
+// build and once a second of frame time while the rig is active, so the set's pieces and anything built later take it.
+let jtlScanMats = null;
+function jtlPatchScene() {
+  if (!jtlScanMats) { jtlScanMats = new Set(); if (house2Root) house2Root.traverse(o => { if (o.isMesh) for (const m of [].concat(o.material)) jtlScanMats.add(m); }); }
+  let n = 0;
+  scene.traverse(o => {
+    if (!(o.isMesh || o.isSkinnedMesh || o.isInstancedMesh)) return;
+    for (const m of Array.isArray(o.material) ? o.material : [o.material]) {
+      if (!m || jtlPatched.has(m)) continue;
+      if (jtlScanMats.has(m)) { jtlPatchScan(m); n++; } else if (jtlLitKind(m) && !m.userData.noWorklight) { jtlPatchLit(m); n++; }
+    }
+  });
+  return n;
+}
+// ---- posing a unit: its hang point at pos, its lens's beam along dir. The pan turns the unit (a mover: its yoke) about
+// the vertical; the rest turns the head (the minimal rotation from the model's rest beam, in the panned frame — a tilt
+// about its trunnion when the rest beam lies in the plane of the aim). → the lens.
+const _jq = new THREE.Quaternion(), _jv = new THREE.Vector3(), _jY = new THREE.Vector3(0, 1, 0);
+function jtlRestBeam(model) {
+  if (model.userData.jtRest) return model.userData.jtRest;
+  const m = model.clone(); m.position.set(0, 0, 0); m.rotation.set(0, 0, 0); m.updateMatrixWorld(true);
+  const lens = m.getObjectByName('lens');
+  return (model.userData.jtRest = lens ? new THREE.Vector3(0, 0, -1).transformDirection(lens.matrixWorld) : new THREE.Vector3(0, 0, 1));
+}
+function jtlPose(obj, rest, dir, mover) {
+  const head = obj.getObjectByName('head'), yoke = obj.getObjectByName('yoke');
+  if (!obj.userData.jtHeadRest && head) obj.userData.jtHeadRest = head.quaternion.clone();
+  if (!obj.userData.jtYokeRest && yoke) obj.userData.jtYokeRest = yoke.quaternion.clone();
+  const h = Math.hypot(rest.x, rest.z), restAz = h > 0.2 ? Math.atan2(rest.x, rest.z) : 0;
+  const psi = (Math.hypot(dir.x, dir.z) > 1e-4 ? Math.atan2(dir.x, dir.z) : restAz) - restAz;
+  const dl = _jv.copy(dir).applyAxisAngle(_jY, -psi);
+  const Q = _jq.setFromUnitVectors(rest, dl);
+  if (head) {
+    const pivot = mover && yoke ? yoke : obj;
+    if (pivot === obj) obj.rotation.set(0, psi, 0);
+    else { obj.rotation.set(0, 0, 0); yoke.quaternion.copy(obj.userData.jtYokeRest).premultiply(new THREE.Quaternion().setFromAxisAngle(_jY, psi)); }
+    head.quaternion.copy(obj.userData.jtHeadRest).premultiply(Q);
+  } else { obj.quaternion.copy(new THREE.Quaternion().setFromAxisAngle(_jY, psi).multiply(Q)); }
+  obj.updateMatrixWorld(true);
+  return obj.getObjectByName('lens');
+}
+// ---- the beam cone (shared geometry: the apex at the origin, the open end at z 1, radius 1) and its shader
+const JTL_BEAM_GEO = new THREE.CylinderGeometry(0.02, 1, 1, 24, 1, true).translate(0, -0.5, 0).rotateX(-Math.PI / 2);
+const JTL_BEAM_VS = `varying vec3 vW; varying vec3 vN; varying float vA;
+void main(){ vec4 w = modelMatrix * vec4(position, 1.0); vW = w.xyz; vN = normalize(mat3(modelMatrix) * normal); vA = position.z; gl_Position = projectionMatrix * viewMatrix * w; }`;
+const JTL_BEAM_FS = `uniform vec3 uCol; uniform float uI; varying vec3 vW; varying vec3 vN; varying float vA;
+void main(){ float e = abs(dot(normalize(vN), normalize(cameraPosition - vW))); float a = uI * e * (1.0 - 0.7 * vA) * smoothstep(0.0, 0.06, vA) * smoothstep(1.0, 0.8, vA);
+  if (a < 0.003) discard; gl_FragColor = vec4(uCol * a, 1.0); }`;
+// ---- the build
+async function jtlBuild() {
+  const t0 = performance.now();
+  let data;
+  try { const r = await fetch(JTL.url, { cache: 'no-cache' }); if (!r.ok) throw new Error(r.status + ' ' + r.statusText); data = await r.json(); }
+  catch (e) { console.warn(`jtLights: ${JTL.url} not loaded (${e.message || e}) — Theatre 2 has no rig`); return null; }
+  let setData = null;
+  try { const r = await fetch('assets/johnny-tremain/set.json', { cache: 'no-cache' }); if (r.ok) setData = await r.json(); } catch (e) { /* the check says so */ }
+  const lodUrl = u => u.replace(/^(.*\/)([^/]+\.glb)$/, '$1lod/$2');
+  const models = [...new Set(data.units.map(u => u.glb).filter(g => g && !/lycian/.test(g)))];
+  const gl = {};
+  await Promise.all(models.map(m => load(lodUrl(m)).catch(() => load(m)).then(g => { gl[m] = g; }, e => console.warn(`jtLights: ${m} not loaded (${e && e.message || e}) — its units are not drawn`))));
+  const group = new THREE.Group(); group.name = 'Theatre 2: Johnny Tremain rig'; group.userData.house = 2;
+  const S = { data, setData, group, recs: [], byId: {}, lens: null, live: [], beams: [], sprites: [], structure: null, active: false, fadeT: 1, onTo: 0, onFrom: 0,
+    haze: JTL.hazeDefault, hazeMul: 1, tag: null, seg: null, chase: false, animated: false, patchT: 0, ms: 0, tris: 0, draws: 0 };
+  JTL.state = S;
+  const W = (p) => new THREE.Vector3(20 + p[0], 0.8 + p[1], 2.3 + p[2]);
+  const buckets = new Map(), lensGeos = [], V = (a) => new THREE.Vector3(...a);
+  const bodyDot = { worst: 2, id: null };
+  for (const u of data.units) {
+    const T = data.types[u.type];
+    const r = { u, id: u.id, type: u.type, sys: u.system, pos: V(u.pos), aim: u.aim ? V(u.aim) : null, power: u.power,
+      field: u.field || T.field || 20, gobo: JTL.gobos[u.gobo] || 0, mover: JTL.movers.has(u.type), practical: u.type === 'practical',
+      lv: 0, col: new THREE.Color(0, 0, 0), from: { lv: 0, col: new THREE.Color() }, to: { lv: 0, col: new THREE.Color(), aim: null, gobo: null },
+      dir: new THREE.Vector3(0, -1, 0), dirFrom: new THREE.Vector3(0, -1, 0), dirTo: new THREE.Vector3(0, -1, 0), lensPos: V(u.pos), drawn: null, cdK: 1 };
+    S.recs.push(r); S.byId[u.id] = r;
+    if (r.aim) r.dir.subVectors(r.aim, r.pos).normalize();
+    r.dirFrom.copy(r.dir); r.dirTo.copy(r.dir);
+    if (r.practical) {        // a glow where the practical burns (its body is the set's prop)
+      if (typeof wlTextures === 'function') wlTextures();
+      const sm = new THREE.SpriteMaterial({ map: wlGlowTex, color: 0xffa040, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false, opacity: 0 });
+      const sp = new THREE.Sprite(sm); sp.position.copy(r.pos); const s = /Furnace/.test(u.purpose) ? 0.9 : /Torch|Campfire/.test(u.purpose) ? 0.6 : /Distant/.test(u.purpose) ? 0.12 : 0.3;
+      sp.scale.setScalar(s); sp.visible = false; sp.name = `jt practical ${u.id}`; sp.raycast = () => {};
+      group.add(sp); r.sprite = sp; S.sprites.push(r); r.drawn = 'glow'; r.cdK = u.power; continue;
+    }
+    if (u.type === 'follow') {   // the booth's own Lycian prop on that stand
+      const prop = boothPropGroup && boothPropGroup.children.find(o => Math.abs(o.position.x - u.pos[0]) < 0.3);
+      if (prop) {
+        r.prop = prop;
+        try { boothAim(prop, r.aim); } catch (e) { /* a prop it cannot aim keeps its focus */ }
+        prop.updateMatrixWorld(true); const l = prop.getObjectByProperty('name', 'lens');
+        if (l) { l.getWorldPosition(r.lensPos); r.dir.set(0, 0, -1).transformDirection(l.matrixWorld); r.dirFrom.copy(r.dir); r.dirTo.copy(r.dir); }
+        r.drawn = 'booth prop';
+      }
+      r.cdK = u.power * Math.pow(r.lensPos.distanceTo(r.aim), JTL.decay);
+      r.beam = jtlBeam(S, r); continue;
+    }
+    const g = gl[u.glb];
+    if (!g) continue;
+    const obj = g.scene.clone(); obj.position.copy(r.pos);
+    const rest = jtlRestBeam(g.scene);
+    let lens = jtlPose(obj, rest, r.dir, r.mover);
+    for (let it = 0; it < 4 && lens && r.aim; it++) { lens.getWorldPosition(r.lensPos); r.dir.subVectors(r.aim, r.lensPos).normalize(); lens = jtlPose(obj, rest, r.dir, r.mover); }
+    r.dirFrom.copy(r.dir); r.dirTo.copy(r.dir);
+    r.box = new THREE.Box3().setFromObject(obj);
+    if (lens) { lens.getWorldPosition(r.lensPos); r.lensDir = new THREE.Vector3(0, 0, -1).transformDirection(lens.matrixWorld); const d = r.lensDir.dot(r.dir); if (d < bodyDot.worst) Object.assign(bodyDot, { worst: d, id: u.id }); }
+    if (r.aim) r.cdK = u.power * Math.pow(Math.max(1, r.lensPos.distanceTo(r.aim)), JTL.decay);
+    if (r.mover) {
+      obj.name = `jt ${u.id}`; obj.userData.jt = u.id;
+      const lm = new THREE.MeshBasicMaterial({ color: 0x141414, toneMapped: false, side: THREE.DoubleSide });
+      obj.traverse(o => { if (o.isMesh) { o.castShadow = o.receiveShadow = false; if (o.name === 'lens') o.material = lm; } });
+      group.add(obj); r.obj = obj; r.rest = rest; r.lensMat = lm; S.live.push(r); r.drawn = 'live';
+      obj.traverse(o => { if (o.isMesh) S.tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3; });
+    } else {
+      obj.traverse(o => {
+        if (!o.isMesh) return;
+        const geo = o.geometry.clone().applyMatrix4(o.matrixWorld);
+        if (o.name === 'lens') {
+          for (const k of Object.keys(geo.attributes)) if (k !== 'position' && k !== 'normal') geo.deleteAttribute(k);
+          const ng = geo.index ? geo.toNonIndexed() : geo;
+          const c = new Float32Array(ng.attributes.position.count * 3); ng.setAttribute('color', new THREE.BufferAttribute(c, 3));
+          ng.userData.jt = u.id; lensGeos.push(ng);
+        } else {
+          const m = o.material; if (!buckets.has(m)) buckets.set(m, []); buckets.get(m).push(geo);
+        }
+      });
+      r.drawn = 'merged';
+    }
+    if (u.beam) r.beam = jtlBeam(S, r);
+  }
+  // the fixed units: one mesh per material
+  for (const [m, geos] of buckets) {
+    const idx = geos.some(g => g.index), all = idx ? geos.map(g => g.index ? g : g.toNonIndexed()) : geos;
+    const merged = mergeGeometries(idx && geos.some(g => !g.index) ? geos.map(g => g.index ? g.toNonIndexed() : g) : all, false);
+    if (!merged) { console.warn('jtLights: a body bucket did not merge'); continue; }
+    const mesh = new THREE.Mesh(merged, m); mesh.name = `jt rig bodies: ${m.name || 'material'}`; mesh.castShadow = mesh.receiveShadow = false;
+    merged.computeBoundingSphere(); group.add(mesh);
+    S.tris += (merged.index ? merged.index.count : merged.attributes.position.count) / 3; S.draws++;
+  }
+  // the lenses: one mesh, a colour range per unit
+  if (lensGeos.length) {
+    const ranges = []; let at = 0;
+    for (const g of lensGeos) { const n = g.attributes.position.count; ranges.push([g.userData.jt, at, n]); at += n; }
+    const merged = mergeGeometries(lensGeos, false);
+    const mesh = new THREE.Mesh(merged, new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, side: THREE.DoubleSide }));
+    mesh.name = 'jt rig lenses'; mesh.castShadow = mesh.receiveShadow = false; group.add(mesh); S.lens = mesh; S.draws++;
+    S.tris += merged.attributes.position.count / 3;
+    for (const [id, a, n] of ranges) { const r = S.byId[id]; r.lensRange = [a, n]; }
+  }
+  // what they hang on: one mesh
+  const sg = [];
+  for (const s of data.structures || []) {
+    const a = V(s.a), b = V(s.b), d = new THREE.Vector3().subVectors(b, a), len = d.length();
+    if (len < 1e-4) continue;
+    const g = new THREE.CylinderGeometry(s.r, s.r, len, s.kind === 'base' ? 16 : 8, 1, false);
+    g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize()));
+    g.translate((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2);
+    for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k);
+    sg.push(g);
+  }
+  if (sg.length) {
+    const m = new THREE.Mesh(mergeGeometries(sg, false), new THREE.MeshStandardMaterial({ color: 0x1a1a1c, roughness: 0.6, metalness: 0.4 }));
+    m.name = 'jt rig pipes and booms'; m.castShadow = m.receiveShadow = false; group.add(m); S.structure = m; S.draws++;
+    S.tris += m.geometry.index.count / 3; sg.forEach(g => g.dispose());
+  }
+  S.live.forEach(r => { S.draws += 3; });
+  S.bodyDot = bodyDot;
+  scene.add(group); group.updateMatrixWorld(true);
+  const n = jtlPatchScene();
+  jtlUI();
+  S.ms = performance.now() - t0;
+  console.info(`jtLights: ${S.recs.length} units hung in Theatre 2 (${S.recs.filter(r => r.drawn === 'merged').length} merged, ${S.live.length} movers live, ${S.sprites.length} practical glows, `
+    + `${S.recs.filter(r => r.drawn === 'booth prop').length} booth followspots), ${S.draws} draw calls, ${Math.round(S.tris / 1000)}k triangles; worst body aim dot ${bodyDot.worst.toFixed(4)} (${bodyDot.id}); `
+    + `${n} materials take its light; dark until a look · ${S.ms.toFixed(0)} ms`);
+  return S;
+}
+function jtlBeam(S, r) {
+  const mat = new THREE.ShaderMaterial({ uniforms: { uCol: { value: new THREE.Color() }, uI: { value: 0 } }, vertexShader: JTL_BEAM_VS, fragmentShader: JTL_BEAM_FS,
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.BackSide, toneMapped: false });
+  const m = new THREE.Mesh(JTL_BEAM_GEO, mat); m.visible = false; m.name = `jt beam ${r.id}`; m.raycast = () => {}; m.frustumCulled = false;
+  m.userData.noCheck = true; S.group.add(m); S.beams.push(r);
+  return m;
+}
+// ---- driving
+function jtlLin(hex) { return new THREE.Color('#' + String(hex).replace('#', '')); }   // THREE.Color from sRGB hex: linear inside
+function jtlSegment(sceneN, seg) {
+  const S = JTL.state; if (!S) return null;
+  const list = S.data.segments.filter(g => g.scene === +sceneN);
+  if (!list.length) return null;
+  return list.find(g => g.seg === +seg) || (+seg === 0 || seg == null ? list[0] : null);
+}
+// Set the targets: a look tag's units, an extras key's on top. fade in s.
+function jtlTarget(tag, extrasKey, fade = JTL.fade) {
+  const S = JTL.state; if (!S) return false;
+  const L = S.data.looks[tag]; if (!L) { console.warn(`jtLights: no look "${tag}"`); return false; }
+  const st = { ...L.units, ...(extrasKey && S.data.extras[extrasKey] ? S.data.extras[extrasKey].units : {}) };
+  for (const r of S.recs) {
+    const e = st[r.id];
+    r.from.lv = r.lv; r.from.col.copy(r.col); r.dirFrom.copy(r.dir);
+    r.to.lv = e ? +e[0] : 0; r.to.col.copy(e && r.to.lv > 0 ? jtlLin(e[1]) : (r.col.r + r.col.g + r.col.b) > 0 ? r.col : new THREE.Color(1, 1, 1));
+    if (r.mover) {
+      const aim = e && e[2] ? new THREE.Vector3(20 + e[2][0], 0.8 + e[2][1], 2.3 + e[2][2]) : r.aim;
+      if (e && r.to.lv > 0) r.dirTo.subVectors(aim, r.lensPos).normalize();
+      else r.dirTo.copy(r.dir);
+      if (e && e[3] !== undefined && r.to.lv > 0) r.gobo = JTL.gobos[e[3]] || 0;
+      if (r.to.lv > 0) r.focus = aim.clone();
+    }
+  }
+  const hz = S.recs.filter(r => r.type === 'hazer');
+  S.haze = hz.length ? hz.reduce((a, r) => a + r.to.lv, 0) / hz.length : JTL.hazeDefault;
+  S.chase = tag === 'exterior-day-chase';
+  S.fadeT = 0; S.fadeDur = Math.max(0, +fade || 0);
+  jtlActive(true);
+  if (!S.fadeDur) jtlStep(1);
+  // the followspot prop turns to its pick-up
+  for (const r of S.recs) if (r.prop && r.to.lv > 0 && typeof boothAim === 'function') { try { boothAim(r.prop, r.aim); } catch (e) { /* a prop it cannot aim stays */ } }
+  requestRender();
+  return true;
+}
+function jtlActive(on) {
+  const S = JTL.state; if (!S) return;
+  if (on && !S.active) jtlPatchScene();
+  S.active = on; S.onFrom = JT_U.uJtOn.value; S.onTo = on ? 1 : 0; S.onT = 0;
+  jtlUI();
+}
+const _jc = new THREE.Color();
+// The state at fade fraction k (0..1, eased), then the terms, the lenses, the beams, the glows.
+function jtlStep(k) {
+  const S = JTL.state, e = k * k * (3 - 2 * k);
+  for (const r of S.recs) {
+    r.lv = r.from.lv + (r.to.lv - r.from.lv) * e;
+    r.col.copy(r.from.col).lerp(r.to.col, e);
+    if (r.from.lv <= 0.001 && r.to.lv > 0) r.col.copy(r.to.col);     // a unit coming up from dark comes up in its new colour
+    if (r.mover) { r.dir.copy(r.dirFrom).lerp(r.dirTo, e).normalize(); }
+  }
+  jtlApply();
+}
+const _jsel = [];
+function jtlApply() {
+  const S = JTL.state, t = JT_U.uJtTime.value;
+  // the movers: chase, then pose
+  if (S.chase) for (const r of S.recs) if ((r.sys === 'mv1' || r.sys === 'mv2') && r.lv > 0) {
+    const ph = t * 1.1 + (r.sys === 'mv2' ? Math.PI : 0) + (r.lensPos.x > 20 ? 0.6 : 0);
+    r.dir.set(20 + 3.4 * Math.cos(ph), 0.9, 2.3 + 2.4 + 1.6 * Math.sin(ph)).sub(r.lensPos).normalize();
+  }
+  for (const r of S.live) { jtlPose(r.obj, r.rest, r.dir, true); const l = r.obj.getObjectByName('lens'); if (l) l.getWorldPosition(r.lensPos); }
+  // the terms: every lit unit's weight, the strongest N
+  _jsel.length = 0; S.animated = S.chase;
+  for (const r of S.recs) {
+    if (r.lv <= 0.002 || r.type === 'hazer') continue;
+    let f = 1;
+    if (r.practical && /fire/.test(r.u.colour)) { f = 0.78 + 0.22 * Math.sin(t * 11.3 + r.pos.x * 7) * Math.sin(t * 7.1 + r.pos.z * 5); S.animated = true; }
+    if (r.practical && /twinkle/.test(r.u.colour)) { f = 0.5 + 0.5 * Math.max(0, Math.sin(t * 3.7 + r.pos.x * 13)); S.animated = true; }
+    if (r.gobo === 3 || r.gobo === 4 || r.gobo === 5) S.animated = true;
+    r.f = f;
+    _jsel.push([r.lv * f * r.power * Math.max(r.col.r, r.col.g, r.col.b), r]);
+  }
+  _jsel.sort((a, b) => b[0] - a[0]);
+  const n = Math.min(JTL.N, _jsel.length);
+  for (let i = 0; i < n; i++) {
+    const r = _jsel[i][1], A = JT_U.uJtA.value[i], B = JT_U.uJtB.value[i], C = JT_U.uJtC.value[i];
+    if (r.practical) { A.set(r.pos.x, r.pos.y, r.pos.z, -2); B.set(0, -1, 0, 0); }
+    else {
+      const half = r.field / 2 * Math.PI / 180;
+      A.set(r.lensPos.x, r.lensPos.y, r.lensPos.z, Math.cos(Math.min(1.45, half * 1.18))); B.set(r.dir.x, r.dir.y, r.dir.z, Math.cos(half * 0.62));
+    }
+    const k = r.lv * (r.f || 1) * r.cdK;
+    C.set(r.col.r * k, r.col.g * k, r.col.b * k, r.practical ? 0 : r.gobo + (r.lensPos.z < JTL.arch.z - 0.3 ? 16 : 0));
+  }
+  JT_U.uJtN.value = n;
+  S.terms = n; S.lit = _jsel.length;
+  // the lenses
+  if (S.lens) {
+    const c = S.lens.geometry.attributes.color;
+    for (const r of S.recs) if (r.lensRange) { _jc.copy(r.col).multiplyScalar(Math.min(1, r.lv * 1.3)); if (r.lv <= 0.002) _jc.setRGB(0.012, 0.012, 0.012); for (let i = r.lensRange[0], e = i + r.lensRange[1]; i < e; i++) c.setXYZ(i, _jc.r, _jc.g, _jc.b); }
+    c.needsUpdate = true;
+  }
+  for (const r of S.live) { r.lensMat.color.copy(r.col).multiplyScalar(Math.min(1, r.lv * 1.3)); if (r.lv <= 0.002) r.lensMat.color.setHex(0x141414); }
+  // the beams
+  const haze = S.haze * S.hazeMul;
+  for (const r of S.beams) {
+    const m = r.beam, on = r.lv > 0.02 && haze > 0.01 && S.group.visible;
+    m.visible = on; if (!on) continue;
+    const half = r.field / 2 * Math.PI / 180;
+    let L = r.aim ? r.lensPos.distanceTo(r.focus || r.aim) * 1.05 : 8;
+    if (r.dir.y < -0.05) L = Math.min(L * 1.3, (r.lensPos.y - 0.8) / -r.dir.y);
+    L = Math.max(0.5, Math.min(L, 30));
+    const R = L * Math.tan(half);
+    m.position.copy(r.lensPos); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), r.dir); m.scale.set(R, R, L);
+    m.material.uniforms.uCol.value.copy(r.col).multiplyScalar(1 / Math.max(r.col.r, r.col.g, r.col.b, 1e-3)); m.material.uniforms.uI.value = JTL.beamGain * r.lv * haze * (r.type === 'follow' ? 0.5 : 1);
+  }
+  for (const r of S.sprites) { const on = r.lv > 0.01; r.sprite.visible = on && S.group.visible; if (on) { r.sprite.material.color.copy(r.col); r.sprite.material.opacity = Math.min(1, r.lv * (r.f || 1)); } }
+  requestRender();
+}
+// One frame: the crossfade, the active fade, the animated gobos and flicker, the late patching. → whether to draw.
+function jtlTick(dt) {
+  const S = JTL.state; if (!S) return false;
+  let moved = false;
+  if (S.onTo !== JT_U.uJtOn.value) {
+    S.onT = Math.min(1, (S.onT || 0) + dt / 0.6);
+    JT_U.uJtOn.value = S.onFrom + (S.onTo - S.onFrom) * S.onT; moved = true;
+    if (S.onT >= 1) JT_U.uJtOn.value = S.onTo;
+  }
+  if (S.fadeT < 1) { JT_U.uJtTime.value += dt; S.fadeT = Math.min(1, S.fadeT + (S.fadeDur > 0 ? dt / S.fadeDur : 1)); jtlStep(S.fadeT); moved = true; }
+  else if (S.animated && S.active) { JT_U.uJtTime.value += dt; jtlApply(); moved = true; }
+  if (S.active && (S.patchT += dt) > 1) { S.patchT = 0; if (jtlPatchScene()) moved = true; }
+  return moved;
+}
+// ---- the panel: a header button beside Rig, and its own small panel (on/off, the rig hung, a look or a segment, blackout, haze)
+function jtlUI() {
+  const S = JTL.state;
+  let btn = document.getElementById('jt-l');
+  if (!btn) {
+    const grp = document.getElementById('r-rig') && document.getElementById('r-rig').parentElement;
+    if (!grp) return;
+    btn = document.createElement('button'); btn.id = 'jt-l'; btn.textContent = 'T2 rig'; btn.setAttribute('aria-pressed', 'false');
+    btn.title = "Theatre 2's Johnny Tremain rig: hang it, light a look";
+    grp.appendChild(btn);
+    const p = document.createElement('div'); p.id = 'jt-lp'; p.hidden = true;
+    p.style.cssText = 'position:absolute;top:12px;right:12px;z-index:5;width:300px;padding:10px 12px;background:var(--panel);border:1px solid var(--line);border-radius:6px;font-size:13px;display:grid;gap:8px';
+    p.innerHTML = '<div style="display:flex;gap:6px;align-items:center;justify-content:space-between"><b style="font-weight:600">Theatre 2 · Johnny Tremain lights</b></div>'
+      + '<div style="display:flex;gap:6px;flex-wrap:wrap"><button id="jt-hung" aria-pressed="true">Rig hung</button><button id="jt-on" aria-pressed="false">Lights on</button><button id="jt-bo">Blackout</button></div>'
+      + '<label style="display:grid;gap:3px;color:var(--muted)">Scene · segment<select id="jt-seg"></select></label>'
+      + '<label style="display:grid;gap:3px;color:var(--muted)">Or a look<select id="jt-look"><option value="">—</option></select></label>'
+      + '<label style="display:flex;gap:8px;align-items:center;color:var(--muted)">Haze <input id="jt-haze" type="range" min="0" max="2" step="0.05" value="1" style="flex:1"></label>'
+      + '<div id="jt-st" style="color:var(--muted);font:12px var(--mono)"></div>';
+    document.getElementById('stage').appendChild(p);
+    btn.addEventListener('click', () => { p.hidden = !p.hidden; btn.setAttribute('aria-pressed', String(!p.hidden)); });
+    const q = id => document.getElementById(id);
+    q('jt-hung').addEventListener('click', () => { const S2 = JTL.state; if (!S2) return; S2.group.visible = !S2.group.visible; jtlApply(); jtlUI(); });
+    q('jt-on').addEventListener('click', () => { const S2 = JTL.state; if (!S2) return; if (S2.active) JTL_API.off(); else JTL_API.look(1, 1); });
+    q('jt-bo').addEventListener('click', () => JTL_API.blackout());
+    q('jt-seg').addEventListener('change', e => { const [a, b] = e.target.value.split('.'); if (a) JTL_API.look(+a, +b); });
+    q('jt-look').addEventListener('change', e => { if (e.target.value) JTL_API.lookTag(e.target.value); });
+    q('jt-haze').addEventListener('input', e => { const S2 = JTL.state; if (!S2) return; S2.hazeMul = +e.target.value; jtlApply(); });
+  }
+  if (!S) { btn.disabled = true; return; }
+  const seg = document.getElementById('jt-seg'), lk = document.getElementById('jt-look');
+  if (seg && !seg.options.length) {
+    for (const g of S.data.segments) { const o = document.createElement('option'); o.value = `${g.scene}.${g.seg}`; o.textContent = `${g.scene}.${g.seg} ${g.title} — ${g.location.slice(0, 34)}`; seg.appendChild(o); }
+    for (const t of Object.keys(S.data.looks)) { const o = document.createElement('option'); o.value = t; o.textContent = t; lk.appendChild(o); }
+  }
+  const hung = document.getElementById('jt-hung'), on = document.getElementById('jt-on'), st = document.getElementById('jt-st');
+  if (hung) hung.setAttribute('aria-pressed', String(S.group.visible));
+  if (on) on.setAttribute('aria-pressed', String(S.active));
+  if (seg && S.seg) seg.value = S.seg;
+  if (lk) lk.value = S.seg ? '' : (S.tag || '');
+  if (st) st.textContent = S.active ? `${S.seg ? 'seg ' + S.seg + ' · ' : ''}${S.tag || 'levels'} · ${S.lit || 0} lit, ${S.terms || 0} drawn` : 'off: Theatre 2 as it was';
+}
+// ---- the check
+function jtlCheck() {
+  const S = JTL.state, rows = [], fails = [], f2 = v => v.toFixed(2);
+  if (!S) { const s = 'jtLights: FAIL — no rig (rig.json not loaded)'; console.warn(s); return { pass: false, fails: [s] }; }
+  scene.updateMatrixWorld(true);
+  const D = S.data;
+  // 1. every unit drawn
+  const notDrawn = S.recs.filter(r => !r.drawn).map(r => r.id);
+  if (notDrawn.length) fails.push(`not drawn: ${notDrawn.join(', ')}`);
+  rows.push(`drawn: ${S.recs.length - notDrawn.length}/${S.recs.length} (${S.recs.filter(r => r.drawn === 'merged').length} merged, ${S.live.length} live movers, ${S.sprites.length} practical glows, ${S.recs.filter(r => r.drawn === 'booth prop').length} booth followspots)`);
+  // 2. the patch: unique, in range, channel counts as the type's mode
+  const used = new Map(); let bad = 0;
+  for (const r of S.recs) {
+    const u = r.u, T = D.types[u.type], n = T.channelNames.length;
+    if (u.channels !== n || u.qlc.channels !== n) { fails.push(`${u.id}: ${u.channels} channels, its mode has ${n}`); bad++; }
+    if (!(u.address >= 1 && u.address + n - 1 <= 512)) { fails.push(`${u.id}: address ${u.address} out of 1…512`); bad++; }
+    for (let c = u.address; c < u.address + n; c++) { const k = u.universe + '/' + c; if (used.has(k)) { fails.push(`${u.id} overlaps ${used.get(k)} at ${k}`); bad++; break; } used.set(k, u.id); }
+  }
+  rows.push(`patch: ${S.recs.length} addresses unique, in 1…512, channel counts as their modes (${Object.entries(D.universes).map(([k, v]) => `U${k} ${v} ch`).join(', ')})${bad ? ' — ' + bad + ' BAD' : ''}`);
+  // 3. every look tag set.json uses is mapped, and every segment resolves
+  const tags = S.setData ? [...new Set(S.setData.scenes.flatMap(s => s.segments.map(g => g.look)))] : [];
+  const unmapped = tags.filter(t => !D.looks[t]);
+  if (!S.setData) fails.push('set.json not loaded: the look tags cannot be checked');
+  if (unmapped.length) fails.push(`look tags with no look: ${unmapped.join(', ')}`);
+  const segN = S.setData ? S.setData.scenes.reduce((a, s) => a + s.segments.length, 0) : 0;
+  const segBad = S.setData ? S.setData.scenes.flatMap(s => s.segments.map(g => [s.n, g.seg])).filter(([n, g]) => !jtlSegment(n, g)) : [];
+  if (segBad.length) fails.push(`segments look() cannot find: ${segBad.map(x => x.join('.')).join(', ')}`);
+  rows.push(`looks: ${tags.length} tags in set.json, ${tags.length - unmapped.length} mapped; ${segN - segBad.length}/${segN} segments resolve`);
+  // 4. every special aimed at its target within 0.3 m (the lens's own beam, as drawn — the booth's followspots by their prop)
+  let worst = 0, worstId = null, nsp = 0;
+  const lensDir = new THREE.Vector3(), lensP = new THREE.Vector3();
+  for (const r of S.recs) {
+    if (!r.u.special || r.practical || !r.aim) continue;
+    nsp++;
+    let p, d;
+    if (r.drawn === 'merged' || r.drawn === 'live') {
+      // re-pose a fresh copy of its model (the merged one has no nodes left) and read its lens
+      p = r.lensPos; d = r.lensDir || r.dir;     // the posed body's own lens axis, as drawn
+      if (r.obj) { const l = r.obj.getObjectByName('lens'); l.getWorldPosition(lensP); lensDir.set(0, 0, -1).transformDirection(l.matrixWorld); p = lensP; d = lensDir; }
+    } else if (r.prop) {
+      const l = r.prop.getObjectByProperty('name', 'lens'); l.getWorldPosition(lensP); lensDir.set(0, 0, -1).transformDirection(l.matrixWorld); p = lensP; d = lensDir;
+    } else { p = r.lensPos; d = r.dir; }
+    const v = new THREE.Vector3().subVectors(r.aim, p), along = v.dot(d), miss = along > 0 ? Math.sqrt(Math.max(0, v.lengthSq() - along * along)) : Infinity;
+    if (miss > worst) { worst = miss; worstId = r.id; }
+    if (!(miss <= 0.3)) fails.push(`${r.id} (${r.u.special}) misses its target by ${miss === Infinity ? 'all of it (it points away)' : f2(miss) + ' m'}`);
+  }
+  rows.push(`specials: ${nsp} aimed, the worst ${worstId} ${f2(worst)} m off its target (≤ 0.30); the bodies' worst lens-vs-aim dot ${S.bodyDot.worst.toFixed(4)} (${S.bodyDot.id})`);
+  // 5. nothing hung in a lift's travel (its footprint from the basement floor to the arch's height), nor where the front rows see it through the arch
+  const lifts = (MIDTOWN.under && MIDTOWN.under.lifts) ? Object.entries(MIDTOWN.under.lifts).filter(([k, l]) => l && l.footprint).map(([k, l]) => [k, l.footprint])
+    : [['front', { x: [17.0, 23.0], z: [2.6, 5.0] }], ['back', { x: [17.5, 22.5], z: [5.9, 8.3] }]];
+  const travel = lifts.map(([k, fp]) => [k, new THREE.Box3(new THREE.Vector3(fp.x[0], -4.4, fp.z[0]), new THREE.Vector3(fp.x[1], 0.8 + 4.4, fp.z[1]))]);
+  const unitBox = r => {
+    if (r.obj) return new THREE.Box3().setFromObject(r.obj);
+    if (r.sprite) return new THREE.Box3().setFromCenterAndSize(r.pos, new THREE.Vector3(0.05, 0.05, 0.05));
+    if (r.box) return r.box;
+    const s = 0.35; return new THREE.Box3(new THREE.Vector3(r.pos.x - s, r.pos.y - 0.7, r.pos.z - s), new THREE.Vector3(r.pos.x + s, r.pos.y + 0.05, r.pos.z + s));   // a hung unit's envelope under its hang point
+  };
+  let inLift = 0;
+  for (const r of S.recs) {
+    if (r.practical || r.prop) continue;
+    const b = r.u.floor ? new THREE.Box3(new THREE.Vector3(r.pos.x - 0.3, r.pos.y, r.pos.z - 0.3), new THREE.Vector3(r.pos.x + 0.3, r.pos.y + 0.5, r.pos.z + 0.3)) : unitBox(r);
+    for (const [k, t] of travel) if (t.intersectsBox(b)) { fails.push(`${r.id} is inside the ${k} lift's travel`); inLift++; }
+  }
+  for (const s of D.structures || []) {
+    const b = new THREE.Box3().setFromPoints([new THREE.Vector3(...s.a), new THREE.Vector3(...s.b)]).expandByScalar(s.r);
+    for (const [k, t] of travel) if (t.intersectsBox(b)) { fails.push(`${s.name} is inside the ${k} lift's travel`); inLift++; }
+  }
+  rows.push(`lifts (${MIDTOWN.under && MIDTOWN.under.lifts ? 'MIDTOWN.under' : "the contract's numbers"}): ${inLift ? inLift + ' IN a lift\'s travel' : 'nothing in either travel (footprint × y −4.40…5.20)'}`);
+  // the arch's sightline: an eye in the front row (centre and both ends) and the widest stalls seats; a hung unit (or pipe) over the stage must not show through the opening
+  const eyes = [[20, 1.12, -2.0], [15.3, 1.12, -2.0], [24.7, 1.12, -2.0], [11.6, 1.4, -5.0], [28.4, 1.4, -5.0], [20, 3.9, -14.0]].map(e => new THREE.Vector3(...e));
+  const open = { x0: 15.7, x1: 24.3, y0: 0.8, y1: 5.2, z: 2.3 }, border = { z: 5.3, y0: 0.8 + 4.4 };
+  let seen = [];
+  const hungOver = S.recs.filter(r => !r.u.floor && !r.practical && r.pos.z > open.z && /Electric/.test(r.u.position));
+  for (const r of hungOver) {
+    const b = unitBox(r), pts = [new THREE.Vector3(r.pos.x, b.min.y, r.pos.z), new THREE.Vector3(b.min.x, b.min.y, b.min.z), new THREE.Vector3(b.max.x, b.min.y, b.max.z)];
+    for (const e of eyes) for (const p of pts) {
+      const t = (open.z - e.z) / (p.z - e.z), x = e.x + (p.x - e.x) * t, y = e.y + (p.y - e.y) * t;
+      if (x > open.x0 && x < open.x1 && y > open.y0 && y < open.y1) {
+        // under the masking border (upstage of it the border hides it when the line crosses the border's height band)
+        const tb = (border.z - e.z) / (p.z - e.z), yb = e.y + (p.y - e.y) * tb;
+        if (p.z > border.z && yb > border.y0 - 0.0 && yb < border.y0 + 0.6) continue;
+        seen.push(`${r.id} from (${e.x}, ${e.z})`); break;
+      }
+    }
+  }
+  seen = [...new Set(seen)];
+  if (seen.length) fails.push(`seen through the arch: ${seen.slice(0, 8).join('; ')}`);
+  rows.push(`sightlines: ${hungOver.length} overhead units checked from ${eyes.length} seats — ${seen.length ? seen.length + ' SEEN' : 'none shows through the arch'}`);
+  // 6. the light: a look lights Theatre 2's stage, blackout darkens it, off restores it, and house 1's view never changes
+  const keep = S.recs.map(r => [r.lv, r.col.clone(), r.dir.clone(), r.from.lv, r.to.lv, r.to.col.clone()]), keepS = [S.active, JT_U.uJtOn.value, S.fadeT, S.tag, S.seg, S.onTo];
+  const v2 = [new THREE.Vector3(20, 2.6, -6.5), new THREE.Vector3(20, 2.2, 5.0)], v1 = [new THREE.Vector3(0, 3.0, -8.0), new THREE.Vector3(0, 2.2, 4.0)];
+  const settle = () => { S.fadeT = 1; JT_U.uJtOn.value = S.onTo; S.onT = 1; };
+  jtlTarget('exterior-day-bright', null, 0); settle(); jtlStep(1);
+  const day = wlShot(...v2), day1 = wlShot(...v1);
+  JTL_API.blackout(0); settle(); jtlStep(1);
+  const dark = wlShot(...v2);
+  JTL_API.off(); settle(); JT_U.uJtOn.value = 0; jtlApply();
+  const off = wlShot(...v2), off1 = wlShot(...v1);
+  if (!(day.mean > dark.mean * 2)) fails.push(`a bright look barely lights the stage (mean ${f2(day.mean)} vs blackout ${f2(dark.mean)})`);
+  if (day1.hash !== off1.hash) fails.push("house 1's view changed with Theatre 2's rig on");
+  rows.push(`light: Theatre 2's stage view mean ${f2(off.mean)} off → ${f2(day.mean)} full day → ${f2(dark.mean)} blackout; house 1's view identical rig on/off: ${day1.hash === off1.hash}`);
+  // put it back
+  S.recs.forEach((r, i) => { const k = keep[i]; r.lv = k[0]; r.col.copy(k[1]); r.dir.copy(k[2]); r.from.lv = k[3]; r.to.lv = k[4]; r.to.col.copy(k[5]); });
+  [S.active, JT_U.uJtOn.value, S.fadeT, S.tag, S.seg, S.onTo] = keepS; S.onT = 1; jtlApply(); jtlUI();
+  const pass = fails.length === 0;
+  const s = `jtLights: ${pass ? 'PASS' : 'FAIL'} — ${rows.join(' · ')}${pass ? '' : ' · FAILS: ' + fails.join('; ')}`;
+  (pass ? console.info : console.warn)(s);
+  return { pass, fails, rows, summary: s };
+}
+const JTL_API = {
+  spec: JTL, uniforms: JT_U,
+  get units() { return JTL.state ? JTL.state.data.units : []; },
+  get rig() { return JTL.state; },
+  // the set's scene picker calls this: sceneN 1–26, seg the segment's number as set.json has it (1-based; 0 or none = the first)
+  look(sceneN, seg) {
+    const g = jtlSegment(sceneN, seg); if (!g) { console.warn(`jtLights: no scene ${sceneN} segment ${seg}`); return null; }
+    const S = JTL.state; S.tag = g.look; S.seg = `${g.scene}.${g.seg}`;
+    jtlTarget(g.look, g.extras); return `${S.seg} ${g.look}${g.extras ? ' + extras' : ''}`;
+  },
+  lookTag(tag, fade) { const S = JTL.state; if (!S) return null; S.tag = tag; S.seg = null; return jtlTarget(tag, null, fade) ? tag : null; },
+  level(id, v, fade = 0.5) {
+    const S = JTL.state, r = S && S.byId[id]; if (!r) { console.warn(`jtLights: no unit ${id}`); return null; }
+    for (const q of S.recs) { q.from.lv = q.lv; q.from.col.copy(q.col); q.to.lv = q.lv; q.to.col.copy(q.col); q.dirFrom.copy(q.dir); q.dirTo.copy(q.dir); }
+    r.to.lv = Math.max(0, Math.min(1, +v || 0)); if (!(r.col.r + r.col.g + r.col.b)) r.to.col.setRGB(1, 0.93, 0.85);
+    S.fadeT = 0; S.fadeDur = fade; jtlActive(true); if (!fade) jtlStep(1); return r.to.lv;
+  },
+  blackout(fade = JTL.fade) {
+    const S = JTL.state; if (!S) return;
+    for (const r of S.recs) { r.from.lv = r.lv; r.from.col.copy(r.col); r.to.lv = 0; r.to.col.copy(r.col); r.dirFrom.copy(r.dir); r.dirTo.copy(r.dir); }
+    S.tag = 'blackout'; S.seg = null; S.fadeT = 0; S.fadeDur = fade; jtlActive(true); if (!fade) jtlStep(1);
+  },
+  off() { const S = JTL.state; if (!S) return; for (const r of S.recs) { r.lv = r.from.lv = r.to.lv = 0; } S.fadeT = 1; S.tag = null; S.seg = null; jtlApply(); jtlActive(false); },
+  state() { const S = JTL.state; if (!S) return 'no rig'; const s = `jtLights: ${S.active ? 'active' : 'off'}, ${S.tag || '—'}${S.seg ? ' (seg ' + S.seg + ')' : ''}, ${S.lit || 0} units lit, ${S.terms || 0} drawn as terms, haze ${(S.haze * S.hazeMul).toFixed(2)}`; console.info(s); return s; },
+  check: jtlCheck, tick: jtlTick, patchScene: jtlPatchScene,
+};
 
 /* ---------------------------------------------------------------- BUILD MODE
    Jack: "make something where i can add geometries and use a dropdown to choose their texture and i
@@ -11453,6 +12082,7 @@ renderer.setAnimationLoop(() => {
   if (ready && lxTick(dt)) moving = true;                    // the lights' fades, movers travelling, gobos turning: off this frame's dt
   if (ready && doorsTick(dt)) moving = true;                 // the auditorium doors and curtains moving on E, and what E would reach: off this frame's dt
   if (ready && wlTick(dt)) moving = true;                    // the worklights coming up or going out: off this frame's dt (THE WORKLIGHTS)
+  if (ready && jtlTick(dt)) moving = true;                   // Theatre 2's Johnny Tremain rig: its crossfades, movers, water and flicker, off this frame's dt
   if (ready && lxPanelTick(dt)) moving = true;               // the lights panel: Step through's Play (off this frame's dt), the selection's outline
   drewLast = ready && (needsRender || moving);               // render on demand: an idle page draws nothing
   if (drewLast) { needsRender = false; lxDrawn(clock.elapsedTime); renderer.render(scene, camera); }
