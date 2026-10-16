@@ -173,10 +173,11 @@ def handshake(c):
     c.open = True
     say(f'the page connected ({sum(1 for k in clients if k.open)} connected)')
     # a new page gets every universe's current frame and the status at once
+    now = time.monotonic()
     for u in unis.values():
-        if u.total:
+        if u.total and now - u.last_at < args.stale:      # a desk that went quiet long ago is not handed over
             c.send(ws_frame(0x2, bytes([u.rig]) + bytes(u.data)))
-    c.send(ws_frame(0x1, status_json(time.monotonic())))
+    c.send(ws_frame(0x1, status_json(now)))
 
 
 def read_frames(c):

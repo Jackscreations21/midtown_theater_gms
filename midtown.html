@@ -12984,6 +12984,7 @@ function jtlSegment(sceneN, seg) {
 function jtlTarget(tag, extrasKey, fade = JTL.fade) {
   const S = JTL.state; if (!S) return false;
   const L = S.data.looks[tag]; if (!L) { console.warn(`jtLights: no look "${tag}"`); return false; }
+  if (JTL_DESK.live) { jtlUI(); return true; }      // the desk has the rig: the look is recorded (S.tag, S.seg) and comes back when the desk lets go
   const st = { ...L.units, ...(extrasKey && S.data.extras[extrasKey] ? S.data.extras[extrasKey].units : {}) };
   for (const r of S.recs) {
     const e = st[r.id];
@@ -13094,7 +13095,7 @@ function jtlGlow() {
 // One frame: the crossfade, the active fade, the animated gobos and flicker, the late patching. → whether to draw.
 function jtlTick(dt) {
   const S = JTL.state; if (!S) return false;
-  let moved = false;
+  let moved = jtlDeskTick(dt);                       // the desk first: QLC+'s frames, the hold, the hand-back
   if (S.onTo !== JT_U.uJtOn.value) {
     S.onT = Math.min(1, (S.onT || 0) + dt / 0.6);
     JT_U.uJtOn.value = S.onFrom + (S.onTo - S.onFrom) * S.onT; moved = true;
@@ -13106,6 +13107,200 @@ function jtlTick(dt) {
   if (S.active && (S.patchT += dt) > 1) { S.patchT = 0; if (jtlPatchScene()) moved = true; }
   return moved;
 }
+// ---- THE DESK: QLC+ live over Art-Net. Jack: "if i put that file into qlc+ will i be able to connect to the lights in
+// theater 2". A page cannot hear UDP, so tools/artnet-relay.py takes QLC+'s ArtDmx on 127.0.0.1:6454 and hands the page
+// each universe's latest 512 bytes over a WebSocket (ws://127.0.0.1:9454: a binary message = the rig universe 1|2 + 512
+// bytes, only on change, ≤ 44 a second; a text status every 0.5 s with each universe's packets a second and whether the
+// desk is alive — a packet in the last 5 s, since QLC+ idles at ~0.5 packets a second on a held look).
+// While the desk is alive every unit follows ITS OWN channels as its QLC+ mode defines them (the .qxf files QLC+ ships,
+// read 2026-10-16 — the channel lists are rig.json's channelNames, which tools/jt-qlc.py checked against them):
+//   ETC Source Four LED S2 Lustr "Direct" (10): Red Lime Amber Green Cyan Blue Indigo, Intensity, Strobe, Fan — the
+//     seven emitters mixed by JTL_DESK.emit, Intensity the level.
+//   ETC ColorSource Spot "5-Channel" / PAR "5-channel": Intensity, Red, Green, Blue, Strobe.
+//   Chauvet Ovation CYC 1 FC "7 Channel": Dimmer, Red, Green, Blue, Amber, Lime, Strobe.
+//   Martin MAC Encore Performance "CLD" (38): Shutter (0–19 closed), Dimmer + fine, Cyan Magenta Yellow, CTO, Color
+//     Wheel (its six filters), Rotating Gobo Wheel (slots 1–5 indexed / rotating / shaking → water, leaves, moon,
+//     window, bars, as jt-qlc.py loads them), …, Pan + fine (540°), Tilt + fine (268°).
+//   Martin MAC Aura "Standard" (14): Shutter (0–19 closed), Dimmer, Zoom, Pan + fine (540°), Tilt + fine (232°),
+//     Control, Color Wheel (0–9 open = RGBW mixing, 10–174 its 33 LEE filters), Red Green Blue White, CTC.
+//   Generic "1 Channel" (the tungsten Source Fours, the 14 practicals), Robert Juliat D'Artagnan 934SNX "1 (1 channel)":
+//     the level; the colour is the unit's gel (the colour its looks give it).
+//   MDG ATMe "3 Channel": Unit control (≥129 on), Haze, Haze control (≥129 on) → the haze in the beams.
+// The movers' pan/tilt is jt-qlc.py's encoding read backwards (hung head-down; 50 % pan = the beam toward the house,
+// 50 % tilt = straight down; the ranges are rig.json's, as the workspace was written with), so a scene QLC+ plays from the
+// workspace aims where the page's own look aims. Strobe, zoom, focus, iris, frost, the blades and the FX channels are not
+// drawn. The page's own looks are held while the desk drives (look() records the choice and does not fight it); JTL_DESK.hold
+// s of frame time after the desk falls quiet (or the relay goes) the rig crossfades back to the current look.
+// The page asks for the relay only once the T2 rig panel has been opened (a page nobody drives never knocks), then every
+// JTL_DESK.retry s of frame time (retryHidden with the panel shut) — off the frame's dt, never a timer. A refused WebSocket
+// raises no exception and the page logs nothing; Chrome's DevTools itself notes each refused attempt as a network line.
+const JTL_DESK = {
+  url: 'ws://127.0.0.1:9454', retry: 5, retryHidden: 30, hold: 2.0,
+  emit: {      // an emitter's colour at full (sRGB 0–1): Lustr's seven, the Ovation's amber and lime
+    red: [1, 0, 0], lime: [0.55, 1, 0.05], amber: [1, 0.5, 0], green: [0, 1, 0], cyan: [0, 0.85, 1], blue: [0, 0, 1], indigo: [0.35, 0, 1],
+    cto: [1, 0.70, 0.38],   // the Encore's CTO at full, as a multiplier
+  },
+  encoreWheel: ['ffffff', '3355ad', '5cbe49', 'ff973f', 'c05dae', '233a9f', 'eb3d33', 'ffffff'],   // open, Blue 101, Green 203, Orange 311, Magenta 522, Congo 108, Red 310, open
+  auraWheel: 'ffa490 ff6d84 ff3366 ff45b3 d843ff c170ff 4900bf 0300e4 2f5be7 568dff 1999ff 89ceff a3efff b7deee e5f4ff 91fff4 1ad8cc 27f0ff 51c9b2 22d555 15c100 34e854 47ff65 abff62 d7ff6b f2ff00 efc450 ffac1d ff6f07 ff9600 ff7c00 ff5400 ff0800'.split(' '),
+  encoreGobo: [0, 4, 3, 5, 2, 1],   // wheel slot 0–5 → JTL.gobos: open, water, leaves, moon, window, bars
+  gelDefault: { s4: 'eef4ff', follow: 'fff3e0', practical: 'ff9a40' },
+  ws: null, wsState: 'none', wanted: false, retryT: 0, uiT: 0, status: null,
+  frames: { 1: new Uint8Array(512), 2: new Uint8Array(512) }, got: { 1: false, 2: false },
+  dirty: false, live: false, quiet: Infinity, msgs: 0, applies: 0, gel: null,
+};
+// a binary message from the relay (or the check's synthetic one): [universe, 512 bytes] → kept; the next tick applies it
+function jtlDeskFrame(b) {
+  const D = JTL_DESK, f = D.frames[b[0]];
+  if (!f || b.length < 513) return false;
+  f.set(b.subarray(1, 513)); D.got[b[0]] = true; D.dirty = true; D.quiet = 0; D.msgs++;
+  return true;
+}
+function jtlDeskConnect() {
+  const D = JTL_DESK; let ws;
+  try { ws = new WebSocket(D.url); } catch (e) { return; }
+  ws.binaryType = 'arraybuffer'; D.ws = ws; D.wsState = 'connecting';
+  ws.onopen = () => { if (D.ws === ws) { D.wsState = 'open'; jtlDeskUI(); } };
+  ws.onerror = () => {};     // the close that follows says it
+  ws.onclose = () => { if (D.ws === ws) { D.ws = null; D.wsState = 'none'; D.status = null; jtlDeskUI(); } };
+  ws.onmessage = ev => {
+    if (D.ws !== ws) return;
+    if (typeof ev.data === 'string') {
+      let m = null; try { m = JSON.parse(ev.data); } catch (e) { return; }
+      if (m && m.t === 'status' && m.u) { D.status = m.u; if (Object.values(m.u).some(x => x && x.alive)) D.quiet = 0; }
+      return;
+    }
+    jtlDeskFrame(new Uint8Array(ev.data));
+  };
+}
+const jtlSrgb = h => [0, 2, 4].map(i => parseInt(String(h).replace('#', '').slice(i, i + 2), 16) / 255);   // a hex → its sRGB 0–1 (as DMX carries it)
+// each unit's gel: the colour its looks and extras give it most often (the units with a level channel only), sRGB 0–1
+function jtlDeskGels() {
+  const S = JTL.state, D = JTL_DESK, g = {};
+  for (const r of S.recs) {
+    if (!(r.type in D.gelDefault)) continue;
+    const n = {};
+    for (const src of [S.data.looks, S.data.extras]) for (const k in src) { const e = src[k].units[r.id]; if (e && e[0] > 0) n[e[1]] = (n[e[1]] || 0) + 1; }
+    const best = Object.entries(n).sort((a, b) => b[1] - a[1])[0];
+    g[r.id] = jtlSrgb(best ? best[0] : D.gelDefault[r.type]);
+  }
+  return (D.gel = g);
+}
+// One unit's channels → its state: {lv, col, dir (movers), gobo (Encore), haze (hazers)}. The colour is mixed in sRGB 0–1,
+// as the channels carry it (jt-qlc.py writes a look's hex as sRGB fractions), its brightest component held ≤ 1, then
+// made linear as the page's looks are (THREE.Color from a hex) — so a workspace scene shows the look's own colour.
+function jtlDeskDecode(r, f) {
+  const D = JTL_DESK, E = D.emit, a = r.u.address - 1, v = i => f[a + i] / 255, w = i => (f[a + i] * 256 + f[a + i + 1]) / 65535;
+  const o = r.desk || (r.desk = { lv: 0, col: new THREE.Color(), dir: null, gobo: null, haze: 0 });
+  let R = 0, G = 0, B = 0, lv = 0;
+  const add = (e, k) => { R += e[0] * k; G += e[1] * k; B += e[2] * k; };
+  o.dir = null; o.gobo = null; o.haze = 0;
+  switch (r.type) {
+    case 'lustr':
+      add(E.red, v(0)); add(E.lime, v(1)); add(E.amber, v(2)); add(E.green, v(3)); add(E.cyan, v(4)); add(E.blue, v(5)); add(E.indigo, v(6)); lv = v(7); break;
+    case 'cs-spot': case 'cs-par':
+      lv = v(0); R = v(1); G = v(2); B = v(3); break;
+    case 'cyc': case 'cyc-floor':
+      lv = v(0); R = v(1); G = v(2); B = v(3); add(E.amber, v(4)); add(E.lime, v(5)); break;
+    case 's4': case 'practical': case 'follow': {
+      lv = v(0); [R, G, B] = (D.gel || jtlDeskGels())[r.id] || [1, 1, 1]; break;
+    }
+    case 'hazer':
+      lv = f[a] >= 129 && f[a + 2] >= 129 ? v(1) : 0; o.haze = lv; R = G = B = 1; break;
+    case 'encore': {
+      lv = f[a] < 20 ? 0 : w(1);
+      R = 1 - v(3); G = 1 - v(4); B = 1 - v(5);
+      const k = v(6); R *= 1 + (E.cto[0] - 1) * k; G *= 1 + (E.cto[1] - 1) * k; B *= 1 + (E.cto[2] - 1) * k;
+      const cw = f[a + 7]; let slot = 0;
+      if (cw >= 1 && cw <= 97) slot = Math.round(cw / 14) % 7; else if (cw >= 161 && cw <= 178) slot = 1 + Math.floor((cw - 161) / 3);
+      if (slot) { const c = jtlSrgb(D.encoreWheel[slot]); R *= c[0]; G *= c[1]; B *= c[2]; }
+      const gw = f[a + 8]; let gs = 0;
+      if (gw >= 10 && gw <= 34) gs = 1 + Math.floor((gw - 10) / 5); else if (gw >= 35 && gw <= 59) gs = 1 + Math.floor((gw - 35) / 5); else if (gw >= 60 && gw <= 209) gs = 1 + Math.floor((gw - 60) / 30);
+      o.gobo = D.encoreGobo[gs];
+      o.dir = jtlDeskAim(r, w(28), w(30));
+      break;
+    }
+    case 'aura': {
+      lv = f[a] < 20 ? 0 : v(1);
+      const cw = f[a + 8];
+      if (cw >= 10 && cw <= 174) [R, G, B] = jtlSrgb(D.auraWheel[Math.floor((cw - 10) / 5)]);
+      else { const W = v(12); R = v(9) + W; G = v(10) + W; B = v(11) + W; }
+      if (f[a + 13] >= 20) { const k = (f[a + 13] - 20) / 235; R *= 1 + (E.cto[0] - 1) * k; G *= 1 + (E.cto[1] - 1) * k; B *= 1 + (E.cto[2] - 1) * k; }
+      o.dir = jtlDeskAim(r, w(3), w(5));
+      break;
+    }
+  }
+  const m = Math.max(R, G, B); if (m > 1) { R /= m; G /= m; B /= m; }
+  o.lv = lv; o.col.setRGB(R, G, B, THREE.SRGBColorSpace);
+  return o;
+}
+// pan/tilt (0–1 of the range) → the beam's world direction: tools/jt-qlc.py's pan_tilt() backwards. Hung head-down:
+// tilt 0 straight down, pan 0 toward the house (−z); value 0.5 is 0°.
+function jtlDeskAim(r, p, t) {
+  const [pr, tr] = r.u.mover || [540, 268];
+  const pan = (p - 0.5) * pr * Math.PI / 180, tilt = (t - 0.5) * tr * Math.PI / 180;
+  return new THREE.Vector3(Math.sin(tilt) * Math.sin(pan), -Math.cos(tilt), -Math.sin(tilt) * Math.cos(pan)).normalize();
+}
+// every unit off the latest frames, then the terms (jtlApply)
+function jtlDeskApply() {
+  const S = JTL.state, D = JTL_DESK; if (!S) return;
+  let hz = 0, nh = 0;
+  for (const r of S.recs) {
+    const o = jtlDeskDecode(r, D.frames[r.u.universe]);
+    r.lv = r.from.lv = r.to.lv = o.lv;
+    r.col.copy(o.col); r.from.col.copy(o.col); r.to.col.copy(o.col);
+    if (r.type === 'hazer') { hz += o.haze; nh++; }
+    if (o.dir && r.mover) {
+      r.dir.copy(o.dir); r.dirFrom.copy(o.dir); r.dirTo.copy(o.dir);
+      r.focus = r.dir.y < -0.05 ? r.lensPos.clone().addScaledVector(r.dir, (r.lensPos.y - 0.8) / -r.dir.y) : null;
+    }
+    if (o.gobo !== null) r.gobo = o.gobo;
+  }
+  S.haze = nh ? hz / nh : JTL.hazeDefault;
+  S.fadeT = 1; S.chase = false;
+  D.applies++;
+  jtlApply();
+}
+// the desk takes the rig / hands it back to the current look
+function jtlDeskTake() {
+  const S = JTL.state, D = JTL_DESK;
+  D.live = true; D.wasActive = S.active;
+  if (!S.active) jtlActive(true); else jtlUI();
+}
+function jtlDeskRelease() {
+  const S = JTL.state, D = JTL_DESK;
+  D.live = false;
+  const g = S.seg ? jtlSegment(...S.seg.split('.')) : null;
+  if (g) jtlTarget(g.look, g.extras);
+  else if (S.tag && S.data.looks[S.tag]) jtlTarget(S.tag, null);
+  else if (S.tag === 'blackout') JTL_API.blackout();
+  else if (D.wasActive === false) JTL_API.off();
+  else JTL_API.blackout();
+  jtlUI();
+}
+// one frame: the slow retry, the hold, the apply → whether to draw
+function jtlDeskTick(dt) {
+  const S = JTL.state, D = JTL_DESK; if (!S) return false;
+  if (D.wanted && !D.ws) {
+    D.retryT -= dt;
+    if (D.retryT <= 0) { const p = document.getElementById('jt-lp'); D.retryT = p && !p.hidden ? D.retry : D.retryHidden; jtlDeskConnect(); }
+  }
+  D.quiet += dt;
+  let moved = false;
+  if (D.dirty && D.quiet <= D.hold) { if (!D.live) jtlDeskTake(); D.dirty = false; jtlDeskApply(); moved = true; }
+  else if (D.live && D.quiet > D.hold) { jtlDeskRelease(); moved = true; }
+  if ((D.uiT += dt) > 0.5) { D.uiT = 0; jtlDeskUI(); }
+  return moved;
+}
+function jtlDeskText() {
+  const D = JTL_DESK;
+  if (!D.wanted) return 'Desk: not listening';
+  if (D.wsState !== 'open') return 'Desk: no relay — python tools/artnet-relay.py';
+  const st = D.status || {};
+  const alive = Object.keys(st).filter(k => st[k] && st[k].alive);
+  if (!alive.length) return 'Desk: relay up, no Art-Net from QLC+';
+  return `Desk: QLC+ ${D.live ? 'live' : 'heard'} — ${Object.keys(st).sort().map(k => `U${k} ${st[k].alive ? Math.round(st[k].pps) + ' fps' : 'silent'}`).join(', ')}`;
+}
+function jtlDeskUI() { const el = document.getElementById('jt-desk'); if (el) { const s = jtlDeskText(); if (el.textContent !== s) el.textContent = s; } }
 // ---- the panel: a header button beside Rig, and its own small panel (on/off, the rig hung, a look or a segment, blackout, haze)
 function jtlUI() {
   const S = JTL.state;
@@ -13123,9 +13318,14 @@ function jtlUI() {
       + '<label style="display:grid;gap:3px;color:var(--muted)">Scene · segment<select id="jt-seg"></select></label>'
       + '<label style="display:grid;gap:3px;color:var(--muted)">Or a look<select id="jt-look"><option value="">—</option></select></label>'
       + '<label style="display:flex;gap:8px;align-items:center;color:var(--muted)">Haze <input id="jt-haze" type="range" min="0" max="2" step="0.05" value="1" style="flex:1"></label>'
-      + '<div id="jt-st" style="color:var(--muted);font:12px var(--mono)"></div>';
+      + '<div id="jt-st" style="color:var(--muted);font:12px var(--mono)"></div>'
+      + '<div id="jt-desk" style="color:var(--muted);font:12px var(--mono)" title="QLC+ over Art-Net: run python tools/artnet-relay.py, output both universes to 127.0.0.1 (assets/johnny-tremain/qlc/README.md)"></div>';
     document.getElementById('stage').appendChild(p);
-    btn.addEventListener('click', () => { p.hidden = !p.hidden; btn.setAttribute('aria-pressed', String(!p.hidden)); });
+    btn.addEventListener('click', () => {
+      p.hidden = !p.hidden; btn.setAttribute('aria-pressed', String(!p.hidden));
+      if (!p.hidden && !JTL_DESK.wanted) { JTL_DESK.wanted = true; JTL_DESK.retryT = 0; }   // the desk starts listening the first time the panel opens
+      jtlDeskUI();
+    });
     const q = id => document.getElementById(id);
     q('jt-hung').addEventListener('click', () => { const S2 = JTL.state; if (!S2) return; S2.group.visible = !S2.group.visible; jtlApply(); jtlUI(); });
     q('jt-on').addEventListener('click', () => { const S2 = JTL.state; if (!S2) return; if (S2.active) JTL_API.off(); else JTL_API.look(1, 1); });
@@ -13145,7 +13345,9 @@ function jtlUI() {
   if (on) on.setAttribute('aria-pressed', String(S.active));
   if (seg && S.seg) seg.value = S.seg;
   if (lk) lk.value = S.seg ? '' : (S.tag || '');
-  if (st) st.textContent = S.active ? `${S.seg ? 'seg ' + S.seg + ' · ' : ''}${S.tag || 'levels'} · ${S.lit || 0} lit, ${S.terms || 0} drawn` : 'off: Theatre 2 as it was';
+  if (st) st.textContent = JTL_DESK.live ? `the desk · ${S.lit || 0} lit, ${S.terms || 0} drawn${S.tag ? ' · then ' + (S.seg ? 'seg ' + S.seg : S.tag) : ''}`
+    : S.active ? `${S.seg ? 'seg ' + S.seg + ' · ' : ''}${S.tag || 'levels'} · ${S.lit || 0} lit, ${S.terms || 0} drawn` : 'off: Theatre 2 as it was';
+  jtlDeskUI();
 }
 // ---- the check
 function jtlCheck() {
@@ -13251,6 +13453,7 @@ function jtlCheck() {
   rows.push(`sightlines: ${hungOver.length} overhead units checked from ${eyes.length} seats — ${seen.length ? seen.length + ' SEEN' : 'none shows through the arch'}`);
   // 6. the light: a look lights Theatre 2's stage, blackout darkens it, off restores it, and house 1's view never changes
   const keep = S.recs.map(r => [r.lv, r.col.clone(), r.dir.clone(), r.from.lv, r.to.lv, r.to.col.clone()]), keepS = [S.active, JT_U.uJtOn.value, S.fadeT, S.tag, S.seg, S.onTo];
+  const deskLive = JTL_DESK.live; JTL_DESK.live = false;     // the page's own looks for this part, whatever the desk is doing
   const v2 = [new THREE.Vector3(20, 2.6, -6.5), new THREE.Vector3(20, 2.2, 5.0)], v1 = [new THREE.Vector3(0, 3.0, -8.0), new THREE.Vector3(0, 2.2, 4.0)];
   const settle = () => { S.fadeT = 1; JT_U.uJtOn.value = S.onTo; S.onT = 1; };
   jtlTarget('exterior-day-bright', null, 0); settle(); jtlStep(1);
@@ -13264,11 +13467,109 @@ function jtlCheck() {
   rows.push(`light: Theatre 2's stage view mean ${f2(off.mean)} off → ${f2(day.mean)} full day → ${f2(dark.mean)} blackout; house 1's view identical rig on/off: ${day1.hash === off1.hash}`);
   // put it back
   S.recs.forEach((r, i) => { const k = keep[i]; r.lv = k[0]; r.col.copy(k[1]); r.dir.copy(k[2]); r.from.lv = k[3]; r.to.lv = k[4]; r.to.col.copy(k[5]); });
-  [S.active, JT_U.uJtOn.value, S.fadeT, S.tag, S.seg, S.onTo] = keepS; S.onT = 1; jtlApply(); jtlGlow(); jtlUI();
+  [S.active, JT_U.uJtOn.value, S.fadeT, S.tag, S.seg, S.onTo] = keepS; S.onT = 1; JTL_DESK.live = deskLive; jtlApply(); jtlGlow(); jtlUI();
+  // 7. the desk: QLC+'s channels → every unit, through the path the relay's frames take (jtlDeskFrame → jtlDeskTick)
+  rows.push(...jtlDeskCheck(fails));
   const pass = fails.length === 0;
   const s = `jtLights: ${pass ? 'PASS' : 'FAIL'} — ${rows.join(' · ')}${pass ? '' : ' · FAILS: ' + fails.join('; ')}`;
   (pass ? console.info : console.warn)(s);
   return { pass, fails, rows, summary: s };
+}
+// The desk's part of the check: synthetic frames fed as the relay's are, the units' states read back. → rows
+function jtlDeskCheck(fails) {
+  const S = JTL.state, D = JTL_DESK, rows = [], f2 = v => v.toFixed(2), f3 = v => v.toFixed(3);
+  const keepR = S.recs.map(r => [r.lv, r.col.clone(), r.dir.clone(), r.from.lv, r.to.lv, r.from.col.clone(), r.to.col.clone(), r.dirFrom.clone(), r.dirTo.clone(), r.gobo, r.focus]);
+  const keepS = [S.active, JT_U.uJtOn.value, S.fadeT, S.fadeDur, S.tag, S.seg, S.onTo, S.onT, S.onFrom, S.haze, S.chase];
+  const keepD = [D.live, D.quiet, D.dirty, D.wasActive, D.frames[1].slice(), D.frames[2].slice(), { ...D.got }, D.msgs, D.applies, D.wanted, D.retryT, D.uiT];
+  D.wanted = false; D.live = false;
+  const blank = () => ({ 1: new Uint8Array(512), 2: new Uint8Array(512) });
+  const send = fr => { for (const u of [1, 2]) { const b = new Uint8Array(513); b[0] = u; b.set(fr[u], 1); jtlDeskFrame(b); } jtlDeskTick(0); };
+  const put = (fr, r, i, v) => { fr[r.u.universe][r.u.address - 1 + i] = v; };
+  const col = r => { r.col.getRGB(srgb, THREE.SRGBColorSpace); return `sRGB (${f2(srgb.r)}, ${f2(srgb.g)}, ${f2(srgb.b)})`; };
+  const srgb = { r: 0, g: 0, b: 0 };
+  const near = (r, c, tol = 0.02) => { r.col.getRGB(srgb, THREE.SRGBColorSpace); return Math.abs(srgb.r - c[0]) < tol && Math.abs(srgb.g - c[1]) < tol && Math.abs(srgb.b - c[2]) < tol; };   // c in sRGB
+  const full = (fr, r, v) => {      // the unit at level v (0–255), its colour channels full, shutter open, a mover near its home
+    switch (r.type) {
+      case 'lustr': for (let i = 0; i < 7; i++) put(fr, r, i, 255); put(fr, r, 7, v); break;
+      case 'cs-spot': case 'cs-par': case 'cyc': case 'cyc-floor': put(fr, r, 0, v); for (const i of [1, 2, 3]) put(fr, r, i, 255); break;
+      case 'hazer': put(fr, r, 0, 255); put(fr, r, 1, v); put(fr, r, 2, 255); break;
+      case 'encore': put(fr, r, 0, 30); put(fr, r, 1, v); put(fr, r, 28, 128); put(fr, r, 30, 140); break;
+      case 'aura': put(fr, r, 0, 22); put(fr, r, 1, v); for (const i of [9, 10, 11, 12]) put(fr, r, i, 255); put(fr, r, 3, 128); put(fr, r, 5, 140); break;
+      default: put(fr, r, 0, v);
+    }
+  };
+  const want = (r, v) => r.type === 'encore' ? v * 256 / 65535 : v / 255;
+  // a) the patch: every unit a level of its own (20…249, all different) → every unit reads back its own, none a neighbour's
+  let fr = blank(); const lvl = S.recs.map((r, i) => 20 + (i * 53) % 230);
+  S.recs.forEach((r, i) => full(fr, r, lvl[i])); send(fr);
+  const wrong = S.recs.filter((r, i) => !(Math.abs(r.lv - want(r, lvl[i])) < 0.002)).map(r => `${r.id} ${f3(r.lv)}`);
+  if (!D.live) fails.push('desk: a frame did not take the rig');
+  if (wrong.length) fails.push(`desk patch: ${wrong.length} units read the wrong level (${wrong.slice(0, 6).join(', ')})`);
+  rows.push(`desk patch: ${S.recs.length - wrong.length}/${S.recs.length} units read their own level back off U1/U2 at their addresses`);
+  // b) each fixture type's channels
+  const first = t => S.recs.find(r => r.type === t), res = [];
+  const test = (t, what, set, ok, read) => {
+    const r = first(t); if (!r) { fails.push(`desk: no ${t} unit`); return; }
+    const f = blank(); set(f, r); send(f);
+    const good = ok(r); if (!good) fails.push(`desk ${t} (${r.id}) ${what}: read ${read(r)}`);
+    res.push(`${t} ${what} → ${read(r)}${good ? '' : ' ✗'}`);
+  };
+  const lc = r => `lv ${f3(r.lv)} ${col(r)}`, gname = r => Object.keys(JTL.gobos).find(k => JTL.gobos[k] === r.gobo);
+  test('lustr', 'Red 255 + Intensity 128', (f, r) => { put(f, r, 0, 255); put(f, r, 7, 128); }, r => Math.abs(r.lv - 128 / 255) < 1e-3 && near(r, [1, 0, 0]), lc);
+  test('lustr', 'Amber + Indigo, Intensity 255', (f, r) => { put(f, r, 2, 255); put(f, r, 6, 255); put(f, r, 7, 255); }, r => r.lv === 1 && near(r, [1, 0.37, 0.74], 0.03), lc);
+  test('cs-spot', 'I 255 R 255 G 128 B 0', (f, r) => { put(f, r, 0, 255); put(f, r, 1, 255); put(f, r, 2, 128); }, r => r.lv === 1 && near(r, [1, 0.502, 0], 0.005), lc);
+  test('cs-par', 'I 64, Blue only', (f, r) => { put(f, r, 0, 64); put(f, r, 3, 255); }, r => Math.abs(r.lv - 64 / 255) < 1e-3 && near(r, [0, 0, 1]), lc);
+  test('cyc', 'Dimmer 255, Amber only', (f, r) => { put(f, r, 0, 255); put(f, r, 4, 255); }, r => r.lv === 1 && near(r, [1, 0.5, 0]), lc);
+  test('cyc-floor', 'Dimmer 200, Lime only', (f, r) => { put(f, r, 0, 200); put(f, r, 5, 255); }, r => Math.abs(r.lv - 200 / 255) < 1e-3 && near(r, [0.55, 1, 0.05]), lc);
+  const gel = r => D.gel[r.id];
+  test('s4', 'Dimmer 255 (its gel)', (f, r) => put(f, r, 0, 255), r => r.lv === 1 && near(r, gel(r), 1e-3), lc);
+  test('practical', 'Dimmer 128 (its gel)', (f, r) => put(f, r, 0, 128), r => Math.abs(r.lv - 128 / 255) < 1e-3 && near(r, gel(r), 1e-3), lc);
+  test('follow', 'Dimmer 255', (f, r) => put(f, r, 0, 255), r => r.lv === 1, lc);
+  test('hazer', 'on, Haze 128, haze on (the other off)', (f, r) => { put(f, r, 0, 255); put(f, r, 1, 128); put(f, r, 2, 255); }, r => Math.abs(r.lv - 128 / 255) < 1e-3 && Math.abs(S.haze - 64 / 255) < 1e-3, r => `lv ${f3(r.lv)}, the beams' haze ${f3(S.haze)}`);
+  test('hazer', 'Unit control 0, Haze 255', (f, r) => { put(f, r, 1, 255); put(f, r, 2, 255); }, r => r.lv === 0 && S.haze === 0, r => `lv ${f3(r.lv)}, haze ${f3(S.haze)}`);
+  test('encore', 'Shutter 0 (closed), Dimmer full', (f, r) => { put(f, r, 1, 255); put(f, r, 2, 255); }, r => r.lv === 0, lc);
+  test('encore', 'Shutter 30, Dimmer 128/0, Cyan 255', (f, r) => { put(f, r, 0, 30); put(f, r, 1, 128); put(f, r, 3, 255); }, r => Math.abs(r.lv - 32768 / 65535) < 1e-4 && near(r, [0, 1, 1]), lc);
+  test('encore', 'Color Wheel 84 (Red 310), gobo 20', (f, r) => { put(f, r, 0, 30); put(f, r, 1, 255); put(f, r, 7, 84); put(f, r, 8, 20); }, r => near(r, [0.922, 0.239, 0.2], 0.01) && r.gobo === JTL.gobos.moon, r => `${col(r)}, gobo ${gname(r)}`);
+  test('encore', 'gobo 47 (slot 3 rotating)', (f, r) => { put(f, r, 0, 30); put(f, r, 1, 255); put(f, r, 8, 47); }, r => r.gobo === JTL.gobos.moon, r => `gobo ${gname(r)}`);
+  test('encore', 'gobo 10 (slot 1 indexed)', (f, r) => { put(f, r, 0, 30); put(f, r, 1, 255); put(f, r, 8, 10); }, r => r.gobo === JTL.gobos.water, r => `gobo ${gname(r)}`);
+  test('aura', 'Shutter 22, Dimmer 255, White only', (f, r) => { put(f, r, 0, 22); put(f, r, 1, 255); put(f, r, 12, 255); }, r => r.lv === 1 && near(r, [1, 1, 1]), lc);
+  test('aura', 'Shutter 10 (closed), Dimmer 255', (f, r) => { put(f, r, 0, 10); put(f, r, 1, 255); put(f, r, 12, 255); }, r => r.lv === 0, lc);
+  test('aura', 'Color Wheel 170 (LEE 164 Flame Red)', (f, r) => { put(f, r, 0, 22); put(f, r, 1, 255); put(f, r, 8, 170); }, r => near(r, [1, 0.031, 0]), lc);
+  rows.push('desk types: ' + res.join('; '));
+  // c) the movers: pan/tilt as tools/jt-qlc.py writes it (16-bit, the rig's ranges) for each mover's own focus and the
+  //    stage's centre → the page's beam points there (from the hang point, as the encoding assumes)
+  let worst = 0, worstId = null, nm = 0;
+  for (const r of S.recs.filter(q => q.mover)) {
+    for (const tgt of [r.aim, new THREE.Vector3(20, 0.8, 4.6)]) {
+      const p = r.u.pos, d = new THREE.Vector3(tgt.x - p[0], tgt.y - p[1], tgt.z - p[2]).normalize();
+      const tilt = Math.acos(Math.max(-1, Math.min(1, -d.y))) * 180 / Math.PI, pan = tilt > 0.5 ? Math.atan2(d.x, -d.z) * 180 / Math.PI : 0;
+      const [pr, tr] = r.u.mover, pv = Math.round((0.5 + pan / pr) * 65535), tv = Math.round((0.5 + tilt / tr) * 65535);
+      const f = blank(), at = r.type === 'encore' ? [28, 30] : [3, 5];
+      full(f, r, 255); put(f, r, at[0], pv >> 8); put(f, r, at[0] + 1, pv & 255); put(f, r, at[1], tv >> 8); put(f, r, at[1] + 1, tv & 255); send(f);
+      const e = Math.acos(Math.max(-1, Math.min(1, r.dir.dot(d)))) * 180 / Math.PI; nm++;
+      if (e > worst) { worst = e; worstId = r.id; }
+    }
+  }
+  if (!(worst < 0.05)) fails.push(`desk movers: ${worstId}'s beam is ${worst.toFixed(3)}° off where its pan/tilt points`);
+  rows.push(`desk movers: ${nm / 2} movers × 2 focuses, pan/tilt 16-bit (Encore 540°/268°, Aura 540°/232°) → the beam within ${worst.toFixed(4)}° (${worstId})`);
+  // d) the hold and the hand-back: a look chosen while the desk drives waits; hold s of quiet later it comes back
+  const r0 = S.recs.find(r => r.type === 'cs-spot'), tag = 'exterior-day-bright', lookLv = (S.data.looks[tag].units[r0.id] || [0])[0];
+  fr = blank(); full(fr, r0, 77); send(fr);
+  JTL_API.lookTag(tag, 0);
+  const held = Math.abs(r0.lv - 77 / 255) < 1e-3 && D.live;
+  jtlDeskTick(D.hold * 0.5); const still = D.live;
+  jtlDeskTick(D.hold * 0.5 + 0.05);
+  const back = !D.live && S.tag === tag && Math.abs(r0.to.lv - lookLv) < 1e-6 && S.fadeT < 1;
+  if (!held) fails.push('desk: a look chosen while the desk drives changed the units');
+  if (!still || !back) fails.push(`desk: the hand-back after ${D.hold} s of quiet did not bring the look back (live at half ${still}, back ${back})`);
+  rows.push(`desk hold: a look picked while the desk drives is held (${r0.id} stays ${f3(r0.lv)}), ${D.hold} s of quiet later "${tag}" fades back in (${r0.id} → ${f3(lookLv)})`);
+  // put it all back
+  S.recs.forEach((r, i) => { const k = keepR[i]; r.lv = k[0]; r.col.copy(k[1]); r.dir.copy(k[2]); r.from.lv = k[3]; r.to.lv = k[4]; r.from.col.copy(k[5]); r.to.col.copy(k[6]); r.dirFrom.copy(k[7]); r.dirTo.copy(k[8]); r.gobo = k[9]; r.focus = k[10]; });
+  [S.active, JT_U.uJtOn.value, S.fadeT, S.fadeDur, S.tag, S.seg, S.onTo, S.onT, S.onFrom, S.haze, S.chase] = keepS;
+  [D.live, D.quiet, D.dirty, D.wasActive] = keepD; D.frames[1].set(keepD[4]); D.frames[2].set(keepD[5]); Object.assign(D.got, keepD[6]);
+  [D.msgs, D.applies, D.wanted, D.retryT, D.uiT] = keepD.slice(7);
+  jtlApply(); jtlGlow(); jtlUI();
+  return rows;
 }
 const JTL_API = {
   spec: JTL, uniforms: JT_U,
@@ -13283,18 +13584,27 @@ const JTL_API = {
   lookTag(tag, fade) { const S = JTL.state; if (!S) return null; S.tag = tag; S.seg = null; return jtlTarget(tag, null, fade) ? tag : null; },
   level(id, v, fade = 0.5) {
     const S = JTL.state, r = S && S.byId[id]; if (!r) { console.warn(`jtLights: no unit ${id}`); return null; }
+    if (JTL_DESK.live) { console.info(`jtLights: the desk has the rig — ${id} follows QLC+`); return null; }
     for (const q of S.recs) { q.from.lv = q.lv; q.from.col.copy(q.col); q.to.lv = q.lv; q.to.col.copy(q.col); q.dirFrom.copy(q.dir); q.dirTo.copy(q.dir); }
     r.to.lv = Math.max(0, Math.min(1, +v || 0)); if (!(r.col.r + r.col.g + r.col.b)) r.to.col.setRGB(1, 0.93, 0.85);
     S.fadeT = 0; S.fadeDur = fade; jtlActive(true); if (!fade) jtlStep(1); return r.to.lv;
   },
   blackout(fade = JTL.fade) {
     const S = JTL.state; if (!S) return;
+    if (JTL_DESK.live) { S.tag = 'blackout'; S.seg = null; jtlUI(); return; }   // recorded; the desk has the rig
     for (const r of S.recs) { r.from.lv = r.lv; r.from.col.copy(r.col); r.to.lv = 0; r.to.col.copy(r.col); r.dirFrom.copy(r.dir); r.dirTo.copy(r.dir); }
     S.tag = 'blackout'; S.seg = null; S.fadeT = 0; S.fadeDur = fade; jtlActive(true); if (!fade) jtlStep(1);
   },
-  off() { const S = JTL.state; if (!S) return; for (const r of S.recs) { r.lv = r.from.lv = r.to.lv = 0; } S.fadeT = 1; S.tag = null; S.seg = null; jtlApply(); jtlActive(false); },
+  off() { const S = JTL.state; if (!S) return; JTL_DESK.live = false; for (const r of S.recs) { r.lv = r.from.lv = r.to.lv = 0; } S.fadeT = 1; S.tag = null; S.seg = null; jtlApply(); jtlActive(false); },
   state() { const S = JTL.state; if (!S) return 'no rig'; const s = `jtLights: ${S.active ? 'active' : 'off'}, ${S.tag || '—'}${S.seg ? ' (seg ' + S.seg + ')' : ''}, ${S.lit || 0} units lit, ${S.terms || 0} drawn as terms, haze ${(S.haze * S.hazeMul).toFixed(2)}`; console.info(s); return s; },
   check: jtlCheck, tick: jtlTick, patchScene: jtlPatchScene,
+  // the desk (QLC+ over Art-Net, tools/artnet-relay.py): its state, listen() to start without the panel, feed(u, bytes) a frame by hand
+  desk: {
+    get state() { const D = JTL_DESK; return { text: jtlDeskText(), live: D.live, ws: D.wsState, wanted: D.wanted, quiet: D.quiet, msgs: D.msgs, applies: D.applies, status: D.status }; },
+    listen() { JTL_DESK.wanted = true; JTL_DESK.retryT = 0; return jtlDeskText(); },
+    feed(u, bytes) { const b = new Uint8Array(513); b[0] = u; b.set(bytes.slice(0, 512), 1); return jtlDeskFrame(b); },
+    spec: JTL_DESK,
+  },
 };
 
 /* ---------------------------------------------------------------- BUILD MODE
