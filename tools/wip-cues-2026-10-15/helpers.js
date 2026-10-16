@@ -69,3 +69,30 @@ window.LOOK = function (tid, sec, chs) {
   return { A, L };
 };
 'helpers ok';
+window.SHOTSETUP = () => { const M = MIDTOWN; M.renderer.setSize(1280, 760, false); M.camera.aspect = 1280 / 760; M.camera.updateProjectionMatrix(); };
+window.CAM = { pos: [0, 4.2, 10.5], at: [0, 1.4, 0] };
+window.SHOT = async (tid, sec, name, cam) => {
+  const M = MIDTOWN, cv = M.renderer.domElement; SHOTSETUP();
+  M.show.seek(tid, sec); M.show.settle();
+  cam = cam || CAM; const G = M.actors.group; G.updateWorldMatrix(true, false);
+  const p = G.localToWorld(new M.THREE.Vector3(...cam.pos)), t = G.localToWorld(new M.THREE.Vector3(...cam.at));
+  M.camera.position.copy(p); if (M.orbit) { M.orbit.target.copy(t); M.orbit.update(); } M.camera.lookAt(t);
+  M.frame();
+  const c2 = document.createElement('canvas'); c2.width = cv.width; c2.height = cv.height; c2.getContext('2d').drawImage(cv, 0, 0);
+  const blob = await new Promise(r => c2.toBlob(r, 'image/png'));
+  await fetch('/save/' + name + '.png', { method: 'POST', body: blob });
+  return name;
+};
+window.CHECK = (tid, sec, chs) => {
+  const M = MIDTOWN, G = M.actors.group; G.updateWorldMatrix(true, false);
+  const tr = M.show.tracks.find(t => t.id === tid), T = tr.start + sec;
+  const ids = ['hamilton','burr','eliza','angelica','peggy','washington','lafayette','mulligan','laurens','king','ens1','ens2','ens3','ens4','ens5','ens6','ens7','ens8','ens9','ens10'];
+  const A = ids.map(id => [id, M.actors.pose(id, T)]).filter(([, p]) => p && p.visible !== false);
+  return chs.map(ch => { const s = M.lx.get(+ch); if (!s.lit) return ch + ':dark'; const b = M.lx.beam(+ch); if (!b.hit) return ch + ':nohit';
+    const h = G.worldToLocal(b.hit.clone()); const r = b.radius;
+    const inn = A.filter(([, p]) => Math.abs(p.y - h.y) < 0.6 && Math.hypot(p.x - h.x, p.z - h.z) <= r + 0.3).map(([id, p]) => id + '@' + Math.hypot(p.x - h.x, p.z - h.z).toFixed(2));
+    return `${ch}(${h.x.toFixed(2)},${h.y.toFixed(2)},${h.z.toFixed(2)} r${r.toFixed(2)} lv${s.level.toFixed(2)}):${inn.join(',') || 'NOBODY'}`; }).join('  ');
+};
+window.BATCH = async (L, pre) => { const out = []; for (const [t, s, chs, cam] of L) { const n = `${pre}_${t}_${s}`; await SHOT(t, s, n, cam); out.push(n + ' ' + CHECK(t, s, chs)); } return out.join('\n'); };
+window.WAITLOAD = () => new Promise(r => { const t0 = Date.now(); const f = () => { const l = document.getElementById('load'); if ((l && getComputedStyle(l).display === 'none' && window.MIDTOWN && MIDTOWN.show && MIDTOWN.actors) || Date.now() - t0 > 40000) r(); else setTimeout(f, 300); }; f(); });
+'helpers ok';
