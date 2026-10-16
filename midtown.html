@@ -11856,8 +11856,11 @@ const JT = {
   glide: 2.4, pop: 0.5, fly: 3.0, fire: 1.5,                  // seconds: a walk-off, a hand prop, a fly, the furnace coming up
   door: { x: 0, z: 6.30 },                                    // where a backstage piece goes out: the centre stage doors
   lifts: { front: { x: [-3.0, 3.0], z: [0.3, 2.7] }, back: { x: [-2.5, 2.5], z: [3.6, 6.0] } },   // CONTRACT.md, stage frame
-  house: { x: [10.45, 29.65], z: [-0.36, 8.90] },
-  keepOut: [{ name: "the underground's stair hole in the SL wing", x: [-9.40, -6.25], z: [1.70, 6.30] }],   // stage frame: nothing stands, parks or glides there             // Theatre 2's stage house and apron, world (deck fill 10.5…29.9)
+  house: { x: [10.45, 29.65], z: [-0.36, 8.90] },            // Theatre 2's stage house and apron, world (deck fill 10.5…29.9)
+  keepOut: [{ name: "the underground's stair hole in the SL wing", x: [-9.40, -6.25], z: [1.70, 6.30] }],   // stage frame: nothing stands, parks, glides or hangs there
+  // FLOOR keep-outs: no set piece stands, parks or glides there (a boom or a light may stand or hang over it; the lights' check
+  // reads keepOut only): the lane from the stage to Theatre 2's worklight switch on the SL wall (PR #5)
+  walkways: [{ name: 'the worklight walkway', x: [-9.40, -4.30], z: [0.65, 1.45] }],
   d: null, pieces: {}, order: [], cur: null, busy: false, want: null, tw: [], fireK: 0, fireTo: 0,
   snap: false, practicals: true, speed: 1, auto: false, hold: 4, held: 0, skipping: false, plan: null, routes: {}, group: null, el: null, btn: null, manifest: {}, fitted: {}, bays: {}, msg: '',
 };
@@ -12521,7 +12524,7 @@ function jtCheck(quiet) {
   }
   out('shifts: strike before set, nothing sweeps through what stands, every big set back lift → bay → front lift', [...new Set(b6)], `${shifts} shifts in show order${Object.keys(JT.routes).length ? `, ${Object.values(JT.routes).reduce((a, l) => a + l.length, 0)} lift legs logged` : ''}`);
   // 7: the keep-outs (the underground's stair hole): nothing on it in any segment, parked on it, or gliding across it
-  const b7 = [], KO = JT.keepOut.map(k => ({ name: k.name, r: jtRect(k) }));
+  const b7 = [], KO = [...JT.keepOut, ...JT.walkways].map(k => ({ name: k.name, r: jtRect(k) }));
   for (const p of JT.d.pieces) {
     const st = p.storage || {}, wing = st.where === 'SL wing' || st.where === 'SR wing';
     for (let i = 0; i < (p.count || 1); i++) {
@@ -12534,7 +12537,7 @@ function jtCheck(quiet) {
       }
     }
   }
-  out('keep-out: nothing on, parked on or gliding across the stair hole', [...new Set(b7)]);
+  out('keep-out: nothing on, parked on or gliding across the stair hole or the worklight walkway', [...new Set(b7)]);
   const pass = !fails.length;
   lines.push(`jt check: ${pass ? 'PASS' : 'FAIL'} — ${d.pieces.length} pieces, ${JT.order.length} segments, ${Object.keys(JT.fitted).length} models slotted, ${JT.tris} stand-in triangles, ${JT.meshes} meshes`);
   if (!quiet) console[pass ? 'info' : 'error'](lines.join('\n'));

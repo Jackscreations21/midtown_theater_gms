@@ -40,12 +40,13 @@ APRON_X = (-5.60, 5.95)
 PARKS = {                                   # the wings' parks, stage frame: rects a stored piece stands wholly inside
     # stage left since the underground's stair hole (below): behind the legs between them (x -6.20...-4.65, the legs at z
     # 0.6 / 2.6 / 4.6, lumber pile b upstage), and the strip downstage of the hole
-    'SL wing': [{'x': (-6.20, -4.65), 'z': (0.65, 2.55)}, {'x': (-6.20, -4.65), 'z': (2.65, 4.55)},
-                {'x': (-6.20, -5.65), 'z': (4.65, 6.40)}, {'x': (-9.30, -6.30), 'z': (0.20, 1.60)}],
+    'SL wing': [{'x': (-6.20, -4.65), 'z': (1.50, 2.55)}, {'x': (-6.20, -4.65), 'z': (2.65, 4.55)},
+                {'x': (-6.20, -5.65), 'z': (4.65, 6.40)}],
     'SR wing': [{'x': (6.30, 9.40), 'z': (1.70, 6.40)}],
 }
 KEEP_OUT = [                                # nothing stands, parks or travels here
     ('the stair hole in the SL wing (the underground, RULING GJ)', {'x': (-9.40, -6.25), 'z': (1.70, 6.30)}),
+    ('the worklight walkway (stage to the SL wall switch, PR #5)', {'x': (-9.40, -4.30), 'z': (0.65, 1.45)}),
 ]
 DOORS = {'w': 2.0, 'h': 3.40}
 LANES = {'SL': (-4.30, -0.80), 'SR': (1.05, 4.60)}

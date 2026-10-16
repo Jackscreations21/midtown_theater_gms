@@ -97,7 +97,9 @@ piece's BASE** over the deck (0 on the floor, 0.45 on the wharf deck, 2.40 on th
   a side) and so the front. In a change where a lift moves (a wagon leaves: the back; one arrives: the front), nothing that
   stays on stage through the change stands on that lift's footprint (hand props excepted: actors carry them).
 - **Keep-outs:** the underground's stair hole in the SL wing (x −9.40…−6.25, z 1.70…6.30, guard-railed; RULING GJ):
-  nothing stands on it, parks on it, or glides across it between its wing spot and the stage. The SL wing's parks are
+  nothing stands on it, parks on it, or glides across it between its wing spot and the stage.
+  The **worklight walkway** (x −9.40…−4.30, z 0.65…1.45: the lane from the stage to Theatre 2's worklight switch on the SL
+  wall, PR #5) is a FLOOR keep-out the same way for set pieces (the page's `JT.walkways`; lights may stand or hang over it). The SL wing's parks are
   therefore `parks['SL wing']`'s rects (behind the legs, and the strip downstage of the hole).
 - **A shift** (the page) runs strike → re-set → big sets off (back lift → bay) → big sets on (bay → front lift) → set →
   lights; `MIDTOWN.jt.check()` proves for every shift in show order that no re-set or wagon glide sweeps through what is

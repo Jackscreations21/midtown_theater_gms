@@ -320,7 +320,7 @@
   ]
  },
  "parks": {
-  "SL wing": "x -6.20...-4.65 behind the legs, between them (z 0.65...2.55, 2.65...4.55; upstage of z 4.65 only x -6.20...-5.65, lumber pile b beside it) and x -9.30...-6.30, z 0.20...1.60 downstage of the underground's stair hole (x -9.40...-6.25, z 1.70...6.30: nothing parks on it or glides across it)",
+  "SL wing": "x -6.20...-4.65 behind the legs, between them (z 1.50...2.55, 2.65...4.55; upstage of z 4.65 only x -6.20...-5.65, lumber pile b beside it); the stair hole (x -9.40...-6.25, z 1.70...6.30) and the worklight walkway (x -9.40...-4.30, z 0.65...1.45, from the stage to the wall switch) are kept clear: nothing parks on them or glides across them",
   "SR wing": "x +6.30...+9.40, z 1.7...6.4 (behind the legs)",
   "props table SL": "x -8.0, z 0.3 (a 1.8 x 0.6 table)",
   "props table SR": "x +7.0, z 2.0 (a 1.8 x 0.6 table)",
@@ -1514,7 +1514,7 @@
    "licenceNote": "CGTrader royalty-free, NO AI USE (may not be fed to AI training); no credit",
    "home": [
     {
-     "x": -4.0,
+     "x": -3.7,
      "y": 0,
      "z": 1.2,
      "rotY": -50
@@ -1522,10 +1522,10 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -5.875,
+    "x": -4.95,
     "y": 0,
-    "z": 1.45,
-    "rotY": 0,
+    "z": 3.525,
+    "rotY": 90,
     "fits": true
    },
    "scenes": [
@@ -1612,12 +1612,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -5.8,
-    "y": 0,
-    "z": 3.55,
-    "rotY": 90,
-    "fits": true
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
+    "rotY": 0,
+    "fits": true,
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     1,
@@ -1720,22 +1721,22 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -5.05,
+    "x": -5.85,
     "y": 0,
-    "z": 1.45,
+    "z": 3.45,
     "rotY": 90,
     "fits": true,
     "at": [
      {
-      "x": -5.05,
+      "x": -5.85,
       "y": 0,
-      "z": 1.45,
+      "z": 3.45,
       "rotY": 90
      },
      {
-      "x": -5.2,
+      "x": -6.05,
       "y": 0,
-      "z": 3.45,
+      "z": 5.45,
       "rotY": 90
      }
     ]
@@ -1844,22 +1845,22 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -5.975,
+    "x": -5.325,
     "y": 0,
-    "z": 0.875,
+    "z": 2.875,
     "rotY": 90,
     "fits": true,
     "at": [
      {
-      "x": -5.975,
+      "x": -5.325,
       "y": 0,
-      "z": 0.875,
+      "z": 2.875,
       "rotY": 90
      },
      {
-      "x": -5.475,
+      "x": -5.075,
       "y": 0,
-      "z": 0.875,
+      "z": 1.825,
       "rotY": 90
      }
     ]
@@ -1869,7 +1870,7 @@
      "n": 7,
      "at": [
       {
-       "x": -4.0,
+       "x": -3.7,
        "y": 0,
        "z": 1.2,
        "rotY": -50
@@ -2123,7 +2124,7 @@
     "where": "SL wing",
     "x": -5.8,
     "y": 0,
-    "z": 2.1,
+    "z": 1.8,
     "rotY": 0,
     "fits": true
    },
@@ -2911,50 +2912,13 @@
     }
    ],
    "storage": {
-    "where": "SL wing",
-    "x": -5.95,
-    "y": 0,
-    "z": 4.9,
-    "rotY": 90,
+    "where": "backstage",
+    "x": 0.0,
+    "y": 0.0,
+    "z": 9.0,
+    "rotY": 0,
     "fits": true,
-    "at": [
-     {
-      "x": -5.95,
-      "y": 0,
-      "z": 4.9,
-      "rotY": 90
-     },
-     {
-      "x": -5.95,
-      "y": 0,
-      "z": 5.45,
-      "rotY": 90
-     },
-     {
-      "x": -5.95,
-      "y": 0,
-      "z": 6.0,
-      "rotY": 90
-     },
-     {
-      "x": -7.2,
-      "y": 0,
-      "z": 0.45,
-      "rotY": 90
-     },
-     {
-      "x": -6.65,
-      "y": 0,
-      "z": 0.45,
-      "rotY": 90
-     },
-     {
-      "x": -7.2,
-      "y": 0,
-      "z": 1.0,
-      "rotY": 90
-     }
-    ]
+    "note": "the SL wing park is full (the underground stair hole took most of the SL wing): through the centre doors to the crossover"
    },
    "scenes": [
     {
@@ -3470,9 +3434,9 @@
    ],
    "storage": {
     "where": "SL wing",
-    "x": -4.825,
+    "x": -5.175,
     "y": 0,
-    "z": 2.825,
+    "z": 2.275,
     "rotY": 90,
     "fits": true
    },
@@ -5524,9 +5488,9 @@
    "licenceNote": "no model yet (worklist 'Still missing' or not in the worklist): model from scratch",
    "home": [
     {
-     "x": -4.0,
+     "x": -3.4,
      "y": 0,
-     "z": 1.6,
+     "z": 1.1,
      "rotY": -35
     }
    ],

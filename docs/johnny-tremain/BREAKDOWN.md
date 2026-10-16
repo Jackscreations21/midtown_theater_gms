@@ -91,15 +91,16 @@ glides to its place. The press is **not** a big set: it parks under the loft.
 
 ### Storage
 
-- **SL wing** (the underground's stair hole, x −9.40…−6.25, z 1.70…6.30, took most of it): behind the legs, between
-  them (x −6.20…−4.65), and the strip downstage of the hole (x −9.30…−6.30, z 0.20…1.60). It holds the armchair, the
-  kitchen table, benches and chairs, the low stool, the Lytes' chairs and the polishing wheel. Nothing parks on the hole
-  or glides across it (both checkers).
+- **SL wing** (the underground's stair hole, x −9.40…−6.25, z 1.70…6.30, took most of it, and the **worklight walkway**,
+  x −9.40…−4.30, z 0.65…1.45, the lane from the stage to Theatre 2's worklight switch on the SL wall, is kept clear):
+  behind the legs, between them (x −6.20…−4.65, z 1.50…2.55 and 2.65…4.55; upstage of z 4.65 only x −6.20…−5.65). It
+  holds the armchair, the kitchen benches and chairs, the low stool and the polishing wheel. Nothing parks on the hole or
+  the walkway, stands on them, or glides across them (both checkers).
 - **SR wing** (x 6.30…9.40, z 1.70…6.40, offstage of the legs): the clothesline, door frame, window flat, gravestone,
   mounting block, saddle stand, stacked arms, warehouse corner.
 - **Backstage** (out through the centre stage doors, 2.0 × 3.40): everything else that travels, including the two presses,
-  the workbench, the trestle table, the truckle beds, the counter, the type case and the drawing board (the SL wing is
-  full), and the plank run and rope line (longer than a wing is deep). The page hides them once through the doors.
+  the workbench, the trestle table, the truckle beds, the counter, the type case, the drawing board, the kitchen table,
+  the Lytes' six chairs and the sea chest (the SL wing is full), and the plank run and rope line (longer than a wing is deep). The page hides them once through the doors.
 - **Hand props** live on the props tables (not drawn when off).
 
 ### The shift (the page's Johnny Tremain panel)
@@ -113,7 +114,7 @@ furnace, the practicals). Thirteen shifts move a lift: 10.1→10.2 and 10.2→10
 a minute; the panel's speed (1× / 2× / 4×) speeds the glides and flies, not the lifts.
 
 **The scene-by-scene positions below are the first plan's**, kept for their staging reasons; where a piece moved for the
-lifts, set.json has the new spot (e.g. the armchair's corner is now x −4.0, z 1.2; the courtroom is upstage centre on
+lifts, set.json has the new spot (e.g. the armchair's corner is now x −3.7, z 1.2; the courtroom is upstage centre on
 its own platform; the tipped chair in 17.4 falls at x +1.9, z 2.9 beside its own end of the table).
 
 ## Scene by scene
