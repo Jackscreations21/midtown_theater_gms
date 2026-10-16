@@ -1,0 +1,5 @@
+{
+ "format": "jt-models/1",
+ "about": "The 3D models dropped in for Johnny Tremain's set pieces. One line per model in \"models\": \"<piece id>\": {\"file\": \"<piece id>.glb\", \"rotY\": 0, \"fit\": \"auto\"}. README.md beside this file says how. Empty: every piece is its stand-in.",
+ "models": {}
+}

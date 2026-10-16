@@ -201,7 +201,7 @@ def check(d, verbose=False):
     ok('deck: every on piece stands on the deck (not the SR side room, not past the apron walls)', deck)
 
     # 3: heights, lanes, out-trims
-    hi = []
+    hi = []; info = []
     for pid, p in P.pieces.items():
         trim = p.get('trim')
         flown = p['kind'] == 'flown' and not (trim or {}).get('deadHung')
@@ -219,11 +219,14 @@ def check(d, verbose=False):
                 x0, x1 = pl['x'] - w / 2, pl['x'] + w / 2
                 if not any(L[0] - E <= x0 and x1 <= L[1] + E for L in LANES.values()) and 'with the steeple' not in trim.get('lane', ''):
                     hi.append(f'{pid} x {x0:.2f}…{x1:.2f} fits neither lane between the iron\'s pipes')
-                z = pl['z']; k = 0.559 if z > 3.0 else 0.949
-                see = 0.32 + k * (z + 4.30)
-                if trim['out'] < see - E:
-                    hi.append(f'{pid} out-trim {trim["out"]:.2f} is below the front row\'s sightline {see:.2f} at z {z}')
-    ok('heights: nothing unflown over 4.40; flown pieces in a lane and hidden at out-trim', hi)
+                h = P.dims(p, pl)[1]
+                seen = seen_flown(pl['z'], trim['out'], trim['out'] + h)
+                if trim['out'] + h > FLY_TOP + E: hi.append(f'{pid} at out-trim reaches {trim["out"] + h:.2f}, over the fly roof ({FLY_TOP})')
+                if seen and not trim.get('outSeen'):
+                    hi.append(f'{pid} at out-trim {trim["out"]:.2f}: ' + '; '.join(f'{n} sees {a:.2f}…{b:.2f}' for n, a, b in seen))
+                elif seen: info.append(f'{pid} at out-trim: ' + '; '.join(f'{n} sees {a:.2f}…{b:.2f}' for n, a, b in seen) + f' (recorded: {trim["outSeen"]})')
+    ok('heights: nothing unflown over 4.40; flown pieces in a lane, under the fly roof and hidden at out-trim from every row', hi)
+    for m in info: lines.append('INFO  ' + m)
 
     # 5: storage
     st = []
@@ -347,6 +350,31 @@ def check(d, verbose=False):
         for pid, row in table:
             lines.append('      ' + f'{pid:11s} ' + ' · '.join(f'{n.split(",")[0].replace("row", "")}{"/" + n.split(",")[1].strip()[6:8] if "," in n else ""} {f:.0%}' for n, f in row))
     return fails, lines
+
+
+FLY_TOP = 15.20 - 0.05                       # the fly roof over the deck, less a margin
+BORDERS = [(3.0, 4.40, 5.00)]                # the masking border: z, bottom, top over the deck
+HEADER = (0.0, 4.40)                         # the arch's header: z, its underside over the deck
+def seats():
+    """Eyes down the centre of the stalls: the front row (z -4.3, eye 0.32 over the deck) to the back (z -16.3, 3.1)."""
+    for k in range(7):
+        t = k / 6; yield (f'row {1 + round(t * 14)}', -4.3 - 12.0 * t, 0.32 + 2.78 * t)
+
+
+def seen_flown(z, y0, y1):
+    """The parts of a flown piece (bottom y0, top y1, at depth z) each seat sees under the header and round the border."""
+    out = []
+    for name, ez, ey in seats():
+        at = lambda zz, yy: ey + (yy - ey) * (z - ez) / (zz - ez)        # where the line through (zz, yy) meets depth z
+        hid = [(at(*HEADER), 1e9)] + [(at(bz, b0), at(bz, b1)) for bz, b0, b1 in BORDERS if bz < z]
+        a = y0; vis = []
+        while a < y1 - 0.01:
+            cov = next(((h0, h1) for h0, h1 in hid if h0 <= a + 1e-6 < h1), None)
+            if cov: a = cov[1]; continue
+            nxt = min([h0 for h0, h1 in hid if h0 > a] + [y1]); vis.append((a, min(nxt, y1))); a = nxt
+        vis = [(a, b) for a, b in vis if b - a > 0.02]
+        if vis: out.append((name, vis[0][0], vis[-1][1]))
+    return out
 
 
 def seg_x(ax, az, bx, bz, cx, cz, dx, dz):

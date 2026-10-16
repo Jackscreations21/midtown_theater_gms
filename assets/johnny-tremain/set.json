@@ -1276,7 +1276,7 @@
    "storage": {
     "where": "flown",
     "x": -2.4,
-    "y": 5.0,
+    "y": 8.2,
     "z": 3.9,
     "rotY": 0,
     "fits": "yes"
@@ -1293,7 +1293,7 @@
    ],
    "trim": {
     "in": 2.6,
-    "out": 5.0,
+    "out": 8.2,
     "lane": "SL lane (x -4.30...-0.80, between the iron's pipes)"
    },
    "notes": "Board 0.9 x 0.6 on an iron bracket and chains, painted with a small figure in a blue coat holding a spyglass. Flies in in front of the loft for Salt Lane; out above the front row's sightline behind the border. The Colonial House model is editorial-only; the sign is a painted board, so build it from boxes if the author says no."
@@ -1316,15 +1316,15 @@
     {
      "x": 2.6,
      "y": 0.9,
-     "z": 6.3,
+     "z": 6.05,
      "rotY": 0
     }
    ],
    "storage": {
     "where": "flown",
     "x": 2.6,
-    "y": 6.5,
-    "z": 6.3,
+    "y": 10.15,
+    "z": 6.05,
     "rotY": 0,
     "fits": "yes"
    },
@@ -1338,10 +1338,10 @@
    ],
    "trim": {
     "in": 0.9,
-    "out": 6.5,
+    "out": 10.15,
     "lane": "SR lane (x +1.05...+4.60, between the iron's pipes)"
    },
-   "notes": "Flat cut-out 1.8 w x 5.0 h at z 6.50 (behind the wharf piles), the two lit windows of its top stage at y 3.5-3.9 (visible from every seat: the back row sees to ~4.6 there). Worklist said 5-6 m; 5.0 is the most that flies out of sight in this tower even with the border. Weathervane, not a cross."
+   "notes": "Flat cut-out 1.8 w x 5.0 h at z 6.50 (behind the wharf piles), the two lit windows of its top stage at y 3.5-3.9 (visible from every seat: the back row sees to ~4.6 there). Worklist said 5-6 m; 5.0 is the most that flies out of sight in this tower even with the border. Weathervane, not a cross. Out-trim 10.15 (top 15.15) at z 6.05: hidden from every row."
   },
   {
    "id": "church-lanterns",
@@ -1361,21 +1361,21 @@
     {
      "x": 2.35,
      "y": 3.45,
-     "z": 6.3,
+     "z": 6.05,
      "rotY": 0
     },
     {
      "x": 2.85,
      "y": 3.45,
-     "z": 6.3,
+     "z": 6.05,
      "rotY": 0
     }
    ],
    "storage": {
     "where": "flown",
     "x": 2.6,
-    "y": 9.05,
-    "z": 6.3,
+    "y": 12.7,
+    "z": 6.05,
     "rotY": 0,
     "fits": "yes"
    },
@@ -1389,7 +1389,7 @@
    ],
    "trim": {
     "in": 3.45,
-    "out": 9.05,
+    "out": 12.7,
     "lane": "with the steeple"
    },
    "notes": "Practicals (candle LEDs) fixed in the steeple's windows; they come on in Scene 21. The punched-tin lantern is still missing; this is the stand-in."
@@ -1419,7 +1419,7 @@
    "storage": {
     "where": "flown",
     "x": 2.75,
-    "y": 6.4,
+    "y": 7.0,
     "z": 6.33,
     "rotY": 0,
     "fits": "yes"
@@ -1440,8 +1440,9 @@
    ],
    "trim": {
     "in": 1.0,
-    "out": 6.4,
-    "lane": "SR lane (x +1.05...+4.60)"
+    "out": 7.0,
+    "lane": "SR lane (x +1.05...+4.60)",
+    "outSeen": "8.0 m tall: hung out with its top at 15.0 (the fly roof 15.2), the first rows see its lowest 3 m (7.1...10.4) at out-trim over the border; mid-stalls and back see nothing. A second border or shorter masts would hide it: Jack's call"
    },
    "notes": "Masts, yards and furled sails only (no hull), a 1770s merchant rig, flat silhouette 3.1 w x 8.0 h. In for the Tea Party and the wharf in daylight. 8 m is the tallest that clears the front row's view when out (top 14.4 under the 15.2 roof)."
   },
@@ -1477,7 +1478,7 @@
    "storage": {
     "where": "flown",
     "x": 0,
-    "y": 4.7,
+    "y": 7.7,
     "z": 3.4,
     "rotY": 0,
     "fits": "yes"
@@ -1492,7 +1493,7 @@
    ],
    "trim": {
     "in": 2.0,
-    "out": 4.7,
+    "out": 7.7,
     "lane": "one in each lane (SL x -4.15...-1.35, 2.8 wide so it clears the ladder; SR +1.20...+4.40)"
    },
    "notes": "Leafy branch cut-outs heavy with small green apples. The SL one hangs low (bottom 2.0) over the orchard bench so Cilla can reach up and pick an apple. Not in the worklist."
