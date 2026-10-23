@@ -229,6 +229,20 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-23: a hallway from the lobby to backstage, and the booth doors on E (PR #15, merged `8cdec76`)
+
+Jack: *"make a hallway to get backstage from the lobby and make it so i can open the door to get into the spot booth."*
+THE HALLWAY (`HALLWAY`, `buildHallway`, scene child `hallway`, in the walk's grid) runs up the outside of house 1's
+house-right wall, x −11.85…−10.00, z −17.0…13.3. It starts at an opening in the lobby's end wall beside the box office
+(z −16.60…−15.40, a BACKSTAGE sign: LOBBY_SIGNS row 5) and ends at one in the backstage's end wall into the crossover
+(z 11.40…12.90). A door on E crosses it at z −14.40, and its floor ramps 0.875 → 0.80 over z 9.0…10.8. It uses the
+backstage's materials, so no new shader programs (64 after load, as on main). THE BOOTH DOORS (`BOOTH_DOOR`): each
+booth's back wall and its projection room's lobby face are holed at x −2.90…−1.90 (relative to the booth's middle), with
+a frame. A leaf on E (`hangLeaf`, underHang's shape with its own mats) at the booth floor (y 2.10) swings in. A 7-riser
+stair (`BOOTH_STAIR`) with a landing and a raking timber balustrade climbs to each, on its house-right side. The fake
+floor-level door and the booth's painted door are gone. Walked with the real walker in both houses. Doors 18/18, under
+16/16, lx 301/313, console clean. Open for him: a hallway on Theatre 2's end too, if wanted.
+
 ## DONE — 2026-10-16 (late): the compile freezes (PR #12) and the lift rails stay down (PR #13, RULING GK)
 
 Jack: *"the game lags insanely bad and sometimes it gets stuck on cmpiling."* The JT rig's `jtK` unrolled 32 copies of
