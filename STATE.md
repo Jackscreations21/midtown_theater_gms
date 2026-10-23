@@ -6,6 +6,14 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
+- **PR `hallway-booth-door` (2026-10-23) is OPEN:** Jack, *"make a hallway to get backstage from the lobby and make it so i
+  can open the door to get into the spot booth."* A 30 m hallway up the outside of house 1's house-right wall (x −11.85…−10.00),
+  from an opening beside the box office (under a BACKSTAGE sign) to the crossover's west end. A door on E across it just past
+  the lobby. Its floor ramps from the lobby's 0.875 to the backstage's 0.80. Both booths' doors open on E, at the booth floor
+  (y 2.10), up a 7-riser stair with a balustrade on each projection room's house-right side; the fake floor-level doors are
+  gone. Walked here: lobby → hallway → crossover, and lobby → stair → booth → the spots, in both houses. Doors 18/18, under
+  16/16, lx 301/313, console clean, no new shader programs. **His to decide:** whether Theatre 2's end also wants a hallway
+  (only house 1's side has one); and the look (backstage-style paint, dark reveals at the openings).
 - **The lag (2026-10-16, late; PRs #12 and #13 merged, `main` `b78c183`).** #12 cut the JT rig's cold compile from ~6.5 s
   to ~0.5 s a program (HANDOFF's newest DONE block). His Chrome is on the **RTX 5060** (verified 2026-10-16: `ANGLE (NVIDIA,
   NVIDIA GeForce RTX 5060 Laptop GPU …)`, pixel ratio 1, canvas 981×639). After #12, his first load still lagged for 1–2

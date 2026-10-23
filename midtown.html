@@ -499,7 +499,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|understage|jt set)$/.test(o.name)) o.traverse(take);
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set)$/.test(o.name)) o.traverse(take);
   baked.traverse(take);
   return list;
 }
@@ -7925,7 +7925,12 @@ function buildSpotBooth(houseScene, { dx = 0, mesh = houseMesh, props = null } =
   box(S.xo0, S.xo1, S.ceil, yT, zBo, zFo, boothMats.wall, 'booth ceiling');
   box(S.xo0, S.xo0 + S.t, S.floor, S.ceil, zB, zF, boothMats.wall, 'booth wall, house right');
   box(S.xo1 - S.t, S.xo1, S.floor, S.ceil, zB, zF, boothMats.wall, 'booth wall, house left');
-  box(S.xo0, S.xo1, S.floor, S.ceil, zBo, zB, boothMats.wall, 'booth back wall');
+  { const o = (S.xo0 + S.xo1) / 2, da = o + BOOTH_DOOR.a, db = o + BOOTH_DOOR.b, dh = S.floor + BOOTH_DOOR.head, fw = BOOTH_DOOR.fw;   // round its door
+    box(S.xo0, da, S.floor, S.ceil, zBo, zB, boothMats.wall, 'booth back wall');
+    box(db, S.xo1, S.floor, S.ceil, zBo, zB, boothMats.wall, 'booth back wall');
+    box(da, db, dh, S.ceil, zBo, zB, boothMats.wall, 'booth back wall, over the door');
+    box(da, da + fw, S.floor, dh, zBo, zB, boothMats.trim, 'booth door frame'); box(db - fw, db, S.floor, dh, zBo, zB, boothMats.trim, 'booth door frame');
+    box(da + fw, db - fw, dh - DOORS.headH, dh, zBo, zB, boothMats.trim, 'booth door frame'); }
   box(S.xo0, S.xo1, S.floor, S.sill, zF, zFo, boothMats.wall, 'booth front wall, under the window');
   box(S.xo0, S.xo1, S.head, S.ceil, zF, zFo, boothMats.wall, 'booth front wall, over the window');
   box(S.xo0, S.x0, S.sill, S.head, zF, zFo, boothMats.wall, 'booth front wall, house right');
@@ -7934,7 +7939,6 @@ function buildSpotBooth(houseScene, { dx = 0, mesh = houseMesh, props = null } =
   box(S.x0 - 0.15, S.x1 + 0.15, S.head - 0.02, S.head + 0.13, zF, S.wallZ + 0.1, boothMats.trim, 'booth lintel');
   box(S.x0 - 0.17, S.x0 + 0.02, S.sill, S.head, zF, S.wallZ, boothMats.trim, 'booth jamb, house right');
   box(S.x1 - 0.02, S.x1 + 0.17, S.sill, S.head, zF, S.wallZ, boothMats.trim, 'booth jamb, house left');
-  box(S.xo0 + S.t + 0.25, S.xo0 + S.t + 1.15, S.floor, S.floor + 2.0, zB, zB + 0.04, boothMats.door, 'booth door');
   const lamp = add(new THREE.PlaneGeometry(0.6, 0.1), boothMats.lamp, 'booth work light');
   lamp.rotation.x = Math.PI / 2; lamp.position.set((S.x0 + S.x1) / 2, S.ceil - 0.01, (zF + zB) / 2);   // facing down, under the ceiling
   // 4. The spots onto the booth floor, each on a pedestal stand (the Lycian model is the head and yoke
@@ -7972,6 +7976,10 @@ const boothSpec = {
   spotX: [-2.2, 0, 2.2], spotY: 3.28, spotZ: -14.90,   // the units' origin (the yoke's foot), on stands; the lens 0.37 m ahead of it, just inside the window
   aim: [0, HOUSE.deckY + 1.5, 2.6], // the turntable centre, 1.5 m up
 };
+// THE BOOTH'S DOOR (Jack 2026-10-23: "make it so i can open the door to get into the spot booth"): one leaf on E through
+// its back wall and the projection room's lobby face, at the booth's floor (y 2.10), reached from the lobby by a stair
+// (buildLobby). Relative to the booth's middle (0, or Theatre 2's dx): the hole x a…b, its frame fw a side inside it.
+const BOOTH_DOOR = { a: -2.90, b: -1.90, head: 2.10, fw: 0.05 };
 // The booth's numbers moved dx along x (Theatre 2's: the same scan, the same room); dx 0 is boothSpec itself.
 function boothAt(dx) {
   if (!dx) return boothSpec;
@@ -8420,7 +8428,7 @@ const lobbyMat = {
   sign:   new THREE.MeshBasicMaterial({ toneMapped: false }),                     // map: lobbySigns(), at build
   door:   boothMats.door, screen: deskMat.screen,                               // the booth's door, the desk's screens
 };
-const LOBBY_SIGNS = ['BOX OFFICE', 'BAR', 'STALLS', 'PROJECTION', 'THEATRE 2'];   // one row each of one canvas
+const LOBBY_SIGNS = ['BOX OFFICE', 'BAR', 'STALLS', 'PROJECTION', 'THEATRE 2', 'BACKSTAGE'];   // one row each of one canvas
 // houseScene: the first house's scan (measured, its fills holed round the booth and the doorways); house2: Theatre 2's
 // root (house2Mesh its fills by the GLB's names), measured and holed for its own two doorways only.
 function buildLobby(houseScene, house2) {
@@ -8515,20 +8523,36 @@ function buildLobby(houseScene, house2) {
   const encl = L.encl, zE = S.front - S.depth - S.t - 0.12;     // the projection room's front face: 12 cm in front of the booth's back wall
   // the projection rooms' middles: the first house's booth, and Theatre 2's (the same booth moved dx, buildSpotBooth)
   const rooms = house2 ? [0, DX] : [0];
-  const pdoor = o => [o - 2.85, o - 1.95];                      // a room's door: under its booth's own (x −2.85…−1.95, in its back wall)
+  const pdoor = o => [o + BOOTH_DOOR.a, o + BOOTH_DOOR.b];       // a room's door: its booth's own, through its back wall (BOOTH_DOOR)
   // floor, ceiling (round the projection rooms, whose own roofs are the booths'), roof
   bx('carpet', X0, X1, F - 0.2, F, L.wallZ, zFo);
   { let x = X0; for (const o of rooms) { bx('ceil', x, o - encl, C, R, L.wallZ, zFo); bx('ceil', o - encl, o + encl, C, R, zE, zFo); x = o + encl; } bx('ceil', x, X1, C, R, L.wallZ, zFo); }
   // the side walls, and the house-side wall: solid but for the four doorways (a head over each) and the projection rooms
-  bx('wall', X0, L.x0, F, C, L.wallZ, zFo); bx('wall', L.x1, X1, F, C, L.wallZ, zFo);
+  const HW = HALLWAY.lobby;                                     // the hallway's opening in the house-right end wall (THE HALLWAY)
+  bx('wall', X0, L.x0, F, C, L.wallZ, HW.z1); bx('wall', X0, L.x0, F, C, HW.z0, zFo); bx('wall', X0, L.x0, F + HW.head, C, HW.z1, HW.z0);
+  bx('wall', L.x1, X1, F, C, L.wallZ, zFo);
   const gaps = [...L.doors.map(d => [d.x0, d.x1, d]), ...rooms.map(o => [o - encl, o + encl, null])].sort((a, b) => a[0] - b[0]);   // left to right
   { let x = X0; for (const [a, b, d] of gaps) { bx('wall', x, a, F, C, L.wallZ, zH); if (d) bx('wall', a, b, d.head, C, L.wallZ, zH); x = b; } bx('wall', x, X1, F, C, L.wallZ, zH); }
-  // the projection rooms: each booth boxed in from the lobby floor to the roof, a door at floor level (stairs behind it)
+  // the projection rooms: each booth boxed in from the lobby floor to the roof; its door is the booth's own, at the booth's
+  // floor, through this face and the booth's back wall (BOOTH_DOOR), reached by a stair (below)
   for (const o of rooms) {
-    bx('wall', o - encl, o - S.xo1, F, R, L.wallZ, zE); bx('wall', o + S.xo1, o + encl, F, R, L.wallZ, zE); bx('wall', o - encl, o + encl, F, R, zE + 0.12, zE);
-    const [dx0, dx1] = pdoor(o);
-    bx('door', dx0, dx1, F, F + 2.1, zE, zE - 0.025);
-    bx('brass', dx1 - 0.12, dx1 - 0.08, F + 1.0, F + 1.06, zE - 0.025, zE - 0.06);
+    bx('wall', o - encl, o - S.xo1, F, R, L.wallZ, zE); bx('wall', o + S.xo1, o + encl, F, R, L.wallZ, zE);
+    const [dx0, dx1] = pdoor(o), bf = S.floor, dh = bf + BOOTH_DOOR.head, fw = BOOTH_DOOR.fw;
+    bx('wall', o - encl, dx0, F, R, zE + 0.12, zE); bx('wall', dx1, o + encl, F, R, zE + 0.12, zE);
+    bx('wall', dx0, dx1, F, bf, zE + 0.12, zE); bx('wall', dx0, dx1, dh, R, zE + 0.12, zE);
+    bx('dark', dx0, dx0 + fw, bf, dh, zE + 0.12, zE); bx('dark', dx1 - fw, dx1, bf, dh, zE + 0.12, zE); bx('dark', dx0 + fw, dx1 - fw, dh - DOORS.headH, dh, zE + 0.12, zE);
+    bx('wood', dx0 - 0.08, dx0, bf, dh + 0.08, zE, zE - 0.03); bx('wood', dx1, dx1 + 0.08, bf, dh + 0.08, zE, zE - 0.03); bx('wood', dx0 - 0.08, dx1 + 0.08, dh, dh + 0.08, zE, zE - 0.03);   // the casing
+    // THE STAIR, house right of the door: a landing at the booth's floor before it, the flight down along the room's face
+    // (BOOTH_STAIR), a timber balustrade with a brass cap on its open sides
+    const T = BOOTH_STAIR, n = T.risers, rise = (bf - F) / n, zl = zE - T.width, xl0 = o + T.landing[0], xl1 = o + T.landing[1];
+    bx('wood', xl0, xl1, F, bf, zE, zl);                                                       // the landing, solid to the floor
+    for (let i = 1; i < n; i++) { const xa = xl0 - (n - i) * T.going; bx('wood', xa, xa + T.going, F, F + i * rise, zE, zl); bx('stone', xa, xa + 0.03, F + i * rise - 0.02, F + i * rise + 0.002, zE, zl); }   // the treads, a stone nosing on each
+    const x0f = xl0 - (n - 1) * T.going, bh = T.rail;
+    bx('wood', xl1 - 0.06, xl1, bf, bf + bh, zE, zl); bx('brass', xl1 - 0.07, xl1 + 0.01, bf + bh, bf + bh + 0.04, zE, zl);   // the landing's open end
+    { const g = new THREE.BoxGeometry(xl1 - x0f, 1, 0.06).translate((x0f + xl1) / 2, 0.5, zl + 0.03), q = g.attributes.position;   // the flight's side: a panel raking with the stair
+      for (let i = 0; i < q.count; i++) { const x = q.getX(i), top = x >= xl0 ? bf + bh : F + Math.max(rise, ((x - x0f) / (xl0 - x0f)) * (bf - F)) + bh; q.setY(i, q.getY(i) > 0.5 ? top : F); }
+      g.computeVertexNormals(); (P.wood = P.wood || []).push(g); }
+    deskRod(P, 'brass', V(x0f, F + rise + bh + 0.02, zl + 0.03), V(xl0, bf + bh + 0.02, zl + 0.03), 0.025, 8); bx('brass', xl0, xl1, bf + bh, bf + bh + 0.04, zl, zl + 0.06);
   }
   // the passages' linings, scan end to lobby: floor ramps from the passage's height to the lobby's, walls, soffit
   for (const d of L.doors) {
@@ -8573,13 +8597,17 @@ function buildLobby(houseScene, house2) {
   const rail = (x0, x1, z0, z1) => { bx('brass', x0, x1, F + 1.0, F + 1.04, z0, z1); };
   { let x = L.x0; for (const [a, b, d] of gaps) { const c = d ? 0.1 : 0; wains(x, a - c, zH, zH - 0.02); rail(x, a - c, zH, zH - 0.035); x = b + c; } wains(x, L.x1, zH, zH - 0.02); rail(x, L.x1, zH, zH - 0.035); }
   for (const [x0, x1] of [[L.x0, ea], [eb, L.x1]]) { wains(x0, x1, zF, zF + 0.02); rail(x0, x1, zF, zF + 0.035); }
-  for (const [xa, xb] of [[L.x0, L.x0 + 0.02], [L.x1 - 0.02, L.x1]]) wains(xa, xb, zH, zF);
-  bx('brass', L.x0, L.x0 + 0.035, F + 1.0, F + 1.04, zH, zF); bx('brass', L.x1 - 0.035, L.x1, F + 1.0, F + 1.04, zH, zF);
+  for (const [z0, z1] of [[zH, HW.z1 + 0.1], [HW.z0 - 0.1, zF]]) { wains(L.x0, L.x0 + 0.02, z0, z1); bx('brass', L.x0, L.x0 + 0.035, F + 1.0, F + 1.04, z0, z1); }
+  wains(L.x1 - 0.02, L.x1, zH, zF); bx('brass', L.x1 - 0.035, L.x1, F + 1.0, F + 1.04, zH, zF);
+  bx('wood', L.x0, L.x0 + 0.04, F, F + HW.head + 0.1, HW.z1 + 0.1, HW.z1); bx('wood', L.x0, L.x0 + 0.04, F, F + HW.head + 0.1, HW.z0, HW.z0 - 0.1);   // the opening's casing
+  bx('wood', L.x0, L.x0 + 0.04, F + HW.head, F + HW.head + 0.1, HW.z1 + 0.1, HW.z0 - 0.1);
+  bx('reveal', X0, L.x0, F, F + HW.head, HW.z1, HW.z1 - 0.004); bx('reveal', X0, L.x0, F, F + HW.head, HW.z0 + 0.004, HW.z0);   // its linings
+  lobbySign(P, 5, 1.6, 0.2, L.x0 + 0.012, F + HW.head + 0.42, (HW.z0 + HW.z1) / 2, Math.PI / 2);
   for (const o of rooms) {                                      // each projection room's front and sides, and its door's sign
     const [dx0, dx1] = pdoor(o);
-    for (const [x0, x1] of [[o - encl, dx0], [dx1, o + encl]]) { wains(x0, x1, zE, zE - 0.02); rail(x0, x1, zE, zE - 0.035); }
+    wains(o - encl, o + encl, zE, zE - 0.02); rail(o - encl, o + encl, zE, zE - 0.035);
     for (const s of [-1, 1]) { const x = o + s * encl; wains(x, x + s * 0.02, zH, zE); bx('brass', x, x + s * 0.035, F + 1.0, F + 1.04, zH, zE); }
-    lobbySign(P, 3, 1.2, 0.15, (dx0 + dx1) / 2, F + 2.32, zE - 0.03, Math.PI);
+    lobbySign(P, 3, 1.2, 0.15, (dx0 + dx1) / 2, S.floor + BOOTH_DOOR.head + 0.3, zE - 0.035, Math.PI);
   }
   // 4. THE BOX OFFICE, house right (−x): a room in the corner behind a counter and a glazed screen
   const bo = { x: -8.1, z0: -16.9, z1: -20.7 };
@@ -9301,7 +9329,8 @@ function buildBackstage() {
   bx('ceil', X0, JX0, C, R, Z1o + 0.02, B.farZ); bx('ceil', JX0 + 0.02, X1, C, R, BR, B.farZ);   // behind the black skins below
   const streets = B.rooms.filter(r => r.street).map(r => r.street);
   run('wall', X0, X1, F - 0.2, C, B.roomZ1, B.farZ, streets.map(s => [s.x0, s.x1, F + s.head]));
-  bx('black', X0, B.x0, F - 0.2, R, BR, Z1o); bx('wall', X0, B.x0, F - 0.2, C, Z1o, B.farZ);
+  { const hs = HALLWAY.stage;                               // house 1's end: holed for the hallway into the crossover (THE HALLWAY)
+    bx('black', X0, B.x0, F - 0.2, R, BR, Z1o); bx('wall', X0, B.x0, F - 0.2, C, Z1o, hs.z0); bx('wall', X0, B.x0, F - 0.2, C, hs.z1, B.farZ); bx('wall', X0, B.x0, F + hs.head, C, hs.z0, hs.z1); }
   bx('wall', B.x1, X1, F - 0.2, C, BR, B.farZ);
   // the stage-side wall behind house 1, black on its house face, the two slots through it (each hole 1 cm over the slot all
   // round, lined back to the slot's size); the black runs up over the roof's edge, which house 1's stage looks at
@@ -10896,6 +10925,110 @@ const DOORS_API = {
   },
 };
 
+/* ---------------------------------------------------------------- HOUSE WORKS: THE HALLWAY AND THE BOOTH DOORS
+   Jack (2026-10-23): "make a hallway to get backstage from the lobby and make it so i can open the door to get into the
+   spot booth." THE HALLWAY runs up the outside of house 1's house-right wall, x −11.85…−10.00 (its east wall's face
+   15 cm off the lobby's and the backstage's outer faces at −10.00, so it hides the scan's outside), from an opening in the
+   lobby's end wall beside the box office (z −16.60…−15.40) to one in the backstage's end wall into the crossover
+   (z 11.40…12.90). Its floor is the lobby's (0.875) and ramps down to the backstage's (0.80) before the far end; a door on
+   E across it just past the lobby keeps the public out. Built like the backstage: boxes filed by material key, merged one
+   mesh per material into the scene child 'hallway' (in the walk's grid by that name), the backstage's own materials (no
+   new programs to compile), no real lights. THE BOOTH DOORS are the booths' own (BOOTH_DOOR): one leaf each, at the
+   booth's floor, swinging in; the stair up to each is the lobby's (BOOTH_STAIR). */
+const HALLWAY = {
+  x0: -11.65, x1: -10.15, t: 0.20, tE: 0.15,       // the inner faces; the west wall's thickness, the east wall's (to −10.00)
+  z0: -16.80, z1: 13.10,                            // the end walls' inner faces (each t thick beyond)
+  floor: 0.875, ramp: [9.0, 10.8],                  // the lobby's floor; down to the backstage's (BACKSTAGE.floor) over this z
+  height: 2.70,                                     // the ceiling's underside over the lobby's floor
+  lobby: { z0: -16.60, z1: -15.40, head: 2.30 },    // the opening in the lobby's end wall (lobby floor up)
+  stage: { z0: 11.40, z1: 12.90, head: 2.30 },      // the opening in the backstage's end wall, into the crossover
+  door: { z: -14.40, t: 0.15, x0: -11.40, x1: -10.40, head: 2.10 },   // the partition across it and its doorway (the leaf swings +z, north)
+  battens: 4.0,                                     // one ceiling batten every this many metres
+};
+// The lobby's stair to each booth's door (buildLobby): a landing before the door at the booth's floor, x relative to the
+// booth's middle, the flight down house right along the projection room's face; `rail` the balustrade's height over a tread
+const BOOTH_STAIR = { risers: 7, going: 0.28, width: 1.10, landing: [-3.05, -1.65], rail: 0.95 };
+// A single leaf on E (DOORS.list, kind 'door', hinged at x0, swinging +z) on a floor of its own: underHang's shape with its mats
+function hangLeaf(o) {
+  const D = DOORS, F = o.floor, a = o.x0, b = o.x1;
+  const W = b - a - 2 * D.gap, hz = o.zlo + 0.006 + D.t, y0 = F + D.under, y1 = o.head - 0.004 - D.top;
+  const l = doorLeaf(`door: ${o.name}, leaf`, 1, W, y1 - y0, { mats: o.mats, astragal: false });
+  l.leaf.position.set(a + D.gap, y0, hz); (D.group || scene).add(l.leaf); l.leaf.updateMatrixWorld(true);
+  const e = { name: o.name, kind: 'door', spec: o, cx: (a + b) / 2, cz: hz - D.t / 2, fy: F, leaves: [l.leaf], hit: l.hit, W, H: y1 - y0, y0, hinges: [a + D.gap], hz,
+    box: [a, b, y0, y1, o.zlo, hz + W + 0.02], z0: o.zlo, z1: hz + W, reveal: [a - 0.004, b + 0.004], zlo: o.zlo, zhi: o.zhi, zhiName: 'sweep limit', floorAt: () => F, headY: o.head - 0.004,
+    u: 0, want: 0, angle: 0 };
+  D.list.push(e);
+  return e;
+}
+// The hallway's floor at z (the walk finds it from the mesh; this is for the leaf and the check)
+const hallFloorAt = z => { const H = HALLWAY, [r0, r1] = H.ramp, B = BACKSTAGE.floor; return z <= r0 ? H.floor : z >= r1 ? B : H.floor + (B - H.floor) * (z - r0) / (r1 - r0); };
+let hallwayBuilt = null;
+function buildHallway() {
+  const H = HALLWAY, t0 = performance.now(), F = H.floor, B = BACKSTAGE.floor, C = F + H.height, R = C + 0.2;
+  const X0 = H.x0 - H.t, X1 = H.x1 + H.tE, Z0 = H.z0 - H.t, Z1 = H.z1 + H.t, [r0, r1] = H.ramp, P = {};
+  const bx = (key, x0, x1, y0, y1, z0, z1) => deskBox(P, key, Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0), (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+  // a wall along z over z0…z1, solid but for openings [a, b, top]
+  const runZ = (key, x0, x1, y0, y1, z0, z1, holes) => {
+    let z = z0;
+    for (const [a, b, top] of [...holes].sort((p, q) => p[0] - q[0])) { if (a > z) bx(key, x0, x1, y0, y1, z, a); if (top < y1) bx(key, x0, x1, top, y1, a, b); z = b; }
+    if (z < z1) bx(key, x0, x1, y0, y1, z, z1);
+  };
+  // 1. THE FLOOR: level, the ramp (a box whose top runs from F to B), level
+  bx('floor', X0, X1, F - 0.2, F, Z0, r0); bx('floor', X0, X1, B - 0.2, B, r1, Z1);
+  { const g = new THREE.BoxGeometry(X1 - X0, 0.2, r1 - r0).translate((X0 + X1) / 2, -0.1, (r0 + r1) / 2), q = g.attributes.position;
+    for (let i = 0; i < q.count; i++) q.setY(i, q.getY(i) + (q.getZ(i) < (r0 + r1) / 2 ? F : B)); g.computeVertexNormals(); (P.floor = P.floor || []).push(g); }
+  // 2. THE WALLS AND THE CEILING (one height the whole way: over the backstage's lower floor it is 7.5 cm taller)
+  bx('wall', X0, H.x0, B - 0.2, C, Z0, Z1);                                                   // west
+  runZ('wall', H.x1, X1, B - 0.2, C, Z0, Z1, [[H.lobby.z0, H.lobby.z1, F + H.lobby.head], [H.stage.z0, H.stage.z1, B + H.stage.head]]);   // east, holed at both ends
+  bx('wall', H.x0, H.x1, B - 0.2, C, Z0, H.z0); bx('wall', H.x0, H.x1, B - 0.2, C, H.z1, Z1);  // the two ends
+  bx('ceil', X0, X1, C, R, Z0, Z1);
+  for (const o of [H.lobby, H.stage]) {                                                       // the openings' linings, through both walls
+    const f = o === H.lobby ? F : B;
+    bx('reveal', H.x1, -9.80, f, f + o.head, o.z0, o.z0 + 0.01); bx('reveal', H.x1, -9.80, f, f + o.head, o.z1 - 0.01, o.z1);
+    bx('reveal', H.x1, -9.80, f + o.head - 0.01, f + o.head, o.z0, o.z1);
+  }
+  // 3. THE DOOR ACROSS IT: a partition, a steel frame in the doorway, a casing on both faces
+  const D = H.door, zd0 = D.z - D.t / 2, zd1 = D.z + D.t / 2, dh = F + D.head, fw = DOORS.frame;
+  bx('wall', H.x0, D.x0, F, C, zd0, zd1); bx('wall', D.x1, H.x1, F, C, zd0, zd1); bx('wall', D.x0, D.x1, dh, C, zd0, zd1);
+  bx('frame', D.x0, D.x0 + fw, F, dh, zd0, zd1); bx('frame', D.x1 - fw, D.x1, F, dh, zd0, zd1); bx('frame', D.x0 + fw, D.x1 - fw, dh - DOORS.headH, dh, zd0, zd1);
+  for (const [za, zb] of [[zd0 - 0.02, zd0], [zd1, zd1 + 0.02]]) { bx('frame', D.x0 - 0.06, D.x0, F, dh + 0.06, za, zb); bx('frame', D.x1, D.x1 + 0.06, F, dh + 0.06, za, zb); bx('frame', D.x0 - 0.06, D.x1 + 0.06, dh, dh + 0.06, za, zb); }
+  // 4. THE BATTENS: a housing and its diffuser every H.battens metres (lit faces, no light: the walls' own glow carries it)
+  let nb = 0;
+  for (let z = H.z0 + 1.6; z < H.z1 - 0.5; z += H.battens) {
+    if (Math.abs(z - D.z) < 0.8) continue;
+    const xm = (H.x0 + H.x1) / 2, c = z >= r0 ? C : C;
+    bx('housing', xm - 0.06, xm + 0.06, c - 0.07, c, z - 0.6, z + 0.6);
+    deskPut(P, 'glow', new THREE.PlaneGeometry(0.1, 1.16), xm, c - 0.071, z, Math.PI / 2);
+    nb++;
+  }
+  // 5. One mesh per material, the floor's uv in world metres (the backstage's tiles)
+  const group = new THREE.Group(); group.name = 'hallway';
+  let tris = 0;
+  for (const [key, geos] of Object.entries(P)) {
+    const geo = mergeGeometries(geos, false); geos.forEach(g => g.dispose());
+    if (!geo) { console.warn(`hallway: the ${key} pieces did not merge — left out`); continue; }
+    if (key === 'floor') { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / BACKSTAGE_TILE, -p.getZ(i) / BACKSTAGE_TILE); }
+    const mesh = new THREE.Mesh(geo, backstageMat[key]);
+    mesh.name = 'hallway: ' + key; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    tris += (geo.index ? geo.index.count : geo.attributes.position.count) / 3;
+    group.add(mesh);
+  }
+  scene.add(group); group.updateMatrixWorld(true);
+  // 6. THE LEAVES: the hallway's, then each booth's (its floor, through the projection room's lobby face and the booth's back wall)
+  const doors = [hangLeaf({ name: 'hallway', x0: D.x0 + fw, x1: D.x1 - fw, zlo: zd1, zhi: +(zd1 + 1.1).toFixed(2), head: dh, floor: hallFloorAt(zd1),
+    mats: { wood: backstageMat.door, glass: backstageMat.panel, brass: backstageMat.kick } })];
+  const S = boothSpec, zE = S.front - S.depth - S.t - 0.12;     // the projection room's lobby face (buildLobby's zE)
+  for (const o of [0, HOUSE2.dx]) doors.push(hangLeaf({ name: o ? 'Theatre 2 followspot booth' : 'followspot booth', x0: o + BOOTH_DOOR.a + BOOTH_DOOR.fw, x1: o + BOOTH_DOOR.b - BOOTH_DOOR.fw,
+    zlo: zE, zhi: +(S.front - S.depth + 1.0).toFixed(2), head: S.floor + BOOTH_DOOR.head, floor: S.floor,
+    mats: { wood: boothMats.door, glass: lobbyMat.glass, brass: lobbyMat.brass } }));
+  hallwayBuilt = { group, doors, triangles: tris, battens: nb, ms: performance.now() - t0 };
+  console.info(`hallway: x ${X0.toFixed(2)}…${X1.toFixed(2)} z ${Z0.toFixed(2)}…${Z1.toFixed(2)} (${(H.z1 - H.z0).toFixed(1)} m), floor ${F} → ${B} over z ${r0}…${r1}, `
+    + `the lobby's opening z ${H.lobby.z0}…${H.lobby.z1}, the crossover's z ${H.stage.z0}…${H.stage.z1}, a door on E at z ${D.z}; booth doors on E at each booth's floor (y ${S.floor}) · `
+    + `${group.children.length} meshes, ${tris} triangles, ${nb} battens · ${hallwayBuilt.ms.toFixed(0)} ms`);
+  requestRender();
+  return hallwayBuilt;
+}
+
 /* ---------------------------------------------------------------- THE SECOND HOUSE (Theatre 2)
    Jack: "use the same theater we used for the hamilton one. just copy it over then remove the hamilton set." A copy of
    the scan taken the moment it loads, before anything touches it (moveArch, cutBeams, the booth, the desk, the bakes,
@@ -10984,6 +11117,7 @@ function buildHouse2(src) {
   buildDoors();                                              // the leaves in the lobby's four door frames (THE DOORS)
   buildCurtains(lobby.userData.measured.curtains);           // a curtain at each passage's house end, measured by buildLobby (THE CURTAINS)
   buildBackstage(); buildBackstageFittings();                // one backstage block behind both stages (BACKSTAGE), then its rooms' furniture
+  buildHallway();                                            // the lobby to the crossover up house 1's house-right side, and the booths' doors (THE HALLWAY)
   buildUnder();                                              // Theatre 2's basement and its two lifts; splits its scan before the cuts (THE UNDERGROUND)
   houseRoot = house.scene;
   gradeSetBrick(root);
