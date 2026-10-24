@@ -1,4 +1,4 @@
-# STATE — 2026-10-24, late (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#21 merged; `main` `0133cfe`; PR `preshow-announcement` open)
+# STATE — 2026-10-24, night (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#23 merged; `main` `013e1e4`; PR `vw-round` open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -12,7 +12,23 @@ delete the merged branches `film-round`, `stage-manager`, `orchestra-pit`, `van-
 (`git push origin --delete <name>`), and the agent worktrees under `.claude/worktrees/` (`git worktree list`; never
 `git add -A` while they exist).
 
-- **PR `preshow-announcement` (OPEN, RULINGS GR and GS; HANDOFF's newest block):** the King George announcement before
+- **PR `vw-round` (OPEN; HANDOFF's newest block): Van Wezel's doors, foyer, holes, lift and backstage.** Four Opus builders,
+  merged by the lead. Jack: *"the doors in the van wezel should go all the way upo to the top of the seating and add doors to
+  all the frames"* (*"i didnt mean taller door i meant more"*), *"redo the lobby for the van wezel to look mor like the one for
+  the other theaters"*, *"add a backstage area to the vanwezel with dressign rooms"*, *"there are a coupla holse in the walls"*,
+  *"make the stage lift at the front work"*, and *"remove all the clear stuff from the lobby"*. **His to decide:**
+  - the dark pilasters 0.45 m inside portals 4, 5 and 13 on each side (you step round them): cut them back?
+  - the galleries' look (solid stone, a parapet); the landings at portals 7 and 13 sit 4–5 cm under the aisle;
+  - the foyer has no real light (its glow is in its materials); there is a bar each side, but the box office is house right
+    only; the bar pendants hang on ~7 m rods (the ceiling is at 10.9);
+  - the doors' glass panes are kept (only the foyer's glass walls and its two glass pieces went);
+  - the slits between the hall's ceiling panels (the roof shows through): fill them?
+  - the stage stair is now a rolling wagon (it rolls under the lip while the lift travels); the lift's edge guard is invisible;
+  - the basement's stairs keep the model's labels (house right is "SR" there).
+  - Tidy: the four builder branches `worktree-agent-*` and their locked worktrees under `.claude/worktrees/` (never `git add -A`).
+- **#23 (MERGED): the Voices button** in the header silences the stage manager's spoken lines (God mic, spots, front of house,
+  the company). It is remembered in the browser; `MIDTOWN.sm.mute(on)`.
+- **#22 (MERGED; RULINGS GR and GS; its DONE block in HANDOFF):** the King George announcement before
   the show and the exit music after the bows. Jack: *"add this song to play befor hamilton. make it play this then when it
   ends wait 5 seconds while burr walks out then it starts the music"*, *"put the audio on github also"*, and *"make it so
   this starts playing whenever the actors start walking off after bowing at the end and dont make the lighst go out onstage
