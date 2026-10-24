@@ -80,6 +80,68 @@ SEGMENT_3 = [
 
 # ===== SEGMENT 4 (1-18..1-23) =====
 SEGMENT_4 = [
+    # 1-18 Guns and Ships
+    F(3, '1-18', 0.5, 'burr', level=0.8, fade=1.0, note='film 1-18 5.0-30.0: Burr alone, lit head to toe on the SL balcony for the opening, the deck dark; spot 3 (house right) is on his side'),
+    F(1, '1-18', 31.4, 'lafayette', level=0.9, fade=0.3, note='film 32.1-36.0: the huddle opens and Lafayette is up on the table, a hard white circle on him'),
+    OUT(3, '1-18', 41.0, note='film 38.6: Burr still up there as Lafayette lands; he loses his light as the company takes the deck'),
+    F(2, '1-18', 50.0, 'washington', level=0.8, note='film 50.5-60.6: Washington comes down to Lafayette SR of the table; spot 2 (house left) on his side, then on him at his table to the button'),
+    OUT(1, '1-18', 81.5, note='Lafayette runs the letter to the SL stair and goes'),
+    F(3, '1-18', 90.4, 'hamilton', level=0.8, note='film 90.8-97.0: the letter reaches Hamilton on the gallery; the spot takes him down the SL stair to Eliza, the coat, and down to his DS special for the button'),
+    OUT(2, '1-18', 126.0, note='the button out; History picks them up on their new sides'),
+    OUT(3, '1-18', 126.0, note='the button out'),
+    # 1-19 History Has Its Eyes on You
+    F(3, '1-19', 1.0, 'washington', level=0.8, fade=1.0, note='film 1-19 0.9-73.4: Washington SL of the table, his song; the whole turntable is warm, the spot keeps him the brightest thing on it'),
+    F(2, '1-19', 1.0, 'hamilton', level=0.6, fade=1.0, note='film: Hamilton apart SR, listening, then taking the sword (47-50)'),
+    OUT(3, '1-19', 95.0, note='Washington goes in the count-in to Yorktown'),
+    OUT(2, '1-19', 96.0, fade=0.5, note='spot 1 takes Hamilton to the lip for Yorktown'),
+    # 1-20 Yorktown
+    F(1, '1-20', 0.5, 'hamilton', level=0.9, note='film 1-20 11.9-61.9: Hamilton carries the number from the lip, the centre pool and the box; spot 1 (centre)'),
+    F(3, '1-20', 10.0, 'lafayette', level=0.8, note='film 11.9-31.9: Lafayette face to face with him, SL of him'),
+    OUT(3, '1-20', 32.0, note='Lafayette goes DL (Jack\'s note: off at 32)'),
+    F(1, '1-20', 72.5, 'hamilton', size='full', level=0.5, fade=1.0, note='the night attack (cue 595): the stage is small pools in the dark; the spot drops to a glow on the narrator'),
+    F(3, '1-20', 93.0, 'laurens', level=0.6, note='the friends\' fortunes: Laurens in his pool SL (the Bullet shakes his hand)'),
+    OUT(3, '1-20', 99.0),
+    F(2, '1-20', 100.1, 'lafayette', level=0.6, note='the friends\' fortunes: Lafayette at the bay DR'),
+    OUT(2, '1-20', 109.0),
+    F(3, '1-20', 110.0, 'mulligan', level=0.9, fade=0.3, note='film 111.9-129.9: Mulligan bursts in and has the verse, centre front'),
+    OUT(3, '1-20', 130.0, note='the drill: the whole stage is up'),
+    F(1, '1-20', 129.9, 'hamilton', level=0.8, fade=0.5, note='the drill and the battle: Hamilton leads it'),
+    F(3, '1-20', 135.8, 'lafayette', level=0.7, note='the battle: Lafayette leads the SL wing of the charge'),
+    OUT(3, '1-20', 151.0),
+    F(1, '1-20', 155.5, 'hamilton', level=0.6, fade=1.0, note='"after a week": Hamilton narrates in the centre pool'),
+    F(3, '1-20', 179.8, 'washington', level=0.7, note='Washington comes through the door for the terms'),
+    OUT(3, '1-20', 190.0, note='he goes upstage to watch'),
+    F(1, '1-20', 217.1, 'hamilton', level=1.0, fade=1.0, note='film 217.0-237.1: the tableau, Hamilton up on his box at the centre of it'),
+    OUT(1, '1-20', 240.3, fade=0, note='the blackout'),
+    # 1-21 What Comes Next?
+    F(1, '1-21', 1.0, 'king', level=0.9, fade=0.3, note='film 1-21 1.1-96.1: the King alone at the lip, a hard white circle on him'),
+    OUT(1, '1-21', 97.0, note='he goes upstage through the deck door'),
+    # 1-22 Dear Theodosia
+    F(2, '1-22', 4.5, 'burr', level=0.8, fade=1.5, note='film 1-22 5.0, 80.0, 159.9: two hard bright circles, Burr seated SR (spot 2, house left)'),
+    F(3, '1-22', 4.5, 'hamilton', level=0.8, fade=1.5, note='film 80.0, 159.9: Hamilton SL (spot 3, house right)'),
+    F(1, '1-22', 158.0, 'eliza', level=0.5, fade=1.0, note='film 159.9: Eliza in, between and behind them'),
+    OUT(1, '1-22', 176.5, fade=1.5),
+    OUT(2, '1-22', 176.9, fade=1.5, note='the fade'),
+    OUT(3, '1-22', 176.9, fade=1.5, note='the fade'),
+    # 1-23 Non-Stop
+    F(3, '1-23', 0.5, 'hamilton', level=0.7, fade=1.0, note='the trial: Hamilton at the defence table SL (film 29.9-37.9)'),
+    F(2, '1-23', 0.5, 'burr', level=0.7, fade=1.0, note='the trial: Burr SR of him (film 20.0, 37.9)'),
+    F(3, '1-23', 68.0, 'hamilton', level=1.0, fade=0.3, note='film 70.1-82.1: the brag, standing on the table: full up'),
+    F(3, '1-23', 84.0, 'hamilton', level=0.7, fade=1.0, note='down off it; the Convention, midnight at Burr\'s'),
+    OUT(3, '1-23', 186.5, note='Hamilton goes into the dark'),
+    OUT(2, '1-23', 205.0, note='Burr\'s reprise ends; he goes'),
+    F(1, '1-23', 209.5, 'hamilton', level=0.8, note='film 209.9-244.0: Hamilton between the sisters, then at his desk, Washington\'s offer, and the finale'),
+    F(2, '1-23', 209.5, 'angelica', level=0.7, note='film 209.9, 236.0: Angelica SR'),
+    F(3, '1-23', 228.0, 'eliza', level=0.7, note='film 236.0, 244.0: Eliza SL, riding the turntable in to him'),
+    OUT(2, '1-23', 244.5, note='Angelica goes'),
+    OUT(3, '1-23', 248.5, note='Eliza goes'),
+    F(2, '1-23', 258.0, 'burr', level=0.6, note='Burr counts the essays DR'),
+    F(3, '1-23', 301.0, 'washington', level=0.8, note='the music drops: Washington\'s offer'),
+    F(2, '1-23', 327.1, 'eliza', level=0.7, move=1.0, note='the finale: Eliza in her SR pools and special'),
+    F(3, '1-23', 327.1, 'angelica', level=0.7, move=1.2, note='the finale: Angelica SL (Washington is up on the SL gallery in his own light)'),
+    OUT(1, '1-23', 382.2, fade=0, note='the blackout: the end of act one'),
+    OUT(2, '1-23', 382.2, fade=0, note='the blackout'),
+    OUT(3, '1-23', 382.2, fade=0, note='the blackout'),
 ]
 # ===== END SEGMENT 4 =====
 

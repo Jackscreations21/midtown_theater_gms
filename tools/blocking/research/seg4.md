@@ -482,3 +482,117 @@ balcony in Non-Stop (the Philip tour's Madison/Mulligan, Fergie L. Philippe, con
 3. 1-20 51-67: the frozen phrase in formation, Eliza over their heads, the turn home, the march into the pools.
 4. 1-20 182-241: the furniture fetched, lifted upside down at 204.4, righted at 217.9, set down, carried off.
 5. 1-23 222-249: Eliza carried in on the ring to Hamilton.
+
+## Film round (2026-10-24)
+
+Jack: much is still wrong, people stand still when they should move, people are in the wrong place, and the three
+followspots should light whoever carries the moment. Read against the Disney+ footage cut into frames (the vision
+cache, 5 frames a second, each with `at` = seconds into the album track). Orientation: the house cameras look upstage,
+so the RIGHT of the frame is stage LEFT (+x). Moments are given as track `at`; "wide" means a shot that shows the
+deck. A close shot gave who sings and what they do, never a place.
+
+### 1-18 Guns and Ships (clip 1-18-guns-and-ships)
+- 5.0, 10.0, 25.0, 30.0, 38.6: Burr on the SL balcony, alone in light, leaning on the rail (as written).
+- 25.0, 30.0 (wide, dark): the company is crouched in a tight huddle round the table in a dim pool at the centre,
+  Lafayette hidden in it. 31.7-36.0: it opens and he is up on the table, the company reaching round him.
+  CHANGED: the company walks on in the dark to a huddle (r 1.4 round the table) and kneels (`kneel`) until 31.2, then
+  springs out to its places; the table comes on at 21.0, before the huddle (was 28.5).
+- 40.6, 42.0, 44.0, 46.0, 48.5: the company dances across the whole deck; Lafayette with them.
+- 50.5-60.6: Washington beside Lafayette at the centre, the table SL of them (two-shots). 63.0 he crosses away SL;
+  68.0 he is at the table; 70.5-79.0 he stands behind it writing the letter, Lafayette SR of him; 79.0 he holds the
+  letter up. CHANGED: Washington comes down to Lafayette (50.0), crosses SL (64.0), is behind the table from 68 to the
+  end (it is his special, Viper 93 at (0, 1.54)); `lean-in` for the writing. The table is NOT struck at 46 any more:
+  it stays on through 1-18 and 1-19 and goes in Yorktown's first bars (ens5, 1-20 7.0).
+- 82.0-97.0 (wide, blue): the deck is empty but for Washington at his table. The upstage gallery is full (about ten)
+  and there are people on both stairs: the letter chain. CHANGED: the deck company climbs at 80 (ens1, ens2, ens4 the
+  SR stair; ens7, ens8 the SL stair after Laurens; ens5, ens6 round by the back way) and stands up there to the
+  button, then all go along the gallery and out (was: seven standing on the deck turned to Washington to 120).
+  Lafayette's sprint with the letter moved from 70 to 79.3-81.6, after the writing; Laurens takes it up 81.8-85.8;
+  Lafayette is then off (the deck is Washington's alone).
+- 94.1: Eliza on the gallery going SL, a man coming down the SL stair. 100.6 (wide): Washington SR of the table,
+  Eliza and Hamilton on the DECK SL of it; 103.9 the coat; 108.1 the embrace; 112.0 Eliza at the SL edge going.
+  CHANGED: Hamilton and Eliza come down the SL stair and play the coat and the goodbye on the deck SL (was: the coat on
+  the gallery and Hamilton down the SR stair at 113).
+- 119-125: Washington close, singing the button.
+- Stillness (still.py): 69 % -> 45 %. Left still on purpose: Burr glaring from the balcony (0-50; the "everyone
+  upstairs is dancing except for Burr" comment) and the letter chain on the gallery watching (82-120).
+
+### 1-19 History Has Its Eyes on You (clip 1-19; Jack marked it good)
+- 0.9, 20.1, 44.0, 66.0, 73.4 (wide): the table is still on; Washington is at it, SL of it (25.0 he takes a sword
+  off it); Hamilton stands apart SR at the same depth on the warm turntable. 44.0-50.1: Hamilton comes to him and
+  Washington hands him the sword (Hamilton bows over it, 47.1; holds it up, 50.1). 66.0 apart again; 73.4 Washington
+  walks off SL. 81.1, 86.1 (blue column of beams): the soldiers walk on and stand round the two at the centre;
+  90.0-92.4 Laurens between them, Hamilton salutes; 1-20 0.9 the three together.
+- CHANGED: Washington SL of the table (was DC at (0, 1.75-2.3)), Hamilton SR at z 1.9-2.3 (was DS at z 3.2-3.9);
+  the sword at bar 15 beat 3 (was bar 22, untimed); the company on at 78.5 (was 94.5), Laurens between them at 90;
+  Washington goes off SR at 1-20 1.2 (1-20 11.9: a tricorne going off SR).
+- Stillness 85 % -> 79 %: a ballad sung to a listener; Washington's gestures added, Hamilton listens on purpose.
+
+### 1-20 Yorktown (clips p1-p4; Jack's 10-16 notes kept: the box late, Lafayette 10-32, Mulligan in front of him,
+### the five at the front of the tableau)
+- 4.9, 7.9: the soldiers spread on the deck, the table still on. CHANGED: ens5 strikes it (5.0-13.2).
+- 11.9-31.9: Hamilton and Lafayette face to face, all hands: a head-bob broken by gestures for both.
+- 32.5-49.9 (blue): the soldiers dance in two loose lines either side of Hamilton. Added a general step.
+- 52.9-61.9 (red, wide): through his verse the company is a tight pack round and behind him at the FRONT, both sides,
+  doing the moves (65.7: arms up either side of him). CHANGED: the pack (gen4.py CLUS) replaces the two rows at the
+  back wall (W1s, z -3.1 / -2.2).
+- 70.9, 73.9: Hamilton marching in the line with them (added to `hiphop-march`). 83.9, 89.9: the night attack is a
+  ring of soldiers creeping low round him, lunging. 94.9, 99.9: a fight; a redcoat lies dead. 107.9: crouched
+  behind him. 111.9-129.9: Mulligan front centre, the company round him, knees up. Moves added (lunge, musket, kneel,
+  stomp, Mulligan's chest-pump); places as written.
+- 131-147: the battle: lunges, floor work (134.1, 137.1: a soldier on his hands, a kick-through). `floor-freestyle`
+  for three of them.
+- 151.1, 155.1, 159.1 (wide): soldiers aim from pools on the deck AND three from the galleries (SR side, upstage,
+  SL side). CHANGED: ens2, ens3, ens7 climb the nearest stairs as the lines re-form (146) and come down after "it is
+  over" (170.5) to the pools left for them. (Review 2 cut the gallery shooters for want of evidence; this is it.)
+- 164-190: dim; low time confidence before 159 (tconf 0.2). 187.0: Hamilton shakes the hand of a man in a long dark
+  coat at the centre: not changed (the terms are Washington's at 179.8).
+- 205.0-213.0: furniture in the air (a chair at 209.0), crates carried. 217.0-237.1: the tableau: Hamilton up on a box
+  at the centre, the company on furniture across the deck, and the upstage gallery full, with two women in full gowns
+  (a gold one SL at 213.0; coral SR and gold SL of centre at 233.1). CHANGED: Peggy and Angelica come along the
+  gallery for the tableau (209-240); everyone's arms flung wide at bar 95 (`angel-wings`, the nearest move).
+- Stillness 65 % -> 37 %.
+
+### 1-21 What Comes Next? (Jack marked it good)
+- 1.1-96.1: the King alone at the lip, as written. Gestures with the sceptre on his lines (five, untimed: the shots
+  are close); 68 % -> 61 %; the rest is a soliloquy held on purpose.
+
+### 1-22 Dear Theodosia (Jack marked it good; the film contradicts the sides)
+- 5.0: one pool, a seated man SR. 80.0 (wide): Burr (purple waistcoat) seated at frame LEFT = stage RIGHT, Hamilton
+  (green waistcoat) standing by his chair at frame right = stage LEFT. 159.9: both seated, the same sides, Eliza
+  standing between and behind them a little SL of centre.
+- CHANGED: Burr SR, Hamilton SL (Review 2 read the frame behind cue 618 mirrored); Burr seated the whole song;
+  Hamilton seated, up for his middle verses, seated again from 136; Eliza in from up left by 157.5. The chairs, their
+  jury places (Burr's is now b1, Hamilton's b3) and their strikers swap with them (props.py).
+
+### 1-23 Non-Stop (clips p1-p3; no footage after 297)
+- 37.9: Burr standing SR of Hamilton at the table. CHANGED: the flanks are Burr SR, Hamilton SL (as 1-22 now ends).
+- 43.9, 49.9: the jurors dance at and on their chairs; 56.1, 62.1 the company dances standing in the blue.
+- 70.1, 76.1, 82.1: Hamilton STANDS ON THE DEFENCE TABLE for his brag, the jury seated round him. CHANGED: on the
+  table 68.0-83.0 (y 0.8, like Lafayette's in 1-18; was his DS special at 73.8); the jury sits again for it; chairs
+  and table go at 84 once he is down (was 78.5).
+- 95.1, 102.1: the Convention is danced, about eight bodies, Burr at the centre at 102. CHANGED: three of the jury
+  come back without chairs and dance on the outside (ens1, ens6, ens9). (117.9 shows people seated on chairs again:
+  not done; the chairs are gone by then.)
+- 130.0-175.9: midnight at Burr's: his door and lantern SR, Burr by it, Hamilton SL of him: as written.
+- 199.9: Burr's reprise has four of the company behind him, low and slow. CHANGED: the four delegates come back for it.
+- 209.9, 220.0, 236.0, 244.0: Angelica is SR with Hamilton close beside her; the wide shot has Angelica SR, Hamilton
+  centre, Eliza SL; then Hamilton and Eliza hand in hand. CHANGED: the sisters' sides swapped (Angelica SR, Eliza SL,
+  her ride on the turntable mirrored), Hamilton with Angelica from 209.5 (was alone DS from 225.4).
+- 288.0, 293.0, 297.0: the whole company dancing across the deck, then crowding round Hamilton at his desk. CHANGED:
+  ten of the company dance across, close round the desk, open to an upstage arc for Washington (302), then come down
+  into two rows for the counterpoint (360.5) and step in on the final Shot. The finale's moves have no footage.
+- Hamilton and Burr rap most of Non-Stop: a head-bob broken by gestures on their lines (dance.py `_rap`).
+- Stillness 80 % -> 36 %.
+
+### The followspots (follow.py SEGMENT 4)
+The footage shows hard circles plainly in 1-18 (Burr on the balcony, Lafayette on the table, Washington at his table),
+1-21 (the King) and 1-22 (two seated men in two hard pools). Elsewhere a spot is on whoever leads the moment. Spot 2
+takes stage-right targets, spot 3 stage-left ones, spot 1 the centre. All three are out at 1-23 382.2 (the blackout).
+
+### Moves wanted (the library lacks them; the nearest was used)
+- a crouched creep / low lunging walk (Yorktown night attack; used `lunge`);
+- seated choreography, dancing on a chair (Non-Stop jurors; used `shoulder-pop` standing);
+- arms flung wide in a T and held (the Yorktown tableau; used `angel-wings`);
+- standing ON a chair or crate (the Yorktown tableau: the page stands a body on a table top by `y`, but this
+  furniture is set beside the pools).
