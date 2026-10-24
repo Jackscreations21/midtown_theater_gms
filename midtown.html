@@ -6787,24 +6787,26 @@ function actUpdate(T) {
   const held = RIG.parts ? propHeld(T) : null;
   for (const a of ACT.actors) {
     if (!a.c) a.c = actCompile(a);
-    const p = actPose(a, T), o = a.obj;
+    const p = (CO.on && coPose(a)) || actPose(a, T), o = a.obj;   // THE STAGE MANAGER (GP): backstage, the company's walk decides the pose (null in show mode)
     o.position.set(p.x, p.y, p.z); o.rotation.set(0, p.yaw, 0);
     o.visible = ACT.shown && p.visible; o.userData.pose = p; actTagSet(a, p.label); a.tag.visible = ACT.names;
-    if (held && o.visible) {                                 // FS: what the limbs read besides FL's fields — all pure functions of T
+    if (held && o.visible && !p.co) {                        // FS: what the limbs read besides FL's fields — all pure functions of T (a company pose brings its own)
       p.T = T;
       p.rise = p.speed > 0.05 ? actGround(p.x + Math.sin(p.yaw) * 0.35, p.z + Math.cos(p.yaw) * 0.35, p.y, p.ey, p.ey2, T) - p.y : 0;   // the floor ahead (stairs; a prop's top she stands on)
       const h = held.get(a.id);
       p.carry = h ? propCarryPose(h.p, h.q, p) : null;
     }
-    if (held && o.visible) p.dance = danceAt(a, T);         // FV: the move she is in (pure: the moves, the beat grid, T)
+    if (held && o.visible && !p.co) p.dance = danceAt(a, T); // FV: the move she is in (pure: the moves, the beat grid, T)
     if (typeof o.userData.animate === 'function') { try { o.userData.animate(p, o); } catch (e) { /* a limb rig's own failure never stops the show */ } }
     if (RIG.parts && o.visible && o.userData.body.userData.parts) { try { danceApply(a, p, o); } catch (e) { console.warn('dance:', e); } }
+    if (CO.on) coBubble(a);                                  // THE STAGE MANAGER: an answer's bubble over her head
   }
   propUpdate(T);
   if (RIG.parts) { danceProps(T); handProps(); }             // FV: a prop hoisted or turned over by the dancer carrying it; GF: one in her hand                                             // after the actors: a carried prop rides with her pose
 }
 function actTick(dt, force = false) {
   if (!ACT.ready) return false;
+  if (CO.on) { coTick(dt); force = true; }                  // THE STAGE MANAGER (GP): backstage, the company's walk clock runs off this dt and every body is re-posed
   const T = actNow();
   if (force || ACT.dirty || T !== ACT.T || SHW.d !== ACT.compiledFor) { const t0 = performance.now(); actUpdate(T); ACT.ms = performance.now() - t0; ACT.T = T; ACT.dirty = false; requestRender(); actUI(false); }
   if (ACT.helpDirty) actHelpers();
@@ -7715,6 +7717,474 @@ const FOL_API = {
   get perf() { return Object.assign({ tickMs: +FOL.ms.toFixed(3) }, FOL.perf); },
   tune: { FOL_SIZES, FOL_GELS, FOL_TOP },
 };
+
+/* ---------------------------------------------------------------- THE STAGE MANAGER: THE COMPANY BACKSTAGE
+   RULING GP (docs/superpowers/specs/2026-10-24-stage-manager-design.md, binding). Jack: "i can give 5 minuet and plcsses
+   calss for the actors"; his answer: "real backstage". MIDTOWN.company is the company off stage — the same twenty bodies as
+   THE AUTOMATIC ACTORS (tools/hamilton-cast.json), the same jointed mannequin, the same idle and gait (rigAnimate) — and the
+   stage manager's desk (MIDTOWN.sm, builder A) drives it ONLY through the contract:
+     call(kind)  'half' | 'fifteen' | 'five' | 'places' | 'interval' | 'curtain' | 'home' — returns nothing; answers are events
+                 ('home' is a reset: everyone at home at once, nothing answered, nothing pending)
+     state()     { mode: 'show' | 'backstage', bodies: [{ id, label, where: 'home' | 'walking' | 'places' | 'stage', answered }],
+                   atPlaces, of, missing: [ids] }
+     on(fn)      fn({ type: 'answer' | 'atPlaces' | 'allPlaces', id, call, text }) — one listener list; returns an unsubscribe
+     act         1 or 2: which act's starts PLACES walks to (A sets it; an 'interval' call moves it to 2)
+     release()   the blocking takes the bodies back (also done by itself on the show's next Play / GO)
+   - TWO MODES. 'show' (the default, and whenever the SM is not in use): this section does nothing and costs one boolean a
+     frame; the blocking poses every body as it always has, so seek = play is untouched. 'backstage' (entered by any call):
+     the company's WALK LAYER decides each body's pose. It is a hook of two lines in actUpdate / actTick (marked "THE STAGE
+     MANAGER"): actTick advances the layer's own clock off the frame's dt (coTick) and re-poses every frame; actUpdate asks
+     coPose(a) first. coPose is a PURE function of the body's current plan (made at the call, from the call's time) and the
+     walk clock: nothing is carried from frame to frame but the clock. The first Play after a call (the SM's GO, or the Show
+     panel's Play) hands the bodies back to the blocking — at the act's top that is where PLACES walked them to (below).
+   - HOMES (CO_HOMES, the table): each body has a room — dressing rooms 1–4, the green room, wardrobe — and a spot in it found
+     from BACKSTAGE — THE FITTINGS' own item boxes (coSpots: clear of every piece by CO_TUNE.clear, of the door's swing, with a
+     straight way to the door), facing the nearest piece (a counter, a mirror, a rail); a second spot near it for the idle
+     shifts (every CO_TUNE.idle s, seeded per body: a step or two and a turn, then back).
+   - THE CALLS are answered: each body, after a seeded CO_TUNE.answer s, says CO_TEXT[kind] ("Thank you five") — an 'answer'
+     event, and a bubble rising over the head for CO_TUNE.bubble s (the head label's own sprite and texture, actTagTex).
+   - THE ROUTES: a hand-made graph, no pathfinding (CO_ROUTE): a room's home spot → its door's inside point → the crossover's
+     walking line (the corridor) → the column under one of house 1's two slots → the slab behind the set (the stage side's own
+     crossover) → down the wing between the set's side and the fly wall, and on to the START by one of a few fixed approaches:
+     straight across from the wing; along the passage under the gallery behind the set's back wall (upstage spots); up the
+     upstage stair to the gallery landing; or, on house right, across the front of the set to the apron (no way through the
+     proscenium wall there). The side is the start's (world x < 0: house right), the gallery always by the stair. Speed
+     ACT_WALK, eased in and out (actWarp), the facing the path's tangent smoothed over CO_TUNE.look m.
+   - THE START is the blocking's pose at the act's TOP, lead-in included (actPose at track `${act}-01`'s start − pre): the walk
+     ends exactly on its x, y, z and turns to its yaw, so when the act's GO fires and the blocking takes over nothing moves.
+     (At both tops today every body is `off` — in a wing, upstage or on the gallery — so at GO they vanish there, as FJ says.)
+   - STAGGER: the bodies through one slot pass it CO_TUNE.gap s apart (the nearest first), so a 1 m slot and the corridor are
+     never two abreast. INTERVAL and CURTAIN walk each body home from the pose it showed when the call came (act one's end).
+   - DOORS: a room door on a body's route is opened as the walker's E would (want = 1) CO_TUNE.doorLead s before the first
+     body reaches it and shut again CO_TUNE.doorLag s after the last — only if the company opened it: found open, left open.
+   MIDTOWN.company.debug: step(dt) (the clock by hand, for a hidden pane), routes() (every route walked with the walk's own
+   rays), handover() (each body's pose now against actPose at the act's top), homes, plans. */
+const CO_HOMES = {                         // room key (BACKSTAGE.rooms) → its bodies (tools/hamilton-cast.json ids)
+  dr1: ['hamilton', 'burr', 'washington'],
+  dr2: ['eliza', 'angelica', 'peggy'],
+  dr3: ['lafayette', 'mulligan', 'laurens'],
+  dr4: ['king', 'ens1', 'ens2'],
+  green: ['ens3', 'ens4', 'ens5', 'ens6', 'ens7', 'ens8'],
+  wardrobe: ['ens9', 'ens10'],             // two: the rails leave little floor
+};
+const CO_NOFACE = /bin|basket|clock|extinguisher|sign|cooler|hook/i;   // fittings a body at home does not stand facing
+const CO_KINDS = ['half', 'fifteen', 'five', 'places', 'interval', 'curtain', 'home'];
+const CO_TEXT = { half: 'Thank you half', fifteen: 'Thank you fifteen', five: 'Thank you five', places: 'Thank you places', interval: 'Thank you', curtain: 'Thank you' };
+// The route graph's points (world metres; house 1 is at the origin, upstage +z, house right −x). Numbers, not BACKSTAGE (that
+// constant is defined further down the file): measured against it and the set at real size with the walk's rays (debug.routes()).
+const CO_ROUTE = {
+  spine: 12.40,                            // the crossover's walking line (the corridor z 11.00…13.40; its fittings stand to 11.6)
+  lane: 0.35,                              // … and its two lanes either side of it (12.05 going house right, 12.75 going house left)
+  doorZ: 13.50,                            // a room door's middle (the corridor wall z 13.40…13.60): where its leaf is crossed
+  roomIn: 14.30,                           // a door's inside point, on its centre line (the leaf, open, lies along its x0 jamb)
+  col: { hr: -9.15, hl: 9.30 },            // the two columns: through house 1's slots (x −9.75…−8.80 / 8.80…9.95) and down the wings
+  strip: 10.30,                            // the slab behind the set's back wall (z 10.0…10.5), open across
+  passage: 9.15,                           // under the gallery, behind the set's back wall (z 9.0…9.3), open across but at x 1.75…3.0
+  upstage: 8.50,                           // a deck start upstage of this is reached along the passage
+  stair: [[3.60, 9.15], [3.40, 8.90]],     // the upstage stair's foot; it climbs −x along z 8.9 to the gallery landing (y 3.54)
+  gallery: 1.60,                           // a start whose floor is higher than this (world y) is on the gallery: by the stair
+  pros: 2.30,                              // the proscenium plane: a start downstage of it is on the apron
+  apronHR: [[-9.15, 3.00], [-4.30, 3.00], [-4.30, 0.45]],   // house right's way to the apron: across the set's front, down through the arch
+  apronZ: 0.45,                            // … then along the apron at this z to the start's x
+};
+const CO_TUNE = {
+  clear: 0.45,      // m: a home spot's clearance from every piece of furniture (0.40 in a crowded room)
+  apart: 0.95,      // m: home spots in one room at least this far apart (0.8 in a crowded room)
+  idle: [14, 32],   // s: the idle shifts' dwell, seeded per body
+  answer: [0.4, 2.6], // s: the answer's delay after a call
+  leave: 0.5,       // s: from the answer to the first step
+  gap: 0.9,         // s: bodies through one slot or door pass it this far apart (1.2 m at ACT_WALK)
+  cross: 1.4,       // s: … and a junction where one turns across the other lane (their paths meet at an angle there)
+  look: 0.35,       // m: the facing is the path's direction over ± this (corners turned, not snapped)
+  bubble: 2.6,      // s: an answer's bubble over the head
+  doorLead: 1.6, doorLag: 1.2,   // s: a door opened before the first walker reaches it, shut after the last has passed
+  ys: 0.2,          // m: a route's floor sampled this often at the call (no ray per frame)
+};
+const CO = { on: false, clock: 0, act: 1, bodies: new Map(), list: [], fns: [], events: [], ours: new Set(), built: false, err: null,
+  gy: 0, inv: new THREE.Matrix4(), wasPlaying: false, ms: 0, calls: [] };
+const coV = new THREE.Vector3();
+const coRnd = (id, salt) => { let h = 2166136261 >>> 0; for (const ch of `${id}|${salt}`) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0; h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; return ((h ^ (h >>> 13)) >>> 0) / 4294967296; };
+const coRange = (r, [a, b]) => a + (b - a) * r;
+const coWrap = a => Math.atan2(Math.sin(a), Math.cos(a));
+
+// ---- the homes: free floor in each room, read off the fittings' item boxes and the walk's rays
+function coSpots(r, n, crowded) {
+  const B = BACKSTAGE, items = (backstageFittings && backstageFittings.items || []).filter(i => i.zone === r.key);
+  const clear = crowded ? 0.40 : CO_TUNE.clear, apart = crowded ? 0.8 : CO_TUNE.apart;
+  const cx = (r.door.x0 + r.door.x1) / 2, inZ = CO_ROUTE.roomIn, c = [];
+  for (let x = r.x0 + 0.4; x <= r.x1 - 0.4 + 1e-6; x += 0.2) for (let z = B.roomZ0 + 0.45; z <= B.roomZ1 - 0.4 + 1e-6; z += 0.2) {
+    if (x > r.door.x0 - 0.35 && x < r.door.x1 + 0.35 && z < B.roomZ0 + 1.5) continue;            // the leaf's swing and the way in
+    let d = Infinity, near = null, dn = Infinity;
+    for (const i of items) {
+      const dx = Math.max(i.box.min.x - x, 0, x - i.box.max.x), dz = Math.max(i.box.min.z - z, 0, z - i.box.max.z), e = Math.hypot(dx, dz);
+      d = Math.min(d, e);
+      if (e < dn && !CO_NOFACE.test(i.name)) { dn = e; near = i; }                                 // what she faces: a counter, a rail, a chair — not a bin
+    }
+    if (d < clear) continue;
+    const f = rayDown(x, B.floor + 0.8, z); if (f === null || Math.abs(f - B.floor) > 0.03) continue;
+    if (rayUp(x, B.floor + 0.1, z, 1.7) < 1.7) continue;
+    if (!coClearLine(x, z, cx, inZ, B.floor, 0.18)) continue;                                      // a straight way to the door
+    c.push({ x, z, d, near });
+  }
+  c.sort((p, q) => p.d - q.d);                                                                     // nearest the furniture first: at a counter, not mid-floor
+  const pick = [];
+  for (const p of c) { if (pick.every(q => Math.hypot(q.x - p.x, q.z - p.z) >= apart)) pick.push(p); if (pick.length >= n) break; }
+  const face = p => { const b = p.near ? p.near.box : null; return b ? Math.atan2((b.min.x + b.max.x) / 2 - p.x, (b.min.z + b.max.z) / 2 - p.z) : 0; };
+  return pick.map(p => {
+    // the idle shift's second spot: 0.4–0.9 m off, clear of the room's other spots and with a straight way back
+    const two = c.find(q => { const d = Math.hypot(q.x - p.x, q.z - p.z); return d >= 0.4 && d <= 0.9 && pick.every(o => o === p || Math.hypot(o.x - q.x, o.z - q.z) >= 0.75) && coClearLine(p.x, p.z, q.x, q.z, B.floor, 0.18); }) || p;
+    return { x: p.x, z: p.z, face: face(p), near: p.near && p.near.name, x2: two.x, z2: two.z, face2: two === p ? face(p) + 0.6 : Math.atan2((r.x0 + r.x1) / 2 - two.x, (B.roomZ0 + B.roomZ1) / 2 - two.z) };
+  });
+}
+// A straight line between two points on one floor is clear for a body (rays at the walk's heights, either side at r)
+function coClearLine(ax, az, bx, bz, fy, r) {
+  const L = Math.hypot(bx - ax, bz - az); if (L < 1e-3) return true;
+  const dx = (bx - ax) / L, dz = (bz - az) / L;
+  for (const h of [0.46, 0.8, 1.2]) for (const o of [-r, 0, r]) if (rayH(ax - dz * o, fy + h, az + dx * o, dx, dz, L) < L) return false;
+  return true;
+}
+function coBuild() {
+  if (CO.built) return !CO.err;
+  CO.built = true;
+  try {
+    if (!ACT.ready || !backstageBuilt) throw new Error('the actors or the backstage are not built yet');
+    if (col.stale) buildCollider();
+    for (const [key, ids] of Object.entries(CO_HOMES)) {
+      const r = BACKSTAGE.rooms.find(q => q.key === key); if (!r) throw new Error(`no room "${key}"`);
+      let spots = coSpots(r, ids.length, false);
+      if (spots.length < ids.length) spots = coSpots(r, ids.length, true);
+      ids.forEach((id, k) => {
+        const a = ACT.actors.find(x => x.id === id); if (!a) { console.warn(`company: no actor "${id}" for ${r.name}`); return; }
+        const s = spots[k % Math.max(1, spots.length)];
+        if (!s) { console.warn(`company: ${r.name} has no free floor for ${id}`); return; }
+        if (k >= spots.length) console.warn(`company: ${r.name} has ${spots.length} spots for ${ids.length} — ${id} shares one`);
+        CO.bodies.set(id, { id, a, room: r, home: s, plan: null, where: 'stage', answered: {}, bubble: null, sp: null, idleK: 0, placesAt: null });
+      });
+    }
+    for (const a of ACT.actors) if (!CO.bodies.has(a.id)) console.warn(`company: ${a.name} has no home in CO_HOMES — the blocking keeps her`);
+    CO.list = [...CO.bodies.values()];
+    console.info(`company: ${CO.list.length} bodies at home — ` + Object.entries(CO_HOMES).map(([k, ids]) => `${k} ${ids.filter(id => CO.bodies.has(id)).join(', ')}`).join(' · '));
+  } catch (e) { CO.err = e.message || String(e); console.warn('company: not built —', CO.err); }
+  return !CO.err;
+}
+
+// ---- frames: the actors stand in ACT.group (set-local, turned 180° in the world); the walk is planned in the world
+function coFrame() { ACT.group.updateWorldMatrix(true, false); CO.inv.copy(ACT.group.matrixWorld).invert(); coV.set(0, 0, 1).transformDirection(ACT.group.matrixWorld); CO.gy = Math.atan2(coV.x, coV.z); }
+function coToWorld(p) { coV.set(p.x, p.y, p.z); ACT.group.localToWorld(coV); return { x: coV.x, y: coV.y, z: coV.z, yaw: p.yaw + CO.gy }; }
+
+// ---- the routes
+function coWhere(P) {                       // which part of the graph a world point is in: a room, the corridor, or the stage side
+  const B = BACKSTAGE;
+  if (P.z >= B.roomZ0 - 0.05) return { k: 'room', room: B.rooms.find(r => P.x >= r.x0 - 0.1 && P.x <= r.x1 + 0.1) || null };
+  if (P.z >= B.stageZ.h1 - 0.05 || (P.x > 10.0 && P.z >= B.stageZ.h2)) return { k: 'corridor' };
+  return { k: 'stage', side: P.y > CO_ROUTE.gallery ? 'hl' : P.x < 0 ? 'hr' : 'hl' };
+}
+// From the top of a column (its point on the slab behind the set) to a stage point S, by the fixed approaches
+function coStageChain(S, side) {
+  const R = CO_ROUTE, cx = R.col[side], out = [[cx, R.strip]];
+  if (S.y > R.gallery) out.push([cx, R.passage], ...R.stair);
+  else if (S.z >= 10.0) out.push([S.x, R.strip]);
+  else if (S.z > R.upstage) out.push([cx, R.passage], [S.x, R.passage]);
+  else if (S.z < R.pros && side === 'hr') out.push(...R.apronHR, [S.x, R.apronZ]);
+  else out.push([cx, S.z]);
+  out.push([S.x, S.z]);
+  return out;
+}
+// The whole way from P to S (world points with y): a polyline of [x, z]
+function coRoute(P, S) {
+  const R = CO_ROUTE, A = coWhere(P), Z = coWhere(S);
+  const head = [], tail = [];
+  const roomOut = (r, pt) => { const cx = (r.door.x0 + r.door.x1) / 2; return [pt, [cx, R.roomIn], [cx, R.spine]]; };
+  if (A.k === 'room' && Z.k === 'room' && A.room === Z.room) return [[P.x, P.z], [S.x, S.z]];
+  if (A.k === 'stage' && Z.k === 'stage') {
+    head.push(...coStageChain(P, A.side).reverse());
+    tail.push(...coStageChain(S, Z.side));                 // the two columns' tops are joined along the slab
+    return coClean(head.concat(tail));
+  }
+  if (A.k === 'room' && A.room) head.push(...roomOut(A.room, [P.x, P.z]));
+  else if (A.k === 'stage') head.push(...coStageChain(P, A.side).reverse(), [R.col[A.side], R.spine]);
+  else head.push([P.x, P.z], [P.x, R.spine]);
+  if (Z.k === 'room' && Z.room) tail.push(...roomOut(Z.room, [S.x, S.z]).reverse());
+  else if (Z.k === 'stage') tail.push([R.col[Z.side], R.spine], ...coStageChain(S, Z.side));
+  else tail.push([S.x, R.spine], [S.x, S.z]);
+  // KEEP TO ONE SIDE: along the corridor a walker going house left (+x) keeps to the rooms' side, one going house right to the
+  // stage's, CO_ROUTE.lane either side of the spine — two walkers passing the other way never meet
+  const pts = head.concat(tail);
+  for (let i = 0; i + 1 < pts.length; i++) {
+    const a = pts[i], b = pts[i + 1];
+    if (a[1] === R.spine && b[1] === R.spine && a[0] !== b[0]) { const z = R.spine + (b[0] > a[0] ? R.lane : -R.lane); pts[i] = [a[0], z]; pts[i + 1] = [b[0], z]; }
+  }
+  for (let i = 0; i < pts.length; i++) if (pts[i][1] === R.spine) pts[i] = [pts[i][0], R.spine + R.lane];   // a lone spine point (no run along it): the rooms' side
+  return coClean(pts);
+}
+function coClean(pts) {                     // no repeated points, no doubling back along one line
+  const out = [];
+  for (const p of pts) { const q = out[out.length - 1]; if (!q || Math.hypot(p[0] - q[0], p[1] - q[1]) > 0.01) out.push(p); }
+  for (let i = 1; i + 1 < out.length;) {
+    const a = out[i - 1], b = out[i], c = out[i + 1], ux = b[0] - a[0], uz = b[1] - a[1], vx = c[0] - b[0], vz = c[1] - b[1];
+    if (Math.abs(ux * vz - uz * vx) < 1e-6 && ux * vx + uz * vz > 0) out.splice(i, 1); else i++;   // a straight run's middle point
+  }
+  return out;
+}
+
+// ---- a plan: one walk along a polyline, from a start time on the walk clock, ending at a facing (or exactly on a pose)
+// { pts, cum, len, ys (the floor every CO_TUNE.ys m, sampled now with the walk's own floor), t0, D, E, yaw0, yawEnd, end, kind,
+//   label, doors: [{ e, s }] } — and coPlanPose(plan, clock) is the body there then: pure.
+function coPlan(pts, from, o) {
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const len = cum[cum.length - 1], n = Math.max(1, Math.ceil(len / CO_TUNE.ys)), ys = new Float32Array(n + 1);
+  let y = from.y;
+  for (let k = 0; k <= n; k++) { const q = coAt(pts, cum, len * k / n); const g = groundAt(q.x, q.z, y); if (g !== null) y = g; ys[k] = y; }
+  if (o.end) ys[n] = o.endW.y;                               // the last sample IS the start's floor (the blocking's own)
+  const E = len > 1e-3 ? Math.min(ACT_EASE, len / ACT_WALK) : 0, D = len > 1e-3 ? len / ACT_WALK + E : 0;
+  const B = BACKSTAGE, doors = [];
+  for (let i = 1; i < pts.length; i++) {                     // a room door crossed: the leg crosses the door line inside a doorway
+    const [ax, az] = pts[i - 1], [bx, bz] = pts[i];
+    if ((az - CO_ROUTE.doorZ) * (bz - CO_ROUTE.doorZ) > 0 || Math.abs(bz - az) < 1e-6) continue;
+    const f = (CO_ROUTE.doorZ - az) / (bz - az), x = ax + (bx - ax) * f;
+    const r = B.rooms.find(q => x >= q.door.x0 && x <= q.door.x1), e = r && DOORS.list.find(d => d.kind === 'door' && d.spec && d.spec.x0 === r.door.x0 && d.spec.zlo === B.roomZ0);
+    if (e) doors.push({ e, s: cum[i - 1] + f * (cum[i] - cum[i - 1]) });
+  }
+  return { pts, cum, len, ys, n, t0: o.t0, D, E, yaw0: from.yaw, yawEnd: o.yawEnd, end: o.end || null, kind: o.kind, label: o.label, doors, dist0: o.dist0 || 0 };
+}
+function coAt(pts, cum, s) {                 // the point s m along the polyline (clamped)
+  if (pts.length < 2 || s <= 0) return { x: pts[0][0], z: pts[0][1] };
+  let i = 1; while (i < cum.length - 1 && cum[i] < s) i++;
+  const span = cum[i] - cum[i - 1], f = span > 1e-9 ? Math.min(1, (s - cum[i - 1]) / span) : 1;
+  return { x: pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, z: pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f };
+}
+function coYawAt(pl, s) {                    // the path's facing at s: its direction over ± CO_TUNE.look (a corner is turned, not snapped)
+  const w = CO_TUNE.look, a = coAt(pl.pts, pl.cum, Math.max(0, Math.min(pl.len - 1e-3, s) - w)), b = coAt(pl.pts, pl.cum, Math.min(pl.len, Math.max(1e-3, s) + w));
+  return Math.atan2(b.x - a.x, b.z - a.z);
+}
+function coYs(pl, s) { const k = Math.max(0, Math.min(pl.n, s / pl.len * pl.n)), i = Math.min(pl.n - 1, Math.floor(k)); return pl.len > 1e-3 ? pl.ys[i] + (pl.ys[i + 1] - pl.ys[i]) * (k - i) : pl.ys[0]; }
+// The body on a plan at clock c, in the WORLD: { x, y, z, yaw, speed, dist, turn, turnK, rise, phase: 'wait' | 'walk' | 'turn' | 'done' }
+function coPlanPose(pl, c) {
+  const t = c - pl.t0;
+  if (t < 0) return { ...coAt(pl.pts, pl.cum, 0), y: pl.ys[0], yaw: pl.yaw0, speed: 0, dist: pl.dist0, turn: 0, turnK: 1, rise: 0, phase: 'wait' };
+  if (t < pl.D) {
+    const [f, v] = actWarp(t, pl.D, pl.E, pl.E), s = f * pl.len, q = coAt(pl.pts, pl.cum, s);
+    const yaw = actYawLerp(pl.yaw0, coYawAt(pl, s), actSmooth(t / ACT_TURN));
+    return { x: q.x, z: q.z, y: coYs(pl, s), yaw, speed: v * pl.len, dist: pl.dist0 + s, turn: 0, turnK: 1, rise: coYs(pl, Math.min(pl.len, s + 0.35)) - coYs(pl, s), phase: 'walk' };
+  }
+  const arr = pl.len > 1e-3 ? coYawAt(pl, pl.len) : pl.yaw0, k = actSmooth((t - pl.D) / ACT_TURN), q = coAt(pl.pts, pl.cum, pl.len);
+  return { x: q.x, z: q.z, y: pl.ys[pl.n], yaw: k < 1 ? actYawLerp(arr, pl.yawEnd, k) : pl.yawEnd, speed: 0, dist: pl.dist0 + pl.len,
+    turn: k < 1 ? actYawLerp(arr, pl.yawEnd, 1) - arr : 0, turnK: k, rise: 0, phase: k < 1 ? 'turn' : 'done' };
+}
+const coDone = (pl, c) => c - pl.t0 >= pl.D + ACT_TURN;
+
+// ---- the pose the actors' frame asks for (the hook in actUpdate): null in show mode or for a body with no home
+function coPose(a) {
+  const b = CO.bodies.get(a.id); if (!b || !b.plan) return null;
+  const pl = b.plan, w = coPlanPose(pl, CO.clock);
+  let x, y, z, yaw;
+  if (pl.end && w.phase === 'done') ({ x, y, z, yaw } = pl.end);                  // AT PLACES: the blocking's own pose at the act's top, exactly
+  else { coV.set(w.x, w.y, w.z).applyMatrix4(CO.inv); x = coV.x; y = coV.y; z = coV.z; yaw = w.yaw - CO.gy; }
+  return { x, y, z, yaw, visible: true, speed: w.speed, dist: w.dist, label: pl.label || actHead(a), turn: w.turn, turnK: w.turnK, ey: null, ey2: null,
+    T: CO.clock, rise: w.rise, carry: null, dance: null, co: true };
+}
+
+// ---- the calls
+function coEmit(ev) { for (const fn of CO.fns.slice()) { try { fn(ev); } catch (e) { console.warn('company: a listener failed —', e); } } }
+function coShown(b) {                        // the body's pose now, in the world (what the frame last showed)
+  if (CO.on && b.plan) { const w = coPlanPose(b.plan, CO.clock); return { x: w.x, y: w.y, z: w.z, yaw: w.yaw, dist: w.dist }; }
+  const p = b.a.obj.userData.pose || actPose(b.a, actNow());
+  return { ...coToWorld(p), dist: 0 };
+}
+function coHomeW(b, two = false) { const h = b.home; return { x: two ? h.x2 : h.x, y: BACKSTAGE.floor, z: two ? h.z2 : h.z, yaw: two ? h.face2 : h.face }; }
+function coStand(b, P, kind) { b.plan = coPlan([[P.x, P.z]], P, { t0: CO.clock, yawEnd: P.yaw, kind }); b.idleK = 0; }
+// The act's top: track `${act}-01` from the top of its lead-in (FQ) — the moment the act's GO starts
+function coTop(act) { const t = SHW.d && SHW.d.byTrack.get(`${act}-01`); return t ? t.start - t.pre : 0; }
+// Walk every body to a destination (fn b → { W: world point with yaw, end?: the exact local pose, label?, kind }), staggered at the slots
+const coJunctions = () => CO.junctions || (CO.junctions = [{ key: 'j hr', x: CO_ROUTE.col.hr, z: CO_ROUTE.spine }, { key: 'j hl', x: CO_ROUTE.col.hl, z: CO_ROUTE.spine },
+  ...BACKSTAGE.rooms.filter(r => CO_HOMES[r.key]).map(r => ({ key: 'j ' + r.key, x: (r.door.x0 + r.door.x1) / 2, z: CO_ROUTE.spine }))]);
+function coWalkAll(dest, delay0) {
+  const R = CO_ROUTE, jobs = CO.list.map(b => {
+    const P = coShown(b), d = dest(b), pts = coRoute(P, d.W);
+    // the slot this route goes through (its column's corridor point), and how far along the route it is
+    // THE GATES it passes, and how far along: a slot (a leg down a column through the slab's line — coClean may have merged the
+    // slab's point into a longer straight run) and a room door (a leg through the door line)
+    const gates = new Map();
+    let s = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const [ax, az] = pts[i - 1], [bx, bz] = pts[i];
+      for (const k of ['hr', 'hl']) if (Math.abs(ax - R.col[k]) < 1e-6 && Math.abs(bx - R.col[k]) < 1e-6 && (az - R.strip) * (bz - R.strip) <= 0 && !gates.has(k)) gates.set(k, s + Math.abs(R.strip - az));
+      if ((az - R.doorZ) * (bz - R.doorZ) <= 0 && Math.abs(bz - az) > 1e-6) { const x = ax + (bx - ax) * (R.doorZ - az) / (bz - az), r = BACKSTAGE.rooms.find(q => x >= q.door.x0 - 0.1 && x <= q.door.x1 + 0.1); if (r && !gates.has(r.key)) gates.set(r.key, s + Math.hypot(x - ax, R.doorZ - az)); }
+      // and the CROSSINGS: where a walker turns out of a door or into a column she crosses the other lane — a junction passed
+      // within CO_ROUTE.lane + 0.25 m is a gate too, for the one turning there and for anyone walking past it
+      const L = Math.hypot(bx - ax, bz - az);
+      for (const J of coJunctions()) {
+        if (gates.has(J.key) || L < 1e-6) continue;
+        const f = Math.max(0, Math.min(1, ((J.x - ax) * (bx - ax) + (J.z - az) * (bz - az)) / (L * L)));
+        if (Math.hypot(ax + (bx - ax) * f - J.x, az + (bz - az) * f - J.z) < R.lane + 0.25) gates.set(J.key, s + f * L);
+      }
+      s += L;
+    }
+    return { b, P, d, pts, gates, wait: delay0(b) };
+  });
+  // through each gate one at a time, CO_TUNE.gap apart: the bodies booked in the order they answered, each leaving at the first
+  // moment (from its own answer on, in 0.05 s steps) when none of its gates is within the gap of a time already booked there
+  const booked = new Map();
+  for (const j of [...jobs].sort((p, q) => p.wait - q.wait)) {
+    const clash = w => { for (const [k, at] of j.gates) { const t = w + at / ACT_WALK, g = k.startsWith('j ') ? CO_TUNE.cross : CO_TUNE.gap; for (const u of booked.get(k) || []) if (Math.abs(t - u) < g - 1e-6) return true; } return false; };
+    let w = j.wait; while (clash(w) && w < j.wait + 120) w += 0.05;
+    j.wait = w;
+    for (const [k, at] of j.gates) { if (!booked.has(k)) booked.set(k, []); booked.get(k).push(w + at / ACT_WALK); }
+  }
+  for (const j of jobs) j.b.plan = coPlan(j.pts, j.P, { t0: CO.clock + j.wait, yawEnd: j.d.W.yaw, end: j.d.end, endW: j.d.W, kind: j.d.kind, label: j.d.label, dist0: j.P.dist });
+  for (const j of jobs) { j.b.idleK = 0; j.b.placesAt = null; }
+}
+function coPlaces() {
+  const T = coTop(CO.act);
+  coWalkAll(b => {
+    const p = actPose(b.a, T), W = coToWorld(p);
+    return { W, end: { x: p.x, y: p.y, z: p.z, yaw: p.yaw }, label: p.label, kind: 'places' };
+  }, b => b.answerIn + CO_TUNE.leave);
+}
+function coHome() { coWalkAll(b => ({ W: coHomeW(b), kind: 'home' }), b => b.answerIn + CO_TUNE.leave); }
+function coEnter(fromStage) {
+  coFrame();
+  for (const b of CO.list) { if (fromStage) coStand(b, coShown(b), 'stage'); else coStand(b, coHomeW(b), 'home'); b.where = fromStage ? 'walking' : 'home'; }
+  CO.on = true; CO.wasPlaying = !!(SHW.on && SHW.playing); ACT.dirty = true;
+}
+function coCall(kind) {
+  if (!CO_KINDS.includes(kind)) { console.warn(`company: no call "${kind}" (${CO_KINDS.join(', ')})`); return; }
+  if (!coBuild()) return;
+  coFrame();
+  CO.calls.push({ kind, clock: +CO.clock.toFixed(3), at: Date.now() });
+  if (kind === 'interval' || kind === 'curtain') {
+    if (!CO.on) coEnter(true);
+    if (kind === 'interval') CO.act = 2;
+    for (const b of CO.list) b.answered = {};                  // a new half of the evening
+  } else if (!CO.on || kind === 'home') { if (CO.on) CO.on = false; coEnter(false); }
+  if (kind === 'home') { CO.events.length = 0; for (const b of CO.list) { b.answered = {}; b.placesAt = null; b.where = 'home'; b.bubble = null; } ACT.dirty = true; return; }   // a reset: everyone at home now, nothing pending
+  const n = CO.calls.length;
+  for (const b of CO.list) {                                  // each answers after its own seeded delay; the bubble rises then
+    b.answerIn = coRange(coRnd(b.id, `answer ${n}`), CO_TUNE.answer);
+    CO.events.push({ t: CO.clock + b.answerIn, type: 'answer', id: b.id, call: kind, text: CO_TEXT[kind] });
+  }
+  CO.events.sort((p, q) => p.t - q.t);
+  if (kind === 'places') coPlaces();
+  else if (kind === 'interval' || kind === 'curtain') coHome();
+  ACT.dirty = true;
+}
+// The blocking takes the bodies back: at the act's GO (the first Play after a call) or by hand
+function coRelease() {
+  if (!CO.on) return;
+  CO.on = false; CO.events.length = 0;
+  for (const b of CO.list) { b.where = 'stage'; b.bubble = null; if (b.sp) b.sp.visible = false; }
+  for (const e of CO.ours) e.want = 0;                        // a door the company opened is shut again
+  CO.ours.clear(); ACT.dirty = true; requestRender();
+}
+
+// ---- the frame (the hook in actTick, before the actors are posed): the clock, the answers, arrivals, idle shifts, doors
+function coTick(dt) {
+  const playing = !!(SHW.on && SHW.playing);
+  if (playing && !CO.wasPlaying) { CO.wasPlaying = true; coRelease(); return; }   // a Play: the act's GO
+  CO.wasPlaying = playing;
+  const t0 = performance.now();
+  CO.clock += dt;
+  coFrame();
+  const c = CO.clock;
+  while (CO.events.length && CO.events[0].t <= c) {
+    const ev = CO.events.shift(), b = CO.bodies.get(ev.id);
+    if (b) { b.answered[ev.call] = true; b.bubble = { text: ev.text, t0: ev.t }; }
+    coEmit({ type: ev.type, id: ev.id, call: ev.call, text: ev.text });
+  }
+  let arrived = false;
+  for (const b of CO.list) {
+    const pl = b.plan; if (!pl) continue;
+    const ph = c < pl.t0 ? 'wait' : coDone(pl, c) ? 'done' : 'walk';
+    if (ph === 'walk') b.where = 'walking';
+    if (ph !== 'done') continue;
+    if (pl.kind === 'places' && !b.placesAt) { b.where = 'places'; b.placesAt = c; arrived = true; coEmit({ type: 'atPlaces', id: b.id, call: 'places', text: 'at places' }); }
+    else if (pl.kind === 'home' || pl.kind === 'idle') {
+      b.where = 'home';
+      // THE IDLE SHIFTS: after a seeded dwell, a step to the other spot (or back) and a turn — deterministic in (body, k)
+      const dwell = coRange(coRnd(b.id, `idle ${b.idleK}`), CO_TUNE.idle);
+      if (c >= pl.t0 + pl.D + ACT_TURN + dwell) {
+        const P = coPlanPose(pl, c), two = b.idleK % 2 === 0, H = coHomeW(b, two);
+        b.plan = coPlan([[P.x, P.z], [H.x, H.z]], { ...P }, { t0: c, yawEnd: H.yaw, kind: 'idle', dist0: P.dist }); b.idleK++;
+      }
+    }
+  }
+  if (arrived && CO.list.every(b => b.placesAt)) coEmit({ type: 'allPlaces', id: null, call: 'places', text: 'All at places' });
+  // DOORS: open on a route as the walker's E would, before the first walker reaches it; shut after the last, if we opened it
+  const need = new Set();
+  for (const b of CO.list) { const pl = b.plan; if (!pl) continue; for (const d of pl.doors) { const tc = pl.t0 + pl.E / 2 + d.s / ACT_WALK; if (tc >= c - CO_TUNE.doorLag && tc <= c + CO_TUNE.doorLead) need.add(d.e); } }
+  for (const e of need) if (!e.want && !CO.ours.has(e)) { e.want = 1; CO.ours.add(e); }
+  for (const e of [...CO.ours]) if (!need.has(e)) { e.want = 0; CO.ours.delete(e); }
+  CO.ms = performance.now() - t0;
+}
+// An answer's bubble over a head: the head label's own texture (actTagTex), a screen-sized sprite over the label, rising and
+// fading over CO_TUNE.bubble s — a function of the walk clock. Called by the hook after the body is posed.
+function coBubble(a) {
+  const b = CO.bodies.get(a.id); if (!b) return;
+  const k = b.bubble ? (CO.clock - b.bubble.t0) / CO_TUNE.bubble : 1;
+  if (!(k >= 0 && k < 1)) { if (b.sp) b.sp.visible = false; return; }
+  if (!b.sp) {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false, depthWrite: false, toneMapped: false, sizeAttenuation: false }));
+    sp.position.y = ACT_H + ACT_TAG.above; sp.renderOrder = 11; sp.frustumCulled = false; sp.userData.rig = true; sp.name = 'answer';
+    sp.onBeforeRender = r => { sp.material.opacity = r.getRenderTarget() ? 0 : sp.userData.alpha; };
+    a.obj.add(sp); b.sp = sp;
+  }
+  const sp = b.sp;
+  if (sp.userData.text !== b.bubble.text) { const t = actTagTex(a, b.bubble.text); sp.material.map = t; sp.material.needsUpdate = true; sp.scale.set(ACT_TAG.h * t.userData.aspect, ACT_TAG.h, 1); sp.userData.text = b.bubble.text; }
+  sp.center.set(0.5, -1.25 - 1.6 * actSmooth(k));            // over the name, rising by its own heights (it is screen-sized)
+  sp.userData.alpha = k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3;
+  sp.visible = a.obj.visible;
+}
+
+// ---- the contract (MIDTOWN.company), hung on MIDTOWN with the lights panel (after the actors' own hook)
+const CO_API = {
+  call: kind => coCall(kind),
+  state() {
+    const L = CO.list.map(b => ({ id: b.id, label: actHead(b.a), where: CO.on ? b.where : 'stage', answered: { ...b.answered } }));
+    const at = CO.list.filter(b => CO.on && b.placesAt);
+    return { mode: CO.on ? 'backstage' : 'show', bodies: L, atPlaces: at.length, of: CO.list.length, missing: CO.list.filter(b => !(CO.on && b.placesAt)).map(b => b.id) };
+  },
+  on(fn) { if (typeof fn === 'function') CO.fns.push(fn); return () => { const i = CO.fns.indexOf(fn); if (i >= 0) CO.fns.splice(i, 1); }; },
+  get act() { return CO.act; }, set act(v) { CO.act = +v === 2 ? 2 : 1; },
+  release: () => coRelease(),
+  debug: {
+    step(dt = 0.05, n = 1) { for (let i = 0; i < n; i++) { coTick(dt); actTick(0, true); } doorsTick(dt * n); return CO_API.state(); },
+    get clock() { return CO.clock; }, get ms() { return CO.ms; },
+    get homes() { coBuild(); return CO.list.map(b => ({ id: b.id, room: b.room.key, x: +b.home.x.toFixed(2), z: +b.home.z.toFixed(2), facing: b.home.near, x2: +b.home.x2.toFixed(2), z2: +b.home.z2.toFixed(2) })); },
+    get plans() { return CO.list.map(b => b.plan && { id: b.id, kind: b.plan.kind, t0: +b.plan.t0.toFixed(2), D: +b.plan.D.toFixed(2), len: +b.plan.len.toFixed(2), pts: b.plan.pts.map(p => p.map(v => +v.toFixed(2))), doors: b.plan.doors.map(d => d.e.name) }); },
+    // every body's route from home to its act's start and back, walked with the walk's own rays: the tightest clearance, any step
+    routes(act = CO.act, R = 0.15) {
+      if (!coBuild()) return CO.err;
+      coFrame();
+      const T = coTop(act), out = [];
+      for (const b of CO.list) {
+        const S = coToWorld(actPose(b.a, T)), pts = coRoute(coHomeW(b), S);
+        let y = BACKSTAGE.floor, worst = Infinity, at = null, step = 0;
+        for (let i = 1; i < pts.length; i++) {
+          const [ax, az] = pts[i - 1], [bx, bz] = pts[i], L = Math.hypot(bx - ax, bz - az), dx = (bx - ax) / L, dz = (bz - az) / L, last = i === pts.length - 1;
+          for (let s = 0; s <= L; s += 0.1) {
+            const x = ax + dx * s, z = az + dz * s, g = groundAt(x, z, y); if (g === null) continue;
+            step = Math.max(step, Math.abs(g - y)); y = g;
+            if (last && L - s < 0.5) continue;                 // the blocking's own spot: hers, however tight
+            for (const h of [0.46, 0.8, 1.2, 1.6]) {
+              const m = Math.min(rayH(x, y + h, z, -dz, dx, 1), rayH(x, y + h, z, dz, -dx, 1), rayH(x, y + h, z, dx, dz, 0.1) < 0.1 ? 0 : Infinity);   // either side, and nothing across the way
+              if (m < worst) { worst = m; at = [+x.toFixed(2), +z.toFixed(2), h]; }
+            }
+          }
+        }
+        out.push({ id: b.id, to: [+S.x.toFixed(2), +S.y.toFixed(2), +S.z.toFixed(2)], m: +pts.reduce((m, p, i) => i ? m + Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]) : 0, 0).toFixed(1), clearest: +worst.toFixed(2), at, maxStep: +step.toFixed(2), ok: worst >= R && step < 0.45 });
+      }
+      return out;
+    },
+    // each body's pose now (the company's) against the blocking's at the act's top: the hand-over's jump, if any
+    handover(act = CO.act) {
+      const T = coTop(act);
+      return CO.list.map(b => { const p = coPose(b.a), q = actPose(b.a, T); return p && { id: b.id, where: b.where, dPos: +Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z).toFixed(6), dYaw: +Math.abs(actYawLerp(p.yaw, q.yaw, 1) - p.yaw).toFixed(6), seenAtTop: q.visible }; });
+    },
+  },
+};
+const buildLightsPanelCo = buildLightsPanel;
+buildLightsPanel = () => { buildLightsPanelCo(); if (window.MIDTOWN) window.MIDTOWN.company = CO_API; };
 
 /* ---------------------------------------------------------------- RIGGING: BOOMS ONTO THE WALLS (agent A)
    Jack: "move these lights back to be attached to the walls" — the booms standing in the HOUSE
