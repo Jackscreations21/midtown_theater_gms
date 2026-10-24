@@ -14196,6 +14196,7 @@ function buildVanWezel(gltf) {
       const ul = model.byName('house_unlit');
       if (ul && liftY !== null) { const k = vwCutBox(ul, new THREE.Box3(new THREE.Vector3(68.1, VW.at.y, -2.7), new THREE.Vector3(70.1, VW.at.y + 1.2, 0.0))); if (k) cut['step lights'] = k; }
     }
+    vwPatchHoles(model);                                          // the holes in its walls closed (THE THIRD HOUSE: THE PATCHES)
   }
   // 3. THE PORTAL, house right by the stage: a landing outside it at the aisle's floor, a stair down to the foyer, the leaves
   const Q = VW.portal, pa = new THREE.Vector2(...Q.a), pb = new THREE.Vector2(...Q.b), pc = pa.clone().add(pb).multiplyScalar(0.5);
@@ -14340,6 +14341,135 @@ const VAN_WEZEL_API = {
     console.info(s); return s;
   },
 };
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE PATCHES
+   Jack (2026-10-24): "also there are a coupla holse in the walls of the vanzwezel". Found by casting rays, and by rendering
+   cube views with the shell's outside painted magenta, from the seats, the aisles, the stage, the wings, the fly loft and
+   the foyer; every hole below came with the model (its materials are all double-sided, so no face is missing from behind,
+   and nothing reaches the sky: each hole shows the foyer, its roof or its outer walls). Closed with plain geometry in the
+   house's own dark unlit look (house_lit's material: a vertex colour, no texture), one mesh under the model's root,
+   'vw: patches', built once by vwPatchHoles from buildVanWezel step 2, after the model's own cuts.
+   NOT PATCHED, as they are meant or another builder's: the proscenium, the hallway's doorway, the 16 side portals and the
+   side walls above them, the stage stairs, the lift, the basement. Left as they are (no hole): the slits between the
+   ceiling's shells, where the roof shows (the plenum is closed now the wall tops are); the ceiling's edge, which pokes
+   0.5 m out past the side walls into the foyer; a 10 cm sliver of the foyer's wall left at the stage house's side walls
+   by the stage-house cut (x ±16.7).
+   MIDTOWN.vanWezel.patches.check() re-casts the rays that found each hole, without the patch (open) and with it (closed). */
+const VW_PATCHES = [
+  { name: 'wall tops', why: "the auditorium's walls stop 1.5-3 m under the roof all round (the ceiling hangs clear of them): from the seats the foyer's roof and outer walls showed over the side walls (Jack's lavender patch past the last grille panel)" },
+  { name: 'proscenium, house left', why: 'the side wall meets the proscenium 0.6 m inside its opening: from the stage, an 8 m slot at the opening\'s edge into the foyer behind the side wall' },
+  { name: 'proscenium, house right', why: 'the same slot, mirrored' },
+  { name: 'booth window, house right', why: 'the flat window in the curved back wall stands up to 0.3 m in front of the booth: a gap at its side, over and under it, past the booth into the foyer' },
+  { name: 'booth window, house left', why: 'the same gap, mirrored' },
+];
+// The measures, in the file's frame (from VW.at; x across, house right −). Measured off the placed model, 2026-10-24.
+const VW_PATCH = {
+  colour: [0.11, 0.09, 0.13],                       // house_lit's own (its vertex colours' mean)
+  topY: 14.30,                                      // the walls' top edge: house_tex_42's vertices above this (14.33 at the back wall, 16.72 at the proscenium)
+  centreZ: -12,                                     // the top edge is sorted round this point
+  strip: 0.25,                                      // the roof is sampled this often along it
+  slot: { x0: 8.50, x1: 9.20, z: -0.165, y0: 1.03, y1: 8.96 },   // from the side wall's line to past the opening's edge (8.64), the deck to the header's dark band
+  booth: { x: 5.46, z0: -38.36, z1: -38.74, y0: 7.01, y1: 9.57, sill: 7.065, head: 9.515,   // the window's sides (the booth's front is at −38.71)
+    arc: [[0, -38.71], [1.37, -38.69], [2.74, -38.64], [4.10, -38.55], [5.46, -38.42]] },  // the back wall's face along the window, half of it
+};
+let vwPatched = null;
+function vwPatchHoles(model) {
+  const t0 = performance.now(), P = VW_PATCH, ax = VW.at.x, ay = VW.at.y, az = VW.at.z, pos = [], tests = [], made = {};
+  const quad = (key, a, b, c, d) => { pos.push(...a, ...b, ...c, ...a, ...c, ...d); made[key] = (made[key] || 0) + 2; };
+  // 1. THE WALL TOPS: a band on the walls' top edge, all round, up to the roof over it
+  const wall = model.byName('house_tex_42'), roof = model.byName('exterior_tex_27');
+  if (wall && roof) {
+    const p = wall.geometry.attributes.position, v = new THREE.Vector3(), seen = new Map(), cz = az + P.centreZ;
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(wall.matrixWorld); if (v.y > ay + P.topY) seen.set(`${v.x.toFixed(2)},${v.z.toFixed(2)}`, [v.x, v.y, v.z]); }
+    const ang = q => Math.atan2(q[0] - ax, cz - q[2]), top = [...seen.values()].sort((a, b) => ang(a) - ang(b)), seq = [];
+    for (let i = 0; i + 1 < top.length; i++) { const a = top[i], b = top[i + 1], k = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[2] - a[2]) / P.strip)); for (let j = 0; j < k; j++) seq.push(a.map((q, c) => q + (b[c] - q) * j / k)); }
+    if (top.length) seq.push(top[top.length - 1]);
+    // the roof over each sample: its triangles binned on a 1 m grid in plan, the lowest one over the point (a Raycaster
+    // per sample took 1.6 s)
+    const rp = roof.geometry.attributes.position, ri = roof.geometry.index, nt = (ri ? ri.count : rp.count) / 3, T = new Float32Array(nt * 9), bins = new Map();
+    for (let t = 0; t < nt; t++) {
+      for (let c = 0; c < 3; c++) { v.fromBufferAttribute(rp, ri ? ri.getX(t * 3 + c) : t * 3 + c).applyMatrix4(roof.matrixWorld); T[t * 9 + c * 3] = v.x; T[t * 9 + c * 3 + 1] = v.y; T[t * 9 + c * 3 + 2] = v.z; }
+      const o = t * 9, x0 = Math.floor(Math.min(T[o], T[o + 3], T[o + 6])), x1 = Math.floor(Math.max(T[o], T[o + 3], T[o + 6])), z0 = Math.floor(Math.min(T[o + 2], T[o + 5], T[o + 8])), z1 = Math.floor(Math.max(T[o + 2], T[o + 5], T[o + 8]));
+      for (let x = x0; x <= x1; x++) for (let z = z0; z <= z1; z++) { const k = x * 4096 + z; if (!bins.has(k)) bins.set(k, []); bins.get(k).push(t); }
+    }
+    const roofOver = (x, y, z) => {
+      let best = null;
+      for (const t of bins.get(Math.floor(x) * 4096 + Math.floor(z)) || []) {
+        const o = t * 9, ax_ = T[o], az_ = T[o + 2], bx = T[o + 3] - ax_, bz = T[o + 5] - az_, cx = T[o + 6] - ax_, cz_ = T[o + 8] - az_, d = bx * cz_ - bz * cx;
+        if (Math.abs(d) < 1e-9) continue;
+        const px = x - ax_, pz = z - az_, u = (px * cz_ - pz * cx) / d, w = (bx * pz - bz * px) / d;
+        if (u < -1e-6 || w < -1e-6 || u + w > 1 + 1e-6) continue;
+        const h = T[o + 1] + u * (T[o + 4] - T[o + 1]) + w * (T[o + 7] - T[o + 1]);
+        if (h > y && (best === null || h < best)) best = h;
+      }
+      return best;
+    };
+    const ys = seq.map(q => { const h = roofOver(q[0], q[1] + 0.01, q[2]); return h === null || h > q[1] + 8 ? null : h + 0.02; });
+    for (let i = 0; i + 1 < seq.length; i++) {
+      const a = seq[i], b = seq[i + 1];
+      if (ys[i] === null || ys[i + 1] === null) continue;
+      quad('wall tops', a, b, [b[0], ys[i + 1], b[2]], [a[0], ys[i], a[2]]);
+      if (i % 16 !== 8) continue;                                   // a test ray every 4 m: from 1.5 m inside, half way up the gap, straight out
+      let nx = b[2] - a[2], nz = a[0] - b[0]; const L = Math.hypot(nx, nz); nx /= L; nz /= L;
+      if (nx * (ax - a[0]) + nz * (cz - a[2]) < 0) { nx = -nx; nz = -nz; }
+      tests.push({ patch: 'wall tops', o: [a[0] + nx * 1.5, (a[1] + ys[i]) / 2, a[2] + nz * 1.5], d: [-nx, 0, -nz], far: 3 });
+    }
+  }
+  // 2. THE PROSCENIUM'S EDGES: the slot between the side wall's line and the opening's edge, closed in the proscenium's plane
+  for (const [s, name] of [[1, 'proscenium, house left'], [-1, 'proscenium, house right']]) {
+    const S = P.slot, xa = ax + s * S.x0, xb = ax + s * S.x1, z = az + S.z;
+    quad(name, [xa, ay + S.y0, z], [xb, ay + S.y0, z], [xb, ay + S.y1, z], [xa, ay + S.y1, z]);
+    for (const y of [2.0, 4.5, 7.0]) tests.push({ patch: name, o: [ax + s * (S.x0 + S.x1) / 2, ay + y, az - 0.5], d: [0, 0, 1], far: 1.2 });   // from the foyer's side toward the stage
+  }
+  // 3. THE BOOTH WINDOW: its sides lined back to the booth, and a sill and a head from the back wall's face to the booth
+  for (const [s, name] of [[-1, 'booth window, house right'], [1, 'booth window, house left']]) {
+    const B = P.booth, xr = ax + s * B.x;
+    quad(name, [xr, ay + B.y0, az + B.z0], [xr, ay + B.y0, az + B.z1], [xr, ay + B.y1, az + B.z1], [xr, ay + B.y1, az + B.z0]);
+    for (let i = 0; i + 1 < B.arc.length; i++) {
+      const [xa, za] = B.arc[i], [xb, zb] = B.arc[i + 1];
+      for (const y of [B.sill, B.head]) quad(name, [ax + s * xa, ay + y, az + za + 0.02], [ax + s * xb, ay + y, az + zb + 0.02], [ax + s * xb, ay + y, az + B.z1], [ax + s * xa, ay + y, az + B.z1]);
+    }
+    const aim = (o, t) => ({ patch: name, o, d: t.map((q, c) => q - o[c]), far: 20 });   // from the seats into the gap, the way they found it
+    tests.push(aim([ax, ay + 8.31, az - 36.5], [ax + s * 5.53, ay + 8.31, az - 38.62]));                  // past the side
+    tests.push(aim([ax + s * 3.5, ay + 11.21, az - 37.9], [ax + s * 3.5, ay + 7.01, az - 38.66]));        // down under the sill
+    tests.push(aim([ax + s * 3.5, ay + 7.51, az - 38.0], [ax + s * 3.5, ay + 9.57, az - 38.66]));         // up over the head
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(Array.from({ length: pos.length }, (_, i) => P.colour[i % 3]), 3));
+  geo.translate(-ax, -ay, -az); geo.computeBoundingBox(); geo.computeBoundingSphere();   // into the root's frame (it is translated only)
+  const lit = model.byName('house_lit');
+  const mesh = new THREE.Mesh(geo, lit ? lit.material : new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, toneMapped: false }));
+  mesh.name = 'vw: patches'; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+  model.root.add(mesh); mesh.updateMatrixWorld(true);
+  vwPatched = { mesh, tests, made, ms: performance.now() - t0 };
+  console.info(`van wezel: ${VW_PATCHES.length} holes patched — ${VW_PATCHES.map(p => `${p.name} ${made[p.name] || 0}`).join(', ')} triangles · ${vwPatched.ms.toFixed(0)} ms`);
+  return vwPatched;
+}
+const VW_PATCHES_API = {
+  list: VW_PATCHES, spec: VW_PATCH, get built() { return vwPatched; },
+  // Each hole's rays: without the patch they reach nothing (or only something past it); with it, the patch is the first hit.
+  check() {
+    if (!vwPatched || !VW.root) return 'van wezel patches: not built';
+    const all = []; VW.root.traverse(o => { if (o.isMesh && !/glass$/.test(o.name)) all.push(o); });
+    const without = all.filter(o => o !== vwPatched.mesh), ray = new THREE.Raycaster(), rows = [], fails = [];
+    for (const p of VW_PATCHES) {
+      const ts = vwPatched.tests.filter(t => t.patch === p.name);
+      let open = 0, closed = 0;
+      for (const t of ts) {
+        ray.set(new THREE.Vector3(...t.o), new THREE.Vector3(...t.d).normalize()); ray.far = t.far;
+        const before = ray.intersectObjects(without, false)[0], after = ray.intersectObjects(all, false)[0];
+        if (after && after.object === vwPatched.mesh) { closed++; if (!before || before.distance > after.distance + 0.01) open++; }
+        else if (!before) open++;
+      }
+      rows.push(`${p.name} (${vwPatched.made[p.name] || 0} triangles): open without it ${open}/${ts.length}, closed with it ${closed}/${ts.length}`);
+      if (!ts.length || open < ts.length || closed < ts.length) fails.push(p.name);
+    }
+    const s = `van wezel patches: ${fails.length ? 'FAIL (' + fails.join(', ') + ')' : 'PASS'} — ` + rows.join(' · ');
+    console.info(s); return s;
+  },
+};
+VAN_WEZEL_API.patches = VW_PATCHES_API;                       // MIDTOWN.vanWezel.patches
 
 /* ---------------------------------------------------------------- THEATRE 2: THE UNDERGROUND AND THE LIFTS
    RULING GI (2026-10-16), Jack: "make it so there is a stage lift that is used to bring on and off big sets like the ship.
