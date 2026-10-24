@@ -719,3 +719,83 @@ sing-along) found nothing.
 - `review/seg2/tools/sim_vis.py`: no leg over 2.6 m/s; the new close passes under 0.45 m last 0.5-0.6 s (the
   hand-kiss circle, the push, the men crossing to Burr).
 - Plots: `scratchpad/act/review3/seg2/` (a sheet a track, `wb4/` every 4 s for the ball, `png/` the key moments).
+
+## Film round (2026-10-24)
+
+Sources: the Disney+ clips cut into frames (`tools/vision/cache/<clip>/frames/`, 5 a second; `at` = seconds into the
+album track). 1-07, 1-08 and 1-10 are the film's house cameras (frame right = stage LEFT). The 1-11 clip is a high,
+side-on audience angle, good for who is moving, poor for exact places. No clip for 1-09. Jack's checklist rows: 1-07,
+1-09, 1-10 "good"; 1-08's notes and 1-11's "make the rewind part look better" (and the 10-16 replies) are rulings and
+were kept. `still.py` before -> after (share of on-stage time still; runs of 8 s or more, all five songs):
+1-07 52 % -> 38 %, 1-08 81 % -> 32 %, 1-09 42 % -> 24 %, 1-10 49 % -> 28 %, 1-11 68 % -> 31 %; 216 runs -> 90.
+
+### 1-07 You'll Be Back
+- Frame 20 (at ~2.6): the King alone at the door UC in the dark. Frame 60 (~10.6): already down near the lip, in a bright
+  front pool. The close-ups (shots 1-13) keep him DC with his hands going. Frame 940 (~185): the ensemble in an arc
+  upstage across the stage, hands together in front, swaying (our ring of eight: kept, the song is marked good).
+- Changed: he walks down 4.5-12.5 (`king-walk`); was held UC to 42 and down on Q194 (49). A gesture every four bars
+  (point, arm-sweep, beckon, finger-wag, shoo, breath). Spot 1 on him from the reveal to the button.
+
+### 1-08 Right Hand Man
+- Frames 70 / 110 / 128 (13.8 / 21.8 / 25.4): the company in a loose line across, looking out, Hamilton (no coat) in it
+  centre, Mulligan SR of him; the sisters spread wide in FRONT: Eliza far SR, Angelica DC, Peggy far SL; still there at
+  25.4. Was: the three close together DC, gone at 21.6, no company. Now: the line (the three friends and five ensemble)
+  from 3.0; the sisters wide until 24.5, each off to her own side; the ensemble off to the wings at 28-29.5; the friends
+  step out of the line to their verse places (NOTES3 kept: they are on with him).
+- Frames 200 / 250 (39.8 / 49.8): Hamilton is not planted in his pool: by 40 he is at the centre with Laurens, by 50 in
+  among the five, talking to Mulligan with his hands. Now he walks (37.5, 46.0, 51.5) and gestures.
+- Frames 290 / 315 / 420 (57.8 / 62.8 / 83.8): the company dances round Washington (arms out, a knee up; lunges; floor
+  work). 505 (100.8): a line across, dancing. 600 (119.8): a wide line across mid-stage, lunging. 660 (131.8): round
+  Hamilton. 728 (145.4): a line UPSTAGE on the SL half, arms up, Washington SR of it. 800 (159.8): the last four
+  salute round him. 860 (171.8): Washington alone. Was: a still block SL 68-150 and desertions from 128. Now: NOTES3's
+  file and block kept, the file does the step on the spot, the block dances to 96, spreads into a line across (z 1.0)
+  by 99.5-100.5, dances, walks up into the line upstage SL by 143 (reach-up, salute), and the desertions run 149.5-160
+  (the SR end off SR, upstage of Washington). Washington walks up SR of the line (146) and gestures all through.
+- Frames 1030 / 1300 (205.8 / 259.8): the tent is played on the move: Washington round the desk, Burr stepping in,
+  Hamilton pacing. Added a few steps (Burr 195, Washington 200 / 238, Hamilton 240) and hands. (The film's desk sits a
+  little SL of ours and Hamilton sits at it at 284; the desk is NOTES3's, struck at 277, so it is not moved.)
+- Frames 1420 / 1470 (283.8 / 293.8): the three sisters watch from the galleries above - Angelica SR, Eliza centre,
+  Peggy SL - and the company dances round the two men. Added: the sisters on the upstage gallery (through the passage,
+  276-303; the film's side balconies are left for a later round), the company dancing 276-300.
+- Frame 1560 (312): the file - kept as NOTES3 ruled (Washington at the head, Hamilton behind, Burr in the middle).
+- Spots: 2 Hamilton's verse; 3 Burr announcing; 1 Washington from his first line to the button; 2 Hamilton's battle
+  verse; 2 Burr in the tent; 3 Hamilton from the tent to the button.
+
+### 1-09 A Winter's Ball (no clip)
+- No places moved: no footage. Stillness: Burr's hands through the narration, the four men's lineup (chest-pump /
+  head-bob), the sisters and the men at the ball. The 1-10 clip's opening (frame 10, 1.8) settles where the sisters END
+  this song (below), so their last walk now goes there. Spots: 1 Burr, 2 Hamilton, 3 Angelica.
+
+### 1-10 Helpless
+- Frame 10 (1.8): Eliza in the middle, Angelica just SL of her, Peggy out SR, couples dancing round them (was: all three
+  SR on the outer ring, from photo 300.3). Moved, kept outside the turning ring.
+- Frame 180 (36): first sight - Hamilton at the SL stair's foot, Washington crossing to him, Eliza far SR: as we had.
+- Frames 380 / 440 / 477 (75.8 / 87.8 / 95.2): the steps are the SR stair (Hamilton up on the SR side with Angelica),
+  Angelica walks him in from SR while Eliza comes across from far SL, and the three stand Angelica SR, Hamilton,
+  Eliza SL. Was: the SL stair and the three mirrored. Now mirrored back; the letters' crossings follow (Hamilton round
+  upstage of Angelica to DR, Eliza on her own side to DL).
+- Frame 1170 (233.8): the groom waits out SR with Washington, the company in an arc, a dancer DC. Was: Hamilton DC from
+  230. Now he waits SR (228-233.5) and crosses to DC before the bridesmaids come down (236.5).
+- Stillness: the sisters sway, Eliza's hands on her choruses, Peggy and her partners dance, the couples keep dancing
+  behind the three DC (frame 440), the men's drink after the blessing, the wedding guests sway.
+- Spots: 1 Eliza throughout; 2 Hamilton from first sight; 3 Angelica (the triangle to the letters), then Papa Schuyler.
+
+### 1-11 Satisfied
+- Frame 60 (~13): the company round the room, glasses up, moving; frame 180 (~37): Angelica and Peggy centre-SR, the
+  semicircle behind, the couple DL: our places stand. Frames 520 / 690 / 1100: Angelica and Hamilton nose to nose; the
+  double twirl; Angelica, Hamilton, Eliza in a line for the introduction: as we had. Places not moved (the angle is too
+  oblique to correct them); the rewind (Jack's ruling) is untouched.
+- Stillness: the toast sways (room, couple, Peggy, Laurens), Angelica's hands through every rap, Lafayette tries his
+  luck in the replay, Burr unfreezes beside Hamilton, the couples keep the ball's gavotte to the ring turn.
+  Still on purpose: Hamilton frozen DR (58-91) and on the steps (150-194), the room after Q374, Eliza in the UL pool
+  (159-235), Washington on the steps, Angelica alone at the end.
+- Spots: 1 Angelica, toast to last word; 2 Hamilton at first sight, count 2 and the fantasy; 3 Eliza (UL pool, letters)
+  and Hamilton at the toast replayed.
+
+### Left for later
+- 1-08: the film's sisters use the two side balconies, not the upstage gallery; the film's desk stands SL of ours and
+  Hamilton sits at it at 284 (after NOTES3's strike at 277: Jack's call).
+- 1-08 top: the spy and the redcoat DR stand still 0-26 (not in a wide shot of the clip).
+- Moves wished for: a toast (glass raised, a small lift on the beat) for Satisfied (used `sway`); the King's little
+  shrug-and-tilt (used `breath` / `finger-wag`); a soldier's knee-lift with the arms out sideways for 1-08's "Here comes
+  the General" (used `hiphop-march`).

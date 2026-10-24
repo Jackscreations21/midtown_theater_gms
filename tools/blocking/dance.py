@@ -282,6 +282,105 @@ SEGMENT_2 = [
     dict(who=COUPLES, track='1-11', at=167.47, move='grind', until=172.35, mirror='alt', note="Helpless's grind replayed, on the matching line, to the freeze (Q374)"),
     dict(who=['peggy'], track='1-11', bar=118, beat=2, move='shoulder-pop', counts=8, note="Peggy's little dance again (the side-by-side: \"the same\" in both songs)"),
 ]
+# FILM ROUND (2026-10-24; research/seg2.md "Film round"). Jack: "a lot of scenes when people are just standing still when
+# they should be dancing or moving". The clips show the singer's hands going on every line and the 1-08 company dancing
+# the whole of Here comes the General, so: _fill() puts a move every `every` bars from the first downbeat at or after
+# t0 until t1, cycling `moves` (the nearest moves in the library: the film's own steps are named in each note).
+# Still ON PURPOSE (not filled): the King's ring of eight standing (Jack marked 1-07 good), the 1-08 file before
+# Washington's line (NOTES3) and the file at 302, the sisters watching from the gallery (1-08), the bench (1-10), the
+# frozen pictures of Satisfied (Hamilton DR 58-91, the room after Q374, Eliza in the UL pool) and Angelica alone at the end.
+from beats import bar_of as _bar_of, grid as _grid  # noqa: E402
+
+
+def _fill(who, track, t0, t1, moves, every=2, counts=None, note='', **kw):
+    meter = _grid(track)[1]
+    b, bt = _bar_of(track, t0)
+    if bt > 1.05: b += 1
+    c = counts or meter * every
+    out, k = [], 0
+    while beat_time(track, b + -(-c // meter)) <= t1 + 0.05:
+        out.append(dict(who=list(who), track=track, bar=b, move=moves[k % len(moves)], counts=c, note=note, **kw))
+        b += every; k += 1
+    return out
+
+
+SEG2_HANDS = ['point', 'arm-sweep', 'beckon', 'finger-wag', 'shoo', 'breath']          # a singer's hands on the line
+SEG2_RAP = ['point', 'chest-pump', 'arm-sweep', 'head-bob', 'beckon', 'point-down']      # a rapper is never still
+SEG2_GENERAL = ['hiphop-march', 'lunge', 'two-step', 'reach-up']                       # 1-08 the company round Washington
+FILE108 = ['ens2', 'ens3', 'ens4', 'ens6', 'ens7', 'ens8', 'ens10']
+BLOCK108 = FILE108 + ['ens5']
+FRIENDS = ['laurens', 'mulligan', 'lafayette']
+SEMI11 = ['ens6', 'ens2', 'washington', 'ens7', 'ens3', 'ens8', 'ens5', 'lafayette', 'ens9', 'ens10']
+SEGMENT_2 += (
+    # 1-07: the clip has the King's hands going all through (the gestures, the little steps), and he walks down at the top
+    [dict(who=['king'], track='1-07', at=4.6, move='king-walk', until=12.5, note="FILM 1-07 frames 20 / 60: he walks down from the door on the first verse (gen_seg2.py)")]
+    + _fill(['king'], '1-07', 13.0, 205.0, SEG2_HANDS, every=4, counts=4, note="FILM 1-07: the King's hands on the line, one gesture every four bars (the clip's close-ups: never still for long)")
+    # 1-08 top: the company line looks out; Hamilton's verse with his friends round him
+    + _fill(['hamilton'], '1-08', 30.0, 54.0, SEG2_RAP, note="FILM 1-08 frames 200 / 250: Hamilton raps his verse with his hands, among the friends")
+    + _fill(FRIENDS, '1-08', 33.0, 54.0, ['head-bob', 'chest-pump'], every=4, counts=4, canon=0.2, note="FILM 1-08 frame 250: the friends with him, nodding along")
+    + _fill(['burr'], '1-08', 33.0, 53.0, ['lean-in', 'beckon'], every=4, counts=4, note="Burr listening DL, a step in now and then (the clip has him in the group by 50)")
+    + _fill(FILE108, '1-08', 54.0, 64.9, ['hiphop-march'], every=1, counts=4, note="FILM 1-08 frame 290 (57.8): the company's arms-out knee-lift step round the General; NOTES3's file keeps its place, the step is on the spot")
+    + _fill(BLOCK108, '1-08', 70.0, 96.0, SEG2_GENERAL, note="FILM 1-08 frames 315 / 420: the company dances round Washington (was: a still block SL for 60 s)")
+    + _fill(BLOCK108, '1-08', 101.0, 140.0, ['lunge', 'hiphop-march', 'two-step', 'musket'], note="FILM 1-08 frames 505 / 600 / 660: the line across, lunging arms out; the battle")
+    + [dict(who=BLOCK108, track='1-08', at=143.5, move='reach-up', counts=4, note="FILM 1-08 frame 728 (145.4): the line upstage SL, arms up"),
+       dict(who=BLOCK108, track='1-08', at=147.0, move='salute', counts=4, canon=0.4, note="FILM 1-08 frame 800 (159.8): they salute him as they go")]
+    + _fill(['washington'], '1-08', 69.0, 176.0, ['point', 'arm-sweep', 'beckon', 'salute'], note="FILM 1-08 frames 290-860: Washington sings with his whole arm, the sword hand out (frame 420)")
+    + _fill(['washington'], '1-08', 177.0, 266.0, ['lean-in', 'point', 'beckon', 'arm-sweep', 'shoo'], note="FILM 1-08 frames 1030 / 1300: the tent, Washington at the desk and round it")
+    + _fill(['burr'], '1-08', 181.0, 212.0, ['lean-in', 'beckon', 'point'], every=4, counts=4, note="Burr pleads for a commission (the tent)")
+    + _fill(['hamilton'], '1-08', 204.0, 300.0, SEG2_RAP, note="FILM 1-08 frames 1030-1470: Hamilton argues, accepts and sings the duet")
+    + _fill(FIN8, '1-08', 276.0, 300.0, ['lunge', 'hiphop-march', 'two-step'], note="FILM 1-08 frame 1470 (293.8): the company dancing round the two men after the My Shot phrase")
+    # 1-09 (no clip: the research): Burr's narration, the men's lineup, the ball
+    + _fill(['burr'], '1-09', 2.0, 50.0, SEG2_RAP, every=4, counts=4, note="Burr narrates DSC: hands on the lines (no clip for 1-09)")
+    + _fill(['hamilton', 'laurens', 'lafayette', 'mulligan'], '1-09', 36.0, 49.5, ['chest-pump', 'head-bob'], note="the four men's lineup shouting the refrain (the clip's comments: the 'LADIES' lineup)")
+    + _fill(['eliza'], '1-09', 53.0, 63.5, ['sway'], every=4, note="Eliza in her pool far SL, swaying to the ball (the 1-10 clip's opening has her moving)")
+    # 1-10 Helpless
+    + _fill(['angelica', 'peggy'], '1-10', 1.0, 27.5, ['sway'], every=4, mirror='alt', note="FILM 1-10 frame 10 (1.8): the sisters move with the ball round them (was: still SR for 28 s)")
+    + _fill(['eliza'], '1-10', 12.0, 30.0, ['sway', 'breath', 'arm-sweep'], every=2, note="FILM 1-10 frames 300 / 320: Eliza sings her chorus with her hands")
+    + _fill(['eliza'], '1-10', 40.0, 88.0, ['sway', 'breath', 'reach-up', 'arm-sweep'], every=2, note="FILM 1-10: Eliza's chorus 2 and the steps")
+    + _fill(['peggy', 'laurens'], '1-10', 45.0, 96.0, ['gavotte'], every=1, mirror='alt', note="REVIEW 3: Peggy and Laurens dancing together in the background of the ball (0:45-1:35)")
+    + _fill(['hamilton', 'angelica'], '1-10', 56.0, 84.0, ['lean-in', 'arm-sweep', 'beckon'], every=4, counts=4, canon=0.5, note="FILM 1-10 frame 380 (75.8): Angelica talks to him at the SR stair")
+    + _fill(['angelica'], '1-10', 92.0, 104.0, ['beckon', 'arm-sweep'], every=2, counts=4, note="FILM 1-10 frame 477: Angelica introduces them, her hands going")
+    + _fill(['hamilton'], '1-10', 165.0, 197.0, SEG2_RAP, note="his verse to Eliza DC: a rapper's hands (the clip's close-ups, frames 830-990)")
+    + _fill(['eliza'], '1-10', 167.0, 197.0, ['breath', 'sway'], every=4, counts=4, note="Eliza listening, moved")
+    + _fill(['washington'], '1-10', 212.5, 228.0, ['point', 'beckon'], every=2, counts=4, note="Washington's pep talk DR")
+    + _fill(['ens2', 'ens6', 'ens3', 'ens7', 'ens5', 'ens9', 'ens10', 'ens8', 'washington'], '1-10', 234.0, 247.0, ['sway'], every=2, note="FILM 1-10 frame 1170 (233.8): the wedding guests sway as the bride comes down")
+    # 1-11 Satisfied
+    + _fill(SEMI11 + ['peggy', 'laurens', 'hamilton', 'eliza'], '1-11', 10.0, 46.0, ['sway'], every=2, note="FILM 1-11 frames 60 / 180: the room moves through the toast, glasses up (was: still 37 s)")
+    + _fill(['angelica'], '1-11', 10.0, 46.0, SEG2_RAP, note="Angelica's toast: her hands on the lines")
+    + _fill(['angelica'], '1-11', 59.0, 171.5, SEG2_RAP, note="Angelica raps the replay (FILM 1-11 frame 520: her hands at 104)")
+    + _fill(['hamilton'], '1-11', 100.0, 120.0, ['lean-in', 'point', 'arm-sweep'], every=4, counts=4, note="the conversation nose to nose (FILM 1-11 frame 520)")
+    + [dict(who=COUPLES, track='1-11', at=107.9, move='gavotte', until=130.4, mirror='alt', note="FILM: the ball replay keeps dancing until the ring turns (was: still 22 s)")]
+    + _fill(['angelica'], '1-11', 174.0, 186.0, ['arm-sweep', 'reach-up'], every=2, counts=4, note="Angelica alone in the freeze (Q374)")
+    + _fill(['angelica'], '1-11', 204.0, 268.0, SEG2_RAP, note="Angelica's counts and the letters: still rapping")
+    + _fill(['ens7', 'ens6', 'ens9', 'ens8'], '1-11', 214.0, 236.0, ['sway'], every=2, note="the four women upstage with the letters, out of the freeze")
+    + _fill(SEMI11 + ['peggy', 'laurens', 'hamilton', 'eliza'], '1-11', 271.0, 305.0, ['sway'], every=2, note="the toast replayed: the room moves again")
+    + _fill(['angelica'], '1-11', 271.0, 300.0, SEG2_RAP, note="Angelica's toast replayed")
+    # second pass over still.py's list
+    + _fill(['hamilton'], '1-08', 3.0, 27.0, SEG2_RAP, note="FILM 1-08 frame 70: Hamilton leads the opening from the middle of the line")
+    + _fill(SISTERS + ['laurens', 'mulligan', 'lafayette', 'ens8', 'ens2', 'ens3', 'ens4', 'ens6'], '1-08', 4.0, 25.0, ['breath', 'sway'], every=2, counts=4, canon=0.15,
+            note="FILM 1-08 frames 70-128: the line looks out over the harbour, breathing with the music (a held picture, not frozen)")
+    + _fill(['burr'], '1-08', 54.0, 68.5, SEG2_HANDS, note="Burr announces the General from DL")
+    + _fill(['hamilton', 'mulligan'], '1-08', 129.5, 142.5, SEG2_RAP, canon=0.3, note="FILM 1-08 frame 660 (131.8): Hamilton's battle verse, Mulligan shouting back")
+    + _fill(['washington'], '1-08', 267.0, 300.0, ['point', 'arm-sweep', 'beckon'], note="FILM 1-08 frames 1340 / 1470: the duet in the two specials")
+    + _fill(['hamilton'], '1-09', 19.0, 33.5, ['lean-in', 'head-bob'], every=4, counts=4, note="at Washington's right hand, taking the orders")
+    + _fill(['burr'], '1-09', 51.0, 68.0, SEG2_RAP, every=4, counts=4, note="Burr DL at the ball, still narrating")
+    + _fill(['angelica', 'peggy'], '1-09', 52.0, 63.5, ['sway'], every=2, mirror='alt', note="the sisters at the ball")
+    + _fill(['laurens', 'lafayette'], '1-09', 53.0, 64.0, ['beckon', 'lean-in'], every=4, counts=4, note="the men at the ball, flirting")
+    + _fill(['peggy', 'mulligan'], '1-10', 34.0, 45.0, ['gavotte'], every=1, mirror='alt', note="Mulligan sweeps Peggy away (the ball memory)")
+    + _fill(['hamilton'], '1-10', 92.0, 104.0, ['bow', 'lean-in', 'beckon'], every=4, counts=4, note="FILM 1-10 frame 477 (95.2): the introduction, his hand to his collar and out to her")
+    + _fill(['eliza'], '1-10', 92.0, 104.0, ['curtsy', 'breath', 'sway'], every=4, counts=4, note="Eliza meets him")
+    + _fill(['hamilton'], '1-10', 213.0, 228.0, ['head-bob', 'chest-pump'], every=2, counts=4, note="the pep talk DR, Laurens and Washington round him")
+    + _fill(['burr'], '1-11', 92.0, 131.0, ['lean-in', 'head-bob', 'beckon'], every=4, counts=4, note="Burr DR beside Hamilton, unfrozen (fan write-up: Hamilton goes to talk to him)")
+    + _fill(['lafayette'], '1-11', 67.0, 123.0, ['beckon', 'bow', 'lean-in'], every=4, counts=4, note="Lafayette near Angelica for the replay, trying his luck (the ball replayed)")
+    + _fill(['peggy'], '1-11', 245.0, 265.0, ['sway', 'breath'], every=4, counts=4, note="Peggy with Eliza and the letters")
+    + _fill(['eliza'], '1-11', 253.0, 269.0, ['breath', 'sway'], every=4, counts=4, note="Eliza puts the letters away")
+    + _fill(['angelica'], '1-10', 40.0, 52.0, ['sway'], every=1, note="Angelica with Eliza DR after first sight")
+    + _fill(COUPLES, '1-10', 85.0, 107.5, ['gavotte'], every=1, mirror='alt', note="FILM 1-10 frame 440 (87.8): the couples keep dancing behind the three (was: parked 20 s)")
+    + _fill(['ens4', 'hamilton'], '1-10', 152.0, 163.0, ['laugh-bob', 'lean-in'], every=2, counts=4, note="the men share a drink by the chair after the blessing")
+    + _fill(['ens4'], '1-10', 140.0, 151.0, ['laugh-bob', 'lean-in'], every=2, counts=4, note="Papa Schuyler by his chair, watching Hamilton dance")
+    + _fill(['hamilton'], '1-11', 127.0, 144.0, ['head-bob', 'lean-in'], every=4, counts=4, note="Hamilton DR with Burr while she raps")
+)
+SEGMENT_2.sort(key=lambda e: (e['track'], beat_time(e['track'], e['bar'], e.get('beat', 1)) if 'bar' in e else e['at']))
 # ===== END SEGMENT 2 =====
 
 # ===== SEGMENT 3 (1-12..1-17) =====

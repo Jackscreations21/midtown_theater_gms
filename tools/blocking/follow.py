@@ -70,6 +70,56 @@ SEGMENT_1 = [
 
 # ===== SEGMENT 2 (1-07..1-11) =====
 SEGMENT_2 = [
+    # 1-07 You'll Be Back: one hard white pool on the King, head to toe, the whole number (the clip: frame 60, 10.6, he
+    # walks into a bright front pool at the lip, and every wide after it has him in it); out as he goes in the transition
+    F(1, '1-07', 3.6, 'king', level=0.9, fade=1.5, note="film 1-07 frames 20 / 60: the reveal at the door, then the front spot follows him down to the lip"),
+    OUT(1, '1-07', 204.8, fade=1.0, note="the button: he leaves SL in the dark"),
+    # 1-08 Right Hand Man
+    F(2, '1-08', 29.8, 'hamilton', level=0.75, note="his verse (Q206 'Ham dsc'); film frames 200 / 250: he works the group SR, the spot with him"),
+    OUT(2, '1-08', 54.0, fade=0.8, note="he goes off DSR (NOTES3: off at 0:55)"),
+    F(3, '1-08', 53.4, 'burr', level=0.7, note="Burr announces the General from DL"),
+    OUT(3, '1-08', 68.5, note="Burr leaves DSL"),
+    F(1, '1-08', 65.2, 'washington', level=0.9, fade=0.8, note="his first line (Q274.01); film frame 290: the General DSC in a hard white pool, the company dancing round him, and the spot stays on him to the end"),
+    F(2, '1-08', 129.2, 'hamilton', level=0.8, note="film frame 660: Hamilton's battle verse DR"),
+    OUT(2, '1-08', 142.0, note="he goes off to take the cannons"),
+    F(2, '1-08', 180.5, 'burr', level=0.7, note="the tent: Burr pleads SR of the desk (film frame 1030)"),
+    OUT(2, '1-08', 212.5, note="dismissed"),
+    F(3, '1-08', 203.3, 'hamilton', level=0.8, note="the tent: Hamilton DL of the desk; holds him through the duet and the file"),
+    OUT(1, '1-08', 318.0, fade=0.5, note="the button: blackout"),
+    OUT(3, '1-08', 318.0, fade=0.5, note="the button: blackout"),
+    # 1-09 A Winter's Ball (no clip): the narrator, the man, the sister he meets
+    F(1, '1-09', 1.8, 'burr', level=0.85, note="Q290 Burr DSC in ch93's shaft; the spot follows him DR, back DSC and out DL to the ball"),
+    F(2, '1-09', 35.2, 'hamilton', level=0.75, note="the lineup: Hamilton's refrain, then the ball"),
+    F(3, '1-09', 49.5, 'angelica', level=0.75, note="Q292.5 Angelica in at the centre; Hamilton kisses her hand"),
+    OUT(1, '1-09', 68.0, note="into Helpless"),
+    OUT(2, '1-09', 68.0, note="into Helpless"),
+    OUT(3, '1-09', 68.0, note="into Helpless"),
+    # 1-10 Helpless: Eliza's number - spot 1 on her throughout; spot 2 on Hamilton from first sight; spot 3 for Angelica
+    # and Papa Schuyler's moment
+    F(1, '1-10', 0.5, 'eliza', level=0.85, fade=1.0, note="film frame 10: Eliza in the middle of the ball; her number, the spot never leaves her"),
+    F(3, '1-10', 28.5, 'angelica', level=0.7, note="Q300.6 the sisters' triangle; Angelica brings him to Eliza from the SR stair (film frames 380 / 440)"),
+    F(2, '1-10', 36.5, 'hamilton', level=0.75, note="film frame 180 (36): first sight, Hamilton at the SL stair's foot"),
+    OUT(3, '1-10', 112.5, note="the letters: Angelica gives Eliza the floor"),
+    F(3, '1-10', 132.8, 'ens4', level=0.7, note="Q302.5 Papa Schuyler crosses to Hamilton: the blessing"),
+    OUT(3, '1-10', 141.0, note="the men share a drink"),
+    OUT(1, '1-10', 248.0, fade=0.8, note="the kiss on the chord"),
+    OUT(2, '1-10', 248.0, fade=0.8, note="the kiss on the chord"),
+    # 1-11 Satisfied: Angelica's number - spot 1 on her from the toast to her last line; spot 2 on Hamilton when he leads;
+    # spot 3 on Eliza (the UL pool, the letters) and on Hamilton at the toast replayed (DL)
+    F(1, '1-11', 9.8, 'angelica', level=0.9, fade=1.0, note="the toast: Angelica DC; film frames 180 / 520 / 1100: she is in the brightest light all through"),
+    F(2, '1-11', 91.2, 'hamilton', level=0.75, note="Q370 first sight replayed: he unfreezes DR and comes to her"),
+    OUT(2, '1-11', 126.5, note="back to Burr: the room turns"),
+    F(3, '1-11', 159.6, 'eliza', level=0.7, note="Eliza in the UL pool, frozen for the replay"),
+    F(2, '1-11', 196.2, 'hamilton', level=0.75, note="Angelica fetches him from the steps; Q377 count 2, Hamilton in a spotlight (fan write-up)"),
+    OUT(3, '1-11', 205.5, note="the introduction: the room's light takes over"),
+    OUT(2, '1-11', 226.5, note="he goes off SL"),
+    F(3, '1-11', 238.2, 'eliza', level=0.7, note="Q380 the letters: Eliza crosses to Peggy and Angelica"),
+    F(2, '1-11', 243.6, 'hamilton', level=0.7, note="Q381 the night fantasy: Hamilton DR"),
+    OUT(2, '1-11', 252.5, note="he goes off DSR"),
+    OUT(3, '1-11', 256.0, note="the rewind forward"),
+    F(3, '1-11', 270.0, 'hamilton', level=0.75, note="Q384 back at the toast: the couple DL (spot 3 for SL)"),
+    OUT(3, '1-11', 300.0, note="the company falls away"),
+    OUT(1, '1-11', 325.5, fade=0.3, note="Angelica alone: out on the last word, before she walks off"),
 ]
 # ===== END SEGMENT 2 =====
 
