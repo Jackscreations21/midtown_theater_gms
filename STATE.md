@@ -18,7 +18,7 @@ delete the merged branches `film-round`, `stage-manager`, `orchestra-pit`, `van-
   this starts playing whenever the actors start walking off after bowing at the end and dont make the lighst go out onstage
   after the bow make them stay where they where dutrign bows"*. Both recordings are COMMITTED at his word
   (`assets/audio/king-george-announcement.mp3`, `exit-music.mp3`; the soundtrack stays local). **His to decide:**
-  - the house lights go out at the Play, so the announcement plays in the dark (or keep them up until it ends?);
+  - the house lights go out at the Play, so the announcement plays in the dark: **his answer (2026-10-24): leave it so**;
   - the announcement plays only from a Play before Burr's walk (the top of the show); Prev/Next skip it;
   - after the exit music the stage stays lit with nobody on it until Stop (no end to the show).
 
