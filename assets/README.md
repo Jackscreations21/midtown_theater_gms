@@ -70,3 +70,10 @@ benches in a dark red-brown stain (1.8 × 0.75 × 1.56 m, 240 triangles) and an 
 `hamilton-pools.json` — the person lights (specials, and units at zoom ≤ 18.5°) lit in every cue and where they land,
 for `blocking.html` (RULING FP). Slimmed by `tools/blocking-pools.py` from a per-cue dump of `midtown.html` (session
 scratch); a snapshot of the cue data it was dumped from. Derived from our own engine and the ETC rig data.
+
+`van-wezel-hall.glb` — WIRED IN to `midtown.html` (THE THIRD HOUSE: VAN WEZEL HALL, 2026-10-24). **Van Wezel Hall model:
+made for this project** (by another Claude session, for Jack; its 49 images are procedural noise textures). The committed
+file is the shrunk copy, made by `tools/van-wezel-optimise.py` from Jack's `van-wezel-hall_1.glb` (11.7 MB, 964 meshes,
+318 materials, in feet): metres, turned to the page's convention (upstage +z), the site round it dropped (grounds, bay,
+parking, road, palms), merged to 57 meshes by region and look, welded — 109,782 triangles, 45 images, 7.4 MB. Re-run the
+script on a new source to redo it.

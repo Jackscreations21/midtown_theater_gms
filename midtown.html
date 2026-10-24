@@ -33,6 +33,12 @@
   swing into the passage (RULING FF), and a red velour curtain at its house end, where the passage meets the side aisle
   (THE CURTAINS); walking, E opens or closes whichever of them you face within reach, and the hint line says which.
 
+  THE THIRD HOUSE (Jack: "add this theater on the side of the one already there. make them have seperate lobbys but connect
+  them by a hallway"; "THE THIRD HOUSE: VAN WEZEL HALL" below): the Van Wezel Performing Arts Hall (assets/van-wezel-hall.glb,
+  made for this project) at real size east of Theatre 2, its proscenium at z 0, in its own glazed foyer; a hallway from the
+  lobby's east end beside the bar into that foyer, an E door at each end; a stair and a pair of doors up into its stalls,
+  its orchestra lift lowered and a stair onto its stage; the "Van Wezel" view; MIDTOWN.vanWezel.check().
+
   BACKSTAGE (Jack: "add an area behind both stages for dressing rooms and stuff and make it be one big area not 2 separate
   ones"): ONE block behind both stage houses (BACKSTAGE, "HOUSE WORKS: BACKSTAGE" below), its floor level with both decks
   — a crossover corridor the whole 40 m width along the stage-side wall and eight rooms off it: the stage door (its street
@@ -226,6 +232,7 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
     <button id="v-fly">Fly tower</button>
     <button id="v-lobby">Lobby</button>
     <button id="v-house2">Theatre 2</button>
+    <button id="v-vanwezel">Van Wezel</button>
     <button id="v-backstage">Backstage</button>
   </div>
   <div class="mode" role="group" aria-label="Set size">
@@ -358,6 +365,7 @@ const VIEWS = {
   // house-left one is hidden behind it)
   'v-lobby':   [[-7.0, 2.48, -21.1], [2.0, 2.0, -14.0]],
   'v-house2':  [[HOUSE2.dx, 5.0, -13.5], [HOUSE2.dx, 2.5, 5]],   // Theatre 2's back of house
+  'v-vanwezel': [[77.0, 10.6, -33.0], [77.0, 3.4, 4.0]],        // the Van Wezel's stalls from high at the back (THE THIRD HOUSE: VW.at)
   // eye height in the backstage corridor (floor y 0.80) just short of the jog, looking along it to Theatre 2's end: its
   // stage doors on the left, the rooms' doors on the right (BACKSTAGE, defined later, so the numbers are written out)
   'v-backstage': [[8.6, 2.4, 12.6], [28.0, 2.0, 11.2]],
@@ -504,7 +512,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set)$/.test(o.name)) o.traverse(take);
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|van wezel|vw works)$/.test(o.name)) o.traverse(take);   // van wezel, vw works: THE THIRD HOUSE
   baked.traverse(take);
   return list;
 }
@@ -8729,7 +8737,7 @@ const lobbyMat = {
   sign:   new THREE.MeshBasicMaterial({ toneMapped: false }),                     // map: lobbySigns(), at build
   door:   boothMats.door, screen: deskMat.screen,                               // the booth's door, the desk's screens
 };
-const LOBBY_SIGNS = ['BOX OFFICE', 'BAR', 'STALLS', 'PROJECTION', 'THEATRE 2', 'BACKSTAGE'];   // one row each of one canvas
+const LOBBY_SIGNS = ['BOX OFFICE', 'BAR', 'STALLS', 'PROJECTION', 'THEATRE 2', 'BACKSTAGE', 'VAN WEZEL HALL'];   // the last: THE THIRD HOUSE   // one row each of one canvas
 // houseScene: the first house's scan (measured, its fills holed round the booth and the doorways); house2: Theatre 2's
 // root (house2Mesh its fills by the GLB's names), measured and holed for its own two doorways only.
 function buildLobby(houseScene, house2) {
@@ -8831,7 +8839,8 @@ function buildLobby(houseScene, house2) {
   // the side walls, and the house-side wall: solid but for the four doorways (a head over each) and the projection rooms
   const HW = HALLWAY.lobby;                                     // the hallway's opening in the house-right end wall (THE HALLWAY)
   bx('wall', X0, L.x0, F, C, L.wallZ, HW.z1); bx('wall', X0, L.x0, F, C, HW.z0, zFo); bx('wall', X0, L.x0, F + HW.head, C, HW.z1, HW.z0);
-  bx('wall', L.x1, X1, F, C, L.wallZ, zFo);
+  const VO = VW_HALL.open;                                      // the Van Wezel hallway's opening in the east end wall, beside the bar (THE THIRD HOUSE)
+  bx('wall', L.x1, X1, F, C, L.wallZ, VO.z1); bx('wall', L.x1, X1, F, C, VO.z0, zFo); bx('wall', L.x1, X1, F + VO.head, C, VO.z1, VO.z0);
   const gaps = [...L.doors.map(d => [d.x0, d.x1, d]), ...rooms.map(o => [o - encl, o + encl, null])].sort((a, b) => a[0] - b[0]);   // left to right
   { let x = X0; for (const [a, b, d] of gaps) { bx('wall', x, a, F, C, L.wallZ, zH); if (d) bx('wall', a, b, d.head, C, L.wallZ, zH); x = b; } bx('wall', x, X1, F, C, L.wallZ, zH); }
   // the projection rooms: each booth boxed in from the lobby floor to the roof; its door is the booth's own, at the booth's
@@ -8899,7 +8908,7 @@ function buildLobby(houseScene, house2) {
   { let x = L.x0; for (const [a, b, d] of gaps) { const c = d ? 0.1 : 0; wains(x, a - c, zH, zH - 0.02); rail(x, a - c, zH, zH - 0.035); x = b + c; } wains(x, L.x1, zH, zH - 0.02); rail(x, L.x1, zH, zH - 0.035); }
   for (const [x0, x1] of [[L.x0, ea], [eb, L.x1]]) { wains(x0, x1, zF, zF + 0.02); rail(x0, x1, zF, zF + 0.035); }
   for (const [z0, z1] of [[zH, HW.z1 + 0.1], [HW.z0 - 0.1, zF]]) { wains(L.x0, L.x0 + 0.02, z0, z1); bx('brass', L.x0, L.x0 + 0.035, F + 1.0, F + 1.04, z0, z1); }
-  wains(L.x1 - 0.02, L.x1, zH, zF); bx('brass', L.x1 - 0.035, L.x1, F + 1.0, F + 1.04, zH, zF);
+  for (const [z0, z1] of [[zH, VO.z1 + 0.1], [VO.z0 - 0.1, zF]]) { wains(L.x1 - 0.02, L.x1, z0, z1); bx('brass', L.x1 - 0.035, L.x1, F + 1.0, F + 1.04, z0, z1); }   // round the Van Wezel opening
   bx('wood', L.x0, L.x0 + 0.04, F, F + HW.head + 0.1, HW.z1 + 0.1, HW.z1); bx('wood', L.x0, L.x0 + 0.04, F, F + HW.head + 0.1, HW.z0, HW.z0 - 0.1);   // the opening's casing
   bx('wood', L.x0, L.x0 + 0.04, F + HW.head, F + HW.head + 0.1, HW.z1 + 0.1, HW.z0 - 0.1);
   bx('reveal', X0, L.x0, F, F + HW.head, HW.z1, HW.z1 - 0.004); bx('reveal', X0, L.x0, F, F + HW.head, HW.z0 + 0.004, HW.z0);   // its linings
@@ -11207,6 +11216,7 @@ const DOORS_API = {
             const P = m.geometry.attributes.position;
             for (let j = 0; j < P.count; j++) {
               v.fromBufferAttribute(P, j).applyMatrix4(m.matrixWorld);
+              if (e.toLocal) v.applyMatrix4(e.toLocal);              // a doorway turned about y (hangLeafAt): swept in its own frame
               xin = Math.min(xin, v.x - a, b - v.x); zmin = Math.min(zmin, v.z); zmax = Math.max(zmax, v.z);
               under = Math.min(under, v.y - floorAt(v.z)); over = Math.min(over, headY - v.y);
               if (/wood$/.test(m.name)) { lo = Math.min(lo, v.x); hi = Math.max(hi, v.x); }   // the timber's face (the knuckles stand 8 mm proud of it)
@@ -11357,6 +11367,7 @@ function buildHouse2(src) {
 
 (async () => {
   const [house, set, rigSrc] = await Promise.all([load('assets/midtown-auditorium.glb'), load('assets/hamilton-set.glb'), loadRig()]);
+  const vwP = vwLoad();                                       // the Van Wezel's model, fetched while the houses are measured (THE THIRD HOUSE; null if missing)
   // Theatre 2 first, off the scan as it came (THE SECOND HOUSE)
   house2Root = buildHouse2(house.scene);
   scene.add(house2Root);
@@ -11419,6 +11430,7 @@ function buildHouse2(src) {
   buildCurtains(lobby.userData.measured.curtains);           // a curtain at each passage's house end, measured by buildLobby (THE CURTAINS)
   buildBackstage(); buildBackstageFittings();                // one backstage block behind both stages (BACKSTAGE), then its rooms' furniture
   buildHallway();                                            // the lobby to the crossover up house 1's house-right side, and the booths' doors (THE HALLWAY)
+  buildVanWezel(await vwP);                                  // the Van Wezel east of Theatre 2, its foyer, the hallway to it from the lobby (THE THIRD HOUSE)
   buildUnder();                                              // Theatre 2's basement and its two lifts; splits its scan before the cuts (THE UNDERGROUND)
   houseRoot = house.scene;
   gradeSetBrick(root);
@@ -11442,6 +11454,7 @@ function buildHouse2(src) {
     walls: { cuts: WALL_CUTS, set: WALL_SET, margin: WALL_MARGIN, split: wallSplitInfo, report: wallReport, check: wallCheck, checked: wallChecked, placeSet },
     lobby: { group: lobby, spec: LOBBY, measured: lobby.userData.measured, lights: lobby.userData.lights, triangles: lobby.userData.triangles },
     player, walk: { WALK, keys, setMode, step: walkStep, groundAt, rayDown, rayUp, rayH, col, perf: walkPerf, look: (y, p) => { yaw = y; pitch = p; } } };   // a handle for measuring from the console
+  MIDTOWN.vanWezel = VAN_WEZEL_API;                          // the third house: .root, .works, .built, check() (THE THIRD HOUSE)
   MIDTOWN.doors = DOORS_API;                                 // MIDTOWN.doors.state(), .check(), .toggle(name)
   MIDTOWN.backstage = backstageReport();                     // the block measured as it now stands (the set at real size, the cuts made), one console line
   const [p, t] = VIEWS['v-back']; camera.position.set(...p); orbit.target.set(...t); orbit.update();
@@ -11465,6 +11478,365 @@ function buildHouse2(src) {
   try { buildLightsPanel(); } catch (e) { console.error('lx: the lights panel failed to build —', e); }
   ready = true; requestRender();
 })().catch(fail);
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: VAN WEZEL HALL
+   Jack (2026-10-24), with the model: "can you have an agent add this theater on the side of the one already there. make
+   them have seperate lobbys but connect them by a hallway." The model is the Van Wezel Performing Arts Hall (Sarasota),
+   made for this project by another Claude session (assets/README.md); assets/van-wezel-hall.glb is its shrunk copy
+   (tools/van-wezel-optimise.py: metres, turned to this page's convention — upstage +z, the house toward −z —, merged to one
+   mesh per region and look, the site round it dropped; GLTFLoader names them 'exterior_tex_29', 'lift_lit'…; the source was in FEET: a 60 ft proscenium, an auditorium 184 ft
+   wide and 127 ft deep, a stage 3.5 ft over the stalls, so ×0.3048 makes it the real hall's size).
+   PLACED east of Theatre 2 (x > 30.2, the open side): its proscenium line at z 0 (the two Midtown houses' are at 0.2 and
+   2.3), its centre at x VW.at.x, so the lowest of its outermost parts — the scalloped roof's eave, 14 m up — clears the
+   lobby's east wall by a metre, and its own foyer's glass wall stands ~14 m out from the lobby; its terrace (the foyer's
+   floor, a 117 m plinth) is clipped at x 30.40. Moved in y only (never scaled again): its foyer floor 1 cm under the
+   lobby's 0.875, so the hallway runs level from one to the other.
+   ITS OWN LOBBY is the model's: a glazed foyer wrapping the fan-shaped auditorium (the "Lobby glass & fascia" and the
+   terrace), entered from the hallway through a cut in its west glass. This section adds to it a box office by the
+   hallway's mouth and the signs.
+   THE HALLWAY (VW_HALL) runs east along z −16.62…−15.12 from an opening in the lobby's east wall (x 30.00…30.20, beside
+   the bar; buildLobby leaves it) through the glass into the foyer; built like THE HALLWAY (boxes merged one mesh per
+   material, the backstage's and the lobby's materials, battens and no real light), an E door at each end (hangLeafAt: a
+   leaf in a frame turned about y — these doorways face x, the DOORS' own face z).
+   INTO THE AUDITORIUM: the model's side portals step up the rake; the lowest, house right by the stage, opens 0.7 m over
+   the foyer floor — a landing and a stair outside it, and a pair of leaves on E (swinging OUT over the landing: inside,
+   the side aisle starts at the leaves). ONTO THE STAGE: the orchestra lift stands at stage level in the model, a thrust
+   the side aisle runs straight into; it is lowered to the stalls floor (VW.liftDown), so the aisle walks onto it, and a
+   stair house right rises from it to the stage's lip; the house curtain, hung in, is flown out (VW.curtainFly).
+   THE LOOK: one unlit material per look (MeshBasic: vertex colour × a fixed light baked into the vertices, as the scans
+   carry theirs in their textures), not on the House light slider (it is not Midtown's house); the glass is the lobby's
+   glass material. The basement (dressing rooms, trap room, the pit) stays in the file and out of the scene: nothing
+   reaches it. The walk's grid takes the whole building ('van wezel' and 'vw works' in colliderMeshes).
+   IF THE FILE IS MISSING the hallway and its doors are built anyway and its far doorway is walled shut (VW.missing); no
+   error, one console line. */
+const VW = {
+  url: 'assets/van-wezel-hall.glb',
+  at: { x: 77.0, y: 1.4896, z: 0 },                 // where the file's origin (its proscenium line's middle, the stalls' front floor) goes
+  terrace: -0.6246,                                 // the file's terrace (foyer floor) y: at at.y it lands at 0.865, 1 cm under the hallway's floor
+  clipX: 30.40,                                     // the terrace is cut back to here (the lobby's east face is 30.20)
+  liftDown: null,                                   // measured at build: the lift's top lowered onto the stalls floor in front of it
+  curtainFly: 8.7,                                  // the house curtain flown out this far (its 8.53 m opening; the header hides it)
+  stageHouse: { x0: -16.7, x1: 16.7, y0: 0.9, y1: 9.5, z0: -0.1, z1: 14.0 },   // the file's stage house (deck 1.067, header 9.6): the foyer's wall is cut out of it
+  // the lowest house-right portal (the file's node "106…109" mirrored): its posts' centres, world, and its head
+  portal: { a: [66.761, -2.911], b: [65.877, -4.343], post: 0.146, depth: 0.628, head: 2.530, landing: 1.15, width: 1.9, going: 0.30 },
+  stageStair: { x0: 68.55, x1: 69.95, going: 0.28 },// house right of the lift: from its floor to the stage's lip (z −0.152)
+  boxOffice: { x0: 50.6, x1: 51.2, z0: -21.0, z1: -18.2 },
+  missing: false, root: null, works: null, ms: 0,
+};
+const VW_HALL = {
+  z0: -16.62, z1: -15.12, t: 0.20,                  // the inner faces (the north one flush with the lobby's house-side wall's lobby face)
+  x0: 30.20, x1: 47.00,                             // from the lobby's east face to 40 cm past the glass's furthest point across it
+  floor: 0.875, height: 2.70,
+  open: { z0: -16.42, z1: -15.22, head: 2.30 },     // the opening in the lobby's east wall (the bar's back counter starts at −16.50)
+  door: { x: 44.00, t: 0.15, z0: -16.32, z1: -15.42, head: 2.10 },   // the partition before the glass, and its doorway
+  battens: 4.0,
+};
+let vwBuilt = null;
+// The model, started with the other loads and awaited after the hallway; null when it is not there.
+function vwLoad() {
+  return load(VW.url).catch(e => { console.info(`van wezel: ${VW.url} not loaded (${e && e.message || e}) — the hallway ends at a closed wall`); return null; });
+}
+// A leaf (or a pair) on E in a doorway turned th about y: the doorway's frame plane is the frame's local z = 0, its
+// opening local x0…x1, the leaves swing toward local +z. o: { name, px, pz, th, x0, x1, floor, head, zhi, pair, mats }.
+// The DOORS entry carries toLocal, so DOORS.check() sweeps it in its own frame.
+function hangLeafAt(o) {
+  const D = DOORS, F = o.floor, a = o.x0, b = o.x1, pair = !!o.pair;
+  const frame = new THREE.Group(); frame.name = `door frame: ${o.name}`; frame.position.set(o.px, 0, o.pz); frame.rotation.y = o.th;
+  (D.group || scene).add(frame); frame.updateMatrixWorld(true);
+  const W = pair ? (b - a) / 2 - D.gap - D.meet : b - a - 2 * D.gap, hz = 0.006 + D.t, y0 = F + D.under, y1 = o.head - 0.004 - D.top;
+  const sides = pair ? [[1, a + D.gap, 'house right leaf'], [-1, b - D.gap, 'house left leaf']] : [[1, a + D.gap, 'leaf']];
+  const leaves = [], hit = [];
+  for (const [s, hx, side] of sides) {
+    const l = doorLeaf(`door: ${o.name}, ${side}`, s, W, y1 - y0, { mats: o.mats, astragal: pair });
+    l.leaf.position.set(hx, y0, hz); frame.add(l.leaf); l.leaf.updateMatrixWorld(true);
+    leaves.push(l.leaf); hit.push(...l.hit);
+  }
+  const box = new THREE.Box3();                                // the sweep, world: every place a leaf can be, closed to open
+  for (const x of [a, b]) for (const z of [0, hz + W + 0.02]) for (const y of [y0, y1]) box.expandByPoint(new THREE.Vector3(x, y, z).applyMatrix4(frame.matrixWorld));
+  const c = new THREE.Vector3((a + b) / 2, 0, hz - D.t / 2).applyMatrix4(frame.matrixWorld);
+  const e = { name: o.name, kind: pair ? 'doors' : 'door', spec: o, cx: c.x, cz: c.z, fy: F, leaves, hit, W, H: y1 - y0, y0, hinges: sides.map(s => s[1]), hz,
+    box: [box.min.x, box.max.x, box.min.y, box.max.y, box.min.z, box.max.z], z0: c.z, z1: c.z,   // doorReach: to the middle (it reads world z)
+    reveal: [a - 0.004, b + 0.004], zlo: 0, zhi: o.zhi, zhiName: 'sweep limit', floorAt: () => F, headY: o.head - 0.004,
+    toLocal: frame.matrixWorld.clone().invert(), u: 0, want: 0, angle: 0 };
+  D.list.push(e);
+  return e;
+}
+// Everything of `mesh` (world-placed under its root) inside a world box, cut away: each triangle that reaches into the box is
+// clipped to what lies outside it (convex pieces, cut by the box's six planes in turn), its attributes interpolated; the
+// rest are kept as they were. The geometry comes back non-indexed. → triangles touched.
+function vwCutBox(mesh, box) {
+  const g = mesh.geometry, inv = mesh.matrixWorld.clone().invert();
+  const B = new THREE.Box3().setFromPoints([box.min.clone().applyMatrix4(inv), box.max.clone().applyMatrix4(inv)]);   // the root is translated only: still a box
+  if (!g.boundingBox) g.computeBoundingBox();
+  if (!g.boundingBox.intersectsBox(B)) return 0;                // most meshes: nothing near
+  const src = g.index ? g.toNonIndexed() : g, P = src.attributes.position.array, names = Object.keys(src.attributes), n = src.attributes.position.count;
+  const lx = B.min.x, hx = B.max.x, ly = B.min.y, hy = B.max.y, lz = B.min.z, hz = B.max.z;
+  const out = {}; for (const k of names) out[k] = [];
+  let touched = 0;
+  const vert = i => names.map(k => { const A = src.attributes[k], s = A.itemSize; return Array.from(A.array.subarray(i * s, i * s + s)); });
+  const lerp = (p, q, t) => p.map((a, k) => a.map((x, c) => x + (q[k][c] - x) * t));
+  const pi = names.indexOf('position');
+  const planes = [[0, lx, -1], [0, hx, 1], [1, ly, -1], [1, hy, 1], [2, lz, -1], [2, hz, 1]];   // axis, value, outside side
+  const copy = i => { for (const k of names) { const A = src.attributes[k], s = A.itemSize; for (let c = 0; c < s; c++) out[k].push(A.array[i * s + c]); } };
+  for (let t = 0; t < n; t += 3) {
+    const o = t * 3;
+    const x0 = Math.min(P[o], P[o + 3], P[o + 6]), x1 = Math.max(P[o], P[o + 3], P[o + 6]), y0 = Math.min(P[o + 1], P[o + 4], P[o + 7]), y1 = Math.max(P[o + 1], P[o + 4], P[o + 7]);
+    const z0 = Math.min(P[o + 2], P[o + 5], P[o + 8]), z1 = Math.max(P[o + 2], P[o + 5], P[o + 8]);
+    if (x1 < lx || x0 > hx || y1 < ly || y0 > hy || z1 < lz || z0 > hz) { copy(t); copy(t + 1); copy(t + 2); continue; }
+    touched++;
+    let inside = [vert(t), vert(t + 1), vert(t + 2)];
+    for (const [ax, val, side] of planes) {                    // split by the plane: the outside part is kept, the inside part goes on
+      const keep = [], go = [], m = inside.length;
+      for (let i = 0; i < m; i++) {
+        const p = inside[i], q = inside[(i + 1) % m], dp = side * (p[pi][ax] - val), dq = side * (q[pi][ax] - val);
+        (dp > 0 ? keep : go).push(p);
+        if ((dp > 0) !== (dq > 0)) { const x = lerp(p, q, dp / (dp - dq)); keep.push(x); go.push(x); }
+      }
+      for (let i = 1; i + 1 < keep.length; i++) for (const v of [keep[0], keep[i], keep[i + 1]]) v.forEach((a, k) => out[names[k]].push(...a));
+      inside = go; if (inside.length < 3) break;
+    }
+  }
+  if (!touched) { if (src !== g) src.dispose(); return 0; }
+  const ng = new THREE.BufferGeometry();
+  for (const k of names) { const A = src.attributes[k]; ng.setAttribute(k, new THREE.BufferAttribute(new A.array.constructor(out[k]), A.itemSize, A.normalized)); }
+  if (src !== g) src.dispose(); g.dispose(); mesh.geometry = ng; ng.computeBoundingBox(); ng.computeBoundingSphere();
+  return touched;
+}
+// The model in: placed, the basement left out, the looks made unlit with a fixed light baked into the vertices, the lift
+// lowered, the terrace clipped, the glass and the mullions cut where the hallway comes through.
+const VW_LIGHT = new THREE.Vector3(-0.35, 0.80, -0.48).normalize();
+function vwPlace(gltf) {
+  const root = gltf.scene; root.name = 'van wezel'; root.position.set(VW.at.x, VW.at.y, VW.at.z);
+  const drop = [], mats = [], keep = [];
+  root.traverse(o => { if (o.isMesh) (/^basement/.test(o.name) ? drop : keep).push(o); });
+  for (const o of drop) { o.parent.remove(o); o.geometry.dispose(); }
+  for (const o of keep) {
+    const s = o.material, name = o.name;
+    o.name = 'vw: ' + name; o.castShadow = o.receiveShadow = false; o.userData.rig = true;
+    if (/glass$/.test(name)) { o.material = lobbyMat.glass; s.dispose(); continue; }
+    const g = o.geometry, N = g.attributes.normal, n = g.attributes.position.count, unlit = /unlit$/.test(name);
+    let C = g.attributes.color;
+    if (!C) { C = new THREE.BufferAttribute(new Float32Array(n * 3).fill(1), 3); g.setAttribute('color', C); }
+    if (!unlit) for (let i = 0; i < n; i++) {                   // a fixed key from the front-left, sky from above, the rest ambient
+      const nx = N.getX(i), ny = N.getY(i), nz = N.getZ(i), k = 0.50 + 0.30 * Math.abs(nx * VW_LIGHT.x + ny * VW_LIGHT.y + nz * VW_LIGHT.z) + 0.20 * Math.max(0, ny);
+      C.setXYZ(i, C.getX(i) * k, C.getY(i) * k, C.getZ(i) * k);
+    }
+    const m = new THREE.MeshBasicMaterial({ map: s.map || null, color: s.color.clone(), vertexColors: true, side: THREE.DoubleSide, toneMapped: false });
+    if (s.emissiveMap || (s.emissive && s.emissive.getHex())) m.color.add(s.emissive || new THREE.Color());   // the one glowing panel keeps a little of its glow
+    m.name = 'vw: ' + name; mats.push(m); o.material = m; s.dispose();
+  }
+  scene.add(root); root.updateMatrixWorld(true);
+  const byName = n => root.getObjectByName('vw: ' + n);
+  return { root, mats, byName };
+}
+function buildVanWezel(gltf) {
+  const t0 = performance.now(), H = VW_HALL, F = H.floor, C = F + H.height, R = C + 0.2, P = {};
+  VW.missing = !gltf;
+  const D = H.door, X0 = H.x0, X1 = VW.missing ? D.x + D.t / 2 : H.x1, Z0 = H.z0 - H.t, Z1 = H.z1 + H.t, fw = DOORS.frame;   // no model: it ends at its far wall
+  const bx = (key, x0, x1, y0, y1, z0, z1) => deskBox(P, key, Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0), (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+  // a box in a frame turned th about y at (px, pz): local x0…x1, y0…y1, z0…z1
+  const lbx = (key, M, x0, x1, y0, y1, z0, z1) => { const g = new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2).applyMatrix4(M); (P[key] = P[key] || []).push(g); return g; };
+  const frameM = (px, pz, th) => new THREE.Matrix4().compose(new THREE.Vector3(px, 0, pz), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), th), new THREE.Vector3(1, 1, 1));
+  // 1. THE HALLWAY: floor, walls, ceiling, the lobby's opening lined, the partition before the glass (or, with no model, a
+  // wall where its doorway would be), battens
+  bx('floor', X0, X1, F - 0.2, F, Z0, Z1);
+  bx('wall', X0, X1, F - 0.2, C, H.z1, Z1); bx('wall', X0, X1, F - 0.2, C, Z0, H.z0);                     // north, south
+  bx('ceil', X0, X1, C, R, Z0, Z1);
+  const O = H.open;                                                                                    // the lobby's opening: its linings and frame
+  bx('reveal', 30.00, X0, F, F + O.head, O.z1, O.z1 + 0.004); bx('reveal', 30.00, X0, F, F + O.head, O.z0 - 0.004, O.z0);
+  bx('reveal', 30.00, X0, F + O.head - 0.004, F + O.head, O.z0, O.z1);
+  bx('frame', 30.00, X0, F, F + O.head, O.z1 - fw, O.z1); bx('frame', 30.00, X0, F, F + O.head, O.z0, O.z0 + fw); bx('frame', 30.00, X0, F + O.head - DOORS.headH, F + O.head, O.z0 + fw, O.z1 - fw);
+  bx('wall', 30.00, X0, F + O.head, C, H.z0, O.z0); bx('wall', 30.00, X0, F + O.head, C, O.z1, H.z1);  // (the lobby's own wall stands either side, to 4.90)
+  bx('wood', LOBBY.x1 - 0.04, LOBBY.x1, F, F + O.head + 0.1, O.z1, O.z1 + 0.1); bx('wood', LOBBY.x1 - 0.04, LOBBY.x1, F, F + O.head + 0.1, O.z0 - 0.1, O.z0);   // the lobby side: a casing
+  bx('wood', LOBBY.x1 - 0.04, LOBBY.x1, F + O.head, F + O.head + 0.1, O.z0 - 0.1, O.z1 + 0.1);
+  lobbySign(P, 6, 1.9, 0.2375, LOBBY.x1 - 0.045, F + O.head + 0.40, (O.z0 + O.z1) / 2, -Math.PI / 2);  // VAN WEZEL HALL, over it, facing the lobby
+  const xd0 = D.x - D.t / 2, xd1 = D.x + D.t / 2, dh = F + D.head;
+  if (VW.missing) bx('wall', xd0, xd1, F, C, H.z0, H.z1);
+  else {
+    bx('wall', xd0, xd1, F, C, H.z0, D.z0); bx('wall', xd0, xd1, F, C, D.z1, H.z1); bx('wall', xd0, xd1, dh, C, D.z0, D.z1);
+    bx('frame', xd0, xd1, F, dh, D.z0, D.z0 + fw); bx('frame', xd0, xd1, F, dh, D.z1 - fw, D.z1); bx('frame', xd0, xd1, dh - DOORS.headH, dh, D.z0 + fw, D.z1 - fw);
+    for (const [xa, xb] of [[xd0 - 0.02, xd0], [xd1, xd1 + 0.02]]) { bx('frame', xa, xb, F, dh + 0.06, D.z0 - 0.06, D.z0); bx('frame', xa, xb, F, dh + 0.06, D.z1, D.z1 + 0.06); bx('frame', xa, xb, dh, dh + 0.06, D.z0 - 0.06, D.z1 + 0.06); }
+    lobbySign(P, 6, 1.6, 0.2, xd0 - 0.025, dh + 0.32, (D.z0 + D.z1) / 2, -Math.PI / 2);                // over the doorway, facing back along the hallway
+  }
+  let nb = 0;
+  for (let x = X0 + 1.6; x < X1 - 0.5; x += H.battens) {
+    if (Math.abs(x - D.x) < 0.8) continue;
+    const zm = (H.z0 + H.z1) / 2;
+    bx('housing', x - 0.6, x + 0.6, C - 0.07, C, zm - 0.06, zm + 0.06);
+    deskPut(P, 'glow', new THREE.PlaneGeometry(1.16, 0.1), x, C - 0.071, zm, -Math.PI / 2);
+    nb++;
+  }
+  // 2. THE MODEL: placed and cut where the hallway comes through its glass; the terrace clipped back from the lobby
+  let model = null, cut = {}, liftY = null, inner = null;
+  if (gltf) {
+    model = vwPlace(gltf);
+    const hole = new THREE.Box3(new THREE.Vector3(D.x, F - 0.3, Z0), new THREE.Vector3(X1 + 0.05, R + 0.02, Z1));
+    model.root.traverse(o => { if (o.isMesh && /^vw: (exterior|house)_/.test(o.name)) { const k = vwCutBox(o, hole); if (k) cut[o.name] = k; } });
+    const terr = model.byName('exterior_tex_29');                 // the terrace (the foyer's floor): nothing of it west of clipX
+    if (terr) cut['terrace'] = vwCutBox(terr, new THREE.Box3(new THREE.Vector3(-1e4, -1e4, -1e4), new THREE.Vector3(VW.clipX, 1e4, 1e4)));
+    // the house curtain (the model hangs it in, closed): flown out into the fly loft, behind the proscenium's header; and
+    // the foyer's inner wall, which the model runs straight across the stage just upstage of it (hidden while it hung in),
+    // cut out of the stage house
+    const cur = model.byName('stage_tex_47');
+    if (cur) { cur.position.y += VW.curtainFly; cur.updateMatrixWorld(true); }
+    const sh = VW.stageHouse, shBox = new THREE.Box3(new THREE.Vector3(VW.at.x + sh.x0, VW.at.y + sh.y0, VW.at.z + sh.z0), new THREE.Vector3(VW.at.x + sh.x1, VW.at.y + sh.y1, VW.at.z + sh.z1));
+    model.root.traverse(o => { if (o.isMesh && /^vw: exterior_/.test(o.name)) { const k = vwCutBox(o, shBox); if (k) cut['stage house: ' + o.name.replace(/^vw: /, '')] = k; } });
+    // the lift onto the stalls floor: its top measured, and the stalls floor just in front of its middle
+    const lift = model.byName('lift_lit'), floor = model.byName('house_tex_41'), ray = new THREE.Raycaster();
+    if (lift && floor) {
+      ray.set(new THREE.Vector3(VW.at.x, 6, -6.0), DOWN); ray.far = 10;
+      const h = ray.intersectObject(floor, false)[0];
+      lift.geometry.computeBoundingBox();
+      if (h) { VW.liftDown = lift.geometry.boundingBox.max.y + VW.at.y - h.point.y; lift.position.y -= VW.liftDown; lift.updateMatrixWorld(true); liftY = h.point.y; }
+      // the model's pink step lights, a diagonal of strips house right that the raised lift hid and nothing under them to
+      // stand on: where the stair below goes, so they go
+      const ul = model.byName('house_unlit');
+      if (ul && liftY !== null) { const k = vwCutBox(ul, new THREE.Box3(new THREE.Vector3(68.1, VW.at.y, -2.7), new THREE.Vector3(70.1, VW.at.y + 1.2, 0.0))); if (k) cut['step lights'] = k; }
+    }
+  }
+  // 3. THE PORTAL, house right by the stage: a landing outside it at the aisle's floor, a stair down to the foyer, the leaves
+  const Q = VW.portal, pa = new THREE.Vector2(...Q.a), pb = new THREE.Vector2(...Q.b), pc = pa.clone().add(pb).multiplyScalar(0.5);
+  const along = pa.clone().sub(pb).normalize(), out = new THREE.Vector2(along.y, -along.x);   // out: toward the foyer (−x)
+  if (out.x > 0) out.negate();
+  const th = Math.atan2(out.x, out.y), half = pa.distanceTo(pb) / 2 - Q.post / 2;                // local x along the wall (toward the stage), local z out
+  const fp = pc.clone().addScaledVector(out, Q.depth / 2), FM = frameM(fp.x, fp.y, th);           // the frame plane: the posts' outer faces
+  let doorIn = null, foyer = VW.at.y + VW.terrace;
+  if (gltf) {
+    const ray = new THREE.Raycaster(), meshes = []; model.root.traverse(o => { if (o.isMesh && !/glass$/.test(o.name)) meshes.push(o); });
+    const p = new THREE.Vector3(pc.x - out.x * 0.5, 4, pc.y - out.y * 0.5); ray.set(p, DOWN); ray.far = 6;
+    const h = ray.intersectObjects(meshes, false)[0]; inner = h ? h.point.y : null;
+  }
+  const yIn = inner !== null && inner > foyer + 0.3 && inner < foyer + 1.2 ? inner : VW.at.y + 0.075;  // the side aisle's floor inside the portal
+  if (!VW.missing) {
+    const n = Math.max(1, Math.round((yIn - foyer) / 0.175)), rise = (yIn - foyer) / n, w = Q.width / 2;
+    lbx('stone', FM, -w, w, foyer - 0.02, yIn - 0.003, -Q.depth / 2, Q.landing);                     // the landing, from the wall's line out (3 mm under the aisle's floor)
+    for (let i = 1; i < n; i++) {                                                                   // the treads, down to the foyer
+      const z0 = Q.landing + (i - 1) * Q.going; lbx('stone', FM, -w, w, foyer - 0.02, yIn - i * rise, z0, z0 + Q.going);
+      lbx('brass', FM, -w, w, yIn - i * rise - 0.015, yIn - i * rise + 0.002, z0 + Q.going - 0.03, z0 + Q.going);
+    }
+    const zEnd = Q.landing + (n - 1) * Q.going;
+    for (const s of [-1, 1]) {                                                                       // a brass rail each side
+      const x = s * (w - 0.04), y0 = yIn + 0.9, a = new THREE.Vector3(x, y0, 0.15).applyMatrix4(FM), b = new THREE.Vector3(x, y0, Q.landing).applyMatrix4(FM), c = new THREE.Vector3(x, foyer + 0.9, zEnd).applyMatrix4(FM);
+      deskRod(P, 'brass', a, b, 0.025, 8); deskRod(P, 'brass', b, c, 0.025, 8);
+      for (const z of [0.15, Q.landing, zEnd]) { const y = z === zEnd ? foyer : yIn; deskRod(P, 'brass', new THREE.Vector3(x, y, z).applyMatrix4(FM), new THREE.Vector3(x, y + 0.9, z).applyMatrix4(FM), 0.02, 8); }
+    }
+    lbx('frame', FM, -half, -half + fw, yIn, VW.at.y + Q.head, -0.02, 0); lbx('frame', FM, half - fw, half, yIn, VW.at.y + Q.head, -0.02, 0);   // a frame on the posts' faces
+    lbx('frame', FM, -half, half, VW.at.y + Q.head - DOORS.headH, VW.at.y + Q.head, -0.02, 0);
+    lobbySign(P, 2, 1.4, 0.175, 0, 0, 0, 0); { const g = P.sign.pop(); g.translate(0, VW.at.y + Q.head + 0.35, 0.02).applyMatrix4(FM); P.sign.push(g); }   // STALLS over it
+  }
+  // 4. ONTO THE STAGE: a stair from the lowered lift up to the lip, house right
+  if (liftY !== null) {
+    const S = VW.stageStair, deck = VW.at.y + 1.067, lip = VW.at.z - 0.152, n = Math.round((deck - liftY) / 0.17), rise = (deck - liftY) / n;
+    for (let i = 1; i <= n; i++) { const z1 = lip - (n - i) * S.going; bx('wood', S.x0, S.x1, liftY - 0.02, liftY + i * rise, z1 - S.going, z1); bx('stone', S.x0, S.x1, liftY + i * rise - 0.02, liftY + i * rise + 0.002, z1 - S.going, z1 - S.going + 0.03); }
+    const z0 = lip - n * S.going;
+    for (const x of [S.x0 + 0.03, S.x1 - 0.03]) { deskRod(P, 'brass', new THREE.Vector3(x, liftY + rise + 0.9, z0 + S.going / 2), new THREE.Vector3(x, deck + 0.9, lip), 0.025, 8); for (const [y, z] of [[liftY + rise, z0 + S.going / 2], [deck, lip]]) deskRod(P, 'brass', new THREE.Vector3(x, y, z), new THREE.Vector3(x, y + 0.9, z), 0.02, 8); }
+    VW.stageStair.n = n; VW.stageStair.rise = rise; VW.stageStair.z0 = z0;
+  }
+  // 5. THE BOX OFFICE in the foyer by the hallway's mouth: a counter and a sign
+  if (!VW.missing) {
+    const B = VW.boxOffice;
+    bx('wood', B.x0, B.x1, foyer - 0.02, foyer + 1.05, B.z0, B.z1); bx('stone', B.x0 - 0.08, B.x1 + 0.08, foyer + 1.05, foyer + 1.1, B.z0 - 0.05, B.z1 + 0.05);
+    bx('dark', (B.x0 + B.x1) / 2 - 0.02, (B.x0 + B.x1) / 2 + 0.02, foyer + 1.1, foyer + 2.6, B.z0 + 0.05, B.z0 + 0.1); bx('dark', (B.x0 + B.x1) / 2 - 0.02, (B.x0 + B.x1) / 2 + 0.02, foyer + 1.1, foyer + 2.6, B.z1 - 0.1, B.z1 - 0.05);
+    bx('dark', B.x0 - 0.05, B.x1 + 0.05, foyer + 2.6, foyer + 3.0, B.z0, B.z1);
+    lobbySign(P, 0, 2.4, 0.3, B.x0 - 0.06, foyer + 2.8, (B.z0 + B.z1) / 2, -Math.PI / 2);
+    for (const z of [B.z0 + 0.8, B.z1 - 0.8]) { bx('dark', B.x0 + 0.25, B.x0 + 0.29, foyer + 1.18, foyer + 1.5, z - 0.24, z + 0.24); deskPut(P, 'screen', new THREE.PlaneGeometry(0.44, 0.28), B.x0 + 0.305, foyer + 1.34, z, 0, Math.PI / 2); }
+  }
+  // 6. One mesh per material: the backstage's for the hallway (its tiles in world metres), the lobby's for its trim
+  const MAT = { floor: backstageMat.floor, wall: backstageMat.wall, ceil: backstageMat.ceil, reveal: backstageMat.reveal, frame: backstageMat.frame, housing: backstageMat.housing, glow: backstageMat.glow,
+    sign: lobbyMat.sign, wood: lobbyMat.wood, brass: lobbyMat.brass, stone: lobbyMat.stone, dark: lobbyMat.dark, screen: lobbyMat.screen };
+  const group = new THREE.Group(); group.name = 'vw works';
+  let tris = 0;
+  for (const [key, geos] of Object.entries(P)) {
+    const geo = mergeGeometries(geos.map(g => g.index ? g.toNonIndexed() : g), false); geos.forEach(g => g.dispose());
+    if (!geo) { console.warn(`van wezel: the ${key} pieces did not merge — left out`); continue; }
+    if (key === 'floor') { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / BACKSTAGE_TILE, -p.getZ(i) / BACKSTAGE_TILE); }
+    const mesh = new THREE.Mesh(geo, MAT[key]);
+    mesh.name = 'vw works: ' + key; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    tris += geo.attributes.position.count / 3;
+    group.add(mesh);
+  }
+  scene.add(group); group.updateMatrixWorld(true);
+  // 7. THE LEAVES: one at each end of the hallway (both swinging into it), a pair in the portal (swinging out over the landing)
+  const mats = { wood: backstageMat.door, glass: backstageMat.panel, brass: backstageMat.kick };
+  const zm = (O.z0 + O.z1) / 2, dm = (D.z0 + D.z1) / 2;
+  const doors = [hangLeafAt({ name: 'Van Wezel hallway, lobby end', px: X0, pz: zm, th: Math.PI / 2, x0: -(O.z1 - fw - zm), x1: -(O.z0 + fw - zm), floor: F, head: F + O.head - DOORS.headH, zhi: 1.3, mats })];
+  if (!VW.missing) {
+    doors.push(hangLeafAt({ name: 'Van Wezel hallway, foyer end', px: xd0, pz: dm, th: -Math.PI / 2, x0: D.z0 + fw - dm, x1: D.z1 - fw - dm, floor: F, head: dh - DOORS.headH, zhi: 1.1, mats }));
+    doors.push(hangLeafAt({ name: 'Van Wezel stalls', px: fp.x, pz: fp.y, th, x0: -half + fw, x1: half - fw, floor: yIn, head: VW.at.y + Q.head - DOORS.headH, zhi: Q.landing, pair: true,
+      mats: { wood: lobbyMat.wood, glass: lobbyMat.glass, brass: lobbyMat.brass } }));
+  }
+  VW.root = model ? model.root : null; VW.works = group; VW.ms = performance.now() - t0;
+  vwBuilt = { group, doors, model, cut, triangles: tris, battens: nb, portalFloor: yIn, liftY, frame: { fp, th, half, out } };
+  const wb = model ? new THREE.Box3().setFromObject(model.root) : null;
+  console.info(`van wezel: ${VW.missing ? 'NO MODEL (' + VW.url + ' missing) — the hallway built, its far doorway walled' : `the model at x ${VW.at.x} y ${VW.at.y} z ${VW.at.z} — world x ${wb.min.x.toFixed(2)}…${wb.max.x.toFixed(2)} y ${wb.min.y.toFixed(2)}…${wb.max.y.toFixed(2)} z ${wb.min.z.toFixed(2)}…${wb.max.z.toFixed(2)}, ${model.mats.length} materials, cut for the hallway: ${Object.entries(cut).map(([k, v]) => `${k.replace(/^vw: /, '')} ${v}`).join(', ')}; the lift lowered ${VW.liftDown === null ? '— (not measured)' : VW.liftDown.toFixed(3) + ' m onto the stalls floor (y ' + liftY.toFixed(3) + ')'}`}`
+    + ` · the hallway x ${X0}…${X1} z ${Z0.toFixed(2)}…${Z1.toFixed(2)}, floor ${F}, the lobby's opening z ${O.z0}…${O.z1}; ${doors.length} doors on E · portal floor ${yIn.toFixed(3)} (foyer ${foyer.toFixed(3)}) · ${group.children.length} meshes, ${tris} triangles · ${VW.ms.toFixed(0)} ms`);
+  requestRender();
+  return vwBuilt;
+}
+// The checks: nothing of it inside Theatre 2, the lobby, the backstage or the backstage hallway; the hallway's floor continuous
+// from the lobby to the foyer; and the walk's floor along the whole route (lobby → hallway → foyer → portal → aisle → lift →
+// stair → stage) never rising more than a step at once or dropping away.
+const VW_ROUTE = [[28.6, -15.9], [30.6, -15.87], [43.6, -15.87], [44.6, -15.87], [47.6, -15.87], [56.0, -10.5], [61.0, -6.0], null, null, [67.4, -2.6], [68.3, -2.5], [69.25, -2.3], [69.25, 0.4], [69.25, 3.0], [77, 6.0]];   // (the two nulls: out in the foyer and inside the portal, off the portal's frame)
+const VAN_WEZEL_API = {
+  spec: VW, hall: VW_HALL, get root() { return VW.root; }, get works() { return VW.works; }, get built() { return vwBuilt; },
+  check() {
+    const out = [], fails = [];
+    if (!vwBuilt) return 'van wezel: not built';
+    // 1. overlap: the model's triangles against the other buildings' boxes
+    const boxes = { 'Theatre 2': house2Root && new THREE.Box3().setFromObject(house2Root), lobby: MIDTOWN.lobby && new THREE.Box3().setFromObject(MIDTOWN.lobby.group),
+      backstage: scene.getObjectByName('backstage') && new THREE.Box3().setFromObject(scene.getObjectByName('backstage')), 'backstage hallway': hallwayBuilt && new THREE.Box3().setFromObject(hallwayBuilt.group) };
+    let minX = Infinity;
+    if (VW.root) {
+      const v = new THREE.Vector3(), hits = {};
+      VW.root.traverse(o => {
+        if (!o.isMesh) return;
+        const p = o.geometry.attributes.position;
+        for (let i = 0; i < p.count; i++) {
+          v.fromBufferAttribute(p, i).applyMatrix4(o.matrixWorld); if (v.x < minX) minX = v.x;
+          for (const [k, b] of Object.entries(boxes)) if (b && b.containsPoint(v)) hits[k] = (hits[k] || 0) + 1;
+        }
+      });
+      const far = Object.entries(boxes).filter(([, b]) => b).map(([k, b]) => `${k} to x ${b.max.x.toFixed(2)}`);
+      out.push(`the model's westmost point x ${minX.toFixed(3)} (${far.join(', ')}); its vertices inside those boxes: ${Object.keys(hits).length ? Object.entries(hits).map(([k, n]) => `${k} ${n}`).join(', ') : 'none'}`);
+      if (Object.keys(hits).length) fails.push('overlap');
+    }
+    // 2. the hallway's floor, every 5 cm along its middle, from inside the lobby to past its end
+    if (col.stale) buildCollider();
+    const zm = (VW_HALL.z0 + VW_HALL.z1) / 2;
+    let prev = null, jump = 0, at = null, miss = 0, lo = Infinity, hi = -Infinity;
+    const xEnd = VW.missing ? VW_HALL.door.x - 0.1 : VW_HALL.x1 + 1.0;   // no model: to its far wall
+    for (let x = 29.5; x <= xEnd; x += 0.05) {
+      const y = rayDown(x, 2.0, zm);
+      if (y === null) { miss++; continue; }
+      lo = Math.min(lo, y); hi = Math.max(hi, y);
+      if (prev !== null && Math.abs(y - prev) > jump) { jump = Math.abs(y - prev); at = x; }
+      prev = y;
+    }
+    out.push(`the hallway's floor x 29.50…${xEnd.toFixed(2)} at z ${zm.toFixed(2)}: y ${lo.toFixed(3)}…${hi.toFixed(3)}, largest step ${(jump * 1000).toFixed(1)} mm${at === null ? '' : ' at x ' + at.toFixed(2)}, ${miss} misses`);
+    if (miss || jump > 0.02) fails.push('hallway floor');
+    // 3. the route: the floor under each point 10 cm apart, never more than a step up, never more than a step down (the stair
+    // down from the landing has its own treads), nowhere without a floor
+    if (!VW.missing && vwBuilt.frame) {
+      const { fp, out: o } = vwBuilt.frame, pts = VW_ROUTE.slice();
+      pts[7] = [fp.x + o.x * 3.0, fp.y + o.y * 3.0]; pts[8] = [fp.x - o.x * 0.9, fp.y - o.y * 0.9];   // out in the foyer before the stair, inside the portal
+      let y = rayDown(pts[0][0], 2.0, pts[0][1]), worst = 0, where = null, holes = 0, n = 0;
+      for (let i = 0; i + 1 < pts.length; i++) {
+        const [ax, az] = pts[i], [bx, bz] = pts[i + 1], len = Math.hypot(bx - ax, bz - az), k = Math.ceil(len / 0.1);
+        for (let j = 1; j <= k; j++) {
+          const x = ax + (bx - ax) * j / k, z = az + (bz - az) * j / k, g = rayDown(x, y + WALK.step, z);
+          n++;
+          if (g === null) { holes++; continue; }
+          if (Math.abs(g - y) > worst) { worst = Math.abs(g - y); where = [x, z, y, g]; }
+          y = g;
+        }
+      }
+      out.push(`the route lobby → hallway → foyer → portal → aisle → lift → stair → stage, ${n} points 10 cm apart: largest change ${(worst * 1000).toFixed(0)} mm${where ? ` at (${where[0].toFixed(2)}, ${where[1].toFixed(2)}) ${where[2].toFixed(3)} → ${where[3].toFixed(3)}` : ''}, ${holes} without a floor, ending on y ${y.toFixed(3)} (the stage ${(VW.at.y + 1.067).toFixed(3)})`);
+      if (holes || worst > WALK.step || Math.abs(y - (VW.at.y + 1.067)) > 0.02) fails.push('route');
+    }
+    const s = `van wezel: ${fails.length ? 'FAIL (' + fails.join(', ') + ')' : 'PASS'} — ` + out.join(' · ');
+    console.info(s); return s;
+  },
+};
 
 /* ---------------------------------------------------------------- THEATRE 2: THE UNDERGROUND AND THE LIFTS
    RULING GI (2026-10-16), Jack: "make it so there is a stage lift that is used to bring on and off big sets like the ship.
