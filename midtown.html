@@ -555,7 +555,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works: THE THIRD HOUSE
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS
   baked.traverse(take);
   return list;
 }
@@ -14285,6 +14285,7 @@ function buildVanWezel(gltf) {
     doors.push(hangLeafAt({ name: 'Van Wezel stalls', px: fp.x, pz: fp.y, th, x0: -half + fw, x1: half - fw, floor: yIn, head: VW.at.y + Q.head - DOORS.headH, zhi: Q.landing, pair: true,
       mats: { wood: lobbyMat.wood, glass: lobbyMat.glass, brass: lobbyMat.brass } }));
   }
+  if (model) vwSideDoorsBuild(model, yIn, group);             // every side portal a doorway, more up to the top of the seating, a gallery outside each wall (THE THIRD HOUSE: THE SIDE DOORS)
   VW.root = model ? model.root : null; VW.works = group; VW.ms = performance.now() - t0;
   vwBuilt = { group, doors, model, cut, triangles: tris, battens: nb, portalFloor: yIn, liftY, frame: { fp, th, half, out } };
   const wb = model ? new THREE.Box3().setFromObject(model.root) : null;
@@ -14357,6 +14358,383 @@ const VAN_WEZEL_API = {
     console.info(s); return s;
   },
 };
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE SIDE DOORS
+   Jack (2026-10-24), looking at the hall: "the doors in the van wezel should go all the way up to the top of the seating
+   and add doors to all the frames", then "i didnt mean taller door i meant more". Each side wall of the auditorium carries
+   the model's eight portal frames (two posts, a head, an exit light: the source's nodes 106–137 house left, 145–176 house
+   right) stepping up the rake and stopping halfway up the stalls; only the lowest house-right one was a way in (THE THIRD
+   HOUSE, buildVanWezel step 3: its landing, stair, casing, STALLS sign and the 'Van Wezel stalls' pair).
+   EVERY FRAME A DOORWAY: the wall inside each frame cut out (vwSideCut: vwCutBox's clipping done in the portal's own turned
+   frame, as these walls run at 32° to the axes), a casing on the posts' faces, STALLS over it and a pair of leaves on E
+   (hangLeafAt, swinging OUT over the gallery like the stalls pair).
+   MORE PORTALS in the same rhythm (VW_SIDE.step, 2.438 m along the wall; the model's eighth frame — posts, head, exit light —
+   copied with its own materials), up each wall for as long as the wall runs on and a side aisle lies behind it to step
+   onto. MEASURED at build with rays on the model (vwSideMeasure), never guessed: the wall at both ends of each frame on the
+   wall's line, the aisle's floor half a metre inside. Both walls turn into the back wall just past a thirteenth portal,
+   whose aisle is the last row but one (the seating's top is one riser higher).
+   THE GALLERIES: outside each wall, a stone walkway VW_SIDE.width deep from the wall's line, a landing at each portal at
+   the aisle's floor behind it (lower by at most VW_SIDE.under where the flight between two is too short for the rise),
+   short flights between (risers ≤ VW_SIDE.rise, goings ≥ VW_SIDE.going, brass nosings), a stone parapet with a brass
+   handrail on the open side, a column under each landing. It joins the foyer through the lowest portal's landing and
+   stair: house right's is step 3's (the rail on its uphill side cut away where the gallery leaves it), house left's the
+   same built here, mirrored. One mesh per material in the scene child 'vw side doors' (in the walk's grid by that name):
+   the lobby's stone and brass, the backstage's frame steel for the casings (step 3's), the model's own for the copies.
+   MIDTOWN.vanWezel.sideDoors: .spec, .built, check(). */
+const VW_SIDE = {
+  c0: [66.31425, -3.63275],         // house right's lowest portal: the middle between its posts' centres (source nodes 145, 146)
+  step: [-1.29529, -2.06600],       // one portal to the next up the rake, house right (house left: x mirrored about VW.at.x)
+  feet: [1.570, 1.899, 2.300, 2.747, 3.229, 3.740, 4.275, 4.831],   // the model's eight portals' post feet (the same both sides)
+  headOver: 2.439,                  // a head's underside over its posts' feet
+  half: 0.7653, postW: 0.153, postD: 0.61,   // a post's inner face from the portal's middle; its width along the wall, its depth through it
+  face: 0.305,                      // the posts' outer faces off the wall's line (their centres): the leaves' frame plane
+  max: 16,                          // portals tried up each wall
+  land: 0.78, land0: 0.95,          // a landing each side of its portal's middle (the lowest: step 3's 1.9 m); the leaves open at ±0.71…0.76
+  width: 1.85, parapet: 0.10, rail: 0.95, slab: 0.25,   // the gallery from the wall's line; the parapet's thickness and height over the floor; the slabs
+  rise: 0.175, going: 0.28,         // the steepest riser and the shortest going
+  under: 0.15,                      // a landing at most this far under the aisle behind its doors
+  stair: { landing: 1.464, going: 0.30 },   // the lowest portal's landing to this far out, its stair on out to the foyer (step 3's)
+};
+let vwSide = null;
+// A side's frame: s up the rake along the wall's line (the posts' centres), d out toward the foyer, the lowest portal's
+// middle at s 0. M places a box in it (local x = sx·s, local z = d, turned th about y like hangLeafAt's frames).
+function vwSideFrame(side) {
+  const S = VW_SIDE, L = Math.hypot(S.step[0], S.step[1]);
+  const u = new THREE.Vector2(side * S.step[0] / L, S.step[1] / L);
+  const o = side > 0 ? new THREE.Vector2(u.y, -u.x) : new THREE.Vector2(-u.y, u.x);
+  const c = new THREE.Vector2(side > 0 ? S.c0[0] : 2 * VW.at.x - S.c0[0], S.c0[1]);
+  const th = Math.atan2(o.x, o.y), sx = side > 0 ? -1 : 1;
+  const M = new THREE.Matrix4().compose(new THREE.Vector3(c.x, 0, c.y), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), th), new THREE.Vector3(1, 1, 1));
+  const at = (s, d) => new THREE.Vector2(c.x + u.x * s + o.x * d, c.y + u.y * s + o.y * d);
+  return { side, name: side > 0 ? 'house right' : 'house left', u, o, c, th, sx, L, M, at, w3: (s, y, d) => { const p = at(s, d); return new THREE.Vector3(p.x, y, p.y); } };
+}
+// Everything of `mesh` inside any of `boxes` cut away (each { M: its frame to world, lo, hi: the box in that frame }), as
+// vwCutBox does for one world box: each triangle reaching into a box clipped to what lies outside it (its attributes
+// interpolated), in one pass over the mesh whatever the number of boxes. → triangles touched.
+function vwSideCut(mesh, boxes) {
+  const g = mesh.geometry, v = new THREE.Vector3();
+  if (!g.boundingBox) g.computeBoundingBox();
+  const mb = g.boundingBox.clone().applyMatrix4(mesh.matrixWorld);
+  const B = boxes.map(b => {
+    const wb = new THREE.Box3();
+    for (const x of [b.lo.x, b.hi.x]) for (const y of [b.lo.y, b.hi.y]) for (const z of [b.lo.z, b.hi.z]) wb.expandByPoint(v.set(x, y, z).applyMatrix4(b.M));
+    return { ...b, wb, inv: b.M.clone().invert() };
+  }).filter(b => b.wb.intersectsBox(mb));
+  if (!B.length) return 0;
+  const src = g.index ? g.toNonIndexed() : g, names = Object.keys(src.attributes), n = src.attributes.position.count, li = names.length;
+  const Wp = new Float32Array(n * 3), SP = src.attributes.position;               // world positions
+  for (let i = 0; i < n; i++) { v.fromBufferAttribute(SP, i).applyMatrix4(mesh.matrixWorld); Wp[i * 3] = v.x; Wp[i * 3 + 1] = v.y; Wp[i * 3 + 2] = v.z; }
+  const out = {}; for (const k of names) out[k] = [];
+  const vert = i => names.map(k => { const A = src.attributes[k], s = A.itemSize; return Array.from(A.array.subarray(i * s, i * s + s)); }).concat([[Wp[i * 3], Wp[i * 3 + 1], Wp[i * 3 + 2]]]);
+  const lerp = (p, q, t) => p.map((a, k) => a.map((x, c) => x + (q[k][c] - x) * t));
+  const copy = i => { for (const k of names) { const A = src.attributes[k], s = A.itemSize; for (let c = 0; c < s; c++) out[k].push(A.array[i * s + c]); } };
+  const emit = poly => { for (let i = 1; i + 1 < poly.length; i++) for (const w of [poly[0], poly[i], poly[i + 1]]) for (let k = 0; k < li; k++) out[names[k]].push(...w[k]); };
+  let touched = 0;
+  for (let t = 0; t < n; t += 3) {
+    const o = t * 3;
+    const x0 = Math.min(Wp[o], Wp[o + 3], Wp[o + 6]), x1 = Math.max(Wp[o], Wp[o + 3], Wp[o + 6]), y0 = Math.min(Wp[o + 1], Wp[o + 4], Wp[o + 7]), y1 = Math.max(Wp[o + 1], Wp[o + 4], Wp[o + 7]);
+    const z0 = Math.min(Wp[o + 2], Wp[o + 5], Wp[o + 8]), z1 = Math.max(Wp[o + 2], Wp[o + 5], Wp[o + 8]);
+    const near = B.filter(b => !(x1 < b.wb.min.x || x0 > b.wb.max.x || y1 < b.wb.min.y || y0 > b.wb.max.y || z1 < b.wb.min.z || z0 > b.wb.max.z));
+    if (!near.length) { copy(t); copy(t + 1); copy(t + 2); continue; }
+    let polys = [[vert(t), vert(t + 1), vert(t + 2)]], hit = false;
+    for (const b of near) {                                          // each piece so far against this box: the parts outside it go on
+      const { lo, hi, inv } = b, next = [];
+      for (const poly of polys) {
+        const L = poly.map(p => v.set(...p[li]).applyMatrix4(inv).toArray());
+        const mn = [0, 1, 2].map(a => Math.min(...L.map(q => q[a]))), mx = [0, 1, 2].map(a => Math.max(...L.map(q => q[a])));
+        if (mx[0] < lo.x || mn[0] > hi.x || mx[1] < lo.y || mn[1] > hi.y || mx[2] < lo.z || mn[2] > hi.z) { next.push(poly); continue; }
+        hit = true;
+        let inside = poly.map((p, i) => p.concat([L[i]]));             // the box's own coordinates ride along as an extra attribute
+        for (const [ax, val, side] of [[0, lo.x, -1], [0, hi.x, 1], [1, lo.y, -1], [1, hi.y, 1], [2, lo.z, -1], [2, hi.z, 1]]) {
+          const keep = [], go = [], m = inside.length;
+          for (let i = 0; i < m; i++) {
+            const p = inside[i], q = inside[(i + 1) % m], dp = side * (p[li + 1][ax] - val), dq = side * (q[li + 1][ax] - val);
+            (dp > 0 ? keep : go).push(p);
+            if ((dp > 0) !== (dq > 0)) { const x = lerp(p, q, dp / (dp - dq)); keep.push(x); go.push(x); }
+          }
+          if (keep.length >= 3) next.push(keep.map(p => p.slice(0, li + 1)));
+          inside = go; if (inside.length < 3) break;
+        }
+      }
+      polys = next;
+    }
+    if (!hit) { copy(t); copy(t + 1); copy(t + 2); continue; }
+    touched++;
+    for (const poly of polys) emit(poly);
+  }
+  if (!touched) { if (src !== g) src.dispose(); return 0; }
+  const ng = new THREE.BufferGeometry();
+  for (const k of names) { const A = src.attributes[k]; ng.setAttribute(k, new THREE.BufferAttribute(new A.array.constructor(out[k]), A.itemSize, A.normalized)); }
+  if (src !== g) src.dispose(); g.dispose(); mesh.geometry = ng; ng.computeBoundingBox(); ng.computeBoundingSphere();
+  return touched;
+}
+// One wall measured, portal by portal up the rake, until the wall stops or no aisle lies behind it: each portal's s, the
+// aisle's floor F behind it, its landing G (≤ F), its posts' feet and its head's underside.
+function vwSideMeasure(F, meshes, foyer, g0) {
+  const S = VW_SIDE, inv = F.M.clone().invert(), v = new THREE.Vector3(), soup = [];
+  // the triangles of the strip along this wall (the wall's line ±1.5 m, its whole run), world space: the rays read only
+  // these (a Raycaster over the model's house meshes costs ~7 ms a ray here)
+  for (const m of meshes) {
+    const g = m.geometry, P = g.attributes.position, idx = g.index, N = idx ? idx.count : P.count, w = [];
+    for (let t = 0; t + 2 < N; t += 3) {
+      let s0 = Infinity, s1 = -Infinity, d0 = Infinity, d1 = -Infinity;
+      for (let j = 0; j < 3; j++) {
+        v.fromBufferAttribute(P, idx ? idx.getX(t + j) : t + j).applyMatrix4(m.matrixWorld); w[j * 3] = v.x; w[j * 3 + 1] = v.y; w[j * 3 + 2] = v.z;
+        v.applyMatrix4(inv); const sv = F.sx * v.x; s0 = Math.min(s0, sv); s1 = Math.max(s1, sv); d0 = Math.min(d0, v.z); d1 = Math.max(d1, v.z);
+      }
+      if (s1 < -2 || s0 > S.max * F.L + 2 || d1 < -1.5 || d0 > 1.5) continue;
+      soup.push(...w);
+    }
+  }
+  const T9 = new Float32Array(soup);
+  const hit = (o, dir, far) => {                                   // Möller–Trumbore, both faces: the nearest within far, or null
+    let best = far, any = false;
+    for (let t = 0; t < T9.length; t += 9) {
+      const ax = T9[t], ay = T9[t + 1], az = T9[t + 2], e1x = T9[t + 3] - ax, e1y = T9[t + 4] - ay, e1z = T9[t + 5] - az, e2x = T9[t + 6] - ax, e2y = T9[t + 7] - ay, e2z = T9[t + 8] - az;
+      const px = dir.y * e2z - dir.z * e2y, py = dir.z * e2x - dir.x * e2z, pz = dir.x * e2y - dir.y * e2x, det = e1x * px + e1y * py + e1z * pz;
+      if (det > -1e-12 && det < 1e-12) continue;
+      const iv = 1 / det, tx = o.x - ax, ty = o.y - ay, tz = o.z - az, uu = (tx * px + ty * py + tz * pz) * iv;
+      if (uu < 0 || uu > 1) continue;
+      const qx = ty * e1z - tz * e1y, qy = tz * e1x - tx * e1z, qz = tx * e1y - ty * e1x, vv = (dir.x * qx + dir.y * qy + dir.z * qz) * iv;
+      if (vv < 0 || uu + vv > 1) continue;
+      const d = (e2x * qx + e2y * qy + e2z * qz) * iv;
+      if (d >= 0 && d < best) { best = d; any = true; }
+    }
+    return any ? { distance: best, point: o.clone().addScaledVector(dir, best) } : null;
+  };
+  const ports = [];
+  let stop = 'tried ' + S.max;
+  for (let k = 0; k < S.max; k++) {
+    const s = k * F.L, prev = k ? ports[k - 1] : null, y = prev ? prev.G + 1.4 : foyer + 1.7;
+    // the wall at both ends of the frame, just outside the posts, on the wall's line (d 0)
+    let wall = true;
+    for (const ds of [-0.95, 0.95]) {
+      const h = hit(F.w3(s + ds, y, 1.2), new THREE.Vector3(-F.o.x, 0, -F.o.y), 1.6);
+      if (!h || h.distance < 0.8 || h.distance > 1.4) wall = false;
+    }
+    if (!wall) { stop = `no wall at portal ${k + 1}`; break; }
+    // the aisle's floor half a metre inside, and somewhere to step onto 0.9 m inside
+    const y0 = (prev ? prev.G : foyer) + 2.0, lo = prev ? prev.G - 0.05 : foyer + 0.3, hi = prev ? prev.G + 1.0 : foyer + 1.2;
+    const a = hit(F.w3(s, y0, -0.5), DOWN, 3.0), b = hit(F.w3(s, y0, -0.9), DOWN, 3.0);
+    const fa = a ? a.point.y : null, fb = b ? b.point.y : null;
+    if (fa === null || fa < lo || fa > hi || fb === null || Math.abs(fb - fa) > WALK.step) { stop = `no aisle behind portal ${k + 1}`; break; }
+    let G = k === 0 && g0 !== null ? g0 : fa;
+    if (prev) {                                                   // the flight below: its span takes so many goings, so many risers
+      const span = s - S.land - (prev.s + (k === 1 ? S.land0 : S.land)), n = Math.floor(span / S.going + 1e-9) + 1;
+      G = Math.min(G, prev.G + n * S.rise);
+    }
+    if (fa - G > S.under) { stop = `portal ${k + 1}'s landing would be ${(fa - G).toFixed(2)} m under its aisle`; break; }
+    const model = k < S.feet.length, feet = model ? S.feet[k] : G;
+    ports.push({ k, s, F: fa, F9: fb, G, model, feet, head: feet + S.headOver });
+  }
+  return { ports, stop, tris: T9.length / 9 };
+}
+// The side doors built (buildVanWezel step 7's last line): model is vwPlace's, yIn step 3's portal floor, works its group.
+function vwSideDoorsBuild(model, yIn, works) {
+  const t0 = performance.now(), S = VW_SIDE, P = {}, foyer = VW.at.y + VW.terrace, fw = DOORS.frame, W = S.width, Wi = S.width - S.parapet;
+  const meshes = []; model.root.traverse(o => { if (o.isMesh && /^vw: house_/.test(o.name) && !/glass$/.test(o.name)) meshes.push(o); });
+  const copies = {}, cut = {}, sides = [], holes = [];
+  for (const side of [1, -1]) {
+    const F = vwSideFrame(side), { ports, stop } = vwSideMeasure(F, meshes, foyer, side > 0 ? yIn : null);
+    const box = (key, s0, s1, y0, y1, d0, d1) => {
+      const x0 = Math.min(F.sx * s0, F.sx * s1), x1 = Math.max(F.sx * s0, F.sx * s1);
+      const g = new THREE.BoxGeometry(x1 - x0, y1 - y0, Math.abs(d1 - d0)).translate((x0 + x1) / 2, (y0 + y1) / 2, (d0 + d1) / 2).applyMatrix4(F.M);
+      (P[key] = P[key] || []).push(g);
+    };
+    // a box whose bottom and top slope along s (a flight's parapet): yb/yt at s0 and at s1; built with local x rising, so
+    // its faces keep their winding on both sides
+    const prism = (key, s0, s1, d0, d1, yb0, yt0, yb1, yt1) => {
+      if (F.sx * (s1 - s0) < 0) [s0, s1, yb0, yb1, yt0, yt1] = [s1, s0, yb1, yb0, yt1, yt0];
+      const g = new THREE.BoxGeometry(1, 1, 1).translate(0.5, 0.5, 0.5), p = g.attributes.position;
+      for (let i = 0; i < p.count; i++) {
+        const a = p.getX(i), b = p.getY(i), c = p.getZ(i), yb = yb0 + (yb1 - yb0) * a, yt = yt0 + (yt1 - yt0) * a;
+        p.setXYZ(i, F.sx * (s0 + (s1 - s0) * a), yb + (yt - yb) * b, d0 + (d1 - d0) * c);
+      }
+      g.applyMatrix4(F.M); g.computeVertexNormals(); (P[key] = P[key] || []).push(g);
+    };
+    const rod = (s0, y0, d0, s1, y1, d1) => deskRod(P, 'brass', F.w3(s0, y0, d0), F.w3(s1, y1, d1), 0.025, 8);
+    // the model's eighth frame, to copy up the wall: its posts and head (house_tex_38) and its exit light (house_unlit)
+    const p7 = ports[7];
+    const grab = (name, test) => {
+      const m = model.byName(name); if (!m) return null;
+      const g = m.geometry, idx = g.index, N = idx ? idx.count : g.attributes.position.count, inv = F.M.clone().invert(), v = new THREE.Vector3(), tri = [];
+      for (let t = 0; t + 2 < N; t += 3) {
+        let ok = true; const ids = [];
+        for (let j = 0; j < 3; j++) { const i = idx ? idx.getX(t + j) : t + j; ids.push(i); v.fromBufferAttribute(g.attributes.position, i).applyMatrix4(m.matrixWorld).applyMatrix4(inv); if (!test(F.sx * v.x, v.y, v.z)) { ok = false; break; } }
+        if (ok) tri.push(...ids);
+      }
+      return { m, tri };
+    };
+    const frameSrc = p7 && grab('house_tex_38', (s, y, d) => Math.abs(s - p7.s) < 1.0 && Math.abs(d) < 0.4 && y > p7.feet - 0.02 && y < p7.head + 0.2);
+    const lightSrc = p7 && grab('house_unlit', (s, y, d) => Math.abs(s - p7.s) < 0.3 && Math.abs(d) < 0.4 && y > p7.head + 0.05 && y < p7.head + 0.3);
+    const copy = (src, k, dy) => {
+      if (!src || !src.tri.length) return;
+      const g = src.m.geometry, key = src.m.name, ds = (k - 7) * F.L, off = new THREE.Vector3(F.u.x * ds, dy, F.u.y * ds), v = new THREE.Vector3();
+      const c = copies[key] = copies[key] || { mat: src.m.material, attrs: {} };
+      for (const i of src.tri) for (const [an, A] of Object.entries(g.attributes)) {
+        const arr = c.attrs[an] = c.attrs[an] || { size: A.itemSize, a: [] };
+        if (an === 'position') { v.fromBufferAttribute(A, i).applyMatrix4(src.m.matrixWorld).add(off); arr.a.push(v.x, v.y, v.z); }
+        else for (let q = 0; q < A.itemSize; q++) arr.a.push(A.array[i * A.itemSize + q]);
+      }
+    };
+    const doors = [];
+    for (const p of ports) {
+      const { k, s, G } = p, low = k === 0, hr0 = low && side > 0;
+      // the wall inside the frame cut out: between the casings, over the floor and the landing, under the head, through the wall
+      const lo = new THREE.Vector3(F.sx * s - (S.half - fw), Math.max(p.F, G) + 0.03, -0.40), hi = new THREE.Vector3(F.sx * s + (S.half - fw), p.head - 0.003, 0.40);   // (the pilasters inside stand from d −0.45)
+      holes.push({ M: F.M, lo, hi });
+      if (!p.model) { copy(frameSrc, k, G - p7.feet); copy(lightSrc, k, G - p7.feet); }
+      if (!hr0) {
+        // the casing on the posts' faces, the sill through the wall, STALLS over it
+        for (const e of [-1, 1]) box('frame', s + e * (S.half - fw), s + e * S.half, G, p.head, S.face - 0.02, S.face);
+        box('frame', s - S.half, s + S.half, p.head - DOORS.headH, p.head, S.face - 0.02, S.face);
+        box('stone', s - (S.half - fw), s + (S.half - fw), G - 0.2, G, -0.32, 0.01);
+        const sg = F.w3(s, p.head + 0.36, S.face + 0.02); lobbySign(P, 2, 1.4, 0.175, sg.x, sg.y, sg.z, F.th);
+        if (p.feet - G > 0.005) for (const e of [-1, 1]) box('stone', s + e * S.half, s + e * (S.half + S.postW), G - 0.01, p.feet, -S.postD / 2, S.postD / 2);   // under posts standing over the landing
+        const fp = F.at(s, S.face);
+        const e = hangLeafAt({ name: `Van Wezel stalls, ${F.name} ${k + 1}`, px: fp.x, pz: fp.y, th: F.th, x0: -(S.half - fw), x1: S.half - fw, floor: G, head: p.head - DOORS.headH,
+          zhi: Wi - S.face - 0.02, pair: true, mats: { wood: lobbyMat.wood, glass: lobbyMat.glass, brass: lobbyMat.brass } });
+        e.vwSide = side; doors.push(e); p.door = e;
+      } else p.door = DOORS.list.find(e => e.name === 'Van Wezel stalls') || null;
+      // the landing (the lowest's to stair.landing out, the stair beyond it), its parapet, its column
+      const a = low ? S.land0 : S.land;
+      if (low) {
+        if (!hr0) {
+          const n = Math.max(1, Math.round((G - foyer) / S.rise)), r = (G - foyer) / n, w = S.land0, D0 = S.stair.landing, Dg = S.stair.going;
+          box('stone', s - w, s + w, foyer - 0.02, G, 0, D0);
+          for (let i = 1; i < n; i++) { const d0 = D0 + (i - 1) * Dg; box('stone', s - w, s + w, foyer - 0.02, G - i * r, d0, d0 + Dg); box('brass', s - w, s + w, G - i * r - 0.015, G - i * r + 0.002, d0 + Dg - 0.03, d0 + Dg); }
+          const dEnd = D0 + (n - 1) * Dg;
+          for (const e of [-1, 1]) {                                            // step 3's rails: the downhill one along the landing too, the uphill one down the stair only
+            const x = s + e * (w - 0.04), y1 = G + 0.9;
+            if (e < 0) { rod(x, y1, 0.464, x, y1, D0); rod(x, G, 0.464, x, y1, 0.464); }
+            rod(x, y1, D0, x, foyer + 0.9, dEnd); rod(x, G, D0, x, y1, D0); rod(x, foyer, dEnd, x, foyer + 0.9, dEnd);
+          }
+          p.stairN = n;
+        } else {                                                                 // step 3's: its uphill rail across the landing cut away (and its first post)
+          const brass = works && works.getObjectByName('vw works: brass');
+          const xa = F.sx * (s + 0.84), xb = F.sx * (s + 1.0);
+          if (brass) cut['step 3 rail'] = vwSideCut(brass, [{ M: F.M, lo: new THREE.Vector3(Math.min(xa, xb), G - 0.1, 0.36), hi: new THREE.Vector3(Math.max(xa, xb), G + 1.0, 1.414) }]);
+          p.stairN = Math.max(1, Math.round((G - foyer) / 0.175));   // step 3's count
+        }
+      } else {
+        box('stone', s - a, s + S.land, G - S.slab, G, 0, Wi);
+        box('brass', s - a, s - a + 0.03, G - 0.015, G + 0.002, 0, Wi);                // the nosing at its downhill edge
+        box('stone', s - a, s + S.land, G - S.slab, G + S.rail, Wi, W); rod(s - a, G + S.rail + 0.025, Wi + S.parapet / 2, s + S.land, G + S.rail + 0.025, Wi + S.parapet / 2);
+        box('stone', s - 0.125, s + 0.125, foyer - 0.02, G - S.slab, Wi - 0.30, Wi - 0.05);
+      }
+      // the flight up to the next landing
+      const q = ports[k + 1];
+      if (q) {
+        const sa = s + a, sb = q.s - S.land, R = q.G - G, n = Math.max(1, Math.ceil(R / S.rise - 1e-9)), m = n - 1;
+        if (!m) box('stone', sa, sb, G - S.slab, G, 0, Wi);
+        for (let i = 1; i <= m; i++) {
+          const g = (sb - sa) / m, y = G + i * R / n, z0 = sa + (i - 1) * g;
+          box('stone', z0, z0 + g, y - S.slab, y, 0, Wi); box('brass', z0, z0 + 0.03, y - 0.015, y + 0.002, 0, Wi);
+        }
+        prism('stone', sa, sb, Wi, W, G - S.slab, G + S.rail, q.G - S.slab, q.G + S.rail);
+        rod(sa, G + S.rail + 0.025, Wi + S.parapet / 2, sb, q.G + S.rail + 0.025, Wi + S.parapet / 2);
+        p.flight = { n, m, rise: R / n, going: m ? (sb - sa) / m : sb - sa };
+      } else {
+        box('stone', s + S.land, s + S.land + S.parapet, G - S.slab, G + S.rail, 0, W);   // the gallery's top end
+        rod(s + S.land + S.parapet / 2, G + S.rail + 0.025, 0, s + S.land + S.parapet / 2, G + S.rail + 0.025, W);
+      }
+    }
+    sides.push({ side, name: F.name, F, ports, stop, doors });
+  }
+  // the walls cut, every doorway's box in one pass over each of the model's house meshes
+  const tc = performance.now();
+  for (const m of meshes) { const n = vwSideCut(m, holes); if (n) cut[m.name] = n; }
+  const msCut = performance.now() - tc;
+  // one mesh per material; the copies of the model's frame with the model's own materials
+  const MAT = { stone: lobbyMat.stone, brass: lobbyMat.brass, frame: backstageMat.frame, sign: lobbyMat.sign };
+  const group = new THREE.Group(); group.name = 'vw side doors';
+  let tris = 0;
+  for (const [key, geos] of Object.entries(P)) {
+    const geo = mergeGeometries(geos.map(g => g.index ? g.toNonIndexed() : g), false); geos.forEach(g => g.dispose());
+    if (!geo) { console.warn(`van wezel side doors: the ${key} pieces did not merge — left out`); continue; }
+    const mesh = new THREE.Mesh(geo, MAT[key]); mesh.name = 'vw side doors: ' + key; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    tris += geo.attributes.position.count / 3; group.add(mesh);
+  }
+  for (const [key, c] of Object.entries(copies)) {
+    const geo = new THREE.BufferGeometry();
+    for (const [an, A] of Object.entries(c.attrs)) geo.setAttribute(an, new THREE.Float32BufferAttribute(A.a, A.size));
+    const mesh = new THREE.Mesh(geo, c.mat); mesh.name = 'vw side doors: ' + key.replace(/^vw: /, '') + ' copies'; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    tris += geo.attributes.position.count / 3; group.add(mesh);
+  }
+  scene.add(group); group.updateMatrixWorld(true);
+  vwSide = { group, sides, cut, triangles: tris, ms: performance.now() - t0, msCut };
+  console.info(`van wezel side doors: ${sides.map(g => `${g.name} ${g.ports.length} portals (${g.ports.filter(p => !p.model).length} new; ${g.stop}), landings y ${g.ports.map(p => p.G.toFixed(2)).join(' ')}`).join(' · ')}`
+    + ` · ${sides.reduce((n, g) => n + g.doors.length, 0)} new pairs on E · cut: ${Object.entries(cut).map(([k, v]) => `${k.replace(/^vw: /, '')} ${v}`).join(', ')} · ${group.children.length} meshes, ${tris} triangles · ${vwSide.ms.toFixed(0)} ms (the cuts ${msCut.toFixed(0)})`);
+  return vwSide;
+}
+// The checks: each portal's leaves; each gallery's floor from the foyer to its top landing (no rise or drop over WALK.step,
+// no hole; its risers); from each landing through its doorway (leaves open) onto the aisle within a step, the body's rays
+// clear; and DOORS.check() for the new pairs.
+const VW_SIDE_API = {
+  spec: VW_SIDE, get built() { return vwSide; },
+  check() {
+    if (!vwSide) return 'van wezel side doors: not built';
+    if (col.stale) buildCollider();
+    const S = VW_SIDE, out = [], fails = [], foyer = VW.at.y + VW.terrace;
+    for (const g of vwSide.sides) {
+      const { F, ports } = g, last = ports[ports.length - 1];
+      // 1. the doors
+      const leaves = ports.map(p => p.door ? p.door.leaves.length : 0);
+      out.push(`${g.name}: ${ports.length} portals, leaves ${leaves.join(' ')}`);
+      if (leaves.some(n => n !== 2)) fails.push(g.name + ' doors');
+      // 2. the gallery: from the foyer in front of the lowest portal's stair, up it, then along the gallery to the top landing
+      const p0 = ports[0], dFoyer = S.stair.landing + (p0.stairN || 1) * S.stair.going + 0.6;
+      const pts = [[0, dFoyer], [0, 1.2], [S.land0 - 0.05, 1.2], [last.s + S.land - 0.3, 1.2]];
+      let y = rayDown(...F.w3(0, foyer + 0.3, dFoyer).toArray()) ?? foyer, up = 0, down = 0, holes = 0, n = 0, risers = 0, where = null;
+      for (let i = 0; i + 1 < pts.length; i++) {
+        const [s0, d0] = pts[i], [s1, d1] = pts[i + 1], len = Math.hypot(s1 - s0, d1 - d0), K = Math.max(1, Math.ceil(len / 0.05));
+        for (let j = 1; j <= K; j++) {
+          const p = F.w3(s0 + (s1 - s0) * j / K, 0, d0 + (d1 - d0) * j / K), h = rayDown(p.x, y + WALK.step, p.z);
+          n++;
+          if (h === null || y - h > WALK.step) { holes++; continue; }
+          if (h - y > 0.01) risers++;
+          if (h - y > up) { up = h - y; where = [p.x, p.z, y, h]; }
+          down = Math.max(down, y - h); y = h;
+        }
+      }
+      const top = Math.abs(y - last.G) < 0.02;
+      out.push(`its gallery, foyer → top landing, ${n} points 5 cm apart: ${risers} risers, the largest ${(up * 1000).toFixed(0)} mm${where ? ` at (${where[0].toFixed(2)}, ${where[1].toFixed(2)})` : ''}, the largest drop ${(down * 1000).toFixed(0)} mm, ${holes} holes, ending on y ${y.toFixed(3)} (the top landing ${last.G.toFixed(3)})`);
+      if (holes || up > WALK.step || !top) fails.push(g.name + ' gallery');
+      // 3. each landing through its doorway, its leaves open
+      const res = [];
+      let bad = 0;
+      for (const p of ports) {
+        const e = p.door, keep = e ? e.leaves.map(l => l.rotation.y) : [];
+        if (e) e.leaves.forEach(l => { l.rotation.y = -l.userData.s * DOORS.swing; l.updateMatrixWorld(true); });
+        // the nearest lane across the doorway a body passes straight in by (the model's pilasters stand 0.45 m inside some)
+        const clear = off => [-0.18, 0, 0.18].every(w => { const st = F.w3(p.s + off + w, 0, 1.2); return WALK.rays.every(hh => !(rayH(st.x, p.G + hh, st.z, -F.o.x, -F.o.y, 2.1) < 2.1)); });
+        let lane = null;
+        for (const off of [0, -0.1, 0.1, -0.2, 0.2, -0.3, 0.3, -0.4, 0.4, -0.45, 0.45]) if (clear(off)) { lane = off; break; }
+        const blocked = lane === null, off = lane || 0;
+        let yy = p.G, worst = 0, hole = 0;
+        for (let j = 1; j <= 42; j++) {                                       // d 1.2 → −0.9 along it
+          const q = F.w3(p.s + off, 0, 1.2 - j * 0.05), h = rayDown(q.x, yy + WALK.step, q.z);
+          if (h === null || yy - h > WALK.step) { hole++; continue; }
+          worst = Math.max(worst, Math.abs(h - yy)); yy = h;
+        }
+        if (e) e.leaves.forEach((l, i) => { l.rotation.y = keep[i]; l.updateMatrixWorld(true); });
+        const ok = !hole && !blocked && worst <= WALK.step && yy > p.G - WALK.step;
+        if (!ok) bad++;
+        res.push(`${p.k + 1} ${(worst * 1000).toFixed(0)}${off ? ` (lane ${off > 0 ? '+' : ''}${off.toFixed(2)} m)` : ''}${ok ? '' : (hole ? ' HOLE' : '') + (blocked ? ' BLOCKED' : '') + (yy <= p.G - WALK.step ? ' LOW' : '')}`);
+      }
+      out.push(`through each doorway, leaves open (landing → 0.9 m inside: the largest change in mm; lane: off the middle, up the rake +): ${res.join(', ')}`);
+      if (bad) fails.push(g.name + ' doorways');
+    }
+    // 4. DOORS.check() on the new pairs
+    const all = DOORS_API.check(), parts = all.split(' — ').slice(1).join(' — ').split('; ').filter(t => /^Van Wezel stalls, house /.test(t));
+    const pass = parts.filter(t => / pass: /.test(t)).length;
+    out.push(`DOORS.check on the new pairs: ${pass} / ${parts.length} pass`);
+    if (pass !== parts.length || !parts.length) fails.push('doors.check');
+    const s = `van wezel side doors: ${fails.length ? 'FAIL (' + fails.join(', ') + ')' : 'PASS'} — ` + out.join(' · ');
+    console.info(s); return s;
+  },
+};
+VAN_WEZEL_API.sideDoors = VW_SIDE_API;
 
 /* ---------------------------------------------------------------- THEATRE 2: THE UNDERGROUND AND THE LIFTS
    RULING GI (2026-10-16), Jack: "make it so there is a stage lift that is used to bring on and off big sets like the ship.
