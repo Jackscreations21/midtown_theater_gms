@@ -6,6 +6,9 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
+- **The orchestra pit (2026-10-24, branch `orchestra-pit`, PR open, independent of the stage-manager PR #18 — whichever
+  merges second conflicts in STATE/HANDOFF/midtown.html; keep both):** HANDOFF.md's pit block; the "Pit" view button. His
+  four questions are at the end of that block.
 - **The film round (2026-10-24, branch `film-round`, PR OPEN; HANDOFF.md's newest block; RULING GL):** every segment
   re-blocked against the Disney+ frames by eight Opus agents, the stillness filled (show mean 65 % → 41 % still,
   `tools/blocking/still.py`), the three followspots real and following actors (423 picks, `tools/blocking/follow.py`),
