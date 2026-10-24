@@ -1,4 +1,4 @@
-# STATE — 2026-10-24, evening (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#20 merged; `main` `852c232`)
+# STATE — 2026-10-24, late (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#21 merged; `main` `0133cfe`; PR `preshow-announcement` open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -11,6 +11,16 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 delete the merged branches `film-round`, `stage-manager`, `orchestra-pit`, `van-wezel` both sides
 (`git push origin --delete <name>`), and the agent worktrees under `.claude/worktrees/` (`git worktree list`; never
 `git add -A` while they exist).
+
+- **PR `preshow-announcement` (OPEN, RULINGS GR and GS; HANDOFF's newest block):** the King George announcement before
+  the show and the exit music after the bows. Jack: *"add this song to play befor hamilton. make it play this then when it
+  ends wait 5 seconds while burr walks out then it starts the music"*, *"put the audio on github also"*, and *"make it so
+  this starts playing whenever the actors start walking off after bowing at the end and dont make the lighst go out onstage
+  after the bow make them stay where they where dutrign bows"*. Both recordings are COMMITTED at his word
+  (`assets/audio/king-george-announcement.mp3`, `exit-music.mp3`; the soundtrack stays local). **His to decide:**
+  - the house lights go out at the Play, so the announcement plays in the dark: **his answer (2026-10-24): leave it so**;
+  - the announcement plays only from a Play before Burr's walk (the top of the show); Prev/Next skip it;
+  - after the exit music the stage stays lit with nobody on it until Stop (no end to the show).
 
 - **#20 Van Wezel Hall (RULING-free; HANDOFF's newest block):** a third house east of Theatre 2 (origin x 77), its own
   glazed foyer and box office, a 15 m hallway from the Midtown lobby's east end beside the bar. `assets/van-wezel-hall.glb`
@@ -113,7 +123,7 @@ delete the merged branches `film-round`, `stage-manager`, `orchestra-pit`, `van-
 - **Johnny Tremain on Theatre 2 — PR #8 MERGED (2026-10-16, `main` `daa9bcd`), post-merge done (branches deleted both sides, worktrees removed):** his own play, two acts, 26 scenes — the set as
   sized stand-ins with model slots, two stage lifts and an underground under Theatre 2 (RULINGS GI, GJ), a 128-unit rig
   with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's newest DONE block.
-- **Rulings are at GQ (GR next).** GM–GQ (2026-10-24): the stage manager spec (his answers). GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
+- **Rulings are at GS (GT next).** GR–GS (2026-10-24, PR `preshow-announcement`): the announcement before 1-01, Burr's walk in its last 5 s; the exit music at the walk-off, the bows' look held. GM–GQ (2026-10-24): the stage manager spec (his answers). GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
   rails stay down in the deck, so nothing guards the hole while a lift is away (PR #13, merged). GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
   them off. GJ (2026-10-16): an underground under Theatre 2 for storage. Earlier: **GH**. The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
