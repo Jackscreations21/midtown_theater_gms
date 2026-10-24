@@ -14124,6 +14124,7 @@ function vwCutBox(mesh, box) {
 // The model in: placed, the basement left out, the looks made unlit with a fixed light baked into the vertices, the lift
 // lowered, the terrace clipped, the glass and the mullions cut where the hallway comes through.
 const VW_LIGHT = new THREE.Vector3(-0.35, 0.80, -0.48).normalize();
+const VW_GLASS_BLOCK = new THREE.MeshBasicMaterial({ visible: false });   // collision only: in the walk's grid, never drawn
 function vwPlace(gltf) {
   const root = gltf.scene; root.name = 'van wezel'; root.position.set(VW.at.x, VW.at.y, VW.at.z);
   const drop = [], mats = [], keep = [];
@@ -14132,6 +14133,7 @@ function vwPlace(gltf) {
   for (const o of keep) {
     const s = o.material, name = o.name;
     o.name = 'vw: ' + name; o.castShadow = o.receiveShadow = false; o.userData.rig = true;
+    if (name === 'exterior_glass') { o.material = VW_GLASS_BLOCK; s.dispose(); continue; }   // the foyer's glass walls: gone, a wall to the walk only (Jack, 2026-10-24: "remove all the clear stuff from the lobby")
     if (/glass$/.test(name)) { o.material = lobbyMat.glass; s.dispose(); continue; }
     const g = o.geometry, N = g.attributes.normal, n = g.attributes.position.count, unlit = /unlit$/.test(name);
     let C = g.attributes.color;
@@ -14892,7 +14894,6 @@ function buildVwFoyer() {
         const c = BOTTLE[nb++ % BOTTLE.length], d = db + 0.22 + (y < F + 1 ? 0.15 : 0);
         tint(lcyl(f, 'colour', 0.036, 0.036, y, y + 0.24, s, d, 6), c); tint(lcyl(f, 'colour', 0.012, 0.03, y + 0.24, y + 0.33, s, d, 6), c);
       }
-      lbox(f, 'glass', a1 - 0.62, a1 - 0.07, F + 0.96, F + 1.6, db + 0.18, db + 0.63);                  // the popcorn machine
       lbox(f, 'pop', a1 - 0.6, a1 - 0.09, F + 0.97, F + 1.16, db + 0.2, db + 0.61);
       tint(lbox(f, 'colour', a1 - 0.635, a1 - 0.055, F + 1.6, F + 1.66, db + 0.17, db + 0.64), 0x8a1c1c);
       lbox(f, 'wood', a0, a1, F, F + 1.02, df, df + 0.55); lbox(f, 'stone', a0 - 0.05, a1 + 0.05, F + 1.02, F + 1.08, df - 0.08, df + 0.63);   // the front counter
@@ -14955,7 +14956,6 @@ function buildVwFoyer() {
       lbox(f, 'stone', ac - 0.4, ac + 0.25, F + 1.0, F + 1.05, r0 + 0.12, r1 - 0.12);             // its top, 15 cm over the customer's side
       lbox(f, 'wall', ac - 0.35, ac + 0.1, F + 2.5, top, r0 + 0.12, r1 - 0.12);                   // the fascia over the screen
       lbox(f, 'dark', ac - 0.35, ac + 0.1, F + 2.45, F + 2.5, r0 + 0.12, r1 - 0.12);
-      lplane(f, 'glass', r1 - r0 - 0.24, 1.4, ac - 0.12, F + 1.75, (r0 + r1) / 2, true);
       for (let i = 0; i <= 3; i++) { const d = r0 + 0.15 + (r1 - r0 - 0.3) * i / 3; lbox(f, 'dark', ac - 0.15, ac - 0.09, F + 1.05, F + 2.45, d - 0.03, d + 0.03); }
       lsign(f, 0, 2.6, 0.325, ac + 0.11, F + 2.95, (r0 + r1) / 2, 1, 0);
       lbox(f, 'wood', back, back + 0.55, F, F + 0.9, r0 + 0.12, r1 - 0.12); lbox(f, 'stone', back, back + 0.6, F + 0.9, F + 0.94, r0 + 0.12, r1 - 0.12);   // the back counter
