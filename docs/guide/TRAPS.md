@@ -2160,3 +2160,12 @@ include the place a failure would show — the corridor behind the house, not on
   re-dump, re-audit and `pool-dump-diff.py` the two dumps; take back by hand what landed wrong (revert the cue's line
   AND its restore follower).
 - **`MIDTOWN.actors.list` is a getter, not a function** (`MIDTOWN.actors.list.length`).
+
+## From the Van Wezel round (2026-10-24)
+
+- **GLTFLoader renames nodes**: "exterior: tex 29" arrives as `exterior_tex_29`. Match the loaded names, not the file's.
+- **A console raycast hits the invisible `TransformControlsPlane`** (Build mode's gizmo): filter it out of any hand-made
+  pick, and give the Raycaster a `camera` when the scene has Sprites (the head tags).
+- **The Van Wezel GLB is in feet** (a 60 ft proscenium): `tools/van-wezel-optimise.py` scales it; never scale it again
+  in the page.
+

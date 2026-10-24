@@ -6,6 +6,9 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
+- **Van Wezel Hall (2026-10-24, branch `van-wezel`, PR open, independent of #18 and #19 — the record files and the lobby's
+  east wall may conflict, keep all):** the third house east of Theatre 2, its foyer, the hallway; HANDOFF.md's Van Wezel
+  block ends with his five questions.
 - **The film round (2026-10-24, branch `film-round`, PR OPEN; HANDOFF.md's newest block; RULING GL):** every segment
   re-blocked against the Disney+ frames by eight Opus agents, the stillness filled (show mean 65 % → 41 % still,
   `tools/blocking/still.py`), the three followspots real and following actors (423 picks, `tools/blocking/follow.py`),
