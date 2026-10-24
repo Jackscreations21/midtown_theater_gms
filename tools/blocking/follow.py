@@ -224,7 +224,65 @@ SEGMENT_4 = [
 # ===== END SEGMENT 4 =====
 
 # ===== SEGMENT 5 (2-01..2-05) =====
+# The film round (2026-10-24; tools/blocking/research/seg5.md "Film round"). Bodies: Jefferson 'lafayette', Madison 'mulligan',
+# Philip 'laurens', Maria 'peggy', James Reynolds 'ens4'. Spot 1 centre, 2 house left (stage RIGHT), 3 house right (stage LEFT).
 SEGMENT_5 = [
+    # 2-01 What'd I Miss
+    F(1, '2-01', 3.4, 'burr', level=0.8, note='Burr\'s recap DC (film 8-24: he alone carries it, the town dim behind him)'),
+    F(3, '2-01', 17.5, 'hamilton', size=3.0, level=0.7, note='Hamilton and Washington on the SL end of the gallery in the recap (film 18-24: lit up there); one wide pool on the two'),
+    OUT(3, '2-01', 26.8, note='they go in through the gallery door'),
+    OUT(1, '2-01', 38.2, fade=0.8, note='Burr at the top of the stair, going (film 40)'),
+    F(1, '2-01', 44.0, 'lafayette', level=1.0, note='Jefferson appears up top (film 44-57: the hard white pool on him alone; NOTES3 balcony at 0:44); the spot stays on him the whole number'),
+    F(2, '2-01', 154.0, 'mulligan', level=0.85, note='Madison on DR (film 152), followed through his verse and the welcome'),
+    F(3, '2-01', 208.6, 'hamilton', size=3.0, level=0.85, note='Hamilton named, DL with Washington (film 212: the pair SL); one wide pool on the two'),
+    OUT(1, '2-01', 234.2, fade=0, note='the snap to the cabinet (cue 739.5)'),
+    OUT(2, '2-01', 234.2, fade=0, note='the snap'),
+    OUT(3, '2-01', 234.2, fade=0, note='the snap'),
+    # 2-02 Cabinet Battle #1 (no clip; Cabinet Battle #2's film 45: the rapper in a hard pool, the other lit at his side)
+    F(1, '2-02', 0.6, 'washington', level=0.9, note='Washington the MC at the DSC mic'),
+    OUT(1, '2-02', 9.4, note='he goes up to his chair'),
+    F(2, '2-02', 13.0, 'lafayette', level=0.9, note='Jefferson\'s verse SR (his spot, NOTES3), held on him through the battle'),
+    F(3, '2-02', 44.8, 'hamilton', level=0.9, note='Hamilton\'s interjection, then held on him through his verse and to the end'),
+    F(1, '2-02', 78.6, 'washington', level=0.8, note='Washington up to hand over'),
+    OUT(1, '2-02', 84.0, note='back to his chair'),
+    F(1, '2-02', 146.6, 'washington', level=0.85, note='Washington stops it, and takes Hamilton aside (the reprimand)'),
+    OUT(2, '2-02', 167.5, note='Jefferson goes off DSR'),
+    OUT(1, '2-02', 210.6, note='Washington goes off upstage'),
+    OUT(3, '2-02', 214.0, fade=1.0, note='Hamilton alone in the button, into the dark'),
+    # 2-03 Take a Break
+    F(3, '2-03', 1.0, 'eliza', size=2.8, level=0.7, note='Eliza and Philip at the piano SL (film 10-30); one pool on the two'),
+    F(1, '2-03', 29.0, 'angelica', level=0.8, note='Angelica\'s letter from the gallery (film 30, 50)'),
+    OUT(1, '2-03', 58.4, note='she fades back'),
+    F(3, '2-03', 76.0, 'laurens', level=0.9, note='Philip\'s poem beside the piano SL (film 76-100; no longer in the DSC special, so the spot carries him)'),
+    OUT(3, '2-03', 101.5, note='he goes back to the piano'),
+    F(1, '2-03', 104.5, 'eliza', size=2.8, level=0.8, note='the duet DC, Eliza and Hamilton hand in hand (film 106-126); one pool on the two'),
+    OUT(1, '2-03', 127.5, note='he goes back to the desk'),
+    F(2, '2-03', 131.6, 'angelica', level=0.9, note='Angelica on the SR stair top (film 132-180: lit there), down it and to the family; her gallery key cannot reach her there'),
+    F(1, '2-03', 184.5, 'eliza', level=0.85, note='Eliza runs to her sister (film 189) and through the trio'),
+    F(3, '2-03', 182.5, 'hamilton', level=0.85, note='Hamilton SL of them, staying behind (film 189-245)'),
+    OUT(1, '2-03', 265.8, note='the family goes'),
+    OUT(2, '2-03', 266.4, note='the family goes'),
+    OUT(3, '2-03', 279.0, fade=2.0, note='Hamilton alone at the desk into the dark'),
+    # 2-04 Say No to This
+    F(2, '2-04', 0.8, 'burr', level=0.8, note='Burr tells it SR (cue 780.01)'),
+    F(3, '2-04', 16.0, 'peggy', level=0.75, gel='R02', note='Maria at her door SL (film 10: lit in the street); a warm frame, the red dress'),
+    F(1, '2-04', 20.6, 'hamilton', level=0.85, note='Hamilton, the whole number (film 61-233: the pool goes with him)'),
+    OUT(2, '2-04', 22.5, note='Burr goes up to watch from the back, in the dark'),
+    F(2, '2-04', 131.0, 'ens4', level=0.8, note='James Reynolds DR with his letter (film 133-155)'),
+    OUT(2, '2-04', 153.6, note='James goes off DSR'),
+    F(2, '2-04', 232.4, 'ens4', level=0.7, note='James back SR for the money (film 233)'),
+    OUT(3, '2-04', 234.0, note='Maria goes'),
+    OUT(2, '2-04', 234.4, note='James goes'),
+    OUT(1, '2-04', 236.0, fade=0.8, note='the fade to black (cue 834)'),
+    # 2-05 The Room Where It Happens
+    F(1, '2-05', 5.6, 'burr', level=0.8, note='Burr, the narrator, the whole number (film: he carries it in a pool of his own)'),
+    F(3, '2-05', 5.0, 'hamilton', level=0.75, note='Hamilton with Burr SL (film 10-40), then at the table and back'),
+    F(2, '2-05', 97.6, 'lafayette', level=0.85, note='Jefferson\'s account DSL and his approach to Madison (film 100-117)'),
+    OUT(2, '2-05', 118.2, note='the three into the room: the table special has them'),
+    F(2, '2-05', 142.4, 'mulligan', level=0.85, note='Madison weighs it DSR (film 145) and the deal with Jefferson (film 165)'),
+    OUT(2, '2-05', 175.4, note='the third entry'),
+    OUT(3, '2-05', 271.2, note='Hamilton leaves with his chair (882)'),
+    OUT(1, '2-05', 314.5, fade=0.3, note='the last click-boom: the button special has him (892/894)'),
 ]
 # ===== END SEGMENT 5 =====
 

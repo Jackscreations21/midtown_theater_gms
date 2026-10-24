@@ -280,3 +280,20 @@ def theta_of(p, cx=0.0, cz=0.95):
 def revolve_by(a, r, dth, t0, t1, step=30, facing=None, cx=0.0, cz=0.95):
     th0 = theta_of(cur(a), cx, cz)
     return revolve(a, r, th0, th0 + dth, t0, t1, step=step, facing=facing, cx=cx, cz=cz)
+
+# ---------------------------------------------------------------- film round (2026-10-24): travel instead of standing
+WANDER = [(0.3, 0.15), (-0.05, -0.3), (-0.3, 0.1), (0.15, 0.3), (0.0, 0.0)]
+def wander(a, t0, t1, every=4.0, offs=None, facing=None, look=None, ph=0):
+    """Keep a body travelling round her mark from t0 to t1: a short walk (0.3-0.6 m) to the next offset every
+    `every` s, back on her mark by t1. `look` = a point she keeps turned to; `ph` shifts the cycle per body."""
+    offs = offs or WANDER
+    bx, bz = cur(a)
+    lvl = last(a)['lvl']
+    k, g = 0, t0 + every
+    while g < t1 - 1.0:
+        dx, dz = offs[(k + ph) % len(offs)]
+        p = (round(bx + dx, 3), round(bz + dz, 3))
+        go(a, [(p[0], p[1], lvl)], t_end=g, facing=face(p, look) if look else facing, hold=False)
+        k += 1; g += every
+    go(a, [(bx, bz, lvl)], t_end=t1, facing=face((bx, bz), look) if look else facing, hold=False)
+    return t1
