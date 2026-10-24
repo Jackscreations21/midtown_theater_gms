@@ -2192,3 +2192,12 @@ include the place a failure would show — the corridor behind the house, not on
 - **A door hinged on its west jamb opens across a way in from the west.** `hangLeaf` hinges at x0 and swings +z; open, the
   leaf stands perpendicular to the wall and blocked the cross passage. The pit's door is hinged at x1 (`pitHang`, doorLeaf's
   s −1); `doors.check()` reads its reveals and sweep the same way.
+- **With the Browser pane hidden the page gets NO animation frames at all** (not merely slow ones): a test that waits on
+  real frames hangs. Use the page's synchronous steps (`MIDTOWN.frame()`, `MIDTOWN.company.debug.step(dt, n)`) or front
+  the pane.
+- **House 1's SL prompt corner is a pocket**, closed by the set's SL brick at z 2.08 and SL Boom 2's tower (x −7.35,
+  z 1.21). The prompt desk had to move upstage of the worklight switch to fit (x −8.72…−8.17, z 1.13…1.98).
+- **A layer over the actors must be off inside `actors.check()`.** The company's backstage walk owns the poses while
+  `CO.on`; the check now saves and clears it, then restores it. Any new layer needs the same.
+- **A lit material in the booth catches the lobby's SpotLights through the walls** (a SpotLight here casts no shadow): the
+  operators use an unlit matcap.

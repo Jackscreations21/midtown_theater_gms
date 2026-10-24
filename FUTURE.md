@@ -915,3 +915,12 @@ for it, anything it would collide with.
 
 **Size:** a guess at the number of PRs.
 ```
+
+### The stage manager — what is not built (2026-10-24, RULINGS GM–GQ built)
+- An actor late to places (sometimes someone is in the WC at PLACES), so a hold matters.
+- The audience filling the seats before HOUSE OPEN ends (low-poly silhouettes; measure the frame first).
+- A show relay: the stage's sound at a low level in the backstage rooms and corridor.
+- Calling single light cues (his GO fires each cue): ruled OUT for now by his answer.
+- Bodies visible waiting in the wings after GO (the blocking parks everyone OFF at the act tops, FJ hides them).
+- A dark pre-aim before a snap pick-up, so the operator does not jump with the unit (changes `follow.check`).
+- The operators and the walking company in the walk's collision grid (they move; the grid is static).

@@ -218,6 +218,39 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 #show .sh-list .sh-rec { color: var(--muted); font-style: italic; }
 #show .sh-list .sh-aud { color: var(--accent); }
 @media (max-width: 640px) { #show { width: calc(100% - 24px); } #build:not([hidden]) ~ #show { right: 12px; } }
+/* the stage manager's calling panel (THE STAGE MANAGER): the Show panel's look, on the left; the God mic over the view */
+#sm { position: absolute; top: 12px; left: 12px; width: 340px; max-height: calc(100% - 64px); overflow: auto; background: rgb(23,21,27); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; display: grid; grid-auto-rows: max-content; gap: 7px; font-size: 12px; z-index: 6; }
+#sm[hidden] { display: none; }
+#sm h2 { font-size: 12px; font-weight: 600; margin: 4px 0 0; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+#sm .row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+#sm button { padding: 4px 8px; font-size: 12px; }
+#sm button[aria-pressed=true] { border-color: var(--accent); color: var(--accent); }
+#sm label { color: var(--muted); display: flex; align-items: center; gap: 4px; }
+#sm .note { color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+#sm .sm-head { position: sticky; top: -10px; z-index: 1; display: flex; align-items: center; justify-content: space-between; margin: -10px -12px 0; padding: 8px 12px 6px; background: rgb(23,21,27); border-bottom: 1px solid var(--line); }
+#sm .sm-head b { font-size: 13px; font-weight: 600; }
+#sm .sm-states { display: flex; flex-wrap: wrap; gap: 2px 8px; font: 10px var(--mono); color: var(--muted); }
+#sm .sm-states .on { color: var(--accent); font-weight: 600; }
+#sm .sm-state { font: 600 16px var(--mono); color: var(--accent); }
+#sm .sm-clock { font: 12px var(--mono); color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+#sm .sm-next { font: 12px var(--mono); color: var(--fg); min-height: 1.4em; overflow-wrap: anywhere; }
+#sm .sm-sb, #sm .sm-go { flex: 1; padding: 8px; font-weight: 600; }
+#sm .sm-sb[aria-pressed=true] { background: #5a1610; border-color: #ff4a30; color: #fff; }
+#sm .sm-go { background: #1f4d2a; border-color: #3f9a55; }
+#sm .sm-any { border-color: #a0602a; }
+#sm kbd { font: 10px var(--mono); color: var(--muted); margin-left: 4px; }
+#sm .sm-refused { color: #ff9b7a; }
+#sm .sm-cv { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 4px; }
+#sm .sm-log { display: grid; max-height: 170px; overflow: auto; border: 1px solid var(--line); border-radius: 4px; padding: 2px 0; }
+#sm .sm-l { display: flex; gap: 6px; padding: 1px 6px; font: 11px var(--mono); }
+#sm .sm-l span:first-child { color: var(--muted); flex: none; }
+#sm .sm-l b { font-weight: 600; flex: none; min-width: 3.6em; }
+#sm .sm-l.sm b { color: var(--accent); } #sm .sm-l.mic { color: #e8d9b0; } #sm .sm-l.co { color: var(--muted); }
+#sm textarea { width: 100%; box-sizing: border-box; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; font: 12px var(--mono); resize: vertical; }
+#sm-mic { position: absolute; left: 50%; bottom: 48px; transform: translateX(-50%); z-index: 6; max-width: min(640px, calc(100% - 32px)); pointer-events: none; background: rgba(23,21,27,.92); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; font: 13px/1.4 var(--sans, system-ui, sans-serif); color: var(--fg); }
+#sm-mic[hidden] { display: none; }
+#sm-mic b { font: 600 10px var(--mono); color: var(--accent); letter-spacing: .06em; margin-right: 6px; }
+@media (max-width: 640px) { #sm { width: calc(100% - 24px); } }
 </style>
 </head>
 <body>
@@ -511,7 +544,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|orchestra pit)$/.test(o.name)) o.traverse(take);   // orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not)
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not)
   baked.traverse(take);
   return list;
 }
@@ -4409,13 +4442,17 @@ function showHouse(up) {                                  // the house lights, a
 // preset), the audio pauses, the house lights come up, and the show waits for Play, which steps into the held track and takes
 // the house out again. Jack: "at the end of nonstop it blacks out then the lights go back to what they were at preshow and it
 // waits for me to press play". Seeking anywhere clears a hold.
+// THE STAGE MANAGER's hook (RULING GM): a track is held at its top for its own `hold` (the interval) or for the prompt desk's
+// calling mode (smHolds: `songs` holds every number while the desk is in use; with the desk unused it is always false).
+const showHeld = j => !!SHW.d.tracks[j].hold || smHolds(j);
 function showHold() {
   const tr = SHW.d.tracks[SHW.ti];
   SHW.lt = tr.len + tr.post; showFireTo(tr.start + tr.len + tr.post - 1e-6);   // after its tail (FQ)
   SHW.playing = false; SHW.hold = true; SHW.gap = true;
   if (SHW.A) SHW.A.pause();
   if (SND.check) { SND.check = null; SND.note = ''; }      // a check cut short by the interval says nothing (the next seek re-arms it)
-  showHouse(true); showUI(true); requestRender();
+  if (SHW.d.tracks[SHW.ti + 1].hold) showHouse(true);       // the interval brings the house up; a song held by the desk (GM) leaves it as it is
+  showUI(true); requestRender();
 }
 function showPause(on = SHW.playing) {
   if (!SHW.on) return showStart(!on);
@@ -4489,7 +4526,7 @@ function showTick(dt, silent = false) {
       // 384.99 + 0.01 lands an ulp short of 385: roll over (or hold) here, or showFireTo's own tolerance fires the next track's 0.0 cue first
       while (SHW.lt >= tr[SHW.ti].len + tr[SHW.ti].post - 1e-7) {
         if (SHW.ti + 1 >= tr.length) { showFireTo(SHW.d.end); showEnd(); return true; }
-        if (tr[SHW.ti + 1].hold) { showHold(); return true; }
+        if (showHeld(SHW.ti + 1)) { showHold(); return true; }   // the interval, or the desk's hold (GM)
         SHW.lt -= tr[SHW.ti].len + tr[SHW.ti].post + tr[SHW.ti + 1].pre; SHW.ti++;
         if (!silent) showTrackAudio();
       }
@@ -4525,7 +4562,7 @@ function showAudioEnded() {                                  // an event, not a 
   showFireTo(tr[SHW.ti].start + tr[SHW.ti].len - 1e-6);     // the cues the track's end left waiting
   if (tr[SHW.ti].post > 0) { showTail(); return; }          // 1-23's ten seconds, 2-23's open end (FQ): the clock runs on
   if (SHW.ti + 1 >= tr.length) { showEnd(); return; }
-  if (tr[SHW.ti + 1].hold) { showHold(); return; }
+  if (showHeld(SHW.ti + 1)) { showHold(); return; }         // the interval, or the desk's hold (GM)
   SHW.ti++; SHW.lt = -tr[SHW.ti].pre; showTrackAudio(); showFireTo(showT()); showUI(true);
 }
 function showAudioEl() {
@@ -4733,7 +4770,7 @@ function showSoundTick() {                                   // the file's time 
   while (i + 1 < tr.length && tr[i + 1].file <= t + 1e-3) i++;
   while (i > 0 && tr[i].file > t + 1e-3) i--;
   if (i !== SHW.ti) {
-    if (i > SHW.ti && tr.slice(SHW.ti + 1, i + 1).some(x => x.hold)) { showHold(); return; }   // the interval: the file runs on, the show does not
+    if (i > SHW.ti && tr.slice(SHW.ti + 1, i + 1).some(x => showHeld(x.i))) { showHold(); return; }   // (or the desk's hold, GM)   // the interval: the file runs on, the show does not
     if (i > SHW.ti) showFireTo(tr[SHW.ti].start + tr[SHW.ti].len - 1e-6);   // the cues the last track's end left waiting
     SHW.ti = i;
     if (SHW.files.has(i)) { SHW.lt = Math.max(0, t - tr[i].file); showTrackAudio(); return; }   // his own file for this one wins
@@ -4989,7 +5026,7 @@ function showHud() {
   H.time.textContent = `${m}:${s.toFixed(1).padStart(4, '0')}`;
   H.sec.textContent = `${t.toFixed(1)} s in · of ${showFmt(tr.len)}`;
   H.cue.textContent = c && c.ti === SHW.ti ? `Q ${c.q}${c.label ? ` · ${c.label}` : ''}` : c ? `Q ${c.q} (from ${D.tracks[c.ti].id})` : 'before the first cue';
-  H.state.textContent = (SHW.hold ? `${D.tracks[SHW.ti + 1].hold} — press Play` : SHW.playing ? '' : 'paused') + (SND.note && SHW.A === SHW.stA ? (SHW.playing && !SHW.hold ? '' : ' · ') + SND.note : '');
+  H.state.textContent = (SHW.hold ? `${D.tracks[SHW.ti + 1].hold || 'Held for the GO'} — press Play` : SHW.playing ? '' : 'paused') + (SND.note && SHW.A === SHW.stA ? (SHW.playing && !SHW.hold ? '' : ' · ') + SND.note : '');
 }
 function showUI(force) {
   const E = SHW.E, D = SHW.d;
@@ -5004,7 +5041,7 @@ function showUI(force) {
     E.audio.textContent = ''; return;
   }
   const tr = D.tracks[SHW.ti], c = D.cues[SHW.cue], nx = D.cues[SHW.cue + 1];
-  E.now.textContent = SHW.hold ? `${D.tracks[SHW.ti + 1].hold} — press Play for ${D.tracks[SHW.ti + 1].title}` : c ? `Q ${c.q}${c.label ? ` · ${c.label}` : ''} · ${tr.title} ${showFmt(SHW.lt)}` : `${tr.id} ${tr.title} ${showFmt(SHW.lt)} · before the first cue`;
+  E.now.textContent = SHW.hold ? `${D.tracks[SHW.ti + 1].hold || 'Held for the GO'} — press Play for ${D.tracks[SHW.ti + 1].title}` : c ? `Q ${c.q}${c.label ? ` · ${c.label}` : ''} · ${tr.title} ${showFmt(SHW.lt)}` : `${tr.id} ${tr.title} ${showFmt(SHW.lt)} · before the first cue`;
   E.next.textContent = nx ? `Next: ${showCueLine(nx)}${nx.ti === SHW.ti || nx.T - showT() < 600 ? ` · in ${showFmt(nx.T - showT())}` : ''}` : 'Next: — (the last cue)';
   E.clock.textContent = `${tr.id} ${showFmt(SHW.lt)} / ${showFmt(tr.len)}`;
   if (!SHW.scrubbing) { E.scrub.min = String(-tr.pre); E.scrub.max = String(showScrubMax(tr)); E.scrub.value = String(SHW.lt); }
@@ -6804,24 +6841,26 @@ function actUpdate(T) {
   const held = RIG.parts ? propHeld(T) : null;
   for (const a of ACT.actors) {
     if (!a.c) a.c = actCompile(a);
-    const p = actPose(a, T), o = a.obj;
+    const p = (CO.on && coPose(a)) || actPose(a, T), o = a.obj;   // THE STAGE MANAGER (GP): backstage, the company's walk decides the pose (null in show mode)
     o.position.set(p.x, p.y, p.z); o.rotation.set(0, p.yaw, 0);
     o.visible = ACT.shown && p.visible; o.userData.pose = p; actTagSet(a, p.label); a.tag.visible = ACT.names;
-    if (held && o.visible) {                                 // FS: what the limbs read besides FL's fields — all pure functions of T
+    if (held && o.visible && !p.co) {                        // FS: what the limbs read besides FL's fields — all pure functions of T (a company pose brings its own)
       p.T = T;
       p.rise = p.speed > 0.05 ? actGround(p.x + Math.sin(p.yaw) * 0.35, p.z + Math.cos(p.yaw) * 0.35, p.y, p.ey, p.ey2, T) - p.y : 0;   // the floor ahead (stairs; a prop's top she stands on)
       const h = held.get(a.id);
       p.carry = h ? propCarryPose(h.p, h.q, p) : null;
     }
-    if (held && o.visible) p.dance = danceAt(a, T);         // FV: the move she is in (pure: the moves, the beat grid, T)
+    if (held && o.visible && !p.co) p.dance = danceAt(a, T); // FV: the move she is in (pure: the moves, the beat grid, T)
     if (typeof o.userData.animate === 'function') { try { o.userData.animate(p, o); } catch (e) { /* a limb rig's own failure never stops the show */ } }
     if (RIG.parts && o.visible && o.userData.body.userData.parts) { try { danceApply(a, p, o); } catch (e) { console.warn('dance:', e); } }
+    if (CO.on) coBubble(a);                                  // THE STAGE MANAGER: an answer's bubble over her head
   }
   propUpdate(T);
   if (RIG.parts) { danceProps(T); handProps(); }             // FV: a prop hoisted or turned over by the dancer carrying it; GF: one in her hand                                             // after the actors: a carried prop rides with her pose
 }
 function actTick(dt, force = false) {
   if (!ACT.ready) return false;
+  if (CO.on) { coTick(dt); force = true; }                  // THE STAGE MANAGER (GP): backstage, the company's walk clock runs off this dt and every body is re-posed
   const T = actNow();
   if (force || ACT.dirty || T !== ACT.T || SHW.d !== ACT.compiledFor) { const t0 = performance.now(); actUpdate(T); ACT.ms = performance.now() - t0; ACT.T = T; ACT.dirty = false; requestRender(); actUI(false); }
   if (ACT.helpDirty) actHelpers();
@@ -7368,6 +7407,7 @@ async function actInit() {
 function actCheck(opts = {}) {
   if (!SHW.d) return { error: 'the show is not loaded yet' };
   const t0 = performance.now(), wasOn = SHW.on, wasT = showT(), wasPlaying = SHW.playing;
+  const coWas = CO.on; CO.on = false;                     // the blocking alone: the company's backstage walk (THE STAGE MANAGER, GP) waits
   for (const a of ACT.actors) a.c = actCompile(a);
   for (const p of ACT.props) p.c = propCompile(p);
   for (const a of ACT.actors) a.dc = danceCompile(a);       // FV: the moves, on the beat grid
@@ -7418,6 +7458,7 @@ function actCheck(opts = {}) {
   });
   const pass = eq.every(e => e.posM <= 1e-4 && e.yawRad <= 1e-4 && !e.visibility && !e.labels && e.limbRad <= 1e-4);
   if (wasOn) { showSeekT(wasT); if (wasPlaying) showPause(false); } else { showStop(false); showSeekT(wasT); }
+  CO.on = coWas;
   actTick(0, true);
   return { pass: pass && !problems.length, seekEquivalence: { pass, points: eq }, problems, warnings, actors: ACT.actors.map(a => ({ id: a.id, name: a.name, waypoints: a.path.length, moves: (a.moves || []).length })),
     props: ACT.props.map(p => ({ id: p.id, kind: p.kind, waypoints: p.waypoints.length })), ms: Math.round(performance.now() - t0) };
@@ -7732,6 +7773,1555 @@ const FOL_API = {
   get perf() { return Object.assign({ tickMs: +FOL.ms.toFixed(3) }, FOL.perf); },
   tune: { FOL_SIZES, FOL_GELS, FOL_TOP },
 };
+
+/* ---------------------------------------------------------------- THE STAGE MANAGER: THE DESK AND THE CALLING
+   Jack: "make a stage manger thing where i can call ther show and i can give 5 minuet and plcsses calss for the actors"; "make
+   it so … i have to start each song or i just have to call the starts of both halfs". The spec is docs/superpowers/specs/
+   2026-10-24-stage-manager-design.md (RULINGS GM–GQ, binding). This section is builder A's part: MIDTOWN.sm.
+   THE DESK (GO). A prompt desk in house 1's prompt corner: the stage-left wall, just upstage of the worklight's switch box,
+   at deck level, its caller sitting between the wall and the desk and facing the stage (smBuildDesk, measured off the
+   worklight's own switch: WORKLIGHT.list[0].swFace / target.cz). The corner is a pocket: the set's SL brick closes the wing
+   at z 2.08 (measured with the walk's rays), SL Boom 2's tower stands at x −7.35, z 1.21; the desk fits z 1.13…1.98. A sloped top with the prompt book, a small monitor (a canvas
+   plan with the bodies as dots, redrawn a few times a second while anyone is near or the panel is open — NOT a second 3D
+   render: smMonDraw), the desk's two cue lights (red STANDBY, green GO), a headset on a hook and the God mic on a gooseneck.
+   E at the desk while walking (a target of THE DOORS' aim, SM.target) sits the walker there and opens THE CALLING PANEL;
+   E or Esc leaves. Seated, S is STANDBY and Space is GO (smKey, a capture-phase listener ahead of the walk's: the walk never
+   sees the keys while seated). The stool is not in the walk's grid (the seat is inside it); the desk is ('prompt desk').
+   THE HOLDS (GM). One mechanism with the interval's (showHold): showHeld(j) in the show player is the track's own `hold`
+   (2-01, the interval) OR smHolds(j) — `songs` mode while the desk is in use holds at the top of every number (the clock stops
+   at the track's start, its lead-in included); `acts` adds nothing (the album runs on, number into number, as Play does).
+   A song hold leaves the house lights where they are (the interval's brings them up). GO is showPause(false) on a hold — the
+   held track's audio and clock start together — or showStart / showPause(false) at the top. With the desk unused
+   (SM.engaged false) nothing here touches the show: the Show panel behaves exactly as before.
+   THE STATE (PRESHOW → HOUSE OPEN → HALF → FIFTEEN → FIVE → PLACES → ACT ONE → INTERVAL → (FIFTEEN, FIVE, PLACES) → ACT TWO →
+   CURTAIN). The calls move it, in any order he likes (GP: times are not enforced); the first GO of an act moves it into the
+   act, and is refused while anyone is not at places (MIDTOWN.company.state().missing) unless he presses "GO anyway"; the
+   interval comes on its own when the show holds at 2-01; CURTAIN is his call after the bows.
+   THE OTHER BUILDERS, through the contract only, every call guarded: MIDTOWN.company (B: call(kind), state(), on(fn), act)
+   and MIDTOWN.booth (C: standby(), go()). With no company, places counts as complete and there are no answers; with no booth,
+   Lights and Sound answer the standby from here (SM_STUB). Their lines come back through MIDTOWN.sm.log(who, text).
+   THE GOD MIC: the call as text over the view (#sm-mic) and, with the desk's toggle, the browser's own voice (speechSynthesis).
+   FRONT OF HOUSE: the house manager on the headset ("House is open", "House is in, you're clear"), and the preshow
+   announcement (OUR text: phones off, no photography, enjoy the show) on Act One's GO, before the house goes out.
+   THE SHOW REPORT: every call and GO with its time, the acts' run times, the interval, every GO without a standby and every
+   "GO anyway" with who was missing, and his notes; downloaded as a text file, the last one kept in localStorage.
+   TIME: answers, lamps and the announcement run off the frame's dt (smTick, riding lxPanelTick); timestamps are the wall
+   clock (Date), which is what a show report records. No setTimeout. */
+const SM_STATES = ['PRESHOW', 'HOUSE OPEN', 'HALF', 'FIFTEEN', 'FIVE', 'PLACES', 'ACT ONE', 'INTERVAL', 'ACT TWO', 'CURTAIN'];
+const SM_BACKSTAGE = new Set(['PRESHOW', 'HOUSE OPEN', 'HALF', 'FIFTEEN', 'FIVE', 'PLACES', 'INTERVAL']);   // the company is off stage: B's layer owns the bodies
+const SM_DESK = { dz: 0.35, w: 0.85, d: 0.55, gap: 0.78, top: [1.00, 1.12], seat: 0.48, eye: 1.22, pitch: -0.10 };   // the desk's middle upstage of the switch, its length along the wall, depth, its near edge off the wall, the top's near / far height over the deck; the seat off the wall; the seated eye
+const SM_MON = { w: 512, h: 272, hz: 4, near: 7 };            // the monitor's canvas; redraws a second; drawn while the walker is within `near` m of the desk (or the panel is open)
+const SM_STUB = [['Lights', 'Standing by', 0.8], ['Sound', 'Standing by', 1.4]];   // with no booth (MIDTOWN.booth): who answers a standby, and after how long (s of frame time)
+const SM_LAMP_GO = 2.0;                                       // s: the green GO lamp stays lit, then out
+const SM_KEY = 'midtown.sm.report';                            // localStorage: the last show report
+// The words. The calls are a stage manager's own; the preshow announcement is ours (RULING: no lyrics, no production copy).
+const SM_WORDS = {
+  house: 'Ladies and gentlemen of the company, the house is now open. Please keep off the stage. The house is open.',
+  half: 'Ladies and gentlemen of the company, this is your half-hour call. Half an hour, please.',
+  fifteen: 'Ladies and gentlemen of the company, this is your fifteen-minute call. Fifteen minutes, please.',
+  five: 'Ladies and gentlemen of the company, this is your five-minute call. Five minutes, please.',
+  places1: 'Places, please, for the top of Act One. Places, please.',
+  places2: 'Places, please, for the top of Act Two. Places, please.',
+  interval: 'Thank you, Act One. That is the interval. Fifteen minutes, please.',
+  curtain: 'And that is the curtain. Thank you, everybody, a lovely show.',
+  preshow: 'Good evening, and welcome to the Midtown. Before we begin, please make sure your mobile phones are switched off. '
+    + 'Photography and recording of any kind are not permitted during the performance. Thank you, and enjoy the show.',
+};
+const SM_CALLS = [['house', 'House open'], ['half', 'Half'], ['fifteen', 'Fifteen'], ['five', 'Five'], ['places', 'Places'], ['curtain', 'Curtain']];
+const SM = {
+  state: 'PRESHOW', act: 1, mode: 'acts', engaged: false, seated: false, voice: true, chatter: false,
+  standby: null, refused: null, pending: null, armed: -1, queue: [], lamp: { sb: false, go: 0 }, lastCall: null, ended: false, wasHold: false, going: false,
+  desk: null, stool: null, target: null, lamps: null, mon: null, el: null, E: {}, mic: null, micT: 0, log: [], co: null, coFn: null,
+  report: null, uiT: 0, perf: { ms: 0, max: 0, n: 0 },
+};
+const smCo = () => window.MIDTOWN && window.MIDTOWN.company || null;   // builder B's, when it is there
+const smBooth = () => window.MIDTOWN && window.MIDTOWN.booth || null;  // builder C's
+const smNow = () => new Date();
+const smClock = d => d.toTimeString().slice(0, 8);
+const smDur = ms => { const s = Math.max(0, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return `${h}:${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
+function smFreshReport() { return { started: smNow(), mode: SM.mode, calls: [], gos: [], acts: { 1: null, 2: null }, interval: null, noStandby: [], anyway: [], notes: '', done: null }; }
+SM.report = smFreshReport();
+
+// ---- THE HOLD (GM): the show player's showHeld(j) asks this as well as the track's own `hold`.
+function smHolds(j) { return SM.engaged && SM.mode === 'songs' && j > 0 && j !== SM.armed && !!SHW.d && j < SHW.d.tracks.length; }   // armed: a GO given early
+
+// ---- THE DESK
+function smBuildDesk() {
+  if (SM.desk) return SM.desk;
+  const w = WORKLIGHT.list.find(r => r.house === 1);
+  const wall = w ? w.swFace : -9.50, zc = (w ? w.target.cz : HOUSE.archZ + WORKLIGHT.sw.dz) + SM_DESK.dz, deck = HOUSE.deckY;
+  const D = SM_DESK, x0 = wall + D.gap, x1 = x0 + D.d, xm = (x0 + x1) / 2, z0 = zc - D.w / 2, z1 = zc + D.w / 2;
+  const B = (sx, sy, sz, x, y, z) => new THREE.BoxGeometry(sx, sy, sz).translate(x, y, z);
+  const wood = wlStd(0x4a4038, 0.75, 0.22), steel = wlStd(0x45484e, 0.50, 0.20, 0.4), paper = wlStd(0xe9e3d3, 0.9, 0.55), black = wlStd(0x1c1c20, 0.6, 0.10), foam = wlStd(0x1b1b1d, 0.95, 0.06);   // a wing is dark: they glow a little, as the desk's own blue lamp would show them
+  const mesh = (name, geos, mat) => wlMesh(`prompt desk: ${name}`, geos, mat);
+  // the cabinet (a box on the deck, its front a kick panel) and the sloped top, low edge to the caller
+  const [yn, yf] = D.top, slope = Math.atan2(yf - yn, D.d), topY = (yn + yf) / 2 + deck;
+  const top = new THREE.BoxGeometry(D.d / Math.cos(slope) + 0.04, 0.03, D.w + 0.04).rotateZ(slope).translate(xm, topY, zc);
+  const cab = [B(D.d - 0.06, yn - 0.04, D.w - 0.04, xm + 0.02, deck + (yn - 0.04) / 2, zc), top,
+    B(0.03, 0.10, D.w + 0.04, x0 - 0.005, deck + yn - 0.05, zc)];           // the lip the book rests against
+  // the monitor on its arm at the upstage end of the far edge, its screen toward the caller
+  const mz = z1 - 0.20, my = deck + yf + 0.26, mx = x1 - 0.06;
+  const mon = [B(0.04, 0.30, 0.46, mx + 0.03, my, mz), B(0.03, 0.22, 0.03, mx + 0.04, deck + yf + 0.06, mz), B(0.12, 0.015, 0.16, mx + 0.03, deck + yf + 0.01, mz)];
+  const cv = document.createElement('canvas'); cv.width = SM_MON.w; cv.height = SM_MON.h;
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.42 * SM_MON.h / SM_MON.w).rotateY(-Math.PI / 2).translate(mx - 0.002, my, mz),
+    new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+  screen.name = 'prompt desk: monitor screen';
+  // the prompt book, open on the slope: two leaves either side of the spine
+  const book = [];
+  for (const s of [-1, 1]) book.push(new THREE.BoxGeometry(0.30, 0.012, 0.21).translate(0, 0, s * 0.108).rotateZ(slope).translate(xm - 0.02, topY + 0.022, zc - 0.12));
+  const cover = new THREE.BoxGeometry(0.31, 0.008, 0.45).rotateZ(slope).translate(xm - 0.02, topY + 0.016, zc - 0.12);
+  // the cue lights: a small panel at the downstage end of the far edge, red STANDBY over green GO
+  const lz = z0 + 0.10, ly = deck + yf + 0.09, lx = x1 - 0.05;
+  const panel = [B(0.03, 0.16, 0.08, lx + 0.02, ly, lz)];
+  const lampMat = c => new THREE.MeshBasicMaterial({ color: c, toneMapped: false });
+  const red = new THREE.Mesh(new THREE.SphereGeometry(0.018, 12, 8).translate(lx, ly + 0.035, lz), lampMat(0x2a0806));
+  const green = new THREE.Mesh(new THREE.SphereGeometry(0.018, 12, 8).translate(lx, ly - 0.035, lz), lampMat(0x062a0a));
+  red.name = 'prompt desk: standby lamp'; green.name = 'prompt desk: go lamp';
+  // the God mic: a gooseneck from the top's downstage corner toward the caller, its capsule foam-black
+  const gb = new THREE.Vector3(x0 + 0.10, deck + yn + 0.035, z0 + 0.12), gm = new THREE.Vector3(x0 + 0.06, deck + yn + 0.22, z0 + 0.14), gt = new THREE.Vector3(x0 - 0.06, deck + yn + 0.30, z0 + 0.16);
+  const neck = [wlRod(gb, gm, 0.006, 6), wlRod(gm, gt, 0.006, 6), new THREE.CylinderGeometry(0.03, 0.035, 0.02, 14).translate(gb.x, gb.y, gb.z)];
+  const capsule = [new THREE.SphereGeometry(0.018, 10, 8).scale(1.6, 1, 1).translate(gt.x - 0.01, gt.y, gt.z)];
+  // the headset on a hook on the cabinet's downstage end: the hook, the band, two cups and the boom mic
+  const hz = z0 + 0.02, hy = deck + 0.82, hx = xm - 0.05;
+  const hook = [B(0.02, 0.02, 0.06, hx, hy, hz - 0.03)];
+  const band = new THREE.TorusGeometry(0.085, 0.008, 6, 18, Math.PI).translate(hx, hy - 0.085, hz - 0.06);   // a half ring over x, its top on the hook
+  const cups = [-1, 1].map(s => new THREE.CylinderGeometry(0.035, 0.035, 0.03, 14).rotateZ(Math.PI / 2).translate(hx + s * 0.085, hy - 0.10, hz - 0.06));
+  const boomA = new THREE.Vector3(hx + 0.085, hy - 0.11, hz - 0.08), boomB = new THREE.Vector3(hx + 0.03, hy - 0.19, hz - 0.11);
+  const headset = [band, ...cups, wlRod(boomA, boomB, 0.004, 5)];
+  // the group: in the walk's grid by name ('prompt desk')
+  const g = new THREE.Group(); g.name = 'prompt desk'; g.userData.house = 1;
+  g.add(mesh('cabinet', cab, wood), mesh('monitor', mon, steel), screen, mesh('book cover', [cover], black), mesh('book', book, paper),
+    mesh('cue lights', panel, steel), red, green, mesh('god mic', neck, steel), mesh('god mic capsule', capsule, foam), mesh('hook', hook, steel), mesh('headset', headset, black));
+  // the stool (not in the grid: the seat is where the walker sits)
+  const sx = wall + D.seat, stoolH = 0.66;
+  const st = [new THREE.CylinderGeometry(0.17, 0.17, 0.05, 18).translate(sx, deck + stoolH, zc), new THREE.CylinderGeometry(0.025, 0.025, stoolH - 0.02, 8).translate(sx, deck + stoolH / 2, zc),
+    new THREE.CylinderGeometry(0.20, 0.22, 0.025, 18).translate(sx, deck + 0.0125, zc), new THREE.TorusGeometry(0.15, 0.01, 6, 20).rotateX(Math.PI / 2).translate(sx, deck + 0.24, zc)];
+  const stool = new THREE.Group(); stool.name = 'prompt desk stool';
+  stool.add(mesh('stool', st, steel));
+  scene.add(g, stool); g.updateMatrixWorld(true); stool.updateMatrixWorld(true);
+  SM.desk = g; SM.stool = stool;
+  SM.lamps = { red, green, offR: new THREE.Color(0x2a0806), onR: new THREE.Color(0xff2a14), offG: new THREE.Color(0x062a0a), onG: new THREE.Color(0x24ff4a) };
+  SM.mon = { cv, g: cv.getContext('2d'), tex, screen, t: 0, base: null, key: '' };
+  SM.seat = new THREE.Vector3(sx, deck, zc);
+  SM.target = { name: 'prompt desk', kind: 'prompt desk', cx: xm, cz: zc, fy: deck, label: () => SM.seated ? 'At the prompt desk · S standby · Space GO · E or Esc to leave · drag to look' : 'E — sit at the prompt desk (call the show)', use: () => smSit(true) };
+  smMonDraw(true);
+  colliderStale();                                            // the walk's grid takes the desk in
+  console.info(`stage manager: the prompt desk in house 1's prompt corner — the wall at x ${wall.toFixed(3)}, the desk x ${x0.toFixed(2)}…${x1.toFixed(2)}, z ${z0.toFixed(2)}…${z1.toFixed(2)}; the seat at (${sx.toFixed(2)}, ${zc.toFixed(2)})`);
+  return g;
+}
+
+// ---- THE MONITOR: a plan of house 1's stage and the backstage block, the bodies as dots (audience view: SL on the right)
+const SM_PLAN = { x0: -10.6, x1: 30.6, z0: -0.6, z1: 17.6 };
+function smMonXY(x, z) {
+  const P = SM_PLAN, top = 30, s = Math.min((SM_MON.w - 16) / (P.x1 - P.x0), (SM_MON.h - top - 8) / (P.z1 - P.z0));
+  const ox = (SM_MON.w - s * (P.x1 - P.x0)) / 2;
+  return [ox + (P.x1 - x) * s, top + (P.z1 - z) * s, s];
+}
+function smMonBase() {
+  const c = document.createElement('canvas'); c.width = SM_MON.w; c.height = SM_MON.h;
+  const g = c.getContext('2d'), R = (xa, za, xb, zb) => { const [ax, ay] = smMonXY(xa, za), [bx, by] = smMonXY(xb, zb); return [Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay)]; };
+  g.fillStyle = '#0b1118'; g.fillRect(0, 0, c.width, c.height);
+  g.lineWidth = 1;
+  // backstage: the block, the corridor wall, the rooms
+  g.strokeStyle = '#2a3a4c'; g.fillStyle = '#111b26';
+  g.fillRect(...R(BACKSTAGE.x0, BACKSTAGE.stageZ.h1, BACKSTAGE.x1, BACKSTAGE.farZ)); g.strokeRect(...R(BACKSTAGE.x0, BACKSTAGE.stageZ.h1, BACKSTAGE.x1, BACKSTAGE.farZ));
+  g.beginPath(); { const [ax, ay] = smMonXY(BACKSTAGE.x0, BACKSTAGE.corridorZ), [bx] = smMonXY(BACKSTAGE.x1, 0); g.moveTo(ax, ay); g.lineTo(bx, ay); } g.stroke();
+  g.font = '8px system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#5c7188';
+  for (const r of BACKSTAGE.rooms) {
+    const [ax, ay] = smMonXY(r.x0, BACKSTAGE.roomZ0), [bx, by] = smMonXY(r.x1, BACKSTAGE.roomZ1);
+    g.strokeRect(Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay));
+    g.fillText(r.name.replace('DRESSING ROOM', 'DR'), (ax + bx) / 2, (ay + by) / 2);
+  }
+  // Theatre 2's stage, dim
+  g.strokeStyle = '#1f2a36'; g.strokeRect(...R(HOUSE2.dx - 9.8, HOUSE.glbArchZ, HOUSE2.dx + 10.0, HOUSE.backZ));
+  // house 1's stage: the stage house, the set's sides, the proscenium opening (bright), the deck in front
+  g.fillStyle = '#16212d'; g.fillRect(...R(-9.8, HOUSE.archZ, 10.0, BACKSTAGE.stageZ.h1));
+  g.strokeStyle = '#3d556e'; g.strokeRect(...R(-9.8, HOUSE.archZ, 10.0, BACKSTAGE.stageZ.h1));
+  g.setLineDash([3, 3]); g.strokeStyle = '#33485d';
+  for (const x of [-8.65, 8.65]) { const [ax, ay] = smMonXY(x, HOUSE.archZ + 0.5), [, by] = smMonXY(x, BACKSTAGE.stageZ.h1); g.beginPath(); g.moveTo(ax, ay); g.lineTo(ax, by); g.stroke(); }
+  g.setLineDash([]);
+  g.strokeStyle = '#e2a640'; g.lineWidth = 2;
+  { const [ax, ay] = smMonXY(-HOUSE.openW / 2, HOUSE.archZ), [bx] = smMonXY(HOUSE.openW / 2, HOUSE.archZ); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, ay); g.stroke(); }
+  g.lineWidth = 1; g.fillStyle = '#5c7188'; g.font = '9px system-ui, sans-serif';
+  { const [x, y] = smMonXY(0, HOUSE.archZ - 0.45); g.fillText('HOUSE', x, y); }
+  { const [x, y] = smMonXY(-9.0, 5.5); g.save(); g.translate(x, y); g.rotate(-Math.PI / 2); g.fillText('SL', 0, 0); g.restore(); }
+  { const [x, y] = smMonXY(9.3, 5.5); g.save(); g.translate(x, y); g.rotate(-Math.PI / 2); g.fillText('SR', 0, 0); g.restore(); }
+  { const [x, y] = smMonXY(HOUSE2.dx, 5.5); g.fillStyle = '#2f3e4e'; g.fillText('THEATRE 2', x, y); }
+  return c;
+}
+const smV = new THREE.Vector3();
+function smMonDraw(force) {
+  const M = SM.mon; if (!M) return;
+  if (!M.base) M.base = smMonBase();
+  const g = M.g, W = SM_MON.w;
+  g.drawImage(M.base, 0, 0);
+  // the bar: the state and the show's clock
+  g.fillStyle = '#1b2a3c'; g.fillRect(0, 0, W, 24);
+  g.textBaseline = 'middle'; g.textAlign = 'left'; g.font = '600 13px system-ui, sans-serif'; g.fillStyle = '#c9d6e6';
+  g.fillText(`STAGE · ${SM.state}${SM_BACKSTAGE.has(SM.state) && SM.state !== 'PRESHOW' && SM.state !== 'INTERVAL' ? ` (Act ${SM.act === 1 ? 'One' : 'Two'})` : ''}`, 8, 12);
+  g.textAlign = 'right'; g.font = '12px ui-monospace, monospace';
+  const D = SHW.d;
+  g.fillStyle = SHW.hold ? '#e2a640' : SHW.playing ? '#7fd18a' : '#6f8399';
+  g.fillText(D ? `${D.tracks[SHW.ti].id} ${showFmt(SHW.lt)}${SHW.hold ? ' HOLD' : SHW.playing ? '' : ' ‖'}` : '—', W - 8, 12);
+  // the bodies
+  let n = 0;
+  for (const a of ACT.actors) {
+    if (!a.obj) continue;
+    a.obj.getWorldPosition(smV);
+    const [x, y] = smMonXY(smV.x, smV.z);
+    g.beginPath(); g.arc(x, y, 3.2, 0, Math.PI * 2);
+    if (a.obj.visible) { g.fillStyle = a.color || '#d8d8d8'; g.fill(); } else { g.strokeStyle = '#55606c'; g.stroke(); }
+    n++;
+  }
+  // the desk
+  if (SM.seat) { const [x, y] = smMonXY(SM.seat.x, SM.seat.z); g.fillStyle = '#e2a640'; g.fillRect(x - 3, y - 3, 6, 6); g.font = '8px system-ui, sans-serif'; g.textAlign = 'right'; g.fillText('SM', x - 5, y); }
+  g.textAlign = 'left'; g.font = '9px system-ui, sans-serif'; g.fillStyle = '#6f8399'; g.fillText(`${n} bodies`, 6, SM_MON.h - 7);
+  M.tex.needsUpdate = true; requestRender();
+}
+
+// ---- THE CUE LIGHTS (the desk's own)
+function smLamps() {
+  const L = SM.lamps; if (!L) return;
+  L.red.material.color.copy(SM.lamp.sb ? L.onR : L.offR);
+  L.green.material.color.copy(SM.lamp.go > 0 ? L.onG : L.offG);
+  requestRender();
+}
+
+// ---- THE GOD MIC and the headset
+function smSpeak(text, voice) {
+  if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) return null;
+  try { const u = new SpeechSynthesisUtterance(text); u.rate = 1.0; if (voice) Object.assign(u, voice); speechSynthesis.speak(u); return u; } catch (e) { return null; }
+}
+function smMic(text, who = 'God mic') {
+  SM.micT = Math.max(4, text.length / 14 + 1.5);
+  if (!SM.mic) { const el = document.createElement('div'); el.id = 'sm-mic'; el.hidden = true; el.setAttribute('aria-live', 'polite'); document.getElementById('stage').append(el); SM.mic = el; }
+  SM.mic.innerHTML = ''; const b = document.createElement('b'); b.textContent = who.toUpperCase(); SM.mic.append(b, document.createTextNode(' ' + text)); SM.mic.hidden = false;
+  smLog(who, text, 'mic');
+  return SM.voice ? smSpeak(text) : null;
+}
+// A line on the headset (or the God mic): the panel's log and the report's record. MIDTOWN.sm.log(who, text) — the booth's and
+// the company's lines come in here.
+function smLog(who, text, kind = '') {
+  const e = { t: smNow(), who: String(who || ''), text: String(text || ''), kind };
+  SM.log.push(e); if (SM.log.length > 400) SM.log.shift();
+  if (SM.chatter && kind !== 'mic' && who !== 'SM') smSpeak(`${e.who}: ${e.text}`, { pitch: 0.8, rate: 1.1 });
+  if (SM.E.log) smLogRow(e);
+  return e;
+}
+function smLogRow(e) {
+  const L = SM.E.log, d = document.createElement('div'); d.className = 'sm-l ' + (e.kind || (e.who === 'SM' ? 'sm' : ''));
+  const t = document.createElement('span'); t.textContent = smClock(e.t); const w = document.createElement('b'); w.textContent = e.who; const x = document.createElement('span'); x.textContent = e.text;
+  d.append(t, w, x); L.append(d); while (L.children.length > 200) L.firstChild.remove();
+  L.scrollTop = L.scrollHeight;
+}
+
+// ---- THE COMPANY (B) through the contract
+function smHookCompany() {
+  const C = smCo();
+  if (!C || SM.co === C || typeof C.on !== 'function') return;
+  SM.co = C;
+  SM.coFn = ev => {
+    if (!ev) return;
+    if (ev.type === 'answer') smLog(ev.label || ev.id || 'company', ev.text || 'Thank you', 'co');
+    else if (ev.type === 'allPlaces') { smLog('ASM', `Everyone is at places for Act ${SM.act === 1 ? 'One' : 'Two'}`); SM.refused = null; }
+    smUI(true);
+  };
+  try { C.on(SM.coFn); } catch (e) { console.warn('stage manager: the company would not take a listener —', e); }
+}
+function smPlaces() {                                         // → { complete, at, of, missing: [labels], none }
+  const C = smCo();
+  let s = null; try { s = C && typeof C.state === 'function' ? C.state() : null; } catch (e) { s = null; }
+  if (!s) return { complete: true, at: 0, of: 0, missing: [], none: true };
+  const lab = new Map((s.bodies || []).map(b => [b.id, b.label || b.id]));
+  const missing = (s.missing || []).map(id => lab.get(id) || String(id));
+  return { complete: missing.length === 0, at: s.atPlaces || 0, of: s.of || (s.bodies || []).length, missing, none: false, s };
+}
+function smCompanyCall(kind) {
+  const C = smCo(); if (!C) return;
+  try { C.act = SM.act; if (typeof C.call === 'function') C.call(kind); }   // act: which act's starts PLACES walks to (A sets it)
+  catch (e) { console.warn(`stage manager: the company's ${kind} call failed —`, e); }
+}
+
+// ---- THE CALLS (GP)
+function smEngage() { if (!SM.engaged) { SM.engaged = true; SM.report = smFreshReport(); SM.report.mode = SM.mode; } }
+function smCall(kind) {
+  const act2 = SM.state === 'INTERVAL' || (SM.act === 2 && SM_BACKSTAGE.has(SM.state));
+  if (kind === 'clear') return smClear();
+  if (kind === 'curtain') {
+    if (SM.state !== 'ACT TWO') { smLog('ASM', 'Curtain is for after the bows, in Act Two'); return false; }
+    smEngage();
+    SM.report.calls.push({ t: smNow(), kind: 'Curtain' });
+    if (SM.report.acts[2]) SM.report.acts[2].end = smNow();
+    SM.state = 'CURTAIN'; SM.standby = null; SM.lamp.sb = false; smLamps();
+    smMic(SM_WORDS.curtain); smCompanyCall('curtain');
+    if (SHW.on) showHouse(true);                             // the house lights up for the audience going out
+    SM.report.done = smNow(); smSaveReport();
+    smLog('FOH', 'House lights are up. Thank you, everyone.');
+    smUI(true); return true;
+  }
+  if (!SM_BACKSTAGE.has(SM.state)) { smLog('ASM', `No ${kind} call during ${SM.state}`); return false; }
+  if (kind === 'house') {
+    if (act2 || SM.state === 'INTERVAL') { smLog('ASM', 'The house opens before Act One'); return false; }
+    smEngage(); SM.state = 'HOUSE OPEN'; SM.act = 1;
+    if (SHW.d) showSeek(0, -SHW.d.tracks[0].pre);             // the preshow look, house lights up (the panel's own preshow)
+    smMic(SM_WORDS.house); smCompanyCall('home');
+    smLog('FOH', 'House is open');
+  } else if (kind === 'half') {
+    if (act2) { smLog('ASM', 'The half is before Act One'); return false; }
+    smEngage(); SM.state = 'HALF'; smMic(SM_WORDS.half); smCompanyCall('half');
+  } else if (kind === 'fifteen' || kind === 'five' || kind === 'places') {
+    smEngage(); SM.state = kind.toUpperCase();
+    smMic(kind === 'places' ? SM_WORDS['places' + SM.act] : SM_WORDS[kind]); smCompanyCall(kind);
+  } else return false;
+  SM.lastCall = { kind, t: smNow(), act: SM.act };
+  SM.report.calls.push({ t: SM.lastCall.t, kind: SM_CALLS.find(c => c[0] === kind)[1] + (SM.act === 2 ? ' (interval)' : '') });
+  smUI(true); return true;
+}
+function smClear() {                                           // "Clear to start?" — front of house answers
+  smLog('SM', 'FOH, are we clear to start?');
+  const p = smPlaces();
+  if (!SM_BACKSTAGE.has(SM.state) || SM.state === 'PRESHOW') { SM.queue.push({ t: 1.0, who: 'FOH', text: SM.state === 'PRESHOW' ? 'The house is not open yet' : 'You are already running' }); return false; }
+  SM.queue.push({ t: 1.2, who: 'FOH', text: p.complete ? "House is in, you're clear" : `House is in — but backstage is not: ${p.missing.length} not at places` });
+  return p.complete;
+}
+
+// ---- STANDBY and GO (GN)
+function smNext() {                                            // the sequence the next GO starts: { i, track, top }
+  const D = SHW.d; if (!D) return null;
+  const tr = D.tracks;
+  let i;
+  if (!SHW.on) i = SM_BACKSTAGE.has(SM.state) && SM.act === 1 ? 0 : SHW.ti;
+  else if (SHW.hold) i = SHW.ti + 1;
+  else if (!SHW.playing) i = SHW.ti;
+  else if (SM.mode === 'songs') i = SHW.ti + 1 < tr.length ? SHW.ti + 1 : -1;
+  else { i = -1; for (let j = SHW.ti + 1; j < tr.length; j++) if (tr[j].hold) { i = j; break; } }
+  if (i < 0 || i >= tr.length) return null;
+  return { i, track: tr[i] };
+}
+function smStandby() {
+  const n = smNext();
+  if (!n) { smLog('SM', 'Standby… (nothing to stand by for)'); return false; }
+  smEngage();
+  SM.standby = { i: n.i, t: smNow() };
+  SM.lamp.sb = true; SM.lamp.go = 0; smLamps();
+  smLog('SM', `Standby lights and sound, ${n.track.title}`);
+  const B = smBooth();
+  if (B && typeof B.standby === 'function') { try { B.standby(); } catch (e) { console.warn('stage manager: the booth standby failed —', e); } }
+  else for (const [who, text, t] of SM_STUB) SM.queue.push({ t, who, text });
+  smUI(true); return true;
+}
+function smGo(anyway = false) {
+  const D = SHW.d;
+  if (!D) { smLog('ASM', 'The show is not loaded yet'); return false; }
+  if (SM.pending) { SM.pending.t = 0; SM.pending.done = true; return true; }   // GO again during the announcement: the house goes out now
+  if (SM.state === 'CURTAIN') { smLog('ASM', 'The show is down'); return false; }
+  const n = smNext();
+  if (!n) { smLog('SM', 'Go… (nothing is held)'); return false; }
+  const first = SM_BACKSTAGE.has(SM.state);                    // the first GO of an act
+  const early = !first && SHW.on && SHW.playing && !SHW.hold;  // songs mode, the number before still running: the GO is taken now and that top is not held
+  if (early && n.track.hold) { smLog('ASM', 'The interval comes first'); return false; }
+  if (first && !anyway) {
+    const p = smPlaces();
+    if (!p.complete) {
+      SM.refused = { missing: p.missing.slice(), t: smNow() };
+      smLog('ASM', `Not yet — ${p.missing.length} not at places: ${p.missing.slice(0, 8).join(', ')}${p.missing.length > 8 ? ' …' : ''}`);
+      smUI(true); return false;
+    }
+  }
+  smEngage();
+  const tr = n.track, R = SM.report, now = smNow();
+  const go = { t: now, track: `${tr.id} ${tr.title}`, standby: !!(SM.standby && SM.standby.i === n.i), anyway: first && anyway, missing: first && anyway && SM.refused ? SM.refused.missing.slice() : [] };
+  if (go.anyway && !go.missing.length) go.missing = smPlaces().missing;
+  R.gos.push(go);
+  if (!go.standby) R.noStandby.push(go);
+  if (go.anyway) R.anyway.push(go);
+  SM.refused = null; SM.standby = null;
+  SM.lamp.sb = false; SM.lamp.go = SM_LAMP_GO; smLamps();
+  smLog('SM', `Lights and sound… GO${go.anyway ? ' (anyway)' : ''}`);
+  const B = smBooth(); if (B && typeof B.go === 'function') { try { B.go(); } catch (e) { console.warn('stage manager: the booth go failed —', e); } }
+  if (early) { SM.armed = n.i; smLog('ASM', `${tr.title} will run straight on`); smUI(true); return true; }
+  if (first) {
+    SM.act = tr.act; SM.state = tr.act === 2 ? 'ACT TWO' : 'ACT ONE'; SM.ended = false;
+    const C = smCo(); if (C) { try { C.act = SM.act; } catch (e) { /* read-only: B's to say */ } }
+    R.acts[SM.act] = { start: now, end: null };
+    if (SM.act === 2 && R.interval && !R.interval.end) R.interval.end = now;
+    if (SM.act === 1) {                                         // the preshow announcement first, then the house goes out and the show starts
+      const u = smMic(SM_WORDS.preshow, 'Front of house');
+      const est = Math.max(4, SM_WORDS.preshow.length / 15);   // s: about how long the voice takes (its own end event ends it sooner)
+      SM.pending = { t: u ? est + 3 : est, spoken: !!u, done: false };
+      if (u) u.onend = () => { if (SM.pending) SM.pending.done = true; };   // an event, not a timer: the voice has finished
+      smUI(true); return true;
+    }
+  }
+  smStart();
+  smUI(true); return true;
+}
+function smStart() {                                           // the held sequence: its audio and its clock together
+  SM.going = true;
+  if (!SHW.on) showStart(true); else showPause(false);
+  SM.going = false; SM.wasHold = SHW.hold;
+}
+
+// ---- THE FRAME (riding lxPanelTick): answers, lamps, the announcement, the interval, the monitor, the panel
+function smTick(dt) {
+  const t0 = performance.now();
+  let moved = false;
+  if (SM.queue.length) {
+    for (const q of SM.queue) q.t -= dt;
+    while (SM.queue.length && SM.queue[0].t <= 0) { const q = SM.queue.shift(); smLog(q.who, q.text); }
+    SM.queue.sort((a, b) => a.t - b.t);
+  }
+  if (SM.lamp.go > 0) { SM.lamp.go -= dt; if (SM.lamp.go <= 0) { SM.lamp.go = 0; smLamps(); } }
+  if (SM.pending) { SM.pending.t -= dt; if (SM.pending.done || SM.pending.t <= 0) { SM.pending = null; smStart(); smUI(true); } }
+  if (SM.micT > 0) { SM.micT -= dt; if (SM.micT <= 0 && SM.mic) SM.mic.hidden = true; }
+  if (SM.engaged) {
+    smHookCompany();
+    // the interval: the show held itself at 2-01 (its own `hold`) — the company goes home, the clock of the interval starts
+    if (SM.state === 'ACT ONE' && SHW.on && SHW.hold && SHW.d.tracks[SHW.ti + 1] && SHW.d.tracks[SHW.ti + 1].hold) {
+      SM.state = 'INTERVAL'; SM.act = 2; const now = smNow();
+      if (SM.report.acts[1]) SM.report.acts[1].end = now;
+      SM.report.interval = { start: now, end: null };
+      smMic(SM_WORDS.interval); smCompanyCall('interval');
+      smLog('FOH', 'Interval — the bars are open'); smUI(true);
+    }
+    // a song hold (songs mode): the ASM says where it stands
+    if (SHW.hold && !SM.wasHold && SM.state !== 'INTERVAL') { const tr = SHW.d.tracks[SHW.ti + 1]; if (tr) smLog('ASM', `Holding — the top of ${tr.id} ${tr.title}`); smUI(true); }
+    SM.wasHold = SHW.on && SHW.hold;
+    if (SM.armed >= 0 && SHW.ti >= SM.armed) SM.armed = -1;
+    if (SM.state === 'ACT TWO' && !SM.ended && SHW.on && SHW.ti === SHW.d.tracks.length - 1 && SHW.lt >= SHW.d.tracks[SHW.ti].len) {
+      SM.ended = true; smLog('ASM', 'That is the end of the music — call Curtain after the bows'); smUI(true);
+    }
+  }
+  // the monitor, a few times a second, only while someone can see it
+  if (SM.mon) {
+    const near = SM.seated || (SM.el && !SM.el.hidden) || (walking && SM.seat && Math.hypot(player.pos.x - SM.seat.x, player.pos.z - SM.seat.z) < SM_MON.near);
+    if (near && (SM.mon.t -= dt) <= 0) { SM.mon.t = 1 / SM_MON.hz; smMonDraw(); moved = true; }
+  }
+  if (SM.el && !SM.el.hidden && (SM.uiT -= dt) <= 0) { SM.uiT = 0.25; smUI(false); }
+  const ms = performance.now() - t0, P = SM.perf; P.ms = ms; P.max = Math.max(P.max, ms); P.n++;
+  return moved;
+}
+
+// ---- SEATED: the walker at the desk (the walk's step is swapped for this while seated)
+function smSit(on) {
+  if (on === SM.seated) { if (on) smPanel(true); return SM.seated; }
+  if (on) {
+    if (!walking || !SM.seat) return false;
+    SM.back = player.pos.clone();
+    player.pos.copy(SM.seat); const g = groundAt(SM.seat.x, SM.seat.z, SM.seat.y + 0.2); if (g !== null) player.pos.y = g;
+    player.vel.set(0, 0, 0); player.onGround = true; player.crouched = false;
+    yaw = -Math.PI / 2; pitch = SM_DESK.pitch;                 // facing the stage (+x)
+    keys.clear();
+    if (document.pointerLockElement === canvas) document.exitPointerLock();   // the mouse to the panel
+    SM.seated = true; smPanel(true);
+    smLog('SM', 'On headset');
+  } else {
+    SM.seated = false; keys.clear();
+    player.eyeH = Math.min(player.eyeH, WALK.eye);
+    smPanel(false);
+  }
+  hint.textContent = SM.seated ? 'At the prompt desk · S standby · Space GO · E or Esc to leave · drag to look' : HINT_ORBIT;
+  if (!SM.seated && walking) walkHint();
+  requestRender();
+  return SM.seated;
+}
+function smSeatStep(dt) {
+  const was = player.eyeH;
+  player.eyeH += (SM_DESK.eye - player.eyeH) * Math.min(1, dt * 6);
+  if (Math.abs(player.eyeH - SM_DESK.eye) < 1e-3) player.eyeH = SM_DESK.eye;
+  player.bob = 0; placeCamera();
+  return player.eyeH !== was;
+}
+const walkStepSM = walkStep;
+walkStep = dt => SM.seated ? smSeatStep(dt) : walkStepSM(dt);  // seated: no walking, no gravity; the look still works
+
+// THE KEYS, ahead of the walk's listener (capture on window): seated (or the panel open in the orbit view), the desk's own.
+function smKey(e) {
+  if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if (editing) return;
+  const open = SM.el && !SM.el.hidden;
+  if (!SM.seated && !(open && !walking)) return;
+  const swallow = () => { e.preventDefault(); e.stopPropagation(); };
+  if (e.code === 'KeyE' || e.code === 'Escape') { if (!e.repeat) { if (SM.seated) smSit(false); else smPanel(false); } swallow(); return; }
+  if (e.code === 'KeyS') { if (!e.repeat) smStandby(); swallow(); return; }
+  if (e.code === 'Space') { if (!e.repeat) smGo(false); swallow(); return; }
+  if (SM.seated && /^(Key[WADC]|Arrow|Shift)/.test(e.code)) swallow();   // no walking off with the desk
+}
+addEventListener('keydown', smKey, true);
+
+// ---- THE CALLING PANEL
+function smBuildPanel() {
+  if (SM.el) return;
+  const el = SM.el = document.createElement('div'); el.id = 'sm'; el.hidden = true;
+  el.innerHTML = `<div class="sm-head"><b>Prompt desk</b><button class="sm-x" title="Leave the desk (E or Esc)">Leave</button></div>
+<div class="sm-states" aria-label="Where the show is"></div>
+<div class="row"><span class="sm-state"></span><span class="sm-clock"></span></div>
+<div class="row" role="group" aria-label="Calling mode"><span class="note">Hold at</span><button class="sm-m" data-m="songs" title="The show holds at the top of every number: GO starts each">every number</button><button class="sm-m" data-m="acts" title="The show holds only at the tops of Act One and Act Two; the album runs on between">the two acts</button></div>
+<div class="sm-next"></div>
+<div class="row"><button class="sm-sb" title="S">STANDBY <kbd>S</kbd></button><button class="sm-go" title="Space">GO <kbd>Space</kbd></button><button class="sm-any" hidden title="Start the act with people missing (the report notes who)">GO anyway</button></div>
+<div class="sm-refused note"></div>
+<h2>Calls</h2>
+<div class="row sm-calls"></div>
+<div class="row"><button class="sm-clear" title="Front of house: is the house in?">Clear to start?</button><label><input class="sm-voice" type="checkbox" checked> God mic voice</label><label><input class="sm-chat" type="checkbox"> Headset voice</label></div>
+<h2>Company</h2>
+<div class="sm-co note"></div>
+<h2>Monitor</h2>
+<div class="sm-mon"></div>
+<h2>Headset</h2>
+<div class="sm-log" aria-live="polite"></div>
+<h2>Show report</h2>
+<textarea class="sm-notes" rows="3" placeholder="Notes for the report"></textarea>
+<div class="row"><button class="sm-dl">Download report</button><button class="sm-last" title="The last report this browser kept">Last report</button><button class="sm-reset" title="Back to PRESHOW (the report starts again)">New show</button></div>
+<div class="note sm-rep"></div>`;
+  document.getElementById('stage').appendChild(el);
+  const q = s => el.querySelector(s), E = SM.E;
+  Object.assign(E, { states: q('.sm-states'), state: q('.sm-state'), clock: q('.sm-clock'), next: q('.sm-next'), sb: q('.sm-sb'), go: q('.sm-go'), any: q('.sm-any'), refused: q('.sm-refused'),
+    calls: q('.sm-calls'), co: q('.sm-co'), log: q('.sm-log'), notes: q('.sm-notes'), rep: q('.sm-rep'), modes: [...el.querySelectorAll('.sm-m')], callBtns: {} });
+  for (const s of SM_STATES) { const d = document.createElement('span'); d.textContent = s; d.dataset.s = s; E.states.append(d); }
+  for (const [k, t] of SM_CALLS) { const b = document.createElement('button'); b.textContent = t; b.dataset.k = k; E.calls.append(b); E.callBtns[k] = b; }
+  E.calls.addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) smCall(b.dataset.k); });
+  for (const b of E.modes) b.addEventListener('click', () => smMode(b.dataset.m));
+  q('.sm-x').addEventListener('click', () => { if (SM.seated) smSit(false); else smPanel(false); });
+  E.sb.addEventListener('click', () => smStandby());
+  E.go.addEventListener('click', () => smGo(false));
+  E.any.addEventListener('click', () => smGo(true));
+  q('.sm-clear').addEventListener('click', () => smClear());
+  q('.sm-voice').addEventListener('change', e => { SM.voice = e.target.checked; if (!SM.voice && window.speechSynthesis) speechSynthesis.cancel(); });
+  q('.sm-chat').addEventListener('change', e => { SM.chatter = e.target.checked; });
+  E.notes.addEventListener('input', () => { SM.report.notes = E.notes.value; });
+  q('.sm-dl').addEventListener('click', () => smDownload());
+  q('.sm-last').addEventListener('click', () => smDownload(true));
+  q('.sm-reset').addEventListener('click', () => smReset());
+  // the buttons never keep the focus: Space is GO, not "press the last button again"
+  el.addEventListener('click', e => { if (e.target.closest('button') && document.activeElement && document.activeElement.blur) document.activeElement.blur(); });
+  if (SM.mon) { SM.mon.cv.className = 'sm-cv'; q('.sm-mon').append(SM.mon.cv); }   // the monitor's own canvas: the same picture as on the desk
+  for (const e of SM.log) smLogRow(e);
+  smUI(true);
+}
+function smPanel(on) {
+  smBuildPanel();
+  SM.el.hidden = !on;
+  if (on && SM.mon) { SM.mon.t = 0; }
+  smUI(true);
+}
+function smMode(m) {
+  if (m !== 'songs' && m !== 'acts') return SM.mode;
+  if (SM.mode !== m) { SM.mode = m; if (SM.engaged) { SM.report.mode = m; smLog('SM', `Calling ${m === 'songs' ? 'every number' : 'the two acts'}`); } }
+  smUI(true); return SM.mode;
+}
+function smUI(force) {
+  const E = SM.E; if (!E.state || (!force && SM.el.hidden)) return;
+  for (const d of E.states.children) d.className = d.dataset.s === SM.state ? 'on' : '';
+  E.state.textContent = SM.state + (SM_BACKSTAGE.has(SM.state) && !['PRESHOW', 'INTERVAL'].includes(SM.state) ? ` · Act ${SM.act === 1 ? 'One' : 'Two'}` : '');
+  const D = SHW.d;
+  E.clock.textContent = `${smClock(smNow())}${D ? ` · ${D.tracks[SHW.ti].id} ${showFmt(SHW.lt)}${SHW.hold ? ' HOLD' : SHW.on && SHW.playing ? '' : ' paused'}` : ''}`;
+  for (const b of E.modes) b.setAttribute('aria-pressed', String(b.dataset.m === SM.mode));
+  const n = smNext();
+  E.next.textContent = SM.pending ? 'Front of house is speaking — the house goes out after' : n ? `Next: ${n.track.id} ${n.track.title}${SM_BACKSTAGE.has(SM.state) ? ` (the top of Act ${n.track.act === 2 ? 'Two' : 'One'})` : ''}${SM.standby && SM.standby.i === n.i ? ' · standing by' : ''}` : 'Next: — nothing held';
+  E.sb.setAttribute('aria-pressed', String(!!SM.standby));
+  E.go.disabled = !n || SM.state === 'CURTAIN';
+  E.any.hidden = !SM.refused;
+  E.refused.textContent = SM.refused ? `Refused: not at places — ${SM.refused.missing.join(', ')}` : '';
+  const back = SM_BACKSTAGE.has(SM.state);
+  for (const [k, b] of Object.entries(E.callBtns)) {
+    b.disabled = k === 'curtain' ? SM.state !== 'ACT TWO' : !back || ((k === 'house' || k === 'half') && (SM.act === 2 || SM.state === 'INTERVAL'));
+    b.setAttribute('aria-pressed', String(!!SM.lastCall && SM.lastCall.kind === k && SM.lastCall.act === SM.act && back));
+  }
+  // the company: who has answered the last call, who is at places
+  const p = smPlaces();
+  if (p.none) E.co.textContent = 'No company backstage on this page: places counts as complete, no answers.';
+  else {
+    const last = SM.lastCall && SM.lastCall.kind !== 'house' ? SM.lastCall.kind : null, bodies = (p.s && p.s.bodies) || [];
+    const ans = last ? bodies.filter(b => b.answered && b.answered[last]) : [];
+    E.co.textContent = `${last ? `Answered "${last}": ${ans.length} of ${bodies.length}${ans.length && ans.length < bodies.length ? ` (not yet: ${bodies.filter(b => !(b.answered && b.answered[last])).map(b => b.label || b.id).slice(0, 10).join(', ')})` : ''} · ` : ''}`
+      + `At places: ${p.at} of ${p.of}${p.missing.length ? ` — missing ${p.missing.slice(0, 12).join(', ')}${p.missing.length > 12 ? ' …' : ''}` : ' — complete'}`;
+  }
+  const R = SM.report;
+  E.rep.textContent = `${R.calls.length} calls · ${R.gos.length} GOs · ${R.noStandby.length} without a standby · ${R.anyway.length} GO anyway${R.done ? ' · the report is kept (Last report)' : ''}`;
+  if (E.notes.value !== R.notes && document.activeElement !== E.notes) E.notes.value = R.notes;
+}
+
+// ---- THE SHOW REPORT
+function smReportText(R = SM.report) {
+  const d = x => x ? smClock(new Date(x)) : '—', L = [];
+  L.push('MIDTOWN — HAMILTON · SHOW REPORT', `Date: ${new Date(R.started).toDateString()}`, `Calling: ${R.mode === 'songs' ? 'every number held for its GO' : 'the two act tops (the album runs on between)'}`, '');
+  L.push('CALLS'); for (const c of R.calls) L.push(`  ${d(c.t)}  ${c.kind}`); if (!R.calls.length) L.push('  none');
+  L.push('', 'GOs'); for (const g of R.gos) L.push(`  ${d(g.t)}  ${g.track}${g.standby ? '' : '  [no standby]'}${g.anyway ? `  [GO anyway — missing: ${g.missing.join(', ') || 'nobody listed'}]` : ''}`); if (!R.gos.length) L.push('  none');
+  const run = a => a && a.start && a.end ? `${smDur(new Date(a.end) - new Date(a.start))} (${d(a.start)} – ${d(a.end)})` : a && a.start ? `from ${d(a.start)}, not ended` : '—';
+  L.push('', 'RUN TIMES', `  Act One:  ${run(R.acts[1])}`, `  Interval: ${run(R.interval)}`, `  Act Two:  ${run(R.acts[2])}`);
+  L.push('', `GOs WITHOUT A STANDBY: ${R.noStandby.length}`); for (const g of R.noStandby) L.push(`  ${d(g.t)}  ${g.track}`);
+  L.push('', `GO ANYWAY: ${R.anyway.length}`); for (const g of R.anyway) L.push(`  ${d(g.t)}  ${g.track} — missing: ${g.missing.join(', ') || 'nobody listed'}`);
+  L.push('', 'NOTES', ...(R.notes ? R.notes.split('\n').map(s => '  ' + s) : ['  none']));
+  return L.join('\n') + '\n';
+}
+function smSaveReport() {
+  const text = smReportText();
+  try { localStorage.setItem(SM_KEY, JSON.stringify({ at: smNow().toISOString(), text })); } catch (e) { /* storage refused: the download still works */ }
+  return text;
+}
+function smDownload(last = false) {
+  let text = null;
+  if (last) { try { const s = JSON.parse(localStorage.getItem(SM_KEY) || 'null'); text = s && s.text; } catch (e) { text = null; } if (!text) { smLog('ASM', 'No report kept in this browser yet'); return null; } }
+  else text = smSaveReport();
+  const a = document.createElement('a'), url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+  a.href = url; a.download = `midtown-show-report-${smNow().toISOString().slice(0, 10)}.txt`; document.body.append(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  return text;
+}
+function smReset() {
+  Object.assign(SM, { state: 'PRESHOW', act: 1, engaged: false, standby: null, refused: null, pending: null, armed: -1, queue: [], lastCall: null, ended: false, wasHold: false });
+  SM.lamp.sb = false; SM.lamp.go = 0; smLamps();
+  SM.report = smFreshReport();
+  if (SHW.hold && !(SHW.d && SHW.d.tracks[SHW.ti + 1] && SHW.d.tracks[SHW.ti + 1].hold)) showSeekT(showT());   // a song hold is the desk's: let it go
+  smCompanyCall('home');
+  smLog('SM', 'New show: back to preshow');
+  smUI(true);
+}
+function smState() {
+  const p = smPlaces(), n = smNext();
+  return { state: SM.state, act: SM.act, mode: SM.mode, engaged: SM.engaged, backstage: SM_BACKSTAGE.has(SM.state), seated: SM.seated,
+    lastCall: SM.lastCall ? { kind: SM.lastCall.kind, at: SM.lastCall.t.toISOString(), act: SM.lastCall.act } : null,
+    standby: SM.standby ? { track: SHW.d ? SHW.d.tracks[SM.standby.i].id : SM.standby.i } : null, refused: SM.refused ? SM.refused.missing.slice() : null,
+    next: n ? n.track.id : null, places: { complete: p.complete, at: p.at, of: p.of, missing: p.missing, company: !p.none },
+    show: { on: SHW.on, playing: SHW.playing, hold: SHW.hold, track: SHW.d ? SHW.d.tracks[SHW.ti].id : null, t: +SHW.lt.toFixed(2) },
+    lamps: { standby: SM.lamp.sb, go: SM.lamp.go > 0 }, log: SM.log.length, perf: Object.assign({}, SM.perf) };
+}
+
+// ---- the hooks: the frame (after the show's and the actors' ticks), the load's end (the desk, MIDTOWN.sm)
+const lxPanelTickSM = lxPanelTick;
+lxPanelTick = dt => { const a = lxPanelTickSM(dt), b = smTick(dt); return a || b; };
+const buildLightsPanelSM = buildLightsPanel;
+buildLightsPanel = () => {
+  buildLightsPanelSM();
+  try { smBuildDesk(); } catch (e) { console.error('stage manager: the prompt desk could not be built —', e); }
+  if (window.MIDTOWN) window.MIDTOWN.sm = {
+    log: (who, text) => smLog(who, text), state: () => smState(), call: kind => smCall(kind), standby: () => smStandby(), go: anyway => smGo(!!anyway),
+    mode: m => m === undefined ? SM.mode : smMode(m), sit: on => smSit(on !== false), panel: on => smPanel(on !== false), say: text => smMic(String(text)),
+    report: () => smReportText(), download: last => smDownload(!!last), reset: () => smReset(), monitor: () => smMonDraw(true),
+    get desk() { return SM.desk; }, get target() { return SM.target; }, get perf() { return Object.assign({}, SM.perf); }, words: SM_WORDS, tune: { SM_DESK, SM_MON, SM_STUB },
+  };
+};
+
+/* ---------------------------------------------------------------- THE STAGE MANAGER: THE BOOTH'S OPERATORS
+   Jack: "make it so there are atcually people in the spotbooth moving the lights". BINDING: docs/superpowers/specs/
+   2026-10-24-stage-manager-design.md, RULING GQ and "Proposed, built in v1" items 1–2 (builder C). MIDTOWN.booth.
+   - THREE SPOT OPERATORS in house 1's booth, one behind each Lycian, built from the actors' jointed mannequin (RIG.parts, the
+     same fifteen parts and geometry; an unlit matcap in blacks, opsMat, so no light reaches them through a wall). Each
+     unit's head grows two rear grips (OPS.grip, in the head's own frame: drawn by OPS, not part of the fixture model). Every
+     drawn frame the operator is put where the grips are: his yaw the head's heading, his feet OPS.reach behind the grips'
+     midpoint, his spine leaning to them, his head pitched with the beam; each PALM is put on its grip by the mannequin's own
+     side-view IK (rigArmTo), solved in the spine's frame (so lean and twist count) and corrected on the palm's measured place
+     twice. So the arms follow the pan and tilt exactly as the followspot engine turns the unit (folTick → folTurn); when the
+     tail swings he steps round with it (a step per OPS.step of arc, the feet lifted by the swing's speed).
+   - DARK → RELAXED: hands off, a step back, a slow weight shift. The hands go on OPS.pre s before a pick-up and come off
+     OPS.post s after an OUT has faded (from the spot's compiled plot, FOL.spots[i].L); with the show stopped, a unit lit by
+     hand (lx.set) has its hands on.
+   - A PURE FUNCTION OF THE SPOTS' STATE: the pose is computed outright from the unit's head as posed this frame, the show
+     time and the plot — nothing accumulates from frame to frame — so a seek poses them exactly as playing there does (seek =
+     play holds trivially; the follow engine's own check covers the units they hold). Only the idle breath with the show
+     stopped runs on this region's clock (cosmetic), and the GO reach and the lamps are events (below).
+   - THE DESK: a lighting operator and a sound operator seated in house 1's lighting desk position (buildDeskPosition's two
+     chairs), hands on the faders / the laptop; on go() the lighting operator reaches across to the console's GO and the
+     sound operator taps the laptop (OPS.reachT s, off the frame's dt).
+   - HEADSETS: every operator wears one. Replies go through MIDTOWN.sm.log(who, text) when the stage manager's desk is in
+     (builder A), else console.debug: standby() → "Lights standing by", "Sound standing by", "Spot one standing by" … ; each
+     followspot PICK-UP while the show PLAYS (not a seek) → "Spot two, I have Hamilton" (the head label she wears then).
+   - CUE LAMPS (red STANDBY, green GO, out OPS.green s after the GO): in the booth over the window and on both wings' walls
+     of house 1 (the SM desk's own are A's). Unlit materials, no light added; one mesh per colour for all three places.
+   - DRAWN ONLY WHEN IT PAYS: 80 draw calls between them (16 a body), and every visible mesh is drawn twice while a pool is
+     lit (the pools' depth pass). The booth's three are drawn with the camera in the booth, or in house 1 within OPS.near m
+     of the window with the booth in view; the desk's two with the camera in house 1 within OPS.deskNear m and the desk in
+     view. Hidden, they are neither posed nor drawn. Theatre 2 is untouched (its Lycians are props). Not in the walk's grid,
+     the build tools' or the pools' landing rays (userData.rig).
+   MIDTOWN.booth: standby(), go(), say(text, who), state(), check(opts), hands(), tick(dt, force), tune, perf. */
+const OPS = {
+  grip: { x: 0.18, y: -0.42, z: -0.90, post: -0.28, len: 0.12 },   // the Lycian head's rear grips: its frame (z the beam; the head is 2.01 m long, ±0.29 high)
+  palm: 0.0,             // m: the palm's centre this far behind the grip's centre (0: on it)
+  reach: 0.36,           // m: his feet behind the grips' midpoint, engaged
+  back: 0.18,            // m: and this much further back, relaxed
+  pre: 1.5, post: 1.0,   // s: hands on before a pick-up, off after an OUT's fade
+  arc: 1.75,             // m: his feet's distance from the pan axis (for the steps)
+  step: 0.32,            // m of arc per step as the tail swings
+  near: 18, deskNear: 24,// m: the culling ranges (see above)
+  green: 2.5,            // s: the green GO lamp's time on
+  reachT: 1.2,           // s: the GO reach
+  colors: { spot: 0x464854, lx: 0x3a4458, snd: 0x4a4238 },   // blacks, lifted: the booth and the house are dark through a show
+  lampY: 1.90, lampZ: 4.20,                                         // the wings' lamps: over the deck, and z (both walls are the scan's there, flat to 1 cm)
+};
+const OPS_NUM = ['one', 'two', 'three'];
+const OPS_S = { built: false, tried: false, err: null, group: null, boothG: null, deskG: null, spots: [], desk: [], lamps: null,
+  red: false, green: 0, goAt: -1e9, clock: 0, lastT: null, said: [], vis: { booth: false, desk: false }, ms: 0,
+  perf: { last: 0, avg: 0, max: 0, n: 0 } };
+const opsV = new THREE.Vector3(), opsW = new THREE.Vector3(), opsQ = new THREE.Vector3(), opsFr = new THREE.Frustum(), opsM4 = new THREE.Matrix4();
+const opsSph = { booth: new THREE.Sphere(), desk: new THREE.Sphere() };
+// THEIR MATERIAL IS A MATCAP (unlit, shaded by a small drawn sphere): a lit one took the LOBBY's spot lights through the booth's
+// walls (a SpotLight casts nothing here, TRAPS) and their heads and shoulders came out white in the dark booth. Unlit, they read
+// as dim figures in the booth's work light whatever the show does; no light costs anything for them, and the worklights'
+// patch leaves them alone. One texture, one material per colour.
+let opsCap = null;
+function opsMat(hex) {
+  if (!opsCap) {
+    const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+    const r = g.createRadialGradient(24, 20, 2, 32, 32, 32);
+    r.addColorStop(0, '#9a9a9a'); r.addColorStop(0.55, '#5a5a5a'); r.addColorStop(0.9, '#262626'); r.addColorStop(1, '#141414');
+    g.fillStyle = '#141414'; g.fillRect(0, 0, 64, 64); g.fillStyle = r; g.beginPath(); g.arc(32, 32, 32, 0, 2 * Math.PI); g.fill();
+    opsCap = new THREE.CanvasTexture(c); opsCap.colorSpace = THREE.SRGBColorSpace;
+  }
+  return new THREE.MeshMatcapMaterial({ color: hex, matcap: opsCap });
+}
+// A body: the actors' parts (rigBody's build) in its own material, a headset on the head part. → { g, body, P, seed, palm }
+function opsBody(name, mat, seedId, headset) {
+  const g = new THREE.Group(); g.name = name; g.userData.rig = true;
+  const body = new THREE.Group(), P = {};
+  for (const d of RIG.parts) {
+    const o = new THREE.Mesh(d.geo, mat); o.name = d.name; o.position.copy(d.pos);
+    o.castShadow = false; o.receiveShadow = false; o.userData.rig = true;
+    P[d.name] = o; (d.parent ? P[d.parent] : body).add(o);
+  }
+  const hs = new THREE.Mesh(headset, OPS_S.hsMat); hs.name = 'headset'; hs.userData.rig = true; P.head.add(hs);
+  g.add(body);
+  let h = 0; for (const ch of seedId) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const palm = {};
+  for (const s of ['L', 'R']) { const geo = RIG.parts.find(d => d.name === 'hand_' + s).geo; palm[s] = geo.boundingSphere.center.clone(); }
+  return { g, body, P, seed: (h % 1000) / 1000, palm };
+}
+// The headset, in the head part's frame: a band over the crown ear to ear, two cups, a boom to the mouth.
+function opsHeadsetGeo() {
+  const hd = RIG.parts.find(d => d.name === 'head').geo; hd.computeBoundingBox();
+  const b = hd.boundingBox, cx = (b.min.x + b.max.x) / 2, cz = (b.min.z + b.max.z) / 2, top = b.max.y, w = (b.max.x - b.min.x) / 2 + 0.008;
+  const ear = top - 0.11, gs = [];
+  const band = new THREE.TorusGeometry(w, 0.006, 4, 16, Math.PI).scale(1, (top + 0.006 - ear) / w, 1).translate(cx, ear, cz);
+  gs.push(band);
+  for (const s of [-1, 1]) gs.push(new THREE.CylinderGeometry(0.032, 0.032, 0.022, 10).rotateZ(Math.PI / 2).translate(cx + s * (w + 0.004), ear, cz));
+  const boom = new THREE.CylinderGeometry(0.004, 0.004, 0.13, 5).rotateX(Math.PI / 2 - 0.35).translate(cx + w - 0.01, ear - 0.035, cz + 0.06);
+  gs.push(boom, new THREE.SphereGeometry(0.011, 6, 4).translate(cx + w - 0.02, ear - 0.06, cz + 0.12));
+  const g = mergeGeometries(gs.map(x => x.index ? x.toNonIndexed() : x), false); gs.forEach(x => x.dispose());
+  return g;
+}
+// The two grips, in the Lycian head's frame (its own scale): a post down from the head's underside and a grip back from it.
+function opsGripGeo() {
+  const G = OPS.grip, gs = [];
+  for (const s of [-1, 1]) {
+    gs.push(new THREE.BoxGeometry(0.024, G.post - G.y + 0.02, 0.024).translate(s * G.x, (G.post + G.y) / 2, G.z + G.len / 2 - 0.012));
+    gs.push(new THREE.CylinderGeometry(0.017, 0.017, G.len, 10).rotateX(Math.PI / 2).translate(s * G.x, G.y, G.z));
+  }
+  const g = mergeGeometries(gs.map(x => x.toNonIndexed()), false); gs.forEach(x => x.dispose());
+  return g;
+}
+// The cue lamps: a housing, a red lens over a green one, at each place (world point, the way it faces). → lens meshes and housings.
+function opsLamps(places) {
+  const H = [], R = [], Gr = [];
+  for (const { p, n } of places) {
+    const M = new THREE.Matrix4().compose(p, new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), n), new THREE.Vector3(1, 1, 1));
+    H.push(new THREE.BoxGeometry(0.11, 0.22, 0.05).translate(0, 0, 0.025).applyMatrix4(M).toNonIndexed());
+    R.push(new THREE.CircleGeometry(0.034, 16).translate(0, 0.052, 0.052).applyMatrix4(M).toNonIndexed());
+    Gr.push(new THREE.CircleGeometry(0.034, 16).translate(0, -0.052, 0.052).applyMatrix4(M).toNonIndexed());
+  }
+  const mk = (gs, mat, name) => { const m = new THREE.Mesh(mergeGeometries(gs, false), mat); m.name = name; m.userData.rig = true; m.castShadow = m.receiveShadow = false; gs.forEach(g => g.dispose()); return m; };
+  const red = new THREE.MeshBasicMaterial({ color: 0x2a0806, toneMapped: false }), green = new THREE.MeshBasicMaterial({ color: 0x041c08, toneMapped: false });
+  return { housing: mk(H, boothMats.metal, 'cue lamps'), red: mk(R, red, 'cue lamps: standby'), green: mk(Gr, green, 'cue lamps: go'), redMat: red, greenMat: green, places };
+}
+// Built once the actors' body, the lights and the house are in (from the tick). → done?
+function opsBuild() {
+  if (OPS_S.built || OPS_S.tried) return OPS_S.built;
+  if (!ready || !ACT.ready || !RIG.parts || !LX.ready || !houseRoot) return false;
+  OPS_S.tried = true;
+  try {
+    const t0 = performance.now(), S = boothSpec;
+    const group = new THREE.Group(); group.name = 'the booth\'s operators'; group.userData.rig = true;
+    OPS_S.hsMat = opsMat(0x202024); const gripMat = opsMat(0x303034);
+    const hs = opsHeadsetGeo(), gripGeo = opsGripGeo(), spotMat = opsMat(OPS.colors.spot);
+    // THE BOOTH: one behind each unit, by the units' ids (spot n is FOL_IDS[n − 1], as the follow engine numbers them)
+    const boothG = new THREE.Group(); boothG.name = 'spot operators'; boothG.userData.rig = true; group.add(boothG);
+    OPS_S.spots = FOL_IDS.map((id, i) => {
+      const unit = LX.units.find(u => u.userData.id === id), rec = unit ? LX.byUnit.get(unit) : null;
+      const head = unit && unit.levels.length ? unit.levels[0].object.getObjectByName('head') : null;
+      if (!head) { console.warn(`booth operators: no ${id} head — spot ${i + 1} has no operator`); return null; }
+      const op = opsBody(`spot operator ${i + 1}`, spotMat, 'spot-op-' + id, hs);
+      const grips = new THREE.Mesh(gripGeo, gripMat); grips.name = `${id} grips`; grips.userData.rig = true; grips.matrixAutoUpdate = false;
+      boothG.add(op.g, grips);
+      return Object.assign(op, { n: i + 1, id, unit, rec, head, grips, w: 0, err: null });
+    }).filter(Boolean);
+    // THE DESK: house 1's (never Theatre 2's: userData.house tells the two same-named groups apart), its numbers as built
+    const deskGroup = scene.children.find(o => o.name === 'lighting desk' && !o.userData.house);
+    const deskG = new THREE.Group(); deskG.name = 'desk operators'; deskG.userData.rig = true; group.add(deskG);
+    if (deskGroup && Number.isFinite(deskGroup.userData.platformTop)) {
+      const D = DESK, Y0 = deskGroup.userData.platformTop, cx = (D.x0 + D.x1) / 2, tb = D.table, tz = D.z0 - tb.front - tb.d / 2, T = Y0 + tb.h;
+      const k = D.console, kz = tz - tb.d / 2 + 0.03 + k.d / 2, surf = zl => T + k.h + zl * k.rise / k.d, chz = tz - tb.d / 2 - 0.36;
+      const lp = D.laptop, ax = cx + k.w / 2 + 0.07 + lp.w / 2;
+      const V = (x, y, z) => new THREE.Vector3(x, y, z);
+      const lx = opsBody('lighting operator', opsMat(OPS.colors.lx), 'desk-lx', hs), snd = opsBody('sound operator', opsMat(OPS.colors.snd), 'desk-snd', hs);
+      Object.assign(lx, { role: 'lights', x: D.chairs[0], z: chz + 0.04, y: Y0, seat: 0.50,
+        rest: { L: V(cx - 0.30, surf(-0.17) + 0.03, kz - 0.17), R: V(cx - 0.56, surf(-0.17) + 0.03, kz - 0.17) },   // on the fader bed
+        go: { L: V(cx + 0.16, surf(-0.20) + 0.03, kz - 0.20) } });                                                   // the console's GO, by the keypad
+      Object.assign(snd, { role: 'sound', x: D.chairs[1], z: chz + 0.04, y: Y0, seat: 0.50,
+        rest: { L: V(ax + 0.06, T + 0.035, kz - 0.05), R: V(ax - 0.10, T + 0.035, kz - 0.06) },                     // on the laptop's keys
+        go: { L: V(ax + 0.01, T + 0.03, kz - 0.085) } });                                                             // its space bar
+      deskG.add(lx.g, snd.g);
+      OPS_S.desk = [lx, snd];
+      opsSph.desk.set(V(cx, Y0 + 0.8, chz + 0.3), 1.6);
+    } else console.warn('booth operators: no house 1 lighting desk found — no desk operators');
+    opsSph.booth.set(new THREE.Vector3((S.x0 + S.x1) / 2, (S.floor + S.ceil) / 2, S.front - S.depth / 2), 3.6);
+    // THE CUE LAMPS: the booth's over its window (on the front wall's inner face, facing the operators), the wings' on their walls
+    const places = [{ p: new THREE.Vector3(1.10, (S.head + S.ceil) / 2 + 0.02, S.front - 0.002), n: new THREE.Vector3(0, 0, -1) }];
+    const meshes = []; houseRoot.traverse(o => { if (o.isMesh && o.visible) meshes.push(o); });
+    const ray = new THREE.Raycaster(), yL = HOUSE.deckY + OPS.lampY;
+    for (const sx of [-1, 1]) {                               // stage left is −x (the worklight's fly wall), stage right +x
+      ray.set(new THREE.Vector3(sx * 7.5, yL, OPS.lampZ), new THREE.Vector3(sx, 0, 0)); ray.far = 4;
+      const h = ray.intersectObjects(meshes, false).find(h => !/^void/.test(h.object.name)), wx = h ? h.point.x : sx < 0 ? -9.53 : 9.57;
+      if (!h) console.warn(`booth operators: no ${sx < 0 ? 'stage-left' : 'stage-right'} wing wall found for its cue lamp — hung at x ${wx}`);
+      places.push({ p: new THREE.Vector3(wx - sx * 0.004, yL, OPS.lampZ), n: new THREE.Vector3(-sx, 0, 0) });
+    }
+    OPS_S.lamps = opsLamps(places);
+    group.add(OPS_S.lamps.housing, OPS_S.lamps.red, OPS_S.lamps.green);
+    scene.add(group); OPS_S.group = group; OPS_S.boothG = boothG; OPS_S.deskG = deskG;
+    OPS_S.vis = { booth: null, desk: null };                 // seen at the warm-up (compileAsync takes only what is visible); the first tick culls them
+    opsLampsApply();
+    OPS_S.built = true;
+    warmLate();                                               // the matcap program compiled off the first frame they are seen (TRAPS: compile-and-lag)
+    console.info(`booth operators: ${OPS_S.spots.length} spot operators, ${OPS_S.desk.length} at the desk, cue lamps at ${places.length} places (booth, SL wing x ${places[1].p.x.toFixed(2)}, SR wing x ${places[2].p.x.toFixed(2)}) · ${(performance.now() - t0).toFixed(0)} ms`);
+    return true;
+  } catch (e) { OPS_S.err = e; console.error('booth operators: the operators could not be built —', e); return false; }
+}
+// ---- posing (every function here sets every joint it owns outright)
+const opsWrap = a => Math.atan2(Math.sin(a), Math.cos(a));
+function opsIdx(L, T) { let lo = 0, hi = L.length; while (lo < hi) { const m = (lo + hi) >> 1; if (L[m].T <= T + 1e-9) lo = m + 1; else hi = m; } return lo - 1; }
+// How far his hands are on the handles at show time T, 0 … 1: on while lit, on OPS.pre s ahead of a pick-up, off OPS.post s
+// after an OUT has faded. Pure: the compiled plot and T.
+function opsEngage(S, T) {
+  const L = S.L; if (!L || !L.length) return 0;
+  const k = opsIdx(L, T);
+  if (k >= 0 && folScalar(L[k], T).lit) return 1;
+  let w = 0;
+  if (k >= 0 && L[k].out) w = 1 - actSmooth((T - L[k].T - L[k].fade) / OPS.post);
+  for (let j = k + 1; j < L.length; j++) if (!L[j].out) { w = Math.max(w, actSmooth(1 - (L[j].T - T) / OPS.pre)); break; }
+  return Math.max(0, Math.min(1, w));
+}
+// The spine, pelvis, legs standing (or stepping: lift on one foot), the head. sway: the weight shift (−1 … 1).
+function opsStand(op, lean, twist, pitch, liftL, liftR, sway, breath) {
+  const P = op.P, rest = RIG.parts[0].pos;
+  P.pelvis.position.set(rest.x + 0.018 * sway, rest.y + 0.002 * breath, rest.z);
+  P.pelvis.rotation.set(0, 0, -0.03 * sway);
+  rigLeg(P, 'L', 0, 0, 0, liftL, 0); rigLeg(P, 'R', 0, 0, 0, liftR, 0);
+  P.thigh_L.rotation.z = P.thigh_R.rotation.z = -P.pelvis.rotation.z;
+  P.spine.rotation.set(lean + 0.01 * breath, twist, -P.pelvis.rotation.z * 0.7);
+  P.head.rotation.set(-0.6 * lean + pitch, -0.4 * twist, -P.spine.rotation.z * 0.5);
+}
+// Seated: the hips on the seat (seat: its top over his feet), the feet forward on the floor, the spine as asked.
+function opsSit(op, lean, twist, pitch, breath) {
+  const P = op.P, J = RIG.J, rest = RIG.parts[0].pos, hipY = (J.thigh_L.y + J.thigh_R.y) / 2, drop = hipY - (op.seat + 0.10);
+  P.pelvis.position.set(rest.x, rest.y - drop + 0.002 * breath, rest.z);
+  P.pelvis.rotation.set(-0.08, 0, 0);
+  for (const s of ['L', 'R']) {
+    const th = RIG.len['thigh_' + s], sh = RIG.len['shin_' + s], hip = J['thigh_' + s], ank = J['foot_' + s];
+    const [t1, t2] = rigIK(th.len, sh.len, (ank.z - hip.z) + 0.42, (ank.y - hip.y) + drop, 1);
+    const r1 = t1 - th.rest, r2 = (t2 - sh.rest) - r1;
+    P['thigh_' + s].rotation.set(-r1 + 0.08, 0, s === 'L' ? -0.06 : 0.06); P['shin_' + s].rotation.set(-r2, 0, 0); P['foot_' + s].rotation.set(r1 + r2, 0, 0);
+  }
+  P.spine.rotation.set(0.08 + lean + 0.012 * breath, twist, 0);
+  P.head.rotation.set(-0.6 * (0.08 + lean) + pitch, -0.5 * twist, 0);
+}
+// One arm's wrist to a point q in her REST frame (x her left, y up from her feet, z forward; the spine unturned): two-bone IK
+// in 3D, the elbow bent toward a pole (down, out to her side, a little back), each bone turned from its rest direction (the
+// joints' rest places, RIG.J) onto the solved one. rigArmTo's side-view IK is for arms that hang and carry; it throws an
+// arm reaching forward at shoulder height out sideways (0.2 m off the grips), so the operators have this one.
+const opsU = new THREE.Vector3(), opsPole = new THREE.Vector3(), opsE = new THREE.Vector3(), opsR = new THREE.Vector3(), opsQa = new THREE.Quaternion();
+function opsIK(P, s, q) {
+  const J = RIG.J, S = J['upperarm_' + s], E0 = J['forearm_' + s], W0 = J['hand_' + s], sx = s === 'L' ? 1 : -1;
+  const a = S.distanceTo(E0), b = E0.distanceTo(W0);
+  opsU.subVectors(q, S); const D = Math.min(Math.max(opsU.length(), Math.abs(a - b) + 1e-3), a + b - 1e-3); opsU.normalize();
+  opsPole.set(sx * 0.45, -1, -0.25); opsPole.addScaledVector(opsU, -opsPole.dot(opsU)).normalize();
+  const c = Math.min(1, Math.max(-1, (a * a + D * D - b * b) / (2 * a * D))), sn = Math.sqrt(1 - c * c);
+  opsE.copy(opsU).multiplyScalar(a * c).addScaledVector(opsPole, a * sn);           // the elbow, from the shoulder
+  opsQa.setFromUnitVectors(opsR.subVectors(E0, S).normalize(), opsV.copy(opsE).normalize());
+  P['upperarm_' + s].quaternion.copy(opsQa);
+  opsV.copy(opsU).multiplyScalar(D).sub(opsE).normalize().applyQuaternion(opsQa.invert());   // the forearm's way, in the upper arm's frame
+  P['forearm_' + s].quaternion.setFromUnitVectors(opsR.subVectors(W0, E0).normalize(), opsV);
+  P['hand_' + s].rotation.set(-0.2, 0, 0);
+}
+// One arm's palm to a world point: opsIK in the spine's frame (the shoulder's rest place + the spine's own pose), then
+// corrected twice by where the palm landed. The body's world matrices must be current. → the palm's miss (m).
+function opsArmTo(op, s, W) {
+  const P = op.P, sp = P.spine, up = P['upperarm_' + s], hand = P['hand_' + s];
+  opsW.copy(W);
+  let miss = 0;
+  for (let i = 0; i < 3; i++) {
+    opsQ.copy(opsW); sp.worldToLocal(opsQ).add(RIG.J.spine);
+    opsIK(P, s, opsQ);
+    up.updateMatrixWorld(true);
+    opsV.copy(op.palm[s]).applyMatrix4(hand.matrixWorld);
+    miss = opsV.distanceTo(W);
+    if (miss < 0.004) break;
+    opsW.add(opsV.sub(W).negate());
+  }
+  return miss;
+}
+// The arms hanging (relaxed): a little bend, a sway with the breath.
+function opsArmsDown(op, breath) {
+  for (const s of ['L', 'R']) rigArm(op.P, s, 0.03 * breath, 0.14, null);
+  const sx = { L: 1, R: -1 };
+  for (const s of ['L', 'R']) op.P['upperarm_' + s].rotation.z = sx[s] * 0.05;
+}
+// Blend the arms from their hanging pose (relaxed) to the solved one by w: per joint, the angles mixed.
+const OPS_ARM = ['upperarm_L', 'forearm_L', 'hand_L', 'upperarm_R', 'forearm_R', 'hand_R'];
+function opsArmBlend(op, w, solve) {
+  if (w >= 1) { solve(); return; }
+  const P = op.P;
+  opsArmsDown(op, 0); const A = OPS_ARM.map(n => P[n].rotation.toArray());
+  if (w <= 0) return;
+  solve(); OPS_ARM.forEach((n, i) => { const r = P[n].rotation, a = A[i]; r.set(a[0] + (r.x - a[0]) * w, a[1] + (r.y - a[1]) * w, a[2] + (r.z - a[2]) * w); });
+}
+// A spot operator from the unit's head as it stands this frame (and the plot, for his hands and his steps).
+const opsGL = new THREE.Vector3(), opsGR = new THREE.Vector3(), opsF = new THREE.Vector3(), opsMid = new THREE.Vector3();
+function opsSpotPose(op, T, idleT) {
+  const head = op.head, G = OPS.grip;
+  head.updateWorldMatrix(true, false);
+  op.grips.matrix.copy(head.matrixWorld); op.grips.matrixWorldNeedsUpdate = true;
+  opsGL.set(G.x, G.y, G.z - OPS.palm).applyMatrix4(head.matrixWorld);     // his left hand's grip (the head's +x, his left as he faces along it)
+  opsGR.set(-G.x, G.y, G.z - OPS.palm).applyMatrix4(head.matrixWorld);
+  opsF.set(0, 0, 1).transformDirection(head.matrixWorld);                 // the beam
+  const yaw = Math.atan2(opsF.x, opsF.z), pitchDown = Math.asin(Math.max(-1, Math.min(1, -opsF.y)));
+  // his hands: from the plot while the show is on; with it stopped, on when the unit is lit by hand
+  const S = FOL.spots[op.n - 1], on = !!(SHW.on && SHW.d && S && S.L);
+  const w = on ? opsEngage(S, T) : (op.rec && op.rec.st.level > LX_LIVE ? 1 : 0);
+  op.w = w;
+  // the swing: its speed from where the plot aimed a quarter second before (pure: T and T − 0.25)
+  let rate = 0;
+  if (on && w > 0 && S.now && S.now.lit && S.now.aim) {
+    const f0 = folAt(S, T - 0.25), o = op.rec.org;
+    if (f0.lit && f0.aim) rate = opsWrap(Math.atan2(S.now.aim.x - o.x, S.now.aim.z - o.z) - Math.atan2(f0.aim.x - o.x, f0.aim.z - o.z)) / 0.25;
+  }
+  const u = yaw * OPS.arc / OPS.step, k = Math.floor(u), lift = 0.045 * Math.sin(Math.PI * (u - k)) * Math.min(1, Math.abs(rate) / 0.2) * w;
+  const breath = Math.sin(2 * Math.PI * (idleT / 4.8 + op.seed)), shift = Math.sin(2 * Math.PI * (idleT / 9.7 + op.seed * 1.7));
+  const sway = (1 - w) * shift;
+  // where he stands: OPS.reach behind the grips' midpoint along the heading, OPS.back more relaxed
+  opsMid.addVectors(opsGL, opsGR).multiplyScalar(0.5);
+  const back = OPS.reach + (1 - w) * OPS.back, sy = Math.sin(yaw), cy = Math.cos(yaw);
+  op.g.position.set(opsMid.x - sy * back, boothSpec.floor, opsMid.z - cy * back);
+  op.g.rotation.set(0, yaw + (1 - w) * 0.12 * shift, 0);
+  const lean = 0.10 * w + 0.02, twist = Math.max(-0.2, Math.min(0.2, rate * 0.15));
+  opsStand(op, lean, twist, pitchDown * 0.8 * w, k % 2 === 0 ? lift : 0, k % 2 === 0 ? 0 : lift, sway, breath);
+  op.g.updateMatrixWorld(true);
+  let miss = null;
+  opsArmBlend(op, w, () => { miss = Math.max(opsArmTo(op, 'L', opsGL), opsArmTo(op, 'R', opsGR)); });
+  op.err = w >= 1 ? miss : null;
+}
+// A desk operator: seated, hands at rest, the GO reach (r 0 … 1 … 0 over OPS.reachT) to his go point.
+function opsDeskPose(op, idleT, r) {
+  const breath = Math.sin(2 * Math.PI * (idleT / 4.4 + op.seed)), look = Math.sin(2 * Math.PI * (idleT / 13.1 + op.seed * 2.3));
+  op.g.position.set(op.x, op.y, op.z); op.g.rotation.set(0, 0, 0);
+  const lx = op.role === 'lights';
+  opsSit(op, (lx ? 0.12 : 0.08) + 0.10 * r, (lx ? 0.30 : 0.25) * r, (lx ? -0.12 : 0.05) + 0.05 * look, breath);
+  op.g.updateMatrixWorld(true);
+  opsArmTo(op, 'R', op.rest.R);
+  opsV.copy(op.rest.L).lerp(op.go.L, r); if (!lx) opsV.y += 0.03 * Math.sin(Math.PI * Math.min(1, r * 2));
+  opsArmTo(op, 'L', opsV.clone());
+}
+// ---- the lamps
+function opsLampsApply() {
+  const L = OPS_S.lamps; if (!L) return;
+  L.redMat.color.setHex(OPS_S.red ? 0xff2a14 : 0x2a0806);
+  L.greenMat.color.setHex(OPS_S.green > 0 ? 0x28ff50 : 0x041c08);
+}
+// ---- the frame: after the actors and the spots (lxPanelTick's chain), off this frame's dt. → whether it wants a frame drawn.
+function opsTick(dt = 0, force = false) {
+  OPS_S.clock += dt;
+  if (!OPS_S.built && !opsBuild()) return false;
+  const t0 = performance.now();
+  let want = false;
+  // the lamps: the green goes out OPS.green s after a GO
+  if (OPS_S.green > 0) { OPS_S.green = Math.max(0, OPS_S.green - dt); if (OPS_S.green === 0) { opsLampsApply(); want = true; } }
+  // the headset: a pick-up said as the show plays over it (never on a seek, a jump of a second or more)
+  const on = !!(SHW.on && SHW.d), T = on ? showT() : 0;
+  if (on && SHW.playing && OPS_S.lastT !== null && T > OPS_S.lastT && T - OPS_S.lastT < 1) {
+    FOL.spots.forEach((S, i) => {
+      if (!S || !S.L) return;
+      for (let j = opsIdx(S.L, OPS_S.lastT) + 1; j < S.L.length && S.L[j].T <= T + 1e-9; j++) {
+        const e = S.L[j]; if (e.out || e.mode === 'same') continue;
+        const a = ACT.actors.find(x => x.id === e.who);
+        opsSay(`Spot ${OPS_NUM[i]}, I have ${a ? a.tagText || actHead(a) : e.who}`, `Spot ${i + 1}`);
+      }
+    });
+  }
+  OPS_S.lastT = on ? T : null;
+  // who is drawn: the camera's place and view
+  const cp = camera.position, B = boothSpec;
+  camera.updateMatrixWorld();
+  opsFr.setFromProjectionMatrix(opsM4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  const inBooth = cp.x > B.xo0 - 0.3 && cp.x < B.xo1 + 0.3 && cp.y > B.floor - 0.6 && cp.y < B.ceil + 0.6 && cp.z < B.front + 0.5 && cp.z > B.front - B.depth - 0.5;
+  const inHouse = Math.abs(cp.x) < 13 && cp.z > B.wallZ + 0.1 && cp.z < HOUSE.backZ && cp.y < 14;
+  const bv = force || inBooth || (inHouse && cp.distanceTo(opsSph.booth.center) < OPS.near && opsFr.intersectsSphere(opsSph.booth));
+  const dv = force || ((inHouse || inBooth) && OPS_S.desk.length > 0 && cp.distanceTo(opsSph.desk.center) < OPS.deskNear && opsFr.intersectsSphere(opsSph.desk));
+  if (bv !== OPS_S.vis.booth || dv !== OPS_S.vis.desk) { OPS_S.boothG.visible = bv; OPS_S.deskG.visible = dv; OPS_S.vis = { booth: bv, desk: dv }; want = true; }
+  const idleT = on ? T : OPS_S.clock;
+  if (bv) for (const op of OPS_S.spots) opsSpotPose(op, T, idleT);
+  const since = OPS_S.clock - OPS_S.goAt, r = since >= 0 && since < OPS.reachT ? Math.sin(Math.PI * since / OPS.reachT) : 0;
+  if (dv) { for (const op of OPS_S.desk) opsDeskPose(op, idleT, r); if (r > 0) want = true; }
+  if (bv || dv) {
+    const ms = OPS_S.ms = performance.now() - t0, P = OPS_S.perf; P.last = ms; P.n++; P.avg += (ms - P.avg) / Math.min(P.n, 60); P.max = Math.max(P.max, ms);
+    if (on && SHW.playing) want = true;
+  }
+  if (want) requestRender();
+  return want;
+}
+// ---- the headset and the calls (the contract: MIDTOWN.booth.say / standby / go; replies through MIDTOWN.sm.log)
+function opsSay(text, who = 'Booth') {
+  OPS_S.said.push({ who, text, T: SHW.on ? +showT().toFixed(2) : null }); if (OPS_S.said.length > 40) OPS_S.said.shift();
+  const sm = window.MIDTOWN && window.MIDTOWN.sm;
+  if (sm && typeof sm.log === 'function') { try { sm.log(who, text); return; } catch (e) { console.warn('booth operators: MIDTOWN.sm.log failed —', e); } }
+  console.debug(`headset — ${who}: ${text}`);
+}
+function opsStandby() {
+  OPS_S.red = true; OPS_S.green = 0; opsLampsApply(); requestRender();
+  opsSay('Lights standing by', 'Lights'); opsSay('Sound standing by', 'Sound');
+  for (const op of OPS_S.built ? OPS_S.spots : FOL_IDS.map((id, i) => ({ n: i + 1 }))) opsSay(`Spot ${OPS_NUM[op.n - 1]} standing by`, `Spot ${op.n}`);
+}
+function opsGo() {
+  OPS_S.red = false; OPS_S.green = OPS.green; OPS_S.goAt = OPS_S.clock; opsLampsApply(); requestRender();
+}
+// For the console and the report: each operator now.
+function opsState() {
+  return {
+    built: OPS_S.built, error: OPS_S.err ? String(OPS_S.err.message || OPS_S.err) : null, drawn: { ...OPS_S.vis },
+    lamps: { standby: OPS_S.red, go: OPS_S.green > 0 },
+    spots: OPS_S.spots.map(op => ({ spot: op.n, id: op.id, hands: +op.w.toFixed(3), palmMissM: op.err === null ? null : +op.err.toFixed(4),
+      at: op.g.position.toArray().map(v => +v.toFixed(3)), yawDeg: +(op.g.rotation.y * 180 / Math.PI).toFixed(2) })),
+    desk: OPS_S.desk.map(op => ({ role: op.role, at: op.g.position.toArray().map(v => +v.toFixed(3)) })),
+    said: OPS_S.said.slice(-10),
+  };
+}
+// The hands on the handles, measured: each palm's distance from its grip now (for a lit, engaged spot).
+function opsHands() {
+  const out = [];
+  for (const op of OPS_S.spots) {
+    const G = OPS.grip; op.head.updateWorldMatrix(true, false); op.g.updateMatrixWorld(true);
+    const m = s => { const g = new THREE.Vector3(s === 'L' ? G.x : -G.x, G.y, G.z).applyMatrix4(op.head.matrixWorld); return +new THREE.Vector3().copy(op.palm[s]).applyMatrix4(op.P['hand_' + s].matrixWorld).distanceTo(g).toFixed(4); };
+    out.push({ spot: op.n, hands: +op.w.toFixed(3), L: m('L'), R: m('R') });
+  }
+  return out;
+}
+// THE CHECK: through the plot's pans (the show seeked to mid-pan moments and to lit, still moments), each spot's palms against
+// its grips, and the pose a seek gives against the pose playing up to the same moment gives (it is a pure function: equal).
+function opsCheck(opts = {}) {
+  if (!OPS_S.built && !opsBuild()) return { error: 'the operators are not built yet (the actors, the lights or the house not in)' };
+  if (!SHW.d || !FOL.d) return { error: 'the show or the followspot plot is not loaded yet' };
+  const t0 = performance.now(), wasOn = SHW.on, wasT = showT(), wasPlaying = SHW.playing;
+  if (!wasOn) showStart(false);
+  SHW.playing = false;
+  folCompile();
+  const pans = FOL.spots.flatMap((S, i) => S.L.filter(e => e.mode === 'pan' && e.move > 0.3).map(e => ({ i, T: e.T + e.move * 0.5 })));
+  const n = opts.n || 16, pick = pans.filter((p, j) => j % Math.max(1, Math.floor(pans.length / n)) === 0).slice(0, n);
+  const snapPose = () => OPS_S.spots.map(op => [op.g.position.clone(), op.g.rotation.y, ...RIG_NAMES.map(nm => op.P[nm].rotation.clone())]);
+  const diff = (A, B) => { let d = 0; A.forEach((a, i) => { const b = B[i]; d = Math.max(d, a[0].distanceTo(b[0]), Math.abs(a[1] - b[1])); for (let j = 2; j < a.length; j++) d = Math.max(d, Math.abs(a[j].x - b[j].x), Math.abs(a[j].y - b[j].y), Math.abs(a[j].z - b[j].z)); }); return d; };
+  const rows = pick.map(p => {
+    showSeekT(p.T + 600); actTick(0, true); opsTick(0, true);
+    showSeekT(p.T); actTick(0, true); opsTick(0, true);
+    const A = snapPose(), hands = opsHands()[p.i], st = folState()[p.i];
+    showSeekT(p.T - 2); actTick(0, true); opsTick(0, true);
+    for (let t = showT(); t < p.T - 1e-9;) { const d = Math.min(0.1, p.T - t); SHW.playing = true; showTick(d, true); lxTick(d); SHW.playing = false; actTick(d); opsTick(0, true); t += d; if (SHW.hold) { SHW.hold = false; showSeekT(t); } }
+    const B = snapPose();
+    return { T: +p.T.toFixed(2), spot: p.i + 1, who: st.who, lit: st.lit, hands: hands.hands, palmL: hands.L, palmR: hands.R, yawDeg: +(OPS_S.spots[p.i].g.rotation.y * 180 / Math.PI).toFixed(1), seekVsPlay: +diff(A, B).toExponential(2) };
+  });
+  const worst = Math.max(0, ...rows.filter(r => r.hands >= 1).flatMap(r => [r.palmL, r.palmR]));
+  const yaws = rows.map(r => r.yawDeg);
+  if (wasOn) { showSeekT(wasT); if (wasPlaying) showPause(false); } else { showStop(false); showSeekT(wasT); }
+  actTick(0, true); opsTick(0);
+  return { pass: worst <= (opts.tol ?? 0.02) && rows.every(r => r.seekVsPlay <= 1e-6), worstPalmM: +worst.toFixed(4), yawRangeDeg: [Math.min(...yaws), Math.max(...yaws)], points: rows, ms: Math.round(performance.now() - t0) };
+}
+const OPS_API = {
+  standby: () => opsStandby(), go: () => opsGo(), say: (text, who) => opsSay(String(text), who || 'Booth'),
+  state: () => opsState(), hands: () => opsHands(), check: opts => opsCheck(opts), tick: (dt, force) => opsTick(dt || 0, !!force),
+  get perf() { return Object.assign({ tickMs: +OPS_S.ms.toFixed(3) }, OPS_S.perf); }, get group() { return OPS_S.group; }, tune: OPS,
+};
+const lxPanelTickC = lxPanelTick;
+lxPanelTick = dt => { const a = lxPanelTickC(dt), b = opsTick(dt); return a || b; };   // after the actors' tick: the spots are aimed this frame
+const buildLightsPanelC = buildLightsPanel;
+buildLightsPanel = () => {
+  buildLightsPanelC();
+  const M = window.MIDTOWN; if (!M) return;
+  M.booth = OPS_API;
+  const frame = M.frame;
+  M.frame = () => { opsTick(0); frame(); };                // a synchronous frame poses them too (the actors' hook, set later, poses the bodies first)
+};
+
+/* ---------------------------------------------------------------- THE STAGE MANAGER: THE COMPANY BACKSTAGE
+   RULING GP (docs/superpowers/specs/2026-10-24-stage-manager-design.md, binding). Jack: "i can give 5 minuet and plcsses
+   calss for the actors"; his answer: "real backstage". MIDTOWN.company is the company off stage — the same twenty bodies as
+   THE AUTOMATIC ACTORS (tools/hamilton-cast.json), the same jointed mannequin, the same idle and gait (rigAnimate) — and the
+   stage manager's desk (MIDTOWN.sm, builder A) drives it ONLY through the contract:
+     call(kind)  'half' | 'fifteen' | 'five' | 'places' | 'interval' | 'curtain' | 'home' — returns nothing; answers are events
+                 ('home' is a reset: everyone at home at once, nothing answered, nothing pending)
+     state()     { mode: 'show' | 'backstage', bodies: [{ id, label, where: 'home' | 'walking' | 'places' | 'stage', answered }],
+                   atPlaces, of, missing: [ids] }
+     on(fn)      fn({ type: 'answer' | 'atPlaces' | 'allPlaces', id, call, text }) — one listener list; returns an unsubscribe
+     act         1 or 2: which act's starts PLACES walks to (A sets it; an 'interval' call moves it to 2)
+     release()   the blocking takes the bodies back (also done by itself on the show's next Play / GO)
+   - TWO MODES. 'show' (the default, and whenever the SM is not in use): this section does nothing and costs one boolean a
+     frame; the blocking poses every body as it always has, so seek = play is untouched. 'backstage' (entered by any call):
+     the company's WALK LAYER decides each body's pose. It is a hook of two lines in actUpdate / actTick (marked "THE STAGE
+     MANAGER"): actTick advances the layer's own clock off the frame's dt (coTick) and re-poses every frame; actUpdate asks
+     coPose(a) first. coPose is a PURE function of the body's current plan (made at the call, from the call's time) and the
+     walk clock: nothing is carried from frame to frame but the clock. The first Play after a call (the SM's GO, or the Show
+     panel's Play) hands the bodies back to the blocking — at the act's top that is where PLACES walked them to (below).
+   - HOMES (CO_HOMES, the table): each body has a room — dressing rooms 1–4, the green room, wardrobe — and a spot in it found
+     from BACKSTAGE — THE FITTINGS' own item boxes (coSpots: clear of every piece by CO_TUNE.clear, of the door's swing, with a
+     straight way to the door), facing the nearest piece (a counter, a mirror, a rail); a second spot near it for the idle
+     shifts (every CO_TUNE.idle s, seeded per body: a step or two and a turn, then back).
+   - THE CALLS are answered: each body, after a seeded CO_TUNE.answer s, says CO_TEXT[kind] ("Thank you five") — an 'answer'
+     event, and a bubble rising over the head for CO_TUNE.bubble s (the head label's own sprite and texture, actTagTex).
+   - THE ROUTES: a hand-made graph, no pathfinding (CO_ROUTE): a room's home spot → its door's inside point → the crossover's
+     walking line (the corridor) → the column under one of house 1's two slots → the slab behind the set (the stage side's own
+     crossover) → down the wing between the set's side and the fly wall, and on to the START by one of a few fixed approaches:
+     straight across from the wing; along the passage under the gallery behind the set's back wall (upstage spots); up the
+     upstage stair to the gallery landing; or, on house right, across the front of the set to the apron (no way through the
+     proscenium wall there). The side is the start's (world x < 0: house right), the gallery always by the stair. Speed
+     ACT_WALK, eased in and out (actWarp), the facing the path's tangent smoothed over CO_TUNE.look m.
+   - THE START is the blocking's pose at the act's TOP, lead-in included (actPose at track `${act}-01`'s start − pre): the walk
+     ends exactly on its x, y, z and turns to its yaw, so when the act's GO fires and the blocking takes over nothing moves.
+     (At both tops today every body is `off` — in a wing, upstage or on the gallery — so at GO they vanish there, as FJ says.)
+   - STAGGER: the bodies through one slot pass it CO_TUNE.gap s apart (the nearest first), so a 1 m slot and the corridor are
+     never two abreast. INTERVAL and CURTAIN walk each body home from the pose it showed when the call came (act one's end).
+   - DOORS: a room door on a body's route is opened as the walker's E would (want = 1) CO_TUNE.doorLead s before the first
+     body reaches it and shut again CO_TUNE.doorLag s after the last — only if the company opened it: found open, left open.
+   MIDTOWN.company.debug: step(dt) (the clock by hand, for a hidden pane), routes() (every route walked with the walk's own
+   rays), handover() (each body's pose now against actPose at the act's top), homes, plans. */
+const CO_HOMES = {                         // room key (BACKSTAGE.rooms) → its bodies (tools/hamilton-cast.json ids)
+  dr1: ['hamilton', 'burr', 'washington'],
+  dr2: ['eliza', 'angelica', 'peggy'],
+  dr3: ['lafayette', 'mulligan', 'laurens'],
+  dr4: ['king', 'ens1', 'ens2'],
+  green: ['ens3', 'ens4', 'ens5', 'ens6', 'ens7', 'ens8'],
+  wardrobe: ['ens9', 'ens10'],             // two: the rails leave little floor
+};
+const CO_NOFACE = /bin|basket|clock|extinguisher|sign|cooler|hook/i;   // fittings a body at home does not stand facing
+const CO_KINDS = ['half', 'fifteen', 'five', 'places', 'interval', 'curtain', 'home'];
+const CO_TEXT = { half: 'Thank you half', fifteen: 'Thank you fifteen', five: 'Thank you five', places: 'Thank you places', interval: 'Thank you', curtain: 'Thank you' };
+// The route graph's points (world metres; house 1 is at the origin, upstage +z, house right −x). Numbers, not BACKSTAGE (that
+// constant is defined further down the file): measured against it and the set at real size with the walk's rays (debug.routes()).
+const CO_ROUTE = {
+  spine: 12.40,                            // the crossover's walking line (the corridor z 11.00…13.40; its fittings stand to 11.6)
+  lane: 0.35,                              // … and its two lanes either side of it (12.05 going house right, 12.75 going house left)
+  doorZ: 13.50,                            // a room door's middle (the corridor wall z 13.40…13.60): where its leaf is crossed
+  roomIn: 14.30,                           // a door's inside point, on its centre line (the leaf, open, lies along its x0 jamb)
+  col: { hr: -9.15, hl: 9.30 },            // the two columns: through house 1's slots (x −9.75…−8.80 / 8.80…9.95) and down the wings
+  strip: 10.30,                            // the slab behind the set's back wall (z 10.0…10.5), open across
+  passage: 9.15,                           // under the gallery, behind the set's back wall (z 9.0…9.3), open across but at x 1.75…3.0
+  upstage: 8.50,                           // a deck start upstage of this is reached along the passage
+  stair: [[3.60, 9.15], [3.40, 8.90]],     // the upstage stair's foot; it climbs −x along z 8.9 to the gallery landing (y 3.54)
+  gallery: 1.60,                           // a start whose floor is higher than this (world y) is on the gallery: by the stair
+  pros: 2.30,                              // the proscenium plane: a start downstage of it is on the apron
+  apronHR: [[-9.15, 3.00], [-4.30, 3.00], [-4.30, 0.45]],   // house right's way to the apron: across the set's front, down through the arch
+  apronZ: 0.45,                            // … then along the apron at this z to the start's x
+};
+const CO_TUNE = {
+  clear: 0.45,      // m: a home spot's clearance from every piece of furniture (0.40 in a crowded room)
+  apart: 0.95,      // m: home spots in one room at least this far apart (0.8 in a crowded room)
+  idle: [14, 32],   // s: the idle shifts' dwell, seeded per body
+  answer: [0.4, 2.6], // s: the answer's delay after a call
+  leave: 0.5,       // s: from the answer to the first step
+  gap: 0.9,         // s: bodies through one slot or door pass it this far apart (1.2 m at ACT_WALK)
+  cross: 1.4,       // s: … and a junction where one turns across the other lane (their paths meet at an angle there)
+  look: 0.35,       // m: the facing is the path's direction over ± this (corners turned, not snapped)
+  bubble: 2.6,      // s: an answer's bubble over the head
+  doorLead: 1.6, doorLag: 1.2,   // s: a door opened before the first walker reaches it, shut after the last has passed
+  ys: 0.2,          // m: a route's floor sampled this often at the call (no ray per frame)
+};
+const CO = { on: false, clock: 0, act: 1, bodies: new Map(), list: [], fns: [], events: [], ours: new Set(), built: false, err: null,
+  gy: 0, inv: new THREE.Matrix4(), wasPlaying: false, ms: 0, calls: [] };
+const coV = new THREE.Vector3();
+const coRnd = (id, salt) => { let h = 2166136261 >>> 0; for (const ch of `${id}|${salt}`) h = Math.imul(h ^ ch.charCodeAt(0), 16777619) >>> 0; h = Math.imul(h ^ (h >>> 15), 2246822507) >>> 0; return ((h ^ (h >>> 13)) >>> 0) / 4294967296; };
+const coRange = (r, [a, b]) => a + (b - a) * r;
+const coWrap = a => Math.atan2(Math.sin(a), Math.cos(a));
+
+// ---- the homes: free floor in each room, read off the fittings' item boxes and the walk's rays
+function coSpots(r, n, crowded) {
+  const B = BACKSTAGE, items = (backstageFittings && backstageFittings.items || []).filter(i => i.zone === r.key);
+  const clear = crowded ? 0.40 : CO_TUNE.clear, apart = crowded ? 0.8 : CO_TUNE.apart;
+  const cx = (r.door.x0 + r.door.x1) / 2, inZ = CO_ROUTE.roomIn, c = [];
+  for (let x = r.x0 + 0.4; x <= r.x1 - 0.4 + 1e-6; x += 0.2) for (let z = B.roomZ0 + 0.45; z <= B.roomZ1 - 0.4 + 1e-6; z += 0.2) {
+    if (x > r.door.x0 - 0.35 && x < r.door.x1 + 0.35 && z < B.roomZ0 + 1.5) continue;            // the leaf's swing and the way in
+    let d = Infinity, near = null, dn = Infinity;
+    for (const i of items) {
+      const dx = Math.max(i.box.min.x - x, 0, x - i.box.max.x), dz = Math.max(i.box.min.z - z, 0, z - i.box.max.z), e = Math.hypot(dx, dz);
+      d = Math.min(d, e);
+      if (e < dn && !CO_NOFACE.test(i.name)) { dn = e; near = i; }                                 // what she faces: a counter, a rail, a chair — not a bin
+    }
+    if (d < clear) continue;
+    const f = rayDown(x, B.floor + 0.8, z); if (f === null || Math.abs(f - B.floor) > 0.03) continue;
+    if (rayUp(x, B.floor + 0.1, z, 1.7) < 1.7) continue;
+    if (!coClearLine(x, z, cx, inZ, B.floor, 0.18)) continue;                                      // a straight way to the door
+    c.push({ x, z, d, near });
+  }
+  c.sort((p, q) => p.d - q.d);                                                                     // nearest the furniture first: at a counter, not mid-floor
+  const pick = [];
+  for (const p of c) { if (pick.every(q => Math.hypot(q.x - p.x, q.z - p.z) >= apart)) pick.push(p); if (pick.length >= n) break; }
+  const face = p => { const b = p.near ? p.near.box : null; return b ? Math.atan2((b.min.x + b.max.x) / 2 - p.x, (b.min.z + b.max.z) / 2 - p.z) : 0; };
+  return pick.map(p => {
+    // the idle shift's second spot: 0.4–0.9 m off, clear of the room's other spots and with a straight way back
+    const two = c.find(q => { const d = Math.hypot(q.x - p.x, q.z - p.z); return d >= 0.4 && d <= 0.9 && pick.every(o => o === p || Math.hypot(o.x - q.x, o.z - q.z) >= 0.75) && coClearLine(p.x, p.z, q.x, q.z, B.floor, 0.18); }) || p;
+    return { x: p.x, z: p.z, face: face(p), near: p.near && p.near.name, x2: two.x, z2: two.z, face2: two === p ? face(p) + 0.6 : Math.atan2((r.x0 + r.x1) / 2 - two.x, (B.roomZ0 + B.roomZ1) / 2 - two.z) };
+  });
+}
+// A straight line between two points on one floor is clear for a body (rays at the walk's heights, either side at r)
+function coClearLine(ax, az, bx, bz, fy, r) {
+  const L = Math.hypot(bx - ax, bz - az); if (L < 1e-3) return true;
+  const dx = (bx - ax) / L, dz = (bz - az) / L;
+  for (const h of [0.46, 0.8, 1.2]) for (const o of [-r, 0, r]) if (rayH(ax - dz * o, fy + h, az + dx * o, dx, dz, L) < L) return false;
+  return true;
+}
+function coBuild() {
+  if (CO.built) return !CO.err;
+  CO.built = true;
+  try {
+    if (!ACT.ready || !backstageBuilt) throw new Error('the actors or the backstage are not built yet');
+    if (col.stale) buildCollider();
+    for (const [key, ids] of Object.entries(CO_HOMES)) {
+      const r = BACKSTAGE.rooms.find(q => q.key === key); if (!r) throw new Error(`no room "${key}"`);
+      let spots = coSpots(r, ids.length, false);
+      if (spots.length < ids.length) spots = coSpots(r, ids.length, true);
+      ids.forEach((id, k) => {
+        const a = ACT.actors.find(x => x.id === id); if (!a) { console.warn(`company: no actor "${id}" for ${r.name}`); return; }
+        const s = spots[k % Math.max(1, spots.length)];
+        if (!s) { console.warn(`company: ${r.name} has no free floor for ${id}`); return; }
+        if (k >= spots.length) console.warn(`company: ${r.name} has ${spots.length} spots for ${ids.length} — ${id} shares one`);
+        CO.bodies.set(id, { id, a, room: r, home: s, plan: null, where: 'stage', answered: {}, bubble: null, sp: null, idleK: 0, placesAt: null });
+      });
+    }
+    for (const a of ACT.actors) if (!CO.bodies.has(a.id)) console.warn(`company: ${a.name} has no home in CO_HOMES — the blocking keeps her`);
+    CO.list = [...CO.bodies.values()];
+    console.info(`company: ${CO.list.length} bodies at home — ` + Object.entries(CO_HOMES).map(([k, ids]) => `${k} ${ids.filter(id => CO.bodies.has(id)).join(', ')}`).join(' · '));
+  } catch (e) { CO.err = e.message || String(e); console.warn('company: not built —', CO.err); }
+  return !CO.err;
+}
+
+// ---- frames: the actors stand in ACT.group (set-local, turned 180° in the world); the walk is planned in the world
+function coFrame() { ACT.group.updateWorldMatrix(true, false); CO.inv.copy(ACT.group.matrixWorld).invert(); coV.set(0, 0, 1).transformDirection(ACT.group.matrixWorld); CO.gy = Math.atan2(coV.x, coV.z); }
+function coToWorld(p) { coV.set(p.x, p.y, p.z); ACT.group.localToWorld(coV); return { x: coV.x, y: coV.y, z: coV.z, yaw: p.yaw + CO.gy }; }
+
+// ---- the routes
+function coWhere(P) {                       // which part of the graph a world point is in: a room, the corridor, or the stage side
+  const B = BACKSTAGE;
+  if (P.z >= B.roomZ0 - 0.05) return { k: 'room', room: B.rooms.find(r => P.x >= r.x0 - 0.1 && P.x <= r.x1 + 0.1) || null };
+  if (P.z >= B.stageZ.h1 - 0.05 || (P.x > 10.0 && P.z >= B.stageZ.h2)) return { k: 'corridor' };
+  return { k: 'stage', side: P.y > CO_ROUTE.gallery ? 'hl' : P.x < 0 ? 'hr' : 'hl' };
+}
+// From the top of a column (its point on the slab behind the set) to a stage point S, by the fixed approaches
+function coStageChain(S, side) {
+  const R = CO_ROUTE, cx = R.col[side], out = [[cx, R.strip]];
+  if (S.y > R.gallery) out.push([cx, R.passage], ...R.stair);
+  else if (S.z >= 10.0) out.push([S.x, R.strip]);
+  else if (S.z > R.upstage) out.push([cx, R.passage], [S.x, R.passage]);
+  else if (S.z < R.pros && side === 'hr') out.push(...R.apronHR, [S.x, R.apronZ]);
+  else out.push([cx, S.z]);
+  out.push([S.x, S.z]);
+  return out;
+}
+// The whole way from P to S (world points with y): a polyline of [x, z]
+function coRoute(P, S) {
+  const R = CO_ROUTE, A = coWhere(P), Z = coWhere(S);
+  const head = [], tail = [];
+  const roomOut = (r, pt) => { const cx = (r.door.x0 + r.door.x1) / 2; return [pt, [cx, R.roomIn], [cx, R.spine]]; };
+  if (A.k === 'room' && Z.k === 'room' && A.room === Z.room) return [[P.x, P.z], [S.x, S.z]];
+  if (A.k === 'stage' && Z.k === 'stage') {
+    head.push(...coStageChain(P, A.side).reverse());
+    tail.push(...coStageChain(S, Z.side));                 // the two columns' tops are joined along the slab
+    return coClean(head.concat(tail));
+  }
+  if (A.k === 'room' && A.room) head.push(...roomOut(A.room, [P.x, P.z]));
+  else if (A.k === 'stage') head.push(...coStageChain(P, A.side).reverse(), [R.col[A.side], R.spine]);
+  else head.push([P.x, P.z], [P.x, R.spine]);
+  if (Z.k === 'room' && Z.room) tail.push(...roomOut(Z.room, [S.x, S.z]).reverse());
+  else if (Z.k === 'stage') tail.push([R.col[Z.side], R.spine], ...coStageChain(S, Z.side));
+  else tail.push([S.x, R.spine], [S.x, S.z]);
+  // KEEP TO ONE SIDE: along the corridor a walker going house left (+x) keeps to the rooms' side, one going house right to the
+  // stage's, CO_ROUTE.lane either side of the spine — two walkers passing the other way never meet
+  const pts = head.concat(tail);
+  for (let i = 0; i + 1 < pts.length; i++) {
+    const a = pts[i], b = pts[i + 1];
+    if (a[1] === R.spine && b[1] === R.spine && a[0] !== b[0]) { const z = R.spine + (b[0] > a[0] ? R.lane : -R.lane); pts[i] = [a[0], z]; pts[i + 1] = [b[0], z]; }
+  }
+  for (let i = 0; i < pts.length; i++) if (pts[i][1] === R.spine) pts[i] = [pts[i][0], R.spine + R.lane];   // a lone spine point (no run along it): the rooms' side
+  return coClean(pts);
+}
+function coClean(pts) {                     // no repeated points, no doubling back along one line
+  const out = [];
+  for (const p of pts) { const q = out[out.length - 1]; if (!q || Math.hypot(p[0] - q[0], p[1] - q[1]) > 0.01) out.push(p); }
+  for (let i = 1; i + 1 < out.length;) {
+    const a = out[i - 1], b = out[i], c = out[i + 1], ux = b[0] - a[0], uz = b[1] - a[1], vx = c[0] - b[0], vz = c[1] - b[1];
+    if (Math.abs(ux * vz - uz * vx) < 1e-6 && ux * vx + uz * vz > 0) out.splice(i, 1); else i++;   // a straight run's middle point
+  }
+  return out;
+}
+
+// ---- a plan: one walk along a polyline, from a start time on the walk clock, ending at a facing (or exactly on a pose)
+// { pts, cum, len, ys (the floor every CO_TUNE.ys m, sampled now with the walk's own floor), t0, D, E, yaw0, yawEnd, end, kind,
+//   label, doors: [{ e, s }] } — and coPlanPose(plan, clock) is the body there then: pure.
+function coPlan(pts, from, o) {
+  const cum = [0];
+  for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]));
+  const len = cum[cum.length - 1], n = Math.max(1, Math.ceil(len / CO_TUNE.ys)), ys = new Float32Array(n + 1);
+  let y = from.y;
+  for (let k = 0; k <= n; k++) { const q = coAt(pts, cum, len * k / n); const g = groundAt(q.x, q.z, y); if (g !== null) y = g; ys[k] = y; }
+  if (o.end) ys[n] = o.endW.y;                               // the last sample IS the start's floor (the blocking's own)
+  const E = len > 1e-3 ? Math.min(ACT_EASE, len / ACT_WALK) : 0, D = len > 1e-3 ? len / ACT_WALK + E : 0;
+  const B = BACKSTAGE, doors = [];
+  for (let i = 1; i < pts.length; i++) {                     // a room door crossed: the leg crosses the door line inside a doorway
+    const [ax, az] = pts[i - 1], [bx, bz] = pts[i];
+    if ((az - CO_ROUTE.doorZ) * (bz - CO_ROUTE.doorZ) > 0 || Math.abs(bz - az) < 1e-6) continue;
+    const f = (CO_ROUTE.doorZ - az) / (bz - az), x = ax + (bx - ax) * f;
+    const r = B.rooms.find(q => x >= q.door.x0 && x <= q.door.x1), e = r && DOORS.list.find(d => d.kind === 'door' && d.spec && d.spec.x0 === r.door.x0 && d.spec.zlo === B.roomZ0);
+    if (e) doors.push({ e, s: cum[i - 1] + f * (cum[i] - cum[i - 1]) });
+  }
+  return { pts, cum, len, ys, n, t0: o.t0, D, E, yaw0: from.yaw, yawEnd: o.yawEnd, end: o.end || null, kind: o.kind, label: o.label, doors, dist0: o.dist0 || 0 };
+}
+function coAt(pts, cum, s) {                 // the point s m along the polyline (clamped)
+  if (pts.length < 2 || s <= 0) return { x: pts[0][0], z: pts[0][1] };
+  let i = 1; while (i < cum.length - 1 && cum[i] < s) i++;
+  const span = cum[i] - cum[i - 1], f = span > 1e-9 ? Math.min(1, (s - cum[i - 1]) / span) : 1;
+  return { x: pts[i - 1][0] + (pts[i][0] - pts[i - 1][0]) * f, z: pts[i - 1][1] + (pts[i][1] - pts[i - 1][1]) * f };
+}
+function coYawAt(pl, s) {                    // the path's facing at s: its direction over ± CO_TUNE.look (a corner is turned, not snapped)
+  const w = CO_TUNE.look, a = coAt(pl.pts, pl.cum, Math.max(0, Math.min(pl.len - 1e-3, s) - w)), b = coAt(pl.pts, pl.cum, Math.min(pl.len, Math.max(1e-3, s) + w));
+  return Math.atan2(b.x - a.x, b.z - a.z);
+}
+function coYs(pl, s) { const k = Math.max(0, Math.min(pl.n, s / pl.len * pl.n)), i = Math.min(pl.n - 1, Math.floor(k)); return pl.len > 1e-3 ? pl.ys[i] + (pl.ys[i + 1] - pl.ys[i]) * (k - i) : pl.ys[0]; }
+// The body on a plan at clock c, in the WORLD: { x, y, z, yaw, speed, dist, turn, turnK, rise, phase: 'wait' | 'walk' | 'turn' | 'done' }
+function coPlanPose(pl, c) {
+  const t = c - pl.t0;
+  if (t < 0) return { ...coAt(pl.pts, pl.cum, 0), y: pl.ys[0], yaw: pl.yaw0, speed: 0, dist: pl.dist0, turn: 0, turnK: 1, rise: 0, phase: 'wait' };
+  if (t < pl.D) {
+    const [f, v] = actWarp(t, pl.D, pl.E, pl.E), s = f * pl.len, q = coAt(pl.pts, pl.cum, s);
+    const yaw = actYawLerp(pl.yaw0, coYawAt(pl, s), actSmooth(t / ACT_TURN));
+    return { x: q.x, z: q.z, y: coYs(pl, s), yaw, speed: v * pl.len, dist: pl.dist0 + s, turn: 0, turnK: 1, rise: coYs(pl, Math.min(pl.len, s + 0.35)) - coYs(pl, s), phase: 'walk' };
+  }
+  const arr = pl.len > 1e-3 ? coYawAt(pl, pl.len) : pl.yaw0, k = actSmooth((t - pl.D) / ACT_TURN), q = coAt(pl.pts, pl.cum, pl.len);
+  return { x: q.x, z: q.z, y: pl.ys[pl.n], yaw: k < 1 ? actYawLerp(arr, pl.yawEnd, k) : pl.yawEnd, speed: 0, dist: pl.dist0 + pl.len,
+    turn: k < 1 ? actYawLerp(arr, pl.yawEnd, 1) - arr : 0, turnK: k, rise: 0, phase: k < 1 ? 'turn' : 'done' };
+}
+const coDone = (pl, c) => c - pl.t0 >= pl.D + ACT_TURN;
+
+// ---- the pose the actors' frame asks for (the hook in actUpdate): null in show mode or for a body with no home
+function coPose(a) {
+  const b = CO.bodies.get(a.id); if (!b || !b.plan) return null;
+  const pl = b.plan, w = coPlanPose(pl, CO.clock);
+  let x, y, z, yaw;
+  if (pl.end && w.phase === 'done') ({ x, y, z, yaw } = pl.end);                  // AT PLACES: the blocking's own pose at the act's top, exactly
+  else { coV.set(w.x, w.y, w.z).applyMatrix4(CO.inv); x = coV.x; y = coV.y; z = coV.z; yaw = w.yaw - CO.gy; }
+  return { x, y, z, yaw, visible: true, speed: w.speed, dist: w.dist, label: pl.label || actHead(a), turn: w.turn, turnK: w.turnK, ey: null, ey2: null,
+    T: CO.clock, rise: w.rise, carry: null, dance: null, co: true };
+}
+
+// ---- the calls
+function coEmit(ev) { for (const fn of CO.fns.slice()) { try { fn(ev); } catch (e) { console.warn('company: a listener failed —', e); } } }
+function coShown(b) {                        // the body's pose now, in the world (what the frame last showed)
+  if (CO.on && b.plan) { const w = coPlanPose(b.plan, CO.clock); return { x: w.x, y: w.y, z: w.z, yaw: w.yaw, dist: w.dist }; }
+  const p = b.a.obj.userData.pose || actPose(b.a, actNow());
+  return { ...coToWorld(p), dist: 0 };
+}
+function coHomeW(b, two = false) { const h = b.home; return { x: two ? h.x2 : h.x, y: BACKSTAGE.floor, z: two ? h.z2 : h.z, yaw: two ? h.face2 : h.face }; }
+function coStand(b, P, kind) { b.plan = coPlan([[P.x, P.z]], P, { t0: CO.clock, yawEnd: P.yaw, kind }); b.idleK = 0; }
+// The act's top: track `${act}-01` from the top of its lead-in (FQ) — the moment the act's GO starts
+function coTop(act) { const t = SHW.d && SHW.d.byTrack.get(`${act}-01`); return t ? t.start - t.pre : 0; }
+// Walk every body to a destination (fn b → { W: world point with yaw, end?: the exact local pose, label?, kind }), staggered at the slots
+const coJunctions = () => CO.junctions || (CO.junctions = [{ key: 'j hr', x: CO_ROUTE.col.hr, z: CO_ROUTE.spine }, { key: 'j hl', x: CO_ROUTE.col.hl, z: CO_ROUTE.spine },
+  ...BACKSTAGE.rooms.filter(r => CO_HOMES[r.key]).map(r => ({ key: 'j ' + r.key, x: (r.door.x0 + r.door.x1) / 2, z: CO_ROUTE.spine }))]);
+function coWalkAll(dest, delay0) {
+  const R = CO_ROUTE, jobs = CO.list.map(b => {
+    const P = coShown(b), d = dest(b), pts = coRoute(P, d.W);
+    // the slot this route goes through (its column's corridor point), and how far along the route it is
+    // THE GATES it passes, and how far along: a slot (a leg down a column through the slab's line — coClean may have merged the
+    // slab's point into a longer straight run) and a room door (a leg through the door line)
+    const gates = new Map();
+    let s = 0;
+    for (let i = 1; i < pts.length; i++) {
+      const [ax, az] = pts[i - 1], [bx, bz] = pts[i];
+      for (const k of ['hr', 'hl']) if (Math.abs(ax - R.col[k]) < 1e-6 && Math.abs(bx - R.col[k]) < 1e-6 && (az - R.strip) * (bz - R.strip) <= 0 && !gates.has(k)) gates.set(k, s + Math.abs(R.strip - az));
+      if ((az - R.doorZ) * (bz - R.doorZ) <= 0 && Math.abs(bz - az) > 1e-6) { const x = ax + (bx - ax) * (R.doorZ - az) / (bz - az), r = BACKSTAGE.rooms.find(q => x >= q.door.x0 - 0.1 && x <= q.door.x1 + 0.1); if (r && !gates.has(r.key)) gates.set(r.key, s + Math.hypot(x - ax, R.doorZ - az)); }
+      // and the CROSSINGS: where a walker turns out of a door or into a column she crosses the other lane — a junction passed
+      // within CO_ROUTE.lane + 0.25 m is a gate too, for the one turning there and for anyone walking past it
+      const L = Math.hypot(bx - ax, bz - az);
+      for (const J of coJunctions()) {
+        if (gates.has(J.key) || L < 1e-6) continue;
+        const f = Math.max(0, Math.min(1, ((J.x - ax) * (bx - ax) + (J.z - az) * (bz - az)) / (L * L)));
+        if (Math.hypot(ax + (bx - ax) * f - J.x, az + (bz - az) * f - J.z) < R.lane + 0.25) gates.set(J.key, s + f * L);
+      }
+      s += L;
+    }
+    return { b, P, d, pts, gates, wait: delay0(b) };
+  });
+  // through each gate one at a time, CO_TUNE.gap apart: the bodies booked in the order they answered, each leaving at the first
+  // moment (from its own answer on, in 0.05 s steps) when none of its gates is within the gap of a time already booked there
+  const booked = new Map();
+  for (const j of [...jobs].sort((p, q) => p.wait - q.wait)) {
+    const clash = w => { for (const [k, at] of j.gates) { const t = w + at / ACT_WALK, g = k.startsWith('j ') ? CO_TUNE.cross : CO_TUNE.gap; for (const u of booked.get(k) || []) if (Math.abs(t - u) < g - 1e-6) return true; } return false; };
+    let w = j.wait; while (clash(w) && w < j.wait + 120) w += 0.05;
+    j.wait = w;
+    for (const [k, at] of j.gates) { if (!booked.has(k)) booked.set(k, []); booked.get(k).push(w + at / ACT_WALK); }
+  }
+  for (const j of jobs) j.b.plan = coPlan(j.pts, j.P, { t0: CO.clock + j.wait, yawEnd: j.d.W.yaw, end: j.d.end, endW: j.d.W, kind: j.d.kind, label: j.d.label, dist0: j.P.dist });
+  for (const j of jobs) { j.b.idleK = 0; j.b.placesAt = null; }
+}
+function coPlaces() {
+  const T = coTop(CO.act);
+  // the blocking parks every body OFF at an act's top, several on one offstage spot (up to six on the gallery landing at act 1):
+  // a body that is off there stands in a little cluster round that spot instead of inside the others. Unseen at GO (FJ), so
+  // the hand-over moves nobody anyone sees; a body seen at the top keeps its exact place.
+  const taken = new Map(), RING = [[0, 0], [0.55, 0], [-0.55, 0], [0, 0.55], [0, -0.55], [0.55, 0.55], [-0.55, 0.55], [0.55, -0.55], [-0.55, -0.55], [1.1, 0], [-1.1, 0]];
+  coWalkAll(b => {
+    const p = actPose(b.a, T);
+    if (!p.visible) {
+      const key = `${Math.round(p.x / 0.3)}|${Math.round(p.y / 0.3)}|${Math.round(p.z / 0.3)}`, k = taken.get(key) || 0;
+      taken.set(key, k + 1);
+      const [dx, dz] = RING[k % RING.length]; p.x += dx; p.z += dz;
+    }
+    const W = coToWorld(p);
+    return { W, end: { x: p.x, y: p.y, z: p.z, yaw: p.yaw }, label: p.label, kind: 'places' };
+  }, b => b.answerIn + CO_TUNE.leave);
+}
+function coHome() { coWalkAll(b => ({ W: coHomeW(b), kind: 'home' }), b => b.answerIn + CO_TUNE.leave); }
+function coEnter(fromStage) {
+  coFrame();
+  for (const b of CO.list) { if (fromStage) coStand(b, coShown(b), 'stage'); else coStand(b, coHomeW(b), 'home'); b.where = fromStage ? 'walking' : 'home'; }
+  CO.on = true; CO.wasPlaying = !!(SHW.on && SHW.playing); ACT.dirty = true;
+}
+function coCall(kind) {
+  if (!CO_KINDS.includes(kind)) { console.warn(`company: no call "${kind}" (${CO_KINDS.join(', ')})`); return; }
+  if (!coBuild()) return;
+  coFrame();
+  CO.calls.push({ kind, clock: +CO.clock.toFixed(3), at: Date.now() });
+  if (kind === 'interval' || kind === 'curtain') {
+    if (!CO.on) coEnter(true);
+    if (kind === 'interval') CO.act = 2;
+    for (const b of CO.list) b.answered = {};                  // a new half of the evening
+  } else if (!CO.on || kind === 'home') { if (CO.on) CO.on = false; coEnter(false); }
+  if (kind === 'home') { CO.events.length = 0; for (const b of CO.list) { b.answered = {}; b.placesAt = null; b.where = 'home'; b.bubble = null; } ACT.dirty = true; return; }   // a reset: everyone at home now, nothing pending
+  const n = CO.calls.length;
+  for (const b of CO.list) {                                  // each answers after its own seeded delay; the bubble rises then
+    b.answerIn = coRange(coRnd(b.id, `answer ${n}`), CO_TUNE.answer);
+    CO.events.push({ t: CO.clock + b.answerIn, type: 'answer', id: b.id, call: kind, text: CO_TEXT[kind] });
+  }
+  CO.events.sort((p, q) => p.t - q.t);
+  if (kind === 'places') coPlaces();
+  else if (kind === 'interval' || kind === 'curtain') coHome();
+  ACT.dirty = true;
+}
+// The blocking takes the bodies back: at the act's GO (the first Play after a call) or by hand
+function coRelease() {
+  if (!CO.on) return;
+  CO.on = false; CO.events.length = 0;
+  for (const b of CO.list) { b.where = 'stage'; b.bubble = null; if (b.sp) b.sp.visible = false; }
+  for (const e of CO.ours) e.want = 0;                        // a door the company opened is shut again
+  CO.ours.clear(); ACT.dirty = true; requestRender();
+}
+
+// ---- the frame (the hook in actTick, before the actors are posed): the clock, the answers, arrivals, idle shifts, doors
+function coTick(dt) {
+  const playing = !!(SHW.on && SHW.playing);
+  if (playing && !CO.wasPlaying) { CO.wasPlaying = true; coRelease(); return; }   // a Play: the act's GO
+  CO.wasPlaying = playing;
+  const t0 = performance.now();
+  CO.clock += dt;
+  coFrame();
+  const c = CO.clock;
+  while (CO.events.length && CO.events[0].t <= c) {
+    const ev = CO.events.shift(), b = CO.bodies.get(ev.id);
+    if (b) { b.answered[ev.call] = true; b.bubble = { text: ev.text, t0: ev.t }; }
+    coEmit({ type: ev.type, id: ev.id, call: ev.call, text: ev.text });
+  }
+  let arrived = false;
+  for (const b of CO.list) {
+    const pl = b.plan; if (!pl) continue;
+    const ph = c < pl.t0 ? 'wait' : coDone(pl, c) ? 'done' : 'walk';
+    if (ph === 'walk') b.where = 'walking';
+    if (ph !== 'done') continue;
+    if (pl.kind === 'places' && !b.placesAt) { b.where = 'places'; b.placesAt = c; arrived = true; coEmit({ type: 'atPlaces', id: b.id, call: 'places', text: 'at places' }); }
+    else if (pl.kind === 'home' || pl.kind === 'idle') {
+      b.where = 'home';
+      // THE IDLE SHIFTS: after a seeded dwell, a step to the other spot (or back) and a turn — deterministic in (body, k)
+      const dwell = coRange(coRnd(b.id, `idle ${b.idleK}`), CO_TUNE.idle);
+      if (c >= pl.t0 + pl.D + ACT_TURN + dwell) {
+        const P = coPlanPose(pl, c), two = b.idleK % 2 === 0, H = coHomeW(b, two);
+        b.plan = coPlan([[P.x, P.z], [H.x, H.z]], { ...P }, { t0: c, yawEnd: H.yaw, kind: 'idle', dist0: P.dist }); b.idleK++;
+      }
+    }
+  }
+  if (arrived && CO.list.every(b => b.placesAt)) coEmit({ type: 'allPlaces', id: null, call: 'places', text: 'All at places' });
+  // DOORS: open on a route as the walker's E would, before the first walker reaches it; shut after the last, if we opened it
+  const need = new Set();
+  for (const b of CO.list) { const pl = b.plan; if (!pl) continue; for (const d of pl.doors) { const tc = pl.t0 + pl.E / 2 + d.s / ACT_WALK; if (tc >= c - CO_TUNE.doorLag && tc <= c + CO_TUNE.doorLead) need.add(d.e); } }
+  for (const e of need) if (!e.want && !CO.ours.has(e)) { e.want = 1; CO.ours.add(e); }
+  for (const e of [...CO.ours]) if (!need.has(e)) { e.want = 0; CO.ours.delete(e); }
+  CO.ms = performance.now() - t0;
+}
+// An answer's bubble over a head: the head label's own texture (actTagTex), a screen-sized sprite over the label, rising and
+// fading over CO_TUNE.bubble s — a function of the walk clock. Called by the hook after the body is posed.
+function coBubble(a) {
+  const b = CO.bodies.get(a.id); if (!b) return;
+  const k = b.bubble ? (CO.clock - b.bubble.t0) / CO_TUNE.bubble : 1;
+  if (!(k >= 0 && k < 1)) { if (b.sp) b.sp.visible = false; return; }
+  if (!b.sp) {
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false, depthWrite: false, toneMapped: false, sizeAttenuation: false }));
+    sp.position.y = ACT_H + ACT_TAG.above; sp.renderOrder = 11; sp.frustumCulled = false; sp.userData.rig = true; sp.name = 'answer';
+    sp.onBeforeRender = r => { sp.material.opacity = r.getRenderTarget() ? 0 : sp.userData.alpha; };
+    a.obj.add(sp); b.sp = sp;
+  }
+  const sp = b.sp;
+  if (sp.userData.text !== b.bubble.text) { const t = actTagTex(a, b.bubble.text); sp.material.map = t; sp.material.needsUpdate = true; sp.scale.set(ACT_TAG.h * t.userData.aspect, ACT_TAG.h, 1); sp.userData.text = b.bubble.text; }
+  sp.center.set(0.5, -1.25 - 1.6 * actSmooth(k));            // over the name, rising by its own heights (it is screen-sized)
+  sp.userData.alpha = k < 0.7 ? 1 : 1 - (k - 0.7) / 0.3;
+  sp.visible = a.obj.visible;
+}
+
+// ---- the contract (MIDTOWN.company), hung on MIDTOWN with the lights panel (after the actors' own hook)
+const CO_API = {
+  call: kind => coCall(kind),
+  state() {
+    const L = CO.list.map(b => ({ id: b.id, label: actHead(b.a), where: CO.on ? b.where : 'stage', answered: { ...b.answered } }));
+    const at = CO.list.filter(b => CO.on && b.placesAt);
+    return { mode: CO.on ? 'backstage' : 'show', bodies: L, atPlaces: at.length, of: CO.list.length, missing: CO.list.filter(b => !(CO.on && b.placesAt)).map(b => b.id) };
+  },
+  on(fn) { if (typeof fn === 'function') CO.fns.push(fn); return () => { const i = CO.fns.indexOf(fn); if (i >= 0) CO.fns.splice(i, 1); }; },
+  get act() { return CO.act; }, set act(v) { CO.act = +v === 2 ? 2 : 1; },
+  release: () => coRelease(),
+  debug: {
+    step(dt = 0.05, n = 1) { for (let i = 0; i < n; i++) { coTick(dt); actTick(0, true); } doorsTick(dt * n); return CO_API.state(); },
+    get clock() { return CO.clock; }, get ms() { return CO.ms; },
+    get homes() { coBuild(); return CO.list.map(b => ({ id: b.id, room: b.room.key, x: +b.home.x.toFixed(2), z: +b.home.z.toFixed(2), facing: b.home.near, x2: +b.home.x2.toFixed(2), z2: +b.home.z2.toFixed(2) })); },
+    get plans() { return CO.list.map(b => b.plan && { id: b.id, kind: b.plan.kind, t0: +b.plan.t0.toFixed(2), D: +b.plan.D.toFixed(2), len: +b.plan.len.toFixed(2), pts: b.plan.pts.map(p => p.map(v => +v.toFixed(2))), doors: b.plan.doors.map(d => d.e.name) }); },
+    // every body's route from home to its act's start and back, walked with the walk's own rays: the tightest clearance, any step
+    routes(act = CO.act, R = 0.15) {
+      if (!coBuild()) return CO.err;
+      coFrame();
+      const T = coTop(act), out = [];
+      for (const b of CO.list) {
+        const S = coToWorld(actPose(b.a, T)), pts = coRoute(coHomeW(b), S);
+        let y = BACKSTAGE.floor, worst = Infinity, at = null, step = 0;
+        for (let i = 1; i < pts.length; i++) {
+          const [ax, az] = pts[i - 1], [bx, bz] = pts[i], L = Math.hypot(bx - ax, bz - az), dx = (bx - ax) / L, dz = (bz - az) / L, last = i === pts.length - 1;
+          for (let s = 0; s <= L; s += 0.1) {
+            const x = ax + dx * s, z = az + dz * s, g = groundAt(x, z, y); if (g === null) continue;
+            step = Math.max(step, Math.abs(g - y)); y = g;
+            if (last && L - s < 0.5) continue;                 // the blocking's own spot: hers, however tight
+            for (const h of [0.46, 0.8, 1.2, 1.6]) {
+              const m = Math.min(rayH(x, y + h, z, -dz, dx, 1), rayH(x, y + h, z, dz, -dx, 1), rayH(x, y + h, z, dx, dz, 0.1) < 0.1 ? 0 : Infinity);   // either side, and nothing across the way
+              if (m < worst) { worst = m; at = [+x.toFixed(2), +z.toFixed(2), h]; }
+            }
+          }
+        }
+        out.push({ id: b.id, to: [+S.x.toFixed(2), +S.y.toFixed(2), +S.z.toFixed(2)], m: +pts.reduce((m, p, i) => i ? m + Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]) : 0, 0).toFixed(1), clearest: +worst.toFixed(2), at, maxStep: +step.toFixed(2), ok: worst >= R && step < 0.45 });
+      }
+      return out;
+    },
+    // each body's pose now (the company's) against the blocking's at the act's top: the hand-over's jump, if any
+    handover(act = CO.act) {
+      const T = coTop(act);
+      return CO.list.map(b => { const p = coPose(b.a), q = actPose(b.a, T); return p && { id: b.id, where: b.where, dPos: +Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z).toFixed(6), dYaw: +Math.abs(actYawLerp(p.yaw, q.yaw, 1) - p.yaw).toFixed(6), seenAtTop: q.visible }; });
+    },
+  },
+};
+const buildLightsPanelCo = buildLightsPanel;
+buildLightsPanel = () => { buildLightsPanelCo(); if (window.MIDTOWN) window.MIDTOWN.company = CO_API; };
 
 /* ---------------------------------------------------------------- RIGGING: BOOMS ONTO THE WALLS (agent A)
    Jack: "move these lights back to be attached to the walls" — the booms standing in the HOUSE
@@ -11032,6 +12622,7 @@ function doorAim() {
   for (const c of CURTAINS.list) look(c);
   for (const w of WORKLIGHT.list) look(w.target);           // the worklights' switch boxes (THE WORKLIGHTS)
   for (const t of UNDER_TARGETS) look(t);                    // the understage booth's lift switches (THE UNDERGROUND)
+  if (SM.target) look(SM.target);                            // the prompt desk: sit and call the show (THE STAGE MANAGER)
   return best;
 }
 // The hint line while walking: what E would do, when something is in reach (walkHint reads doorAimNow.label); written

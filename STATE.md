@@ -1,4 +1,4 @@
-# STATE — 2026-10-24 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#16 merged; `film-round` PR open)
+# STATE — 2026-10-24 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#16 merged; #17 (the film round) MERGED; `stage-manager` PR open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -29,14 +29,15 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
     `write`, a whisper, arms folded, a crouched creep, arms-out T, a stagger, a paper held out.
   - Cue keys that no longer sit on people and the audit could not fix: 1-12, 1-16, 1-17 keys; 2-09 Q998–1000 (the SL stair
     special: Washington no longer climbs); 1-05 Q174.5 ch91 (planned, does not land); Eacker's box (2-16, as before).
-- **THE STAGE MANAGER — asked 2026-10-24, NOT built, next:** Jack: *"make a stage manger thing where i can call ther show
-  and i can give 5 minuet and plcsses calss for the actors and make it so there are atcually people in the spotbooth moving
-  the lights and think of somemore stuff for it"*, then *"make it so you can have it where i have to start each song or i
-  just have to call the starts of both halfs"*. His answers: his GO starts the lighting and sound sequences (inside a song the
-  cues run themselves); a calling mode switch — every song, or only the two acts; the prompt desk in the SL wing; REAL
-  backstage — the cast in the dressing rooms and green room before the show, "five minutes" answered, "places" walks them
-  to their wings, no GO until everyone is at places; three operators in the booth swinging the Lycians. Spec it
-  (`docs/superpowers/specs/`), propose more (headset chatter, cue lights, house management, a show report), then build.
+- **THE STAGE MANAGER (2026-10-24, branch `stage-manager`, BUILT, pushed; PR open (#17 merged 2026-10-24);
+  HANDOFF.md's newest block; RULINGS GM–GQ; spec `docs/superpowers/specs/2026-10-24-stage-manager-design.md`).** Walk to the
+  SL prompt corner, E at the desk. **His eye, then these decisions:** every body is OFF at both act tops in the blocking, so at
+  GO they vanish where places left them (show bodies waiting in the wings, or leave it); Burr's act-2 start (world −6.03,
+  −0.49) is in a pocket behind a thin panel his last 0.6 m passes through; the booth is very dark in a show (the operators
+  read as dim figures); a snap pick-up jumps the operator with the unit (a dark pre-aim in folTick would fix it, and moves
+  `follow.check`); the operators and the walking company are not in the walk's collision grid; the SL wing's cue lamp is
+  upstage of his baked masking `box 4`. Not built, his to pick (FUTURE): a late actor, an audience filling the seats, a show
+  relay backstage, calling single light cues (ruled out for now).
 - **The hallway and the booth doors (2026-10-23, PR #15 MERGED, `main` `8cdec76`):** Jack, *"make a hallway to get backstage from the lobby and make it so i
   can open the door to get into the spot booth."* A 30 m hallway up the outside of house 1's house-right wall (x −11.85…−10.00),
   from an opening beside the box office (under a BACKSTAGE sign) to the crossover's west end. A door on E across it just past
@@ -91,7 +92,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 - **Johnny Tremain on Theatre 2 — PR #8 MERGED (2026-10-16, `main` `daa9bcd`), post-merge done (branches deleted both sides, worktrees removed):** his own play, two acts, 26 scenes — the set as
   sized stand-ins with model slots, two stage lifts and an underground under Theatre 2 (RULINGS GI, GJ), a 128-unit rig
   with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's newest DONE block.
-- **Rulings are at GL (GM next).** GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
+- **Rulings are at GQ (GR next).** GM–GQ (2026-10-24): the stage manager spec (his answers). GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
   rails stay down in the deck, so nothing guards the hole while a lift is away (PR #13, merged). GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
   them off. GJ (2026-10-16): an underground under Theatre 2 for storage. Earlier: **GH**. The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
