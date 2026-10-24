@@ -668,3 +668,114 @@ Jack's notes. Searches for written breakdowns of WIM, Cabinet Battle and the Roo
 3. 2-05 196-214: Burr round the circle, Hamilton DR on the banks line.
 4. 2-05 220-243 (the Bojangles bridge), 263-271 (Burr dancing with them), 296-313 (the Dance).
 5. 2-01 211-222: the handshake. 2-04: Burr upstage all number; 227-236 James and the money.
+
+## Film round (2026-10-24)
+
+Jack: much is still wrong, people stand still when they should dance or move, and the three followspots should light them
+fully. Done by editing `seg5gen.py` (and the `wander` helper in `seg5lib.py`), the SEGMENT 5 sections of `dance.py`,
+`props.py` and `follow.py`; every change is marked `FILM ROUND`. The evidence is the Disney+ film cut into frames
+(`tools/vision/cache/<clip>/frames`, read at album time `at`; the right of the frame is stage LEFT). No clip for 2-02:
+Cabinet Battle #2's clip was read for the staging style. His checklist rulings are kept: Jefferson out on the balcony by
+0:44 (2-01) and Jefferson at his spot SR around 0:40 (2-02).
+
+### What the film shows, and what changed
+
+**2-01 What'd I Miss** (frames at 3, 8, 18, 24, 31, 33, 40, 46, 53, 62, 65, 70, 76, 100, 112, 125, 152, 175, 191, 212, 230)
+- 3-24: the town is already about its business behind Burr's recap (walking, carrying, one seated). 18: Hamilton (green)
+  climbing a stair; 24: Hamilton and Washington on the gallery SL of centre with a paper. **Changed:** four of the company
+  on from the top, crossing once; Hamilton and Washington up the SL stair to the USG (2.3 / 3.0, -3.35) 15-24 and in at
+  the gallery door by 30; they come back on DL at 208 as before.
+- 33-40: Burr climbs the (rolled-centre) stair and is at the top at 40; gone by Jefferson's 44. **Changed:** Burr walks DC
+  through the recap (a stop every 5 s), then up the SL stair and out through the gallery door by 40 (was: stood SR 41-63).
+- 40: ten dancing on the deck in two clusters either side of the stair. **Changed:** the eight come in for the build (31)
+  to two clusters, dancing (two-step, step-touch) and travelling.
+- 44-57: Jefferson posing alone up top. Kept (still on purpose: his entrance picture).
+- 62 / 65 / 70: dancing round the stair foot as he comes down, then on their knees scrubbing (65), then up dancing round
+  him (70). **Changed:** scrub until 69.5 (was 76), rise 69.5, dance.
+- 76-90: a line with him, arms across (76), dancing (78-97). **Changed:** a line across z 2.6 (76), dancing.
+- 97-110: the party, rows dancing with him. **Changed:** two rows, centre open for him (was: still where they scrubbed).
+- 112: three women round him swooning in the Paris aside. **Changed:** ens2, ens6, ens8 round him, swaying; Sally (ens6)
+  brings the letter from there.
+- 125-150: spread and travelling. **Changed:** out to the outer ring and round it 60 degrees with his journey, clapping.
+- 152: Madison and Jefferson DSR-centre, the company SL, crouched, dancing. Madison enters SR (as we had). **Changed:** the
+  company to a group SL, dancing through Madison's verse.
+- 188-205: a line upstage dancing. **Changed.** 212: the company in a line SR to centre, Madison in it, Jefferson,
+  Hamilton and Washington SL. **Changed:** a line SR to centre (z 2.2); Madison dances in time in front of it.
+- The three lines from 190 keep one SR-to-SL order, the cabinet V's seating order (props.py VSEAT).
+- Stillness (still.py, share of on-stage time): **69 % -> 13 %**; Madison 92 -> 15 %, Hamilton 77 -> 36 %, Burr 85 -> 49 %.
+
+**2-02 Cabinet Battle #1** (no clip; CB2 frames 45, 75: the company seated in chairs, the rapper working the floor with
+the mic, the other standing at his side, Washington upstage)
+- **Changed:** Jefferson works his own side of the room (22-34) and is back on his spot by 34.5 (the NOTES3 ruling holds:
+  he stays at (-1.3, 3.7) from 34.5 to 53); he listens on the move (80-104). Hamilton shifts on his side while he
+  listens (22-37, 50-80) and turns after the Virginians (165). Washington steps down as the room clears (148-167) and
+  circles Hamilton in the reprimand. Moves: Jefferson bounce / two-step through his verse, Madison bounce, both head-bob
+  through Hamilton's verse, Hamilton bounce through his, Washington lean-in for the reprimand.
+- Still on purpose: the listeners while the other raps; Hamilton in the reprimand (176-211).
+- Stillness: **30 % -> 16 %**; Hamilton 92 -> 67 %, Jefferson 91 -> 28 %, Madison 94 -> 24 %.
+
+**2-03 Take a Break** (frames 10, 30, 50, 62, 76, 84, 110, 142, 170, 189, and the shot sheet 191-273)
+- 10, 30: Philip seated at the piano SL, Eliza over him teaching; Hamilton seated writing at the desk SR; Angelica already
+  up on the USG at 30. **Changed:** Angelica on by 28.5 (was 45.2); props: `writing-chair` behind the desk and
+  `piano-bench` at the keys, and `sit` for both; Eliza teaching (lean-in, clap).
+- 62: Eliza at the desk leaning over him. **Changed:** she goes to him at the desk (61.5) and brings him to the piano.
+- 76-100: Philip's poem beside the piano SL, Eliza behind it, Hamilton SR of it, arms crossed. **Changed:** the poem is
+  at the piano's SL side, travelling (was DSC); Hamilton SR of the piano, nodding.
+- 106-126: the duet DC, hands held (kept; sway).
+- 132-180: Angelica at the top of the SR stair, singing; 170-180 coming down it. **Changed:** she walks the USG to the SR
+  arm (124.5-131.5), stays at the stair top, comes down the SR stair (176-181) - was the SL stair.
+- 189: she arrives SR, Eliza runs across to her; Hamilton SL by the SL stair. 216-245: Angelica, Eliza, Hamilton SR to SL.
+  256-266: Hamilton between them, hands held. **Changed:** the sisters meet SR (was SL), Hamilton crosses to SL as she
+  comes down (178-182) and stays SL of them (was DR); Angelica comes round in front to his other side for the end; Philip
+  stays at the piano.
+- Stillness: **94 % -> 18 %**.
+
+**2-04 Say No to This** (shot sheet 61-236; frames 10, 104, 205)
+- 91-120 and 175-222: the company is ON THE DECK round the couple, dancing (three SR behind the DSR lamp, others SL) - not on
+  the galleries. **Changed:** the six on the deck, three in from DSR, three from MSL/USL, dancing (grind), travelling, and
+  the title hits are a finger-wag "no" (was point-down from the galleries).
+- 133-155: James SR with Hamilton. Kept; he works it (137-150).
+- 165-175: Maria on her knees at his feet. **Changed:** kneel 166.5-176.5.
+- 233 (wide): James SR, Maria centre, Hamilton SL. **Changed:** Maria stays on (to centre, 228) and goes at 234.4; James
+  back to (-1.1, 4.0); Hamilton to (1.6, 4.1) SL of them (was DSC with James beside him).
+- Still on purpose: Burr upstage SR watching the whole number (Review 3's clip comments; not in the film's frames, which
+  are tight on the couple); Maria at her door while James names his price.
+- Stillness: **85 % -> 42 %** (Burr's 207 s watch is most of what is left).
+
+**2-05 The Room Where It Happens** (frames 40, 55, 75, 85, 92, 125, 135, 145, 165, 190, 212, 235, 252, 280, 300)
+- 190, 212, 252: **Jefferson sits at the table's SR side, Madison at its SL side** (Review 2 had them the other way).
+  **Changed:** J_T (-0.85, 0.3), M_T (0.85, 0.3), their walks in and out and props.py's chairs with them; Madison now
+  crosses in front of the room to his seat (from DSR, ahead of Jefferson).
+- 40: Hamilton and Burr SL, Jefferson and Madison near centre (kept: H and B SL).
+- 75, 85, 92: Burr works the front - DSL with an arm up (75), in the middle of the four lit squares (85), DC arms out (92).
+  **Changed:** Burr walks those (straight lines). 85: four of the company standing on the four squares - still on purpose.
+- 135, 190, 235, 252, 260-268: the company is never parked - dancing round Burr (135), at the sides (190, 252), arms up
+  (235). **Changed:** they keep their side of the room (Review 2's ETC shape) but travel round their places and dance
+  through every section (jazz-roll, shimmy, shoulder-pop; the bridge and the Dance as before); the company vocal line too.
+- 145: Madison with three of the company at the SR stair, hands to chins (shoulder-pop for the company, head-bob for him).
+- 212-235: Hamilton walking SR of centre, Burr across the front reaching after him. **Changed:** both travel there.
+- 280: the two fanning lines, arms sweeping (arm-sweep), Burr on the table (arm-sweep, chest-pump, the arms up for the
+  cloth); 300: the Dance round the table (kept).
+- Stillness: **59 % -> 22 %**.
+
+### The followspots (follow.py SEGMENT 5)
+- 2-01: spot 1 Burr's recap (3.4-38.2), then Jefferson from 44 to the snap; spot 3 Hamilton and Washington on the gallery
+  (17.5-26.8, a 3 m pool) and again DL from 208.6; spot 2 Madison from 154. All out in the snap (234.2).
+- 2-02: spot 1 Washington (MC 0.6-9.4, the hand-over 78.6-84, the stop and the reprimand 146.6-210.6); spot 2 Jefferson
+  13-167.5; spot 3 Hamilton 44.8 to the button (214).
+- 2-03: spot 3 Eliza and Philip at the piano (1-76), then Philip's poem (76-101.5), then Hamilton SL from 182.5 to the desk
+  into the dark (279); spot 1 Angelica on the gallery (29-58.4), the duet (104.5-127.5), Eliza from the reunion
+  (184.5-265.8); spot 2 Angelica on the SR stair and with the family (131.6-266.4).
+- 2-04: spot 2 Burr SR (0.8-22.5), James (131-153.6, 232.4-234.4); spot 3 Maria (16-234, R02); spot 1 Hamilton (20.6-236).
+- 2-05: spot 1 Burr the whole number (5.6-314.5); spot 3 Hamilton (5-271.2); spot 2 Jefferson's account (97.6-118.2) and
+  Madison DSR (142.4-175.4).
+- `follow.py --check --tracks 2-01,2-02,2-03,2-04,2-05`: 0 problems.
+
+### Open (for Jack)
+- The film's What'd I Miss stair is a ROLLING stair rolled centre; the page has none, so Burr goes up and Jefferson comes
+  down the fixed SL stair (as before).
+- 2-04 205: Hamilton sits on a chair SR with James behind him (clip comment: James "put the chair"); not staged.
+- 2-03: the piano is pushed off near 178-180 (clip comment); it stays to the end here.
+- The cue specials the film round moved people out of: 2-03 770 (Philip's poem DSC), 774-776 (Angelica's gallery key),
+  779.1 (Hamilton DR), 2-04 830/832 (Hamilton DSC alone), 2-05's table special now lights Jefferson SR / Madison SL the
+  other way round - the followspots carry those moments now.

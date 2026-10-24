@@ -366,7 +366,8 @@ LOOK = (0.0, 3.2)
 VSEAT = [('ens1', (-3.8, 2.4), 'W-DSR'), ('ens5', (-3.1, 1.45), 'W-DSR'), ('ens2', (-2.4, 0.5), 'W-DSR'), ('ens3', (-1.7, -0.45), 'D-UC'),
          ('ens6', (1.7, -0.45), 'D-UC'), ('ens4', (2.4, 0.5), 'W-MSL'), ('ens7', (3.1, 1.45), 'W-MSL'), ('ens8', (3.8, 2.4), 'W-DSL')]
 ORDER = [(-3.8, 2.4), (-3.1, 1.45), (-2.4, 0.5), (3.8, 2.4), (3.1, 1.45), (-1.7, -0.45), (2.4, 0.5), (1.7, -0.45)]   # the order they get up (157.5 + 1.1 k, seg5gen.py)
-H_T, J_T, M_T = (0.0, -0.65), (0.85, 0.3), (-0.85, 0.3)
+# FILM ROUND (2026-10-24): the film has Jefferson at the table's SR side and Madison SL (film 2-05 190, 212, 252)
+H_T, J_T, M_T = (0.0, -0.65), (-0.85, 0.3), (0.85, 0.3)
 SEGMENT_5 = [
     DARK('hamilton-desk', '2-03', 0.2, -1.5, 1.85, 0, note='2-03 Take a Break: set in the change ("Desk Mid SR"); he stands at (-1.5, 1.4), behind it'),
     # 2-04 Say No: ETC's scenic element "3 x Street Lamps", standing in the THPP renders of cues 782 and 784 (one DSR
@@ -377,6 +378,10 @@ SEGMENT_5 = [
     *[HIDE(f'street-lamp-{k + 1}', '2-04', 236.4, (x, z), note='struck in the Say No fade to black (cue 834)') for k, (x, z) in
       enumerate([(-2.1, 3.0), (-1.0, -1.6), (3.7, 1.0)])],
     HIDE('hamilton-desk', '2-04', 236.3, (-1.5, 1.85), note='struck in the Say No fade to black (cue 834)'),
+    # FILM ROUND: he sits at the desk to write (film 2-03 30, 50, 142: a chair behind it), Philip on a bench at the piano (film 10)
+    P('writing-chair', 'chair', 'Chair (Hamilton\'s desk)', OAK),
+    DARK('writing-chair', '2-03', 0.2, *chair_for((-1.5, 1.4), (-1.5, 3.0), 0.45), note='2-03: set with the desk in the change'),
+    HIDE('writing-chair', '2-04', 236.3, (-1.5, 0.95), note='struck with the desk in the Say No fade to black (cue 834)'),
     *[P(f'cabinet-chair-{k + 1}', 'chair', f'Chair ({who[3:] if who.startswith("ens") else who})', PINE) for k, (who, seat, wing) in enumerate(VSEAT)],
     *[DARK(f'cabinet-chair-{k + 1}', '2-01', 234.2, *chair_for(seat, LOOK, 0.45), note='2-02: the V of chairs (ironinkpen); set in the snap to the DSC mic special (cue 739.5)')
       for k, (who, seat, wing) in enumerate(VSEAT)],
@@ -392,6 +397,9 @@ SEGMENT_5 = [
     P('piano', 'custom', 'Piano', '#3a2618', size=[1.4, 1.1, 0.55]),
     DARK('piano', '2-02', 212.0, 1.6, 1.3, -90, note="2-03: set in the dark of the Cabinet Battle button (cue 763.5, Hamilton alone in his pool)"),
     HIDE('piano', '2-03', 284.6, (1.6, 1.3), note='struck in the fade to black (cue 779.9)'),
+    P('piano-bench', 'bench', 'Piano bench', '#3a2618', size=[0.8, 0.45, 0.35]),
+    DARK('piano-bench', '2-02', 212.0, *chair_for((1.0, 1.5), (1.6, 1.3), 0.3), note='2-03: set with the piano; Philip at the keys on it (film 10, 30)'),
+    HIDE('piano-bench', '2-03', 284.6, (0.7, 1.6), note='struck with the piano in the fade to black (cue 779.9)'),
     P('room-table', 'table', 'The Room table', WALNUT, size=[1.2, 0.75, 1.2]),   # round (ironinkpen; ETC 'Center-Stage Round Table')
     DARK('room-table', '2-05', 0.2, 0.0, 0.2, 0, note='2-05: preset USC in the opening FTB (cue 864); Burr stands up on it at 277.9 (deck level here)'),
     HIDE('room-table', '2-05', 317.0, (0.0, 0.2), note='struck in the dark after the button (cue 896)'),
