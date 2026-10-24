@@ -383,4 +383,5 @@ def build():
         t1 = tl + dist(GSP[a], edge) / 2.0 + 0.15
         move(a, A(tl), A(t1), edge, y=GAL); W[a][-1]['off'] = True
         put(a, A(t1 + 0.3), WINGS[wing], off=True)
-    exit_('hamilton', A(234.0), 'W_DSL', speed=2.4)
+    # FILM ROUND (2026-10-24): he does NOT go off: the film's 1-02 opens on him still standing centre in his light (frame
+    # 10, at 1.4) while the company clears round him; he crosses to Burr from there (t102)

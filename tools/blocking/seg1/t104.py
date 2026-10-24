@@ -30,12 +30,27 @@ def build():
     # SPOT: four warm pools, one per chair, held all song: ch48 (-1.26, 3.47), ch49 (-0.39, 3.78), ch50 (0.49, 3.79),
     # ch51 (1.37, 3.48), r 0.77. Each friend keeps to his own pool; the shapes below are small moves inside them.
     place(P140, S('1-03', 331.4), T(0.8), F140)
+    # FILM ROUND (2026-10-24; film 1-04 frame 40, at 8): only Lafayette and Laurens sit; Mulligan and Hamilton are up
+    # and about, talking over them (dance.py: the Q140 sit is theirs alone now). They step out downstage of the row
+    # (the chairs stand behind it).
+    move('mulligan', T(4.0), T(5.6), (1.7, 4.2), f=-70)
+    move('hamilton', T(6.0), T(7.4), (-0.2, 4.4), f=30)
     # ---- Q141 16.0 the round: they draw together, a half-circle open to the house
     place([(-1.3, 3.65), (-0.4, 3.45), (0.5, 3.45), (1.4, 3.65)], T(16.0), T(17.6), [45, 20, -20, -45])
     # ---- Q142 22.9 the first toast: up in a line, raised
     place([(-1.26, 3.8), (-0.39, 3.85), (0.49, 3.85), (1.37, 3.8)], T(22.9), T(24.4), [0, 0, 0, 0])
-    # ---- Q143 35.1 back to the four: NOTES3, back into their chairs (dance.py: sit to Q145)
-    place(P140, T(35.1), T(36.6), F140)
+    # FILM (frame 150, at 30): Laurens toasts from apart, across the stage SL, the other three together ("he's standing
+    # on the other side", a clip comment: the one who will not survive); he goes round the front of Mulligan
+    move('laurens', T(26.0), T(27.0), (1.0, 3.1), d=0)
+    put('laurens', T(28.6), (3.0, 3.2), f=-95)
+    # ---- Q143 35.1 back to the four. FILM ROUND (frame 240, at 47): they do NOT sit again here (NOTES3 had them back
+    # in their chairs to Q145): they stand and talk in two pairs, the wine going round (dance.py); Laurens comes back in
+    move('laurens', T(35.1), T(37.0), (1.0, 3.0), f=70)
+    move('lafayette', T(35.4), T(36.8), (-1.6, 3.2), f=75)
+    move('hamilton', T(35.6), T(37.0), (-0.8, 3.4), f=-100)
+    move('mulligan', T(37.5), T(38.6), (1.9, 3.3), f=-100)
+    move('hamilton', T(46.0), T(47.2), (-0.5, 3.0), f=60)        # he turns out to the other pair (film 240)
+    move('lafayette', T(51.0), T(52.4), (-1.5, 3.7), f=40)
     # REVIEW: the four are the only ones on stage (fan staging account); the company's hum is offstage
     # ---- Q145 59.0 the second toast to the friends: up again
     place([(-1.3, 3.6), (-0.4, 3.5), (0.5, 3.5), (1.4, 3.6)], T(59.0), T(60.4), [40, 15, -15, -40])

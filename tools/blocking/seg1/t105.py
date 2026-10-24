@@ -27,6 +27,11 @@ def build():
         W[e][-1]['t'] = Y(9.8 + 0.4 * k)
         put(e, Y(9.8 + 0.4 * k + max(3.4, dist(p, pos(e)) / 1.5)), p, f=0)
     move('burr', Y(10.4), Y(14.0), (-4.6, 4.3), f=30)
+    # FILM ROUND (2026-10-24): Burr is a host, not a statue in the corner: he strolls the DSR quarter as he narrates
+    # (film 1-05 frame 40, at 8: out on the deck among them) and comes back to the corner for his lines
+    move('burr', Y(30.0), Y(32.6), (-3.6, 3.5), f=40)
+    move('burr', Y(42.0), Y(44.4), (-4.4, 4.4), f=50)
+    move('burr', Y(54.0), Y(56.4), (-3.5, 4.0), f=60)
     # the street bustles: everyone drifts a step outward and back, cheating to the lane
     for e in CITY:
         p = pos(e); s = 1 if p[0] > 0 else -1
@@ -99,16 +104,29 @@ def build():
     # around Peggy" from behind her. So he watches the start of her solo from the corner (Jack's note), joins the
     # city's SR group in the back at the anthem (Q167), and stays to the end.
     # ---- Q165 97.4 Angelica's solo: her pool to white with a white shaft over her (ch97 + ch47, about (-1.57, 3.2))
-    move('angelica', Y(97.4), Y(98.4), (-1.57, 3.2), f=10)
-    move('eliza', Y(97.4), Y(99.4), (0.0, 3.1), f=-30)
-    move('peggy', Y(97.4), Y(99.4), (1.65, 2.9), f=-30)
+    # FILM ROUND (2026-10-24; film 1-05 frame 551, at 110): she sings it at CENTRE, out in front, her sisters a step
+    # behind either side (Eliza SR, Peggy SL), not in the SR pool. The followspot (follow.py) takes her there. Eliza
+    # clears first, so the two never cross.
+    move('eliza', Y(97.0), Y(98.6), (-0.85, 2.85), f=20)
+    move('peggy', Y(97.4), Y(99.0), (1.0, 2.55), f=-20)
+    move('angelica', Y(98.4), Y(99.8), (0.0, 3.6), f=0)
+    # FILM ROUND: the street keeps moving behind the sisters (film 1-05 frames 250-350: the city works and walks): two
+    # drifts of the arc, a step round and back, through the verses
+    for k, e in enumerate(CITY):
+        r, th = polar(pos(e)); p = ring(r, th + 8)
+        move(e, Y(70.0 + 0.3 * k), Y(73.0 + 0.3 * k), p, f=face_to(p, C, 60))
+    for k, e in enumerate(CITY):
+        r, th = polar(pos(e)); p = ring(r, th - 8)
+        move(e, Y(86.0 + 0.3 * k), Y(89.0 + 0.3 * k), p, f=face_to(p, C, 60))
     # ---- Q166 105.9 the city warms behind her: the arc comes in a step
     for e in CITY:
         r, th = polar(pos(e)); p = ring(3.5, th)
         move(e, Y(105.9), Y(108.0), p, f=face_to(p, (-1.57, 3.2), 60))
     # ---- Q167 115.5 the anthem: sisters in a line DSC in their keys, the city in rows behind (clear of the shafts)
-    for a in SIS:
-        move(a, Y(115.5), Y(117.0), KEYS[a], f=0)
+    move('angelica', Y(115.0), Y(115.8), (-0.9, 3.9), d=0)            # FILM ROUND: she goes back first (round the front of Eliza), then Eliza
+    put('angelica', Y(116.8), KEYS['angelica'], f=0)
+    move('eliza', Y(116.6), Y(118.0), KEYS['eliza'], f=0)
+    move('peggy', Y(115.5), Y(117.0), KEYS['peggy'], f=0)
     # REVIEW2: the marching rows and the counterpoint revolve are CUT (invented): the city stands in two loose
     # groups either side of the sisters, facing front, and cheats in to them
     groups = [(-3.6, 1.4), (-2.6, 0.3), (-3.4, -0.9), (-2.0, -1.3), (3.6, 1.4), (2.6, 0.3), (3.8, -0.8), (2.0, -1.3)]

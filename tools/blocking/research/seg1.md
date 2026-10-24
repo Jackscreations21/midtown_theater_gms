@@ -598,3 +598,131 @@ have). The fixes above work round it; a tempo change at about 160 s and at the d
 - The friends' exact places in The Schuyler Sisters (the gallery for Lafayette and Mulligan is "the railing"; "the back"
   for Laurens).
 - Chorus 2's phrase on beat 2 rather than beat 1: half a beat either way.
+
+## Film round (2026-10-24)
+
+Jack (2026-10-24): "there is still a lot of stuff wrong ... a lot of scenes when people are just standing still when they
+should be dancing or moving ... use the 3 spotlights to make sure people get lit up fully ... a lot of scenes when people
+are just in the wrong place". The brief is `tools/blocking/AGENT-FILM.md`. This round, for the first time, read the film
+itself: the Disney+ clips cut into frames (5 a second) with album time `at`, in the vision cache
+(`gms-theater/.claude/worktrees/agent-a00f4ef392ac2906d/tools/vision/cache/<clip>/`). The frames named below are that
+cache's `frames/NNNNNN.jpg`; `at` is seconds into the album track. Orientation: the right of the frame is stage LEFT (+x).
+Nothing from the footage is committed.
+
+Changes are marked `FILM ROUND` (or `FILM`) in `seg1/t101.py` ... `t106.py`, segment 1 of `dance.py` and segment 1 of
+`follow.py` (the followspots, new). `props.py` is unchanged. `still.py`, still share of on-stage time, before -> after:
+
+| track | before | after | principals after |
+|---|---|---|---|
+| 1-01 | 73 % | 40 % | Hamilton 54, Burr 54, Lafayette 43, Mulligan 49, Laurens 44 |
+| 1-02 | 83 % | 49 % | Hamilton 58, Burr 70, Lafayette 30, Mulligan 38, Laurens 28 |
+| 1-03 | 27 % | 16 % | the sisters 96 -> 15-18 |
+| 1-04 | 39 % | 34 % | (the removed mid-song sit counted as "moving"; the four now stand and move) |
+| 1-05 | 74 % | 35 % | Burr 62, Mulligan 52 (on the gallery) |
+| 1-06 | 87 % | 49 % | Hamilton 28, Burr 73 |
+
+Still on purpose, and left so: Burr listening (1-02's tavern, 1-03's Q117 warning, 1-05's DSR corner during Angelica's
+solo, which Jack asked for), his mother's death and the cousin in 1-01 (90-120), the death verse's soloist after his
+imagine-death shapes, Hamilton listening at the centre of the gallery roll call (1-01 204-229).
+
+### 1-01 Alexander Hamilton (clip: Disney's promo montage; LOOKS ONLY, never aligned)
+
+- Shots 6-8: Hamilton alone under a hard shaft at centre; shots 9-11, 14: each narrator a bright figure singing out with
+  the body, the company low and dancing in the blue. Nothing in it can be timed against the album.
+- Changed: no places (no evidence). Stillness: each narrator drives his verse (Burr, Laurens, Jefferson, Madison, on the
+  cues' labels Q37-Q41), the company bounces and sways under the hurricane, everyone drives the build Q42-43, the city
+  chorus Q53-54, the anthem Q58 and the held note Q59, the line-up Q66-67 (dance.py). Hamilton no longer goes off in
+  the blackout: the 1-02 clip opens on him still standing centre (its frame 10, at 1.4).
+- Followspots: one per narrator verse (Burr DSR spot 2, Laurens SL spot 3, Jefferson SR spot 2, Madison spot 1), Eliza
+  for her verse, Burr the reader (Q50), Mulligan clerking (Q51), Hamilton from the women's send-off (Q56) to the
+  button, the gallery singers one by one (Q62-64), Burr's confession (Q65).
+
+### 1-02 Aaron Burr, Sir (clip aligned, tconf ~1.0)
+
+- Frame 10 (1.4): Hamilton alone centre in a hard pool, the company clearing round him.
+- Frame 30 (5.5): Burr comes down from upstage SL, by the SL stair.
+- Frame 96 (18.4): Burr just SL of centre, Hamilton SL of him, both ~1.5 m up from the lip; two lamp posts SR and one
+  SL, the company lighting them (question 1 below).
+- Frames 425-440 (84-88): Burr and Hamilton SL by the lamp as Laurens bursts in at centre, mug up; the table SR.
+- Frame 545 (109): Lafayette standing SR by the table, Mulligan seated at it, Laurens centre mug up, Burr and Hamilton
+  together SL; the tavern full of the company (question 1).
+- Frame 745 (149): Burr on the SR side by the stair, Hamilton SL at the bar.
+- Changed: the street scene is walked at centre and SL (was: the two men held in Burr's AF and Hamilton's key DSR);
+  Hamilton crosses from centre (no exit and re-entrance); they go SL to the lamp for the drink (Q83). In the tavern
+  Burr and Hamilton stand SL (HAM_L (1.3, 1.9), BURR_L (2.6, 1.9); were (0.75, 2.3) and DSR (-3.6, 3.6)); Burr drifts
+  away from the table and back, and crosses to SR as they turn on him (Q91). Laurens works the room with his mug,
+  Lafayette steps out on his verse, Mulligan walks the back of the table (the table and the verse places are Jack's
+  NOTES3, unchanged). Gestures for the street and the tavern (dance.py).
+- Followspots: Hamilton (spot 3) and Burr (spot 1) all through the street; each friend's verse in spot 2; Burr on Q91.
+
+### 1-03 My Shot (clip aligned, tconf ~1.0)
+
+- Frames 49-251 (10-50): the tavern, the table SR, Hamilton working the room at centre.
+- Frame 431 (86): chorus 1, Hamilton centre with the company round him (the four DSC about his special kept: the cue's
+  Joan Marcus still is a source too).
+- Frame 486 (97): Lafayette's verse, mug in hand (close). Frame 542 (108): Lafayette up by the table SR, Mulligan centre
+  beside Hamilton. Frame 592 (118): Laurens just SR of centre, Hamilton SL turned to him.
+- Frame 905 (180): chorus 2, the company in low lunges at centre.
+- Frames 1035 (206), 1165 (232): the three sisters on the galleries (one on the upstage gallery, two on the SL end
+  balcony), arms up and out, dancing; the company in a ring of light at centre.
+- Frames 1205-1280 (240-255): the death verse: Hamilton alone at the SR edge by the SR stair in a hard white pool,
+  pointing at the company, which dances it in slow motion in the blue at centre.
+- Frames 1533 (305), 1588 (316): the final chorus, the company across the deck; the sisters still up on the galleries.
+- Changed: the three verse places (Lafayette (-2.0, 1.55) by the table, Mulligan (1.4, 1.6), Laurens (-0.2, 1.55), with
+  Hamilton turned to each; were the DS pools); the death verse (Hamilton to (-3.7, 2.5) at the SR edge, the friends a
+  group at centre doing the slow-motion phrase -- the NOTES3 slow ring round him is gone; REVIEW2 had cut the ring);
+  the sisters: Eliza on the upstage gallery's centre, Angelica and Peggy on the SL end balcony, all dancing (sway, arms,
+  the phrase, the clap) and staying to the blackout (were off at 300-303).
+- Followspots: Hamilton in spot 3 through the number (out for Q119, Jack's one-white-spot ruling), each friend's verse,
+  Burr's warning, Laurens' rise-up lead, Hamilton at the SR edge in spot 2 for the death verse.
+
+### 1-04 The Story of Tonight (clip never aligned in time: matched by eye to the sections)
+
+- Frame 40 (~8): Lafayette and Laurens seated, Mulligan and Hamilton standing over them, talking.
+- Frame 150 (~30): Laurens apart SL toasting the other three across the stage.
+- Frame 240 (~47): all four standing, talking in pairs, cups in hand (not seated).
+- Frame 300 (~62): arms round each other. Frame 395 (~83): the four standing in a group as the company comes on.
+- Changed: only Lafayette and Laurens sit at the top (Mulligan and Hamilton step out DS of the row); Laurens toasts from
+  apart SL at Q142; at Q143 they no longer sit again (NOTES3's second sit, my own reading, removed): they stand and talk
+  in two pairs. The last sit after the last raise, the forward line at Q147 and the chair strike (Jack's ruling) are
+  unchanged.
+- Followspots: Laurens apart SL (spot 3, soft, R02) only; the chair pools and the DS specials carry the rest.
+
+### 1-05 The Schuyler Sisters (clip aligned, tconf mostly ~1.0)
+
+- Frame 40 (8): Burr out on the deck (not in the corner). Frames 120-160 (24-32): the sisters travelling, skirts and
+  arms swinging. Frame 250 (50): the three close together centre with the city working at the sides, Mulligan on the
+  SL gallery. Frame 461 (92): Burr face to face with Angelica. Frame 551 (110): Angelica's solo at CENTRE, in front,
+  Eliza behind SR, Peggy behind SL. Frames 701-912 (140-182): the company dancing round the sisters to the end.
+- Changed: Burr strolls the DSR quarter through the intro (Jack's run on from USL and his Q164 corner kept); Angelica's
+  solo at centre front (0, 3.6) with her sisters behind either side (was in the SR pool); the city drifts round the arc
+  and back twice in the verses; dancing for everyone through the number (dance.py).
+- NOT changed, a question: the film's sister order is not fixed (frame 250: Eliza SR, Peggy centre, Angelica SL; frame
+  551: Eliza SR, Angelica centre, Peggy SL); ours is the cue's (Angelica SR, Eliza centre, Peggy SL).
+- Followspots: Angelica (spot 2), Eliza (spot 1), Peggy (spot 3) from their reveals; Burr borrows spot 2 for the intro
+  and spot 1 for his summer verse; Angelica's solo at full level.
+
+### 1-06 Farmer Refuted (Jack: good; clip aligned)
+
+- Shots 1-12: Seabury bright on his box SL, Hamilton cutting in from SR and later at the box, the friends at his back
+  SR, the crowd round the box, Burr at the SR side. The places agree with ours: kept.
+- Changed: Hamilton prowls (33, 69, 74); gestures for the debate (Seabury's paper, Hamilton driving, the crowd, the
+  friends egging him on, Burr reining him in).
+- Followspots: Seabury (spot 3) and Hamilton (spot 2, then spot 1 from the duet) the whole debate, Burr at Q186; all out
+  for the herald's special (Q188).
+
+### Moves the library lacks (the nearest used)
+
+- table-bang (1-02, Mulligan banging the table): `clap`.
+- a toast, the cup raised (1-02, 1-04): `reach-up`.
+- two swaying with an arm round each other's shoulders (1-04 frame 300): `sway`.
+- the sisters' skirt-swinging travel (1-05): `sway` / `arm-sweep`.
+- the lamplighters (1-02 frame 96): not placed (no ensemble in 1-02, Jack's ruling).
+
+### Questions only Jack can answer
+
+1. 1-02: the film has the company in the street (lighting three lamps, two SR and one SL) and filling the tavern; ours has
+   no ensemble in 1-02 (your REVIEW2 ruling) and one lamp. Keep it that way?
+2. 1-03: the film has the whole company in the tavern and in the death verse's slow-motion group; ours has five, off from
+   Q123 to Q131 (REVIEW2). Keep?
+3. 1-05: the sisters' order across the stage (above): the film's changes; ours follows the cue's shafts.

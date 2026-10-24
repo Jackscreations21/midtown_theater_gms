@@ -64,7 +64,97 @@ def OUT(spot, track, at, fade=1.0, note=''):
 
 
 # ===== SEGMENT 1 (1-01..1-06) =====
+# The film round (2026-10-24; tools/blocking/research/seg1.md "Film round" has the frames read). Spot 2 (house left) for
+# stage RIGHT, spot 3 (house right) for stage LEFT, spot 1 centre. Levels: a principal inside a full look 0.6-0.8, a
+# solo in a dark stage 0.85-1.0.
 SEGMENT_1 = [
+    # ---- 1-01 Alexander Hamilton: the clip is Disney's promo montage (looks only, no times): each narrator is a bright
+    # figure in a dark city (shots 9-10, 14). So each narrator gets a spot for his verse, on the cues' own labels; Hamilton
+    # carries a spot from the women's send-off to the button; the gallery singers are picked up one by one at the end.
+    F(2, '1-01', 0.0, 'burr', level=0.85, fade=1.0, note='Q37: Burr\'s opening verse DSR (film shot 10 look: Burr bright against the blue)'),
+    OUT(2, '1-01', 16.5, fade=1.5, note='he gives the floor to Laurens'),
+    F(3, '1-01', 18.6, 'laurens', level=0.85, note='Q38 verse 2: Laurens, SL'),
+    OUT(3, '1-01', 33.5, fade=1.0, note='his verse done'),
+    F(2, '1-01', 33.5, 'lafayette', level=0.85, note='Q39 verse 3: Jefferson (Lafayette\'s body), SR'),
+    OUT(2, '1-01', 48.4, fade=1.0, note='Q40 the hurricane'),
+    F(1, '1-01', 48.4, 'mulligan', level=0.8, note='Q40: Madison (Mulligan\'s body) brings the storm'),
+    OUT(1, '1-01', 56.0, fade=1.0, note='Q41 he writes: the warm returns'),
+    F(2, '1-01', 56.0, 'burr', level=0.8, note='Q41: Burr narrates him writing'),
+    OUT(2, '1-01', 63.4, fade=1.0, note='Q42 the company takes the story'),
+    F(1, '1-01', 85.9, 'hamilton', level=0.8, fade=1.0, note='Q45: the company around Hamilton, after his single shaft (Q44)'),
+    F(3, '1-01', 93.2, 'eliza', level=0.8, note='Q47 Eliza\'s verse'),
+    OUT(3, '1-01', 105.0, fade=2.0, note='Q48 his mother dies: the cold drop'),
+    OUT(1, '1-01', 105.2, fade=2.0, note='Q48: the cold drop'),
+    F(2, '1-01', 119.8, 'burr', level=0.8, note='Q50 Burr the reader, in his AF'),
+    OUT(2, '1-01', 130.0, fade=1.0, note='Q51 clerking'),
+    F(1, '1-01', 130.0, 'mulligan', level=0.8, note='Q51 clerking: Mulligan drives it'),
+    OUT(1, '1-01', 141.3, fade=1.0, note='Q52 the voyage'),
+    F(1, '1-01', 166.3, 'hamilton', level=0.85, fade=0.8, note='Q56 the women send him off (coat, book, bag): the spot carries him from here to the button'),
+    F(3, '1-01', 214.0, 'laurens', level=0.85, fade=0.3, note='Q62 Laurens alone, on the upstage gallery'),
+    F(3, '1-01', 215.9, 'washington', level=0.85, move=0.8, note='Q63 Washington on the SR balcony (a long throw: the cue\'s own special is there too)'),
+    F(3, '1-01', 217.4, 'eliza', size=3.0, level=0.8, move=0.8, note='Q64 the women on the SL balcony: opened up to take the three'),
+    OUT(3, '1-01', 219.6, fade=0.5, note='Q65 Burr\'s confession'),
+    F(2, '1-01', 219.6, 'burr', level=0.9, fade=0.4, note='Q65 Burr\'s confession, alone at centre'),
+    OUT(2, '1-01', 233.9, fade=0, note='the button\'s blackout'),
+    OUT(1, '1-01', 233.9, fade=0, note='the button\'s blackout'),
+    # ---- 1-02 Aaron Burr, Sir: the street is dark and blue (film frames 10-440): the two men are the scene, each in a
+    # spot as they walk it; the friends' verses at the table each get the third spot.
+    F(3, '1-02', 0.3, 'hamilton', level=0.8, fade=1.0, note='film 1-02 frame 10 (at 1.4): he stands alone centre in a hard pool as the company clears; the spot stays with him as he crosses to Burr and walks the street SL'),
+    F(1, '1-02', 4.6, 'burr', level=0.75, fade=1.5, note='Burr strolls down from upstage SL into the street (film frame 30, at 5.5); spot 1 holds him through the scene'),
+    F(2, '1-02', 89.4, 'laurens', level=0.85, note='Q86/87: Laurens bursts in mug up (film frame 440) and sings his verse at the table\'s SL end'),
+    F(2, '1-02', 102.8, 'lafayette', level=0.85, move=0.6, note='Q88: Lafayette\'s verse at the table\'s SR end'),
+    F(2, '1-02', 115.6, 'mulligan', level=0.85, move=0.6, note='Q89: Mulligan\'s verse behind the table'),
+    OUT(2, '1-02', 127.6, fade=1.5, note='Q90 the toast: the tavern\'s own light takes the four'),
+    F(1, '1-02', 133.7, 'burr', size='full', level=0.9, fade=0.4, note='Q91 they turn on Burr: he crosses to SR into his AF, the spot up on him'),
+    OUT(1, '1-02', 142.0, fade=2.0, note='Q92 Burr sits it out in the SR corner: let him go'),
+    # ---- 1-03 My Shot: spot 3 stays on Hamilton from 1-02 (he steps DSC into the number) and carries him through it;
+    # the friends' verses and Burr's warning each get a spot; the death verse puts him alone at the SR edge in spot 2
+    F(3, '1-03', 6.1, 'hamilton', level=0.9, note='Q101 verse 1: he works the room (film 1-03 frames 49-251: the tavern dark round him, he is the bright one)'),
+    F(2, '1-03', 94.9, 'lafayette', level=0.85, note='Q111 Lafayette\'s verse by the table SR (film frame 486: a close-up, mug in hand)'),
+    F(1, '1-03', 106.8, 'mulligan', level=0.85, note='Q113 Mulligan\'s verse, centre beside Hamilton (film frame 542)'),
+    OUT(1, '1-03', 117.5, fade=0.8, note='his verse done'),
+    F(2, '1-03', 117.5, 'laurens', level=0.85, move=0.7, note='Q115 Laurens\'s verse just SR of centre (film frame 592); spot 2 swings from Lafayette to him'),
+    F(1, '1-03', 125.0, 'burr', level=0.8, fade=1.0, note='Q117 Burr comes down from his chair to cool them down (into his AF DSR)'),
+    OUT(2, '1-03', 128.0, fade=1.2, note='Burr\'s moment: the friends drop out of the light'),
+    OUT(1, '1-03', 138.9, fade=1.5, note='Q118 Burr leaves the tavern'),
+    OUT(3, '1-03', 159.8, fade=1.5, note='Q119 the quiet confession: Jack\'s ruling is ONE white spot at centre (the ch13 shaft), so the followspot goes'),
+    F(3, '1-03', 168.2, 'hamilton', level=0.9, fade=0.3, note='Q121 chorus 2: back on him as the room comes up'),
+    F(2, '1-03', 203.5, 'laurens', level=0.85, note='Q124 the rise-up: "Laurens takes the lead" (the Disney+ clip\'s 3:24)'),
+    OUT(3, '1-03', 231.9, fade=1.0, note='Q127: he leaves the centre for the SR edge; spot 2 takes him there'),
+    F(2, '1-03', 232.2, 'hamilton', size='full', level=1.0, move=1.2, note='Q127 the death verse: film 1-03 frames 1205-1280 -- he sings it from the SR edge by the stair, alone in a hard white pool, the company in blue at centre'),
+    F(3, '1-03', 254.6, 'hamilton', level=0.9, fade=0.3, note='Q129 the snap back: he comes back to centre'),
+    OUT(2, '1-03', 255.2, fade=0.3, note='Q129: spot 3 has him again'),
+    OUT(3, '1-03', 331.25, fade=0, note='the button: the blackout (cue 139.5)'),
+    # ---- 1-04 The Story of Tonight: four warm chair pools and the DS specials carry it (Jack's 10-16 ruling); the one
+    # moment outside them is Laurens toasting from apart, SL
+    F(3, '1-04', 27.0, 'laurens', size='full', level=0.6, fade=1.5, gel='R02', note='film 1-04 frame 150 (at 30): Laurens apart SL, raising his cup to the three -- out of the chair pools, so a soft spot finds him there'),
+    OUT(3, '1-04', 37.5, fade=1.5, note='Q143: he is back with them'),
+    # ---- 1-05 The Schuyler Sisters: the film lights the three sisters hard and bright all number long (frames 120-912:
+    # three bright gowns against a warm-brown city). Spot 2 (house left) has Angelica, who works the SR half; spot 1
+    # Eliza at centre; spot 3 Peggy SL. Burr's narration and his summer verse borrow a spot.
+    F(2, '1-05', 4.4, 'burr', level=0.8, note='Q150: Burr runs on to DSR and introduces the scene (Jack: from USL to DSR); the spot catches him there'),
+    F(2, '1-05', 21.9, 'angelica', level=0.9, move=1.0, note='Q152: Angelica revealed up from the deck door; spot 2 swings from Burr to her and stays with her'),
+    F(1, '1-05', 24.2, 'eliza', level=0.85, note='Q153: Eliza revealed'),
+    F(3, '1-05', 25.9, 'peggy', level=0.85, note='Q154: Peggy revealed'),
+    OUT(3, '1-05', 51.0, fade=1.5, note='Q159 Angelica\'s verse: Peggy steps back'),
+    F(1, '1-05', 64.9, 'burr', level=0.8, move=1.0, note='Q161: Burr sidles in to Angelica; spot 1 leaves Eliza for him (film frame 461: face to face with her)'),
+    F(1, '1-05', 94.6, 'eliza', level=0.8, move=1.0, note='Q164: she rebuffs him and he backs to the DSR corner; spot 1 back to Eliza'),
+    F(2, '1-05', 99.8, 'angelica', size='full', level=1.0, note='Q165 her solo: film frame 551 (at 110) -- she sings it at centre, out in front, in a hard bright pool'),
+    F(3, '1-05', 115.5, 'peggy', level=0.85, fade=0.4, note='Q167 the anthem: all three sisters lit again'),
+    F(2, '1-05', 117.0, 'angelica', level=0.9, fade=1.0, note='Q167: back to her full-look level'),
+    OUT(2, '1-05', 183.0, fade=0.6, note='the sisters go in the button\'s last seconds'),
+    OUT(1, '1-05', 183.4, fade=0.6, note='the sisters go'),
+    OUT(3, '1-05', 183.0, fade=0.6, note='the sisters go'),
+    # ---- 1-06 Farmer Refuted: a debate, so the two debaters each have a spot the whole scene (film shots 1-12: Seabury
+    # bright on his box SL, Hamilton bright wherever he is); Burr gets one when he steps in at the end
+    F(3, '1-06', 1.0, 'ens2', level=0.85, note='Q175: Seabury up on his box SL reading his paper (film shot 1, at 9: the brightest man on the stage)'),
+    F(2, '1-06', 16.4, 'hamilton', level=0.9, note='Q177: Hamilton cuts in from DSR (film shot 2)'),
+    F(1, '1-06', 46.1, 'hamilton', level=0.9, fade=0.3, note='Q180 the duet: he crosses SL to the box; spot 1 takes him there'),
+    OUT(2, '1-06', 46.6, fade=0.8, note='spot 1 has him'),
+    F(2, '1-06', 96.5, 'burr', level=0.8, note='Q186: Burr steps in to calm him (film shot 11)'),
+    OUT(2, '1-06', 103.6, fade=1.0, note='Q188 the herald\'s special takes the stage'),
+    OUT(1, '1-06', 103.8, fade=1.0, note='Q188: the King\'s herald'),
+    OUT(3, '1-06', 103.8, fade=1.0, note='Q188: the King\'s herald'),
 ]
 # ===== END SEGMENT 1 =====
 
