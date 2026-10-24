@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-24: the stage manager — calling the show, the company backstage, the booth's operators (branch `stage-manager`, on `film-round`; its PR waits for #17; RULINGS GM–GQ)
+## DONE — 2026-10-24: the stage manager — calling the show, the company backstage, the booth's operators (branch `stage-manager`, PR open on main after #17 merged; RULINGS GM–GQ)
 
 Jack: *"make a stage manger thing where i can call ther show and i can give 5 minuet and plcsses calss for the actors and
 make it so there are atcually people in the spotbooth moving the lights and think of somemore stuff for it"*, then
