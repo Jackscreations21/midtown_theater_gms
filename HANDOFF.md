@@ -229,6 +229,36 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-24: the orchestra pit under house 1's stage and the conductor's opening (branch `orchestra-pit`, PR open)
+
+Jack: *"make an orchstar pit under the hamstage and make ther be a littlw hole at the front of the stage like hamilton has for
+the conductor"*. One Opus builder; `midtown.html` "HOUSE WORKS: THE ORCHESTRA PIT" (`MIDTOWN.pit`, a "Pit" view button).
+- **The stage front is box 21's lip (z −1.38, top 0.845), not the set's deck (z −0.40):** Jack's baked slab buries both
+  decks. The pit is x −5.5…5.5, z −1.28…3.5, floor y −2.0; joists to 0.54, a lip beam to 0.32 (hides ch285/286).
+- **The opening:** x −0.55…0.55, z −1.27…−0.82 (1.10 × 0.45 m, 11 cm behind the lip, so footlight ch605 keeps its strip).
+  It is 0.45 deep, not 0.6, because the DSC marks reach z −0.79…−0.94 (actors over it: 7 actor-seconds at 0.45 vs ~76
+  at 0.6). An invisible lid in the walk's grid closes it. There is no rail (the real one has none).
+- **The band:** the MD on a riser (crown 0.41 m over the deck, facing upstage, keyboard, monitor, lamp) and nine
+  players from the actors' rig: keys 2, guitar, bass, drums, percussion, two violins, viola, cello. They play on the beat
+  grid as a pure function of show time. The players are instanced per body part; the 3D arm solve is `pitArm`.
+- **Lighting:** no real lights. Pit materials take only 22 lamp terms; they are black to the pools and the worklights,
+  except the MD's upper body.
+- **The way down:** a guarded hole in the crossover (x −5.15…−1.85) and a 16-riser stair to a passage under the set's
+  house-right side, then a door on E into the pit. `PIT_CUTS` in `reapplyAll` (the ground plane, the stalls floor, the
+  back tower's foot); `pitCarve` carves box 21, boxes 6/6b/18 and box 4's foot at every load.
+- **Two fixes outside it:** `LX_BEAM_FS` discards beam fragments below y 0.84 in house 1's stage house (a slanted cone's
+  rim dipped into the pit), and `under.check()` gains the pit's walls as blockers (it had relied on house 1's ground
+  plane: 15/16 → 16/16).
+- **Checks:** `pit.check()` 11/11, negative-checked (door open; slab removed). `actors.check()`, `follow.check()`,
+  `show.check()` seek-equivalence, `walls`, `jt`, `jtLights` identical to main; `lx.check()` 301/313; doors 19/19 (+ the
+  pit door); console clean. Frame: +0.7…+4.5 ms depending on the view (Intel, rough).
+- **His to decide:**
+  1. The opening's size.
+  2. Nudge the King's, Burr's and Hamilton's DSC marks ~0.2 m upstage? A toe is over the opening's back edge for ~145
+     actor-seconds.
+  3. The walker can stand on the lid, over the MD's head.
+  4. The head tags show through the pit ceiling (they draw over everything).
+
 ## DONE — 2026-10-24: the film round — every segment against the footage, the stillness, the three followspots (branch `film-round`, PR open; RULING GL)
 
 Jack: *"can you look the the audio and videso agian there is still a lot of stuff wrong. the sound in someplases onliine
