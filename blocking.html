@@ -448,6 +448,9 @@ function actCompile(a) {
       : tan1 ?? (after && after.yaw0 !== null ? after.yaw0 : (b ? b.yaw : 0));
     const k = p.arrive !== null ? actSmooth((p.leave - p.T) / ACT_TURN) : 1;
     p.yawOut = k < 1 ? actYawLerp(p.arrive, p.yaw, k) : p.yaw;
+    // she HALTS at p (the walk eases down into it and up out of it) at a stop, and wherever a leg on either side of it has no
+    // length — standing there, whatever its dwell says: full speed from a standstill stepped the gait in one frame (2026-10-24)
+    p.halt = p.stop || !before || before.len <= 1e-3 || !after || after.len <= 1e-3;
   });
   return { P, segs };
 }
@@ -483,7 +486,7 @@ function actPose(a, T) {
     return { x: p.x, y: p.y, z: p.z, yaw: k < 1 ? actYawLerp(p.arrive, p.yaw, k) : p.yaw, visible: !p.off, label: T < p.T ? actHead(a) : p.lab };
   }
   const s = c.segs[i], D = s.t1 - s.t0, t = T - s.t0;
-  const [f] = actWarp(t, D, p.stop ? Math.min(ACT_EASE, D / 2) : 0, q.stop ? Math.min(ACT_EASE, D / 2) : 0);
+  const [f] = actWarp(t, D, p.halt ? Math.min(ACT_EASE, D / 2) : 0, q.halt ? Math.min(ACT_EASE, D / 2) : 0);
   const u = actArcU(s, f), at = actCR(s, u);
   let yaw = s.len > 1e-3 ? actTanYaw(s, u) : p.yaw;
   yaw = actYawLerp(p.yawOut, yaw, actSmooth(t / ACT_TURN));

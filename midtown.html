@@ -5404,6 +5404,10 @@ function actCompile(a) {
       : tan1 ?? (after && after.yaw0 !== null ? after.yaw0 : (b ? b.yaw : 0));
     const k = p.arrive !== null ? actSmooth((p.leave - p.T) / ACT_TURN) : 1;
     p.yawOut = k < 1 ? actYawLerp(p.arrive, p.yaw, k) : p.yaw;
+    p.kOut = k; p.turnAll = p.arrive !== null ? actYawLerp(p.arrive, p.yaw, 1) - p.arrive : 0;   // a turn she leaves unfinished (FS's feet)
+    // she HALTS at p (the walk eases down into it and up out of it) at a stop, and wherever a leg on either side of it has no
+    // length — standing there, whatever its dwell says: full speed from a standstill stepped the gait in one frame (2026-10-24)
+    p.halt = p.stop || !before || before.len <= 1e-3 || !after || after.len <= 1e-3;
   });
   return { P, segs, probs, timed: !!tr };
 }
@@ -5458,11 +5462,14 @@ function actPose(a, T) {
       turn: k < 1 ? actYawLerp(p.arrive, p.yaw, 1) - p.arrive : 0, turnK: k };          // FS: a turn on the spot (radians, how far through)
   }
   const s = c.segs[i], D = s.t1 - s.t0, t = T - s.t0;
-  const [f, v] = actWarp(t, D, p.stop ? Math.min(ACT_EASE, D / 2) : 0, q.stop ? Math.min(ACT_EASE, D / 2) : 0);
+  const [f, v] = actWarp(t, D, p.halt ? Math.min(ACT_EASE, D / 2) : 0, q.halt ? Math.min(ACT_EASE, D / 2) : 0);
   const u = actArcU(s, f), at = actCR(s, u), ref = p.y + (q.y - p.y) * f;
   let yaw = s.len > 1e-3 ? actTanYaw(s, u) : p.yaw;
   yaw = actYawLerp(p.yawOut, yaw, actSmooth(t / ACT_TURN));                           // out of her stance (or a turn) into the walk
-  return { x: at.x, y: actGround(at.x, at.z, ref, p.ey, q.ey, T), z: at.z, yaw, visible: !(p.off && q.off), speed: v * s.len, dist: s.dist0 + f * s.len, label: p.lab, turn: 0, turnK: 1,
+  // a turn on the spot she left before it finished goes on into the walk (its lead eases out, its steps fade with her speed):
+  // dropped at the leave, the feet and shoulders stepped in one frame (2026-10-24, actors.check at 1-23 305.8)
+  const turn = p.kOut < 1 ? p.turnAll : 0, turnK = p.kOut < 1 ? 1 - (1 - p.kOut) * (1 - actSmooth(t / ACT_TURN)) : 1;
+  return { x: at.x, y: actGround(at.x, at.z, ref, p.ey, q.ey, T), z: at.z, yaw, visible: !(p.off && q.off), speed: v * s.len, dist: s.dist0 + f * s.len, label: p.lab, turn, turnK,
     ey: p.ey, ey2: q.ey };
 }
 // The floor under set-local (x, z) for a body at height ref: the highest surface within ACT_STEP above ref, or anything below —

@@ -253,6 +253,7 @@ def compile_path(path, tracks, head):
         else: p['yaw'] = b['yaw'] if b else 0.0
         k = smooth((p['leave'] - p['T']) / TURN) if p['arrive'] is not None else 1
         p['yawOut'] = ylerp(p['arrive'], p['yaw'], k) if k < 1 else p['yaw']
+        p['halt'] = p['stop'] or not before or before['len'] <= 1e-3 or not after or after['len'] <= 1e-3   # eased in and out (midtown.html)
     return {'P': P, 'segs': segs, 'head': head}
 
 
@@ -270,7 +271,7 @@ def pose(c, T):
         return {'x': p['x'], 'z': p['z'], 'y': p['y'], 'yaw': ylerp(p['arrive'], p['yaw'], k) if k < 1 else p['yaw'], 'visible': not p['off'],
                 'label': c['head'] if T < p['T'] else p['lab'], 'moving': False}
     s = c['segs'][i]; D = s['t1'] - s['t0']; t = T - s['t0']
-    f = warp(t, D, min(EASE, D / 2) if p['stop'] else 0, min(EASE, D / 2) if q['stop'] else 0)
+    f = warp(t, D, min(EASE, D / 2) if p['halt'] else 0, min(EASE, D / 2) if q['halt'] else 0)
     u = arc_u(s, f); x, z = cr(s, u)
     yaw = tan_yaw(s, u) if s['len'] > 1e-3 else p['yaw']
     yaw = ylerp(p['yawOut'], yaw, smooth(t / TURN))
