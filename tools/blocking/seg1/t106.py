@@ -32,6 +32,8 @@ def build():
     # "0:27 Lafayette: go child go / Burr: let him be"; "Lafayette tried to grab Aaron to stop him [stopping Hamilton]".
     # Lafayette steps in at Burr's side and holds him off; at 40 he pushes Hamilton on, as before.
     move('lafayette', F(26.4), F(27.8), (-2.95, 3.3), f=60)
+    # FILM ROUND (2026-10-24; film 1-06 shots 3-9): he never plants: he prowls at Seabury while he cuts in
+    move('hamilton', F(33.0), F(34.6), (-0.5, 2.5), f=40)
     # Mulligan and Lafayette nudge him toward the box (fan staging account)
     move('lafayette', F(40.0), F(42.4), (-1.8, 2.2), f=60)
     move('mulligan', F(40.4), F(42.8), (-2.2, 3.0), f=60)
@@ -47,6 +49,8 @@ def build():
     # ---- Q181 62.3 he heats up: round to the front of the box
     move('hamilton', F(62.3), F(64.0), (1.4, 3.2), f=0)
     turn(['ens2'], F(63.0), -20)
+    move('hamilton', F(69.0), F(70.6), (0.6, 3.5), f=20)     # FILM ROUND: working the front of the box
+    move('hamilton', F(74.0), F(75.6), (1.7, 3.3), f=-20)
     exit_('ens3', F(76.8), 'W_DSL', speed=1.4)               # REVIEW 3: Charles Lee walks off (comment above)
     crowd_e.remove('ens3')
     # ---- Q183 78.0 the company shouts with him: the crowd presses in, the friends join him

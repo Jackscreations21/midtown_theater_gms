@@ -238,14 +238,22 @@ def compile_path(path, tracks, head):
     for s in segs:
         s['yaw0'] = tan_yaw(s, 0) if s['len'] > 1e-3 else None
         s['yaw1'] = tan_yaw(s, 1) if s['len'] > 1e-3 else None
-    for i, p in enumerate(P):
+    for i, p in enumerate(P):                     # the facings, continuous (midtown.html actCompile, 2026-10-24)
         before = segs[i - 1] if i > 0 else None
         after = segs[i] if i < len(segs) else None
-        p['arrive'] = before['yaw1'] if before and before['yaw1'] is not None else None
-        if p['facing'] is not None: p['yaw'] = p['facing'] * math.pi / 180
-        elif p['arrive'] is not None: p['yaw'] = p['arrive']
+        b = P[i - 1] if i else None
+        tan1 = before['yaw1'] if before and before['yaw1'] is not None else None
+        if not b: p['arrive'] = None
+        elif tan1 is None: p['arrive'] = b['yawOut']
+        else: p['arrive'] = ylerp(b['yawOut'], tan1, smooth((before['t1'] - before['t0']) / TURN))
+        if p['facing'] is not None and p['stop']: p['yaw'] = p['facing'] * math.pi / 180
+        elif not p['stop'] and p['arrive'] is not None: p['yaw'] = p['arrive']
+        elif tan1 is not None: p['yaw'] = tan1
         elif after and after['yaw0'] is not None: p['yaw'] = after['yaw0']
-        else: p['yaw'] = P[i - 1]['yaw'] if i else 0.0
+        else: p['yaw'] = b['yaw'] if b else 0.0
+        k = smooth((p['leave'] - p['T']) / TURN) if p['arrive'] is not None else 1
+        p['yawOut'] = ylerp(p['arrive'], p['yaw'], k) if k < 1 else p['yaw']
+        p['halt'] = p['stop'] or not before or before['len'] <= 1e-3 or not after or after['len'] <= 1e-3   # eased in and out (midtown.html)
     return {'P': P, 'segs': segs, 'head': head}
 
 
@@ -263,10 +271,10 @@ def pose(c, T):
         return {'x': p['x'], 'z': p['z'], 'y': p['y'], 'yaw': ylerp(p['arrive'], p['yaw'], k) if k < 1 else p['yaw'], 'visible': not p['off'],
                 'label': c['head'] if T < p['T'] else p['lab'], 'moving': False}
     s = c['segs'][i]; D = s['t1'] - s['t0']; t = T - s['t0']
-    f = warp(t, D, min(EASE, D / 2) if p['stop'] else 0, min(EASE, D / 2) if q['stop'] else 0)
+    f = warp(t, D, min(EASE, D / 2) if p['halt'] else 0, min(EASE, D / 2) if q['halt'] else 0)
     u = arc_u(s, f); x, z = cr(s, u)
     yaw = tan_yaw(s, u) if s['len'] > 1e-3 else p['yaw']
-    if p['stop']: yaw = ylerp(p['yaw'], yaw, smooth(t / TURN))
+    yaw = ylerp(p['yawOut'], yaw, smooth(t / TURN))
     return {'x': x, 'z': z, 'y': p['y'] + (q['y'] - p['y']) * f, 'yaw': yaw, 'visible': not (p['off'] and q['off']), 'label': p['lab'], 'moving': True}
 
 

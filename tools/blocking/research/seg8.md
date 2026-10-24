@@ -914,3 +914,86 @@ cannot show; there is no move for it.
   all under 1 s except the SR mourner pair walking on side by side (2-22 217.8-219.0, 0.33 m), a pair entering together.
 - `props.py --check` crashes on another segment's new prop kind, `crate` (a KeyError in its size table). That is not a
   seg 8 prop.
+
+## Film round (2026-10-24)
+
+The Disney+ clips (tools/vision/cache, 5 frames a second, `at` = album seconds) read against our blocking with
+tools/blocking-plot.py. No clip for 2-22 or 2-23; 2-21's is short. Stage left = the RIGHT of the frame. Stillness from
+tools/blocking/still.py (share of on-stage time spent still), before -> after.
+
+### 2-17 Stay Alive (Reprise) (still 71% -> 56%)
+- Read: 11.4 (wide): two of the company carry Philip at far SR, a table behind them; 14: Hamilton runs in upstage centre,
+  the bearers still holding Philip SR; ~20: the Doctor (brown coat) talks with Hamilton, Philip on the table behind; 24.9
+  (wide): the table with Philip far SL under the stair, Hamilton and the Doctor far SR; 30: they walk SR->centre toward
+  the table; 33.4 (wide): the table near the front, Hamilton bent over it from upstage, the Doctor upstage SR of it; 62:
+  Eliza in a doorway up SR; 64-97 (close): Eliza and Hamilton both upstage of Philip, bent over him, Eliza on Hamilton's
+  SR side, Philip's head SL.
+- Changed: the bearers are back (ens2/ens3 catch him and carry him up SR); the table starts up SR (315 deg) and the
+  platform carries it clockwise round by SL to the front (props.py); Hamilton and the Doctor no longer ride with the
+  table: they talk SR and walk to it as it arrives; Eliza enters up SR (was: upstage centre to her special SL); the
+  family stands upstage of the table and leans over Philip (dance.py `lean-in`). Philip lying still is on purpose (the
+  library has no "lie on a table" pose: he stands in the table, as before).
+
+### 2-18 It's Quiet Uptown (47% -> 45%)
+- Read: 6.6 and 33.6 (wide): Angelica SL mid-stage (not centre-front); 33.6: Hamilton centre, the company at the sides;
+  47: couples walking round him; 94 (wide): Hamilton ALONE at the centre, the company at both sides reaching their arms
+  in to him; 103-147: Hamilton SR of Eliza, she stone-still; 167 (wide): he walks round her, couples dancing round
+  them; 230/246 (wide): the couple at the centre of the turntable, Eliza SR of him, the company standing round the edges.
+- Changed: Angelica starts SL and drifts up SL; Hamilton walks inside the circle and stays at the CENTRE for the pull-in
+  (was: out to his SR special at 70); the company reaches in to him (`beckon`); he walks round Eliza 166-208. Eliza's
+  stillness all number long is the film's, kept on purpose; the company watching the forgiveness from the sides is the
+  film's (246), kept.
+
+### 2-19 The Election of 1800 (92% -> 52%)
+- Read: 5 (high wide): the stage empty but for Jefferson walking on DSR and Madison at centre; 21: both at the front,
+  Madison SR, Jefferson SL of him; 28: face to face; 63.5: Burr centre, J & M just SL of him going up, the company walking
+  on SR; 77: a dozen of the company everywhere, dancing, papers overhead, Burr SR among them; 104 (wide): Hamilton at the
+  CENTRE, back to us, the company in two lines from DSR and DSL facing him; 124: Hamilton SR / Burr SL, alone (131-148 the
+  two only); 152 (wide): Hamilton on the gallery centre, the company bunched upstage centre looking up, Jefferson SL
+  walking, Madison far SL, Burr far SR; 167: Burr SR front looking up, the company dancing (turns, arms out), Hamilton a
+  little SR on the gallery; 184.5 (wide): Burr centre front, the company in an arc behind him; 200: the company pointing.
+- Changed: the company enters for Burr's vamp (was on from 3.4, standing 75 s); J & M walk and cross as the film has them,
+  and go SL (was SR) for the second half; Burr is never still (walks, gestures), goes SR for the endorsement and centre
+  front for the verdict (was up SL); Hamilton takes the letters at the centre between two side lines (was UC at the head
+  of an alley); the company clears for the two men and returns under the gallery, dances, arcs behind Burr, points; the
+  principals' lines get gestures (dance.py). Kept: Burr's rectangle, Rua in Hamilton's face, the extra spin, J's jump.
+
+### 2-20 Your Obedient Servant (70% -> 59%)
+- Read: 31.4 (wide): Burr centre, four dancers crouched round him; 40: the company dancing hard round the desk he sits at
+  (lunges, a slide, turns); 49.8-57: Burr at the desk; 88-93: Hamilton at the desk writing, Burr standing SR, the company
+  behind the desk; 107.7: the woman teasing Burr with the page, centre; 115: Hamilton up from the desk, SR of centre;
+  129-147 (wide): Hamilton in a DS pool SR, Burr in a DS pool SL, the company in a line upstage, a second beside each from
+  142.
+- Changed: the six dance round the desk 35-49 (dance.py) before going to the sides; three now live SR (the page-bringers,
+  as Burr stands SR from 77, was SL); two sway behind Hamilton's desk; Hamilton rises at 115 and takes the DSR pool, Burr
+  the DSL pool (was: Hamilton at the desk to the blackout); the company makes the upstage line at 126; a second beside
+  each man from 140.5. The desk is now struck in the blackout (props.py; was carried by Hamilton, who is 3 m from it).
+
+### 2-21 Best of Wives (34% -> 15%)
+- Read: 8.4: Eliza in SR, standing apart watching him write at his desk; 21: behind his chair, arms round him; 38: at his
+  SR side, his hand holding hers.
+- Changed: she stands apart first, then goes behind him (dance.py `comfort` 17-34; was: straight behind him at 7.72 and
+  to his side for the plea). The desk goes in the 44.0 blackout (Jack's ruling, kept).
+
+### 2-22 The World Was Wide Enough (no clip; 62% -> 50%)
+- Changed only where the research supports it: Burr keeps moving and gestures while Hamilton freezes (hamilton-lyrics);
+  the company's arc walks a little round the ring and back before the count instead of standing 90 s (invented, slow);
+  Burr's last minutes get a few steps and gestures (invented). The Doctor standing turned away 25-97 is on purpose.
+
+### 2-23 Who Lives (no clip; 95% -> 79%)
+- Kept still on purpose: the watching company round Eliza's story. Added slow, deliberate movement only: the company's
+  rings walk slowly round before coming down into the lines (hamilton-lyrics: "circles down"), a slow step in toward
+  Eliza on "her work" and back on "her years", a draw-in toward the couple twice at the end, a breath on the title lines,
+  gestures for the openers, Eliza's small moves in her shaft. Jack's bows ruling untouched.
+
+### Followspots (follow.py SEGMENT 8)
+- Spot 2 (stage right) and spot 3 (stage left) on the principals by side, spot 1 the centre: 2-17 Hamilton, Philip on the
+  table, Eliza; 2-18 Angelica (SL narration), Hamilton (full at the pull-in, 89.35), Eliza, Angelica's DSR solo; 2-19
+  Jefferson, Madison, Burr throughout, Hamilton at the letters and on the gallery, Jefferson again when he wins; 2-20 Burr,
+  Hamilton; 2-21 Hamilton (half, then full), Eliza; 2-22 Hamilton, Burr, the Bullet, Washington, Eliza, Burr's reckoning;
+  2-23 Washington, Jefferson, Madison, Burr, Eliza to the gasp, Angelica, Washington at the monument, Hamilton. All OUT
+  at 2-23 211.8. `follow.py --check`: 0 problems.
+
+### Moves wanted (not in the library)
+- `lie` (supine on a table or the floor): Philip on the table in 2-17 stands in it.
+- a "hold out a paper" arm (the letters in 2-19 use `beckon`; the pages in 2-20 use nothing).

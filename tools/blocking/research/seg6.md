@@ -652,3 +652,133 @@ The comments describe the paper and faces only.
   compilation's uploader says he stays "at the right-stage ... audience's left-hand side" (SR) afterwards. Seg 7 sets
   the stool UL (+x, which is SL) at 2-11 1.0. The ruled (0, 3.41) across the boundary is kept here; whether the stool
   comes at the end of 2-10, and on which side, is Jack's to rule.
+
+
+## Film round (2026-10-24)
+
+The Disney+ film's frames (`tools/vision/cache/2-06-schuyler-defeated` … `2-10-i-know-him`, 5 per second, `at` on the
+album clock) were read shot by shot. Places were taken from the wide shots only; close-ups gave gestures. Orientation:
+the right of the frame is stage LEFT. `gen6.py`, `dance.py`, `props.py` and `follow.py` were edited (every change is marked
+FILM). The pre-round copy is `scratchpad/seg6film/gen6.before-film.py`. Checks: merge 0 errors and 0 warnings,
+`dance.py --check 6` 0 errors, `props.py --check` 0 warnings, and `follow.py --check` 0 problems.
+
+### 2-06 Schuyler Defeated: 86 % still → 68 %
+- **Read:** 18.5–24 (shots 1–2): Eliza and Philip read the paper shoulder to shoulder at a gallery rail. 31.9 (shot 3,
+  wide), 35.8 and 44.0 (two cameras): Burr is on the deck mid-stage with Hamilton about 1.5 m away. Burr is on
+  Hamilton's RIGHT, so **Burr is SR and Hamilton SL**. The cue round had them the other way. From about 31 s the company,
+  in white, brings on and sets the Windsor chairs behind them. At 62.2 the chairs are set round Burr, the gilt armchair
+  stands upstage centre, and Hamilton walks away SL.
+- **Changed:**
+  - Burr now enters from SR and stands at (−0.9, 2.6). Hamilton enters from SL and stands at (0.75, 2.6).
+  - Burr stays on at the button and goes straight to his chair for 2-07.
+  - Hamilton walks off towards SL into the dark and comes back for his mic.
+  - Eliza and Philip now stand 0.7 m apart, not 1.6 m. The followspots light them now, so the old placement for the
+    apron keys is no longer needed.
+  - The six chairs are carried on in 2-06 (from 31.7 to 39.4), not at the top of 2-07, and the carriers keep setting
+    and squaring them up until the button. ens7 brings Burr's chair and ens8 brings Washington's armchair.
+- **Spots:** spot 2 is on Eliza and spot 3 on Philip, from 2.5 to 27 (**his ruling: they are lit**). Spot 1 is on Burr
+  from 22.8. Spot 3 is on Hamilton from 30.8 to 61.
+
+### 2-07 Cabinet Battle #2: 38 % → 37 % overall; principals 88–90 % → Hamilton 73, Jefferson 64, Madison 74, Washington 26, Burr 11
+- **Read:** 4.8 and 11.6–13.6 (wide): Jefferson and Madison are SR, Washington is centre with a mic, and Hamilton is SL,
+  which is **the ruled sides**. The company sits in the chairs, with **Burr seated SR among them**. Two watch from the
+  upstage gallery and others are on the SR stair.
+  - 34.6 and 48.6: Jefferson is across in Hamilton's face. Hamilton stands with his arms folded, and Madison is behind
+    Jefferson.
+  - 53.8 and 56.6: **Washington is seated** (a gilt armchair).
+  - 68.8: Washington stands centre between them.
+  - 80–89: Hamilton has his finger in Jefferson's face, centre.
+  - 93.7: Washington is up beside the armchair, cutting in.
+  - 101.5: the company rises.
+  - 107.6: Washington rules between them.
+  - 111.6–114.6: the armchair is carried off, the room clears, and **Washington goes SR**. Then **Hamilton is SR and
+    Jefferson SL**.
+  - 139.6 (wide): the two are face to face at centre, Washington calls from the DSR corner, and Burr watches from the
+    SL doorway.
+- **Changed:**
+  - Washington sits in his armchair at (0.3, −0.15) for both verses (`sit`) and stands for the hand-over, the cut-in and
+    the ruling.
+  - Jefferson's verse crosses to Hamilton, and Hamilton raps at him across centre.
+  - The REVIEW 3 "over Washington's shoulder" ruling picture at 116 is gone. In the film Washington has left by then.
+  - The company rises at 100.5 and clears at 111.4–112.6, not 127.6.
+  - The sides swap at 112 for the face-off, and they close in to 0.8 m.
+  - Washington now calls from the DSR corner, not SL, and the two go off SR. ironinkpen's "left" was the house's.
+  - Burr is in the company: he sits SR, leaves with his chair, and is in the SL doorway at 137.6.
+  - ens7 and ens9 watch from the gallery.
+- **Spots (his rulings):** spot 2 is on Jefferson for his verse (from 15.5). **At 77 (1:17) spot 2 goes out and spot 3
+  comes up on Hamilton.** Spot 1 is on Washington when he stands (4.3–17, 66.5–76, 93.9–110.6, 139.4–141). After the swap
+  spot 2 is on Hamilton (SR) and spot 3 on Jefferson (SL). **No blackout at the end:** spot 3 carries Jefferson into
+  2-08.
+
+### 2-08 Washington on Your Side: 64 % → 41 %
+- **Read:** 8.2: Burr walks on to Jefferson. At 15, 36 and 39.8, Burr is SR and Jefferson SL of him; they talk close
+  from 44 to 61. At 79 Burr is SL of Jefferson.
+  - From 82 to 123, in every wide shot, **the row is MADISON SR, Jefferson centre, BURR SL**. The cue round and Review 2
+    had Burr SR and Madison SL, so the row was flipped. Madison comes on from SR at about 78, not from SL at 63.5.
+  - 130–145: the company (eight with the Bullet) forms and marches the three downstage.
+  - 155: the company scatters upstage, and Burr and Madison are together centre-SR while Jefferson walks up SL.
+  - 162–166: **the desk is upstage SR of centre**. Washington comes to it and Jefferson brings him the resignation.
+  - 177 (wide, the button): Burr is far SR, Jefferson centre and Madison far SL. Washington stands at the desk with the
+    paper, and Hamilton is upstage SL of centre, reading.
+- **Changed:**
+  - The opening and both verses follow the film. The row is mirrored, and so are Jefferson's ring walk in the drive
+    (SL half) and the Bullet's weave (round Burr, SL now).
+  - The army is seven of the company plus the Bullet. They march down 141–148 and leave at 153–154 instead of 151.6.
+  - The end follows the film. Jefferson hands over the resignation at 168.5. Washington enters at 161.5 and Hamilton
+    at 174.5.
+  - The desk moves from (−0.4, 0.85) to (−1.5, −0.6).
+- **Spots:**
+  - Spot 3 stays on Jefferson from 2-07. Spot 2 is on Burr from 8.0.
+  - At 66.5 both pan as the two swap sides.
+  - Spot 1 picks up Madison at 78.6, then takes Jefferson in the row from 87, while spot 2 takes Madison.
+  - From 155, spot 2 is on Burr (far SR) and spot 3 on Madison (far SL).
+  - At 180.6, spot 2 pans to Washington at the desk and spot 3 to Hamilton.
+
+### 2-09 One Last Time: 77 % → 50 % (the film's clock drifts after about 170; read by event)
+- **Read:**
+  - 5.8–6.5 (wide): Washington is at the SR end of the desk and Hamilton is SL with the paper.
+  - 25–48: both are by the desk. 61–66: the drinks are poured at the desk, and they toast in front of it.
+  - 78–99: they talk close, mid-stage. 125: Washington is in front of the desk and Hamilton a step SL. 168: the quill
+    at the desk.
+  - **Hamilton is on Washington's LEFT (SL) the whole scene.** Review 2 had him SR of the desk.
+  - 179: Hamilton is alone DSC with the address. 200–217: side by side, Hamilton on Washington's left (as Review 3).
+    224–240: Washington alone, then the company and Eliza.
+  - The end (the 2-10 clip, 282–296): Washington is **DSC in a hard spot, arms open, for the held note**, with the company
+    in a line across upstage and Hamilton and Eliza SR. After the cut-off he walks slowly upstage and off, and the King
+    comes in from SL and watches him go.
+- **Changed:**
+  - The desk is at (−1.5, −0.6).
+  - Hamilton stays SL of Washington throughout, and both keep moving: 40 or so gestures from the move library.
+  - Hamilton stays beside Washington through the address (to 218), then steps back.
+  - **Washington no longer walks to the SL stair** (Review 1's ch20 reading). He stays DSC through the held note with
+    `angel-wings` (arms open), then walks upstage and off by the deck door in the top of 2-10.
+  - The company's line is moved off the desk. The company and the family sway on the gospel build (252–266).
+- **Spots:** spot 2 is on Washington and spot 3 on Hamilton for the scene. For the address, Hamilton is at full and
+  Washington is held at 0.45. Spot 3 goes out at 222. Then one wide spot 3 on Hamilton takes in the family. Spot 1 is
+  on Washington from 266, and full for the held note.
+
+### 2-10 I Know Him: 39 % → 37 %
+- **Read:** 2-09 293–296: the King strolls in from SL and stops, watching Washington walk upstage. He is UC at 5.2. From
+  33.1 to 47.1 the Bullet, in a redcoat, stands at his SR shoulder, whispers and giggles; she is still there at 47. At
+  84 a member of the company brings the stool (segment 7's prop: not changed here).
+- **Changed:**
+  - He now enters from the DSL wing, not the deck door, which is Washington's way out now. He reaches UC at 6.0.
+  - The messenger is on from 33.0 to 47.2, not 40.5 to 42.8.
+  - He still ends on (0, 3.41) at the blackout, as ruled.
+- **Spots:** spot 3 is on him from 2-09 294.6. Spot 1 takes him from 4.5 to the blackout (95.6, a snap). Spot 2 has a
+  half-body pool on the Bullet from 33.3 to 47.
+
+### Still on purpose (kept)
+- The family watching his farewell (2-09 267–294): Hamilton, Eliza and Philip.
+- The company's salute and its hold through the held note.
+- The two gallery watchers in 2-07, which have claps and leans only.
+- Eliza and Philip reading the paper (2-06 0–27).
+
+### For Jack
+1. 2-08 row order: the film puts Madison SR and Burr SL for 82–123. Every earlier round had it the other way. The cue
+   pools (keys ch1/ch5) still sit on the old sides.
+2. 2-09 ending: Washington stays DSC for the held note and leaves upstage by the deck door. The SL-stair exit and its
+   ch20 special are gone, so cues 998–1000 want refocusing on DSC.
+3. 2-07: Washington sits in an armchair in the film. Its position (upstage of centre) is a reading of two camera
+   angles that disagree a little.
+4. 2-10: the stool comes at about 84 in the film (segment 7's prop and boundary).

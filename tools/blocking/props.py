@@ -262,27 +262,42 @@ SEGMENT_2 = [
 # ===== END SEGMENT 2 =====
 
 # ===== SEGMENT 3 (1-12..1-17) =====
-# the tavern table struck in 1-12; 1-13 the watcher's chair far SL (cue 410 "the woman on the chair"; the watcher's
-# pool is seen in the production pictures); Washington's desk in 1-14 Stay Alive (seg3gen.py) and 1-16 the office;
-# 1-16/1-17 Hamilton's chair (cue 490 "Hamilton (seated)"), set with the office desk and left for him when it goes
+# the tavern table struck in 1-12; 1-13 the four chairs of Wait for It at the deck's sides (FILM ROUND: the watcher's
+# and three more); 1-14 Hamilton's writing chair (FILM ROUND) and Washington's desk; 1-16 the office desk and the bench
+# Hamilton and Eliza sit on in 1-17
+def _ch13(pid, who, label, sitter, f, wing, t0, t1, s0, s1, note):
+    x, z = behind(sitter, f, 0.55)
+    return [P(pid, 'chair', label, PINE),
+            BRING(pid, who, '1-13', t0, '1-13', t1, x, z, f, wing=wing, note=note),
+            STRIKE(pid, who, '1-13', s0, '1-13', s1, wing, note='she takes it off in the outro fade (seg3gen.py)')]
 SEGMENT_3 = [
-    STRIKE('tavern-table', 'lafayette', '1-12', 75.8, '1-12', 83.0, 'W-MSL', note='the friends leave on 75.4: Lafayette takes it off W-MSL'),
+    STRIKE('tavern-table', 'lafayette', '1-12', 80.5, '1-12', 88.2, 'W-MSL', note='FILM ROUND: the friends are shooed off at ~80 (film 82); Lafayette takes it off W-MSL'),
     P('watcher-chair', 'chair', 'Chair (Ensemble 8)', PINE),
     BRING('watcher-chair', 'ens8', '1-13', 0.4, '1-13', 9.5, *behind((4.0, 2.6), -60, 0.55), -60, wing='W-MSL',
           note='1-13: the woman far SL (cue 410) brings her chair on and sits in her pool (ch10 (4.04, 2.64))'),
-    STRIKE('watcher-chair', 'ens8', '1-13', 51.4, '1-13', 55.6, 'W-MSL', note='she takes it off as her pool fades (cue 413)'),
-    BRING('washington-desk', 'washington', '1-14', 11.5, '1-14', 16.9, 0.0, 0.85, 0, wing='D-UC',
-          note='1-14: Washington brings his desk in from D-UC (cue 429 "a warm pool on the desk"); he stands DS of it'),
+    *_ch13('wait-chair-sr', 'ens7', 'Chair (Ensemble 7)', (-4.6, 2.7), 60, 'W-DSR', 25.0, 30.0, 179.6, 183.4,
+           'FILM ROUND (film 88.9 / 121 / 133.8): the company sit on chairs at the sides of the deck through Wait for It; far SR'),
+    *_ch13('wait-chair-sr2', 'ens1', 'Chair (Ensemble 1)', (-3.0, 0.6), 75, 'W-MSR', 25.0, 30.6, 180.0, 185.0,
+           'FILM ROUND: the second SR chair'),
+    *_ch13('wait-chair-sl2', 'ens5', 'Chair (Ensemble 5)', (3.0, 0.6), -75, 'W-MSL', 25.0, 31.2, 180.0, 185.0,
+           'FILM ROUND: the second SL chair'),
+    STRIKE('watcher-chair', 'ens8', '1-13', 179.6, '1-13', 184.5, 'W-MSL', note='FILM ROUND: she keeps it (film 88.9: still seated far SL) and takes it off in the outro fade'),
+    P('ham-chair-14', 'chair', 'Chair (Hamilton)', PINE),
+    DARK('ham-chair-14', '1-14', 0.3, *behind((2.4, 2.55), -30, 0.55), -30,
+         note='FILM ROUND (film 7-46): Hamilton sits writing on a chair SL of centre from the top; set in the dark between the songs'),
+    STRIKE('ham-chair-14', 'ens10', '1-14', 85.5, '1-14', 90.2, 'W-MSL', note='a redcoat takes it off SL as the war reports end'),
+    BRING('washington-desk', 'washington', '1-14', 34.6, '1-14', 40.0, 0.0, 0.85, 0, wing='D-UC',
+          note='1-14: Washington brings his desk in from D-UC (FILM ROUND: he comes on late, film 44); he stands DS of it'),
     STRIKE('washington-desk', 'ens2', '1-14', 50.0, '1-14', 54.8, 'D-UC',
            note='NOTES3 (Jack): "at 50 washington\'s desk should come off" - no blackout there, so ens2 (free) comes in by the deck door, takes it from behind and goes back out with it'),
-    BRING('washington-desk', 'ens2', '1-16', 21.7, '1-16', 28.5, -1.9, 2.4, 40, wing='W-MSR',
-          note='1-16: ens2 brings it on from SR on the chant (cue 478 turns the deck into his office); behind his place'),
-    STRIKE('washington-desk', 'washington', '1-16', 77.9, '1-16', 82.9, 'W-DSR', note='he takes it off DR on the button'),
+    BRING('washington-desk', 'ens2', '1-16', 21.7, '1-16', 28.5, 1.9, 2.4, -40, wing='W-MSL',
+          note='1-16: ens2 brings it on from SL on the chant (cue 478 turns the deck into his office); behind his place (FILM ROUND: Washington is SL of Hamilton)'),
+    STRIKE('washington-desk', 'washington', '1-16', 77.9, '1-16', 82.9, 'W-DSL', note='he takes it off DL on the button'),
     # REVIEW 3: ironinkpen on That Would Be Enough: "The only thing on stage with them is a little bench, which Hamilton
     # sits on tiredly" - so his seat is a small bench, not a chair (the id is kept; nothing else names it)
     P('office-chair', 'bench', 'Bench (Hamilton)', OAK, size=[1.0, 0.45, 0.4]),
-    BRING('office-chair', 'ens6', '1-16', 22.2, '1-16', 29.0, *behind((0.75, 2.6), -20, 0.7), -20, wing='W-MSL',
-          note='1-16: ens6 brings it on from SL with the desk; Washington leaves it, and Hamilton sits on it at the top of 1-17 (cue 490; ironinkpen: "a little bench")'),
+    BRING('office-chair', 'ens6', '1-16', 21.8, '1-16', 29.0, 0.2, 1.95, 0, wing='W-MSR',
+          note='1-16: ens6 brings it on from SR with the desk (film 26.6); 1-17: the two sit on it side by side (film 60-175)'),
     # (NOTES3: its strike is in SEGMENT 4 now - he takes it off once the fade is black, at 1-18's top)
 ]
 # ===== END SEGMENT 3 =====
@@ -293,8 +308,12 @@ SEGMENT_3 = [
 # up centre, six chairs in two rows in the diamond of Viper pools, seats turned upstage); Hamilton's desk for the
 # Federalist papers (it comes back in segments 5, 7 and 8). Carriers and times are gen4.py's.
 JC4 = {'b1': (-2.12, 1.87), 'b2': (0.70, 1.81), 'b3': (3.50, 1.71), 'f1': (-3.50, 3.60), 'f2': (-0.59, 3.65), 'f3': (2.31, 3.55)}
-JBRING4 = [('jury-chair-b2', 'ens6', 'b2', 'W-USL', 84.6), ('jury-chair-f1', 'ens8', 'f1', 'W-DSR', 81.5),
-           ('jury-chair-f2', 'ens9', 'f2', 'W-DSL', 84.1), ('jury-chair-f3', 'ens10', 'f3', 'W-DSL', 82.3)]
+JBRING4 = [('jury-chair-b2', 'ens6', 'b2', 'W-USL', 90.0), ('jury-chair-f1', 'ens8', 'f1', 'W-DSR', 86.9),
+           ('jury-chair-f2', 'ens9', 'f2', 'W-DSL', 89.5), ('jury-chair-f3', 'ens10', 'f3', 'W-DSL', 87.6)]
+# (film round, 2026-10-24) the trial ends when Hamilton gets down off the defence table (83.8, gen4.py), so the chairs and
+# the table go at 84, not 78.5; 1-18's table stays on through History and is struck in Yorktown's first bars; the fathers'
+# chairs of 1-22 are the other way round (Burr SR, Hamilton SL: the Disney+ wide shots), so Burr's becomes jury chair b1
+# and Hamilton's b3, and their strikers swap.
 # (review 3, video) 1-18 Lafayette's table: he raps standing on it and jumps off mid-rap (Disney+ clip comments); ens6
 # brings it on from SL in the build and takes it off once he is travelling. 1-20 the furniture the soldiers hold upside
 # down in The World Turned Upside Down (a reaction to the Disney+ number; Jack's reddit notes): five soldiers bring a
@@ -303,19 +322,19 @@ JBRING4 = [('jury-chair-b2', 'ens6', 'b2', 'W-USL', 84.6), ('jury-chair-f1', 'en
 # pool, blackout wing, the '1-21' time she is off) - gen4.py prints these ('FURN').
 # NOTES3 (Jack, 2026-10-14/15): the five principals take the tableau's five front pools, so the carriers' spots moved (gen4.py
 # 'FURN', the pool or dark spot less 0.55 m in z) and so did their blackout exits.
-YT4 = [('ytown-chair-1', 'chair', 'ens4', 'W-DSL', (3.86, -0.64), 'W-MSL', 1.6),
-       ('ytown-chair-2', 'chair', 'ens8', 'W-DSR', (-2.29, -2.88), 'D-UC', 1.8),
+YT4 = [('ytown-chair-1', 'chair', 'ens4', 'W-MSL', (2.69, 1.11), 'W-MSL', 2.8),
+       ('ytown-chair-2', 'chair', 'ens8', 'W-DSL', (1.04, 0.52), 'D-UC', 3.0),
        ('ytown-chair-3', 'chair', 'ens10', 'W-DSR', (-2.69, 1.05), 'W-MSR', 3.1),
-       ('ytown-crate-1', 'crate', 'ens9', 'W-DSL', (2.69, 1.11), 'W-MSL', 2.8),
-       ('ytown-crate-2', 'crate', 'ens6', 'W-USR', (-1.97, -1.35), 'D-UC', 2.4)]
+       ('ytown-crate-1', 'crate', 'ens9', 'W-MSR', (-1.05, 0.43), 'D-UC', 3.3),
+       ('ytown-crate-2', 'crate', 'ens6', 'W-DSR', (-2.29, -2.88), 'D-UC', 1.8)]
 SEGMENT_4 = [
     # NOTES3 (Jack): "make hamilton and eliza wait to come off till the lights are fully out" - 1-17's fade is black at its
     # last second, so he takes his bench off DR in the dark of 1-18's top (seg3gen.py / gen4.py)
     STRIKE('office-chair', 'hamilton', '1-18', 0.4, '1-18', 7.1, 'W-DSR', note='he takes it off DR in the dark once 1-17\'s fade is out (cue 501 ends at 178.0; cue 560 lights only the balcony)'),
     P('gs-table', 'table', "Lafayette's table", OAK, size=[1.0, 0.75, 0.6]),
-    BRING('gs-table', 'ens6', '1-18', 22.0, '1-18', 28.5, 0.0, 2.1, 0, wing='W-MSL',
-          note='1-18 (review 3): ens6 brings it on in the build; Lafayette raps standing on it in the ring of beams and jumps off mid-rap (Disney+ clip comments)'),
-    STRIKE('gs-table', 'ens6', '1-18', 46.0, '1-18', 51.6, 'W-MSL', note='struck once he is travelling (cue 563): ens6 back in for it and off SL'),
+    BRING('gs-table', 'ens6', '1-18', 15.0, '1-18', 21.0, 0.0, 2.1, 0, wing='W-MSL',
+          note='1-18 (review 3): ens6 brings it on in the dark before the company huddles round it (film 25.0); Lafayette raps standing on it in the ring of beams and jumps off mid-rap'),
+    STRIKE('gs-table', 'ens5', '1-20', 7.0, '1-20', 13.3, 'W-MSL', note='film round: it stays on through 1-18 (Washington writes the letter at it, 73-79) and 1-19 (he takes the sword off it, 25.0); still on at 1-20 7.9, then ens5 takes it off SL'),
     P('yorktown-box', 'box', 'Box', CRATE),
     BRING('yorktown-box', 'ens10', '1-20', 44.5, '1-20', 49.4, 0.0, 4.7, 0, wing='W-DSL',
           note='NOTES3 (Jack): "the box doesn\'t come on till later" - ens10 brings it on at the lip after the Shot phrase, and Hamilton stands on it for his solo verse (cue 592, 51.2; the Joan Marcus photo)'),
@@ -329,27 +348,27 @@ SEGMENT_4 = [
         CARRY(pid, '1-20', 240.4, who, note='taken off in the blackout'),
         HIDE(pid, '1-21', t_off, wing2))],
     P('theo-chair-burr', 'chair', 'Chair (Burr)', PINE),
-    BRING('theo-chair-burr', 'burr', '1-21', 90.0, '1-22', 4.5, 2.93, 1.37, -15, wing='W-MSL',
-          note='1-22: Burr brings his chair on in the change (cue 617) and sits SL (Disney+ frame)'),
+    BRING('theo-chair-burr', 'burr', '1-21', 90.0, '1-22', 4.5, -2.93, 1.37, 15, wing='W-MSR',
+          note='1-22: Burr brings his chair on in the change (cue 617) and sits SR (film 80.0, 159.9 wide)'),
     CARRY('theo-chair-burr', '1-22', 177.0, 'burr', note='in the fade (cue 630) he turns it into a juror\'s chair'),
-    PLACE('theo-chair-burr', '1-22', 179.5, *JC4['b3'], 180, note='1-23: jury chair, back row SL, seat to the table'),
-    STRIKE('theo-chair-burr', 'ens7', '1-23', 78.5, '1-23', 81.9, 'W-MSL', note='the juror takes her chair off as the trial ends'),
+    PLACE('theo-chair-burr', '1-22', 179.5, *JC4['b1'], 180, note='1-23: jury chair, back row SR, seat to the table'),
+    STRIKE('theo-chair-burr', 'ens1', '1-23', 84.0, '1-23', 88.4, 'W-MSR', note='the juror takes her chair off as the trial ends (he is down off the table)'),
     P('theo-chair-hamilton', 'chair', 'Chair (Hamilton)', PINE),
-    BRING('theo-chair-hamilton', 'hamilton', '1-21', 90.0, '1-22', 4.5, -2.93, 1.37, 15, wing='W-MSR',
-          note='1-22: Hamilton brings his chair on in the change and sits SR (Disney+ frame)'),
+    BRING('theo-chair-hamilton', 'hamilton', '1-21', 90.0, '1-22', 4.5, 2.93, 1.37, -15, wing='W-MSL',
+          note='1-22: Hamilton brings his chair on in the change and sits SL (film 80.0, 159.9 wide)'),
     CARRY('theo-chair-hamilton', '1-22', 177.0, 'hamilton', note='in the fade (cue 630) he turns it into a juror\'s chair'),
-    PLACE('theo-chair-hamilton', '1-22', 179.5, *JC4['b1'], 180, note='1-23: jury chair, back row SR, seat to the table'),
-    STRIKE('theo-chair-hamilton', 'ens1', '1-23', 78.5, '1-23', 83.0, 'W-MSR', note='the juror takes her chair off as the trial ends'),
+    PLACE('theo-chair-hamilton', '1-22', 179.5, *JC4['b3'], 180, note='1-23: jury chair, back row SL, seat to the table'),
+    STRIKE('theo-chair-hamilton', 'ens7', '1-23', 84.0, '1-23', 87.3, 'W-MSL', note='the juror takes her chair off as the trial ends (he is down off the table)'),
     *[P(pid, 'chair', f'Chair (juror {who[3:]})', PINE) for pid, who, k, wing, t_off in JBRING4],
     *[BRING(pid, who, '1-22', 176.9, '1-22', 183.5, *JC4[k], 180, wing=wing,
             note='1-23: carried on in the dark before Non-Stop (cues 630-631); seat turned upstage to the table (real 631.01)')
       for pid, who, k, wing, t_off in JBRING4],
-    *[STRIKE(pid, who, '1-23', 78.5, '1-23', t_off, wing, note='she takes her chair off as the trial ends')
+    *[STRIKE(pid, who, '1-23', 84.0, '1-23', t_off, wing, note='she takes her chair off as the trial ends (he is down off the table)')
       for pid, who, k, wing, t_off in JBRING4],
     P('court-table', 'table', 'Defence table', WALNUT, size=[1.4, 0.75, 0.7]),
     BRING('court-table', 'ens4', '1-22', 176.9, '1-22', 182.5, 0.0, -0.6, 0, wing='D-UC',
           note='1-23: Levi Weeks (ens4) brings it in through the deck door in the dark; the narrow X4 row of real 631.01 lights it'),
-    STRIKE('court-table', 'ens4', '1-23', 78.5, '1-23', 81.5, 'D-UC', note='Weeks takes it off upstage as the trial ends'),
+    STRIKE('court-table', 'ens4', '1-23', 84.2, '1-23', 87.1, 'D-UC', note='Weeks takes it off upstage once Hamilton is down off it (film 70.1-82.1: he stands on it for his brag)'),
     P('hamilton-desk', 'desk', "Hamilton's desk", WALNUT),
     BRING('hamilton-desk', 'ens8', '1-23', 245.8, '1-23', 251.0, -1.0, 2.1, 0, wing='W-MSR',
           note='1-23 the Federalist papers: ens8 brings it on from SR as the sisters go; he writes DS of it at (-1.0, 2.65)'),
@@ -366,7 +385,8 @@ LOOK = (0.0, 3.2)
 VSEAT = [('ens1', (-3.8, 2.4), 'W-DSR'), ('ens5', (-3.1, 1.45), 'W-DSR'), ('ens2', (-2.4, 0.5), 'W-DSR'), ('ens3', (-1.7, -0.45), 'D-UC'),
          ('ens6', (1.7, -0.45), 'D-UC'), ('ens4', (2.4, 0.5), 'W-MSL'), ('ens7', (3.1, 1.45), 'W-MSL'), ('ens8', (3.8, 2.4), 'W-DSL')]
 ORDER = [(-3.8, 2.4), (-3.1, 1.45), (-2.4, 0.5), (3.8, 2.4), (3.1, 1.45), (-1.7, -0.45), (2.4, 0.5), (1.7, -0.45)]   # the order they get up (157.5 + 1.1 k, seg5gen.py)
-H_T, J_T, M_T = (0.0, -0.65), (0.85, 0.3), (-0.85, 0.3)
+# FILM ROUND (2026-10-24): the film has Jefferson at the table's SR side and Madison SL (film 2-05 190, 212, 252)
+H_T, J_T, M_T = (0.0, -0.65), (-0.85, 0.3), (0.85, 0.3)
 SEGMENT_5 = [
     DARK('hamilton-desk', '2-03', 0.2, -1.5, 1.85, 0, note='2-03 Take a Break: set in the change ("Desk Mid SR"); he stands at (-1.5, 1.4), behind it'),
     # 2-04 Say No: ETC's scenic element "3 x Street Lamps", standing in the THPP renders of cues 782 and 784 (one DSR
@@ -377,6 +397,10 @@ SEGMENT_5 = [
     *[HIDE(f'street-lamp-{k + 1}', '2-04', 236.4, (x, z), note='struck in the Say No fade to black (cue 834)') for k, (x, z) in
       enumerate([(-2.1, 3.0), (-1.0, -1.6), (3.7, 1.0)])],
     HIDE('hamilton-desk', '2-04', 236.3, (-1.5, 1.85), note='struck in the Say No fade to black (cue 834)'),
+    # FILM ROUND: he sits at the desk to write (film 2-03 30, 50, 142: a chair behind it), Philip on a bench at the piano (film 10)
+    P('writing-chair', 'chair', 'Chair (Hamilton\'s desk)', OAK),
+    DARK('writing-chair', '2-03', 0.2, *chair_for((-1.5, 1.4), (-1.5, 3.0), 0.45), note='2-03: set with the desk in the change'),
+    HIDE('writing-chair', '2-04', 236.3, (-1.5, 0.95), note='struck with the desk in the Say No fade to black (cue 834)'),
     *[P(f'cabinet-chair-{k + 1}', 'chair', f'Chair ({who[3:] if who.startswith("ens") else who})', PINE) for k, (who, seat, wing) in enumerate(VSEAT)],
     *[DARK(f'cabinet-chair-{k + 1}', '2-01', 234.2, *chair_for(seat, LOOK, 0.45), note='2-02: the V of chairs (ironinkpen); set in the snap to the DSC mic special (cue 739.5)')
       for k, (who, seat, wing) in enumerate(VSEAT)],
@@ -392,6 +416,9 @@ SEGMENT_5 = [
     P('piano', 'custom', 'Piano', '#3a2618', size=[1.4, 1.1, 0.55]),
     DARK('piano', '2-02', 212.0, 1.6, 1.3, -90, note="2-03: set in the dark of the Cabinet Battle button (cue 763.5, Hamilton alone in his pool)"),
     HIDE('piano', '2-03', 284.6, (1.6, 1.3), note='struck in the fade to black (cue 779.9)'),
+    P('piano-bench', 'bench', 'Piano bench', '#3a2618', size=[0.8, 0.45, 0.35]),
+    DARK('piano-bench', '2-02', 212.0, *chair_for((1.0, 1.5), (1.6, 1.3), 0.3), note='2-03: set with the piano; Philip at the keys on it (film 10, 30)'),
+    HIDE('piano-bench', '2-03', 284.6, (0.7, 1.6), note='struck with the piano in the fade to black (cue 779.9)'),
     P('room-table', 'table', 'The Room table', WALNUT, size=[1.2, 0.75, 1.2]),   # round (ironinkpen; ETC 'Center-Stage Round Table')
     DARK('room-table', '2-05', 0.2, 0.0, 0.2, 0, note='2-05: preset USC in the opening FTB (cue 864); Burr stands up on it at 277.9 (deck level here)'),
     HIDE('room-table', '2-05', 317.0, (0.0, 0.2), note='struck in the dark after the button (cue 896)'),
@@ -408,26 +435,38 @@ SEGMENT_5 = [
 # ===== END SEGMENT 5 =====
 
 # ===== SEGMENT 6 (2-06..2-10) =====
-# 2-07 Cabinet Battle #2: "same kind of staging" as #1 (ironinkpen), so six of the company carry their chairs on in the
-# top of the number, sit in a short V (gen6.py CB2: the three seats an arm nearest the vertex of 2-02's V) and take them
-# off as the room clears (956, 127.4). 2-08/2-09 Washington's desk: set "in the background while the focus is on the
-# trio" (ironinkpen) by ens1 from the deck door; Jefferson leaves his resignation on it; One Last Time is played round
-# it (gen6.py WDESK, in the desk pool of 981); struck in the dark of the cut-off. Times are gen6.py's (re-read them
-# from segments/seg6.json if the generator changes): (id, seat, wing, off-time in, arrival, leaves, off-time out).
+# FILM ROUND (2026-10-24; research/seg6.md "Film round"). 2-06/2-07 Cabinet Battle #2: in the film the company brings
+# the Windsor chairs on DURING Schuyler Defeated (2-06 31-62, behind Burr and Hamilton), sits in them for the battle
+# with Burr among them SR (cb2-chair-burr) and Washington in a gilt armchair upstage of centre (cb2-armchair), rises at
+# 2-07 101.5 and clears them as Washington goes (111.6-114.6). 2-08/2-09 Washington's desk: FILM, upstage SR of centre
+# (2-08 162-177, 2-09 6.5-168), set by the Bullet from the deck door during the plotters' answer; struck in the dark of
+# the cut-off. Times are gen6.py's (it prints them as PROPT: keep the two in step): (id, sitter, seat, wing, off-time
+# in [2-06], arrival [2-06], leaves [2-07], off-time out [2-07]).
 S6_LOOK = (0.0, 3.2)
-S6_V = [('ens1', (-3.1, 1.45), 'W-DSR', 5.71, 10.0, 127.6, 131.89), ('ens2', (-2.4, 0.5), 'W-MSR', 4.63, 9.6, 128.2, 133.17),
-        ('ens3', (-1.7, -0.45), 'W-USR', 4.38, 10.4, 129.4, 135.42), ('ens4', (1.7, -0.45), 'W-USL', 4.53, 10.6, 129.0, 135.07),
-        ('ens5', (2.4, 0.5), 'W-MSL', 5.41, 9.8, 128.4, 132.79), ('ens6', (3.1, 1.45), 'W-DSL', 5.91, 10.2, 127.8, 132.09)]
+S6_V = [('cb2-chair-1', 'ens1', (-3.1, 1.45), 'W-DSR', 31.71, 36.0, 111.4, 115.69),
+        ('cb2-chair-2', 'ens2', (-2.4, 0.5), 'W-MSR', 32.23, 37.2, 111.8, 116.77),
+        ('cb2-chair-3', 'ens3', (-1.7, -0.45), 'W-USR', 32.38, 38.4, 112.6, 118.62),
+        ('cb2-chair-4', 'ens4', (1.7, -0.45), 'W-USL', 31.93, 38.0, 112.2, 118.27),
+        ('cb2-chair-5', 'ens5', (2.4, 0.5), 'W-MSL', 35.01, 39.4, 111.6, 115.99),
+        ('cb2-chair-6', 'ens6', (3.1, 1.45), 'W-DSL', 32.31, 36.6, 112.0, 116.29)]
+# Burr's chair: ens7 brings it (2-06), Burr takes it off; Washington's armchair: ens8 brings it and strikes it.
+S6_X = [('cb2-chair-burr', 'ens7', 'burr', (-3.9, 0.3), 'W-MSR', 40.87, 45.0, 110.6, 114.73),
+        ('cb2-armchair', 'ens8', 'ens8', (0.3, -0.15), 'D-UC', 45.26, 49.0, 110.0, 113.71)]
 SEGMENT_6 = [
-    *[P(f'cb2-chair-{k + 1}', 'chair', f'Chair (CB2, {who[3:]})', PINE) for k, (who, seat, wing, t0, t1, t2, t3) in enumerate(S6_V)],
-    *[BRING(f'cb2-chair-{k + 1}', who, '2-07', t0 - 0.1, '2-07', t1, *chair_for(seat, S6_LOOK, 0.45), wing=wing,
-            note='2-07: she carries her chair on while Washington calls the cabinet; sits in the V (ironinkpen: same staging as #1)')
-      for k, (who, seat, wing, t0, t1, t2, t3) in enumerate(S6_V)],
-    *[STRIKE(f'cb2-chair-{k + 1}', who, '2-07', t2, '2-07', t3, wing, note='everyone clears out (ironinkpen; 956): she takes her chair off')
-      for k, (who, seat, wing, t0, t1, t2, t3) in enumerate(S6_V)],
-    BRING('washington-desk', 'ens1', '2-08', 118.7, '2-08', 123.0, -0.4, 0.85, 0, wing='D-UC',
-          note="2-08: set in the background while the focus is on the trio (ironinkpen); ens1 from the deck door; One Last Time is played round it"),
-    HIDE('washington-desk', '2-09', 294.5, (-0.4, 0.85), note='struck in the dark of the cut-off (cue 1001), before the King comes down'),
+    *[P(pid, 'chair', f'Chair (CB2, {who[3:]})', PINE) for pid, who, seat, wing, t0, t1, t2, t3 in S6_V],
+    P('cb2-chair-burr', 'chair', 'Chair (CB2, Burr)', PINE),
+    P('cb2-armchair', 'chair', "Washington's armchair (CB2)", '#b08a3e', size=[0.65, 1.05, 0.6]),
+    *[BRING(pid, who, "2-06", t0 - 0.1, '2-06', t1, *chair_for(seat, S6_LOOK, 0.45), wing=wing,
+            note='2-06 (FILM): she brings her chair on behind Burr and Hamilton; sits in the V for Cabinet Battle #2')
+      for pid, who, seat, wing, t0, t1, t2, t3 in S6_V],
+    *[BRING(pid, who, "2-06", t0 - 0.1, '2-06', t1, *chair_for(seat, S6_LOOK, 0.45), wing=wing,
+            note='2-06 (FILM): set in the same change') for pid, who, by, seat, wing, t0, t1, t2, t3 in S6_X],
+    *[STRIKE(pid, who, '2-07', t2, '2-07', t3, wing, note='FILM 111.6-114.6: the room clears, she takes her chair off')
+      for pid, who, seat, wing, t0, t1, t2, t3 in S6_V],
+    *[STRIKE(pid, by, '2-07', t2, '2-07', t3, wing, note='FILM 111.6-114.6: off with the room') for pid, who, by, seat, wing, t0, t1, t2, t3 in S6_X],
+    BRING("washington-desk", "ens1", "2-08", 119.17, '2-08', 123.0, -1.5, -0.6, 0, wing='D-UC',
+          note="2-08: the Bullet sets it upstage SR of centre (FILM 162-177) while the focus is on the trio; One Last Time is played in front of it"),
+    HIDE('washington-desk', '2-09', 294.5, (-1.5, -0.6), note='struck in the dark of the cut-off'),
 ]
 # ===== END SEGMENT 6 =====
 
@@ -436,9 +475,10 @@ SEGMENT_6 = [
 # brought; he sits and watches"); 2-15 Burn: the bench, the lantern, the bucket (seg7_gen.py BENCH (-0.4, 3.2),
 # LANTERN (-1.1, 3.05), BUCKET (-1.5, 2.6))
 SEGMENT_7 = [
-    BRING('hamilton-desk', 'hamilton', '2-11', 50.6, '2-12', 1.0, 1.4, 1.1, 0, wing='D-UC',
-          note='2-12 We Know: Hamilton brings it in from D-UC; he stands behind it at (1.4, 0.5) (seg7_gen.py DESK)'),
-    STRIKE('hamilton-desk', 'mulligan', '2-12', 116.3, '2-12', 121.5, 'W-MSL', note='the accusers withdraw: Madison takes it off'),
+    BRING('hamilton-desk', 'hamilton', '2-11', 41.6, '2-11', 46.0, 1.4, 1.1, 0, wing='D-UC',
+          note='FILM (2-11 clip 43.3, 49): set behind the three as they come DS, Hamilton at it by 49; he brings it in from D-UC and stands behind it at (1.4, 0.5) (seg7_gen.py DESK)'),
+    STRIKE('hamilton-desk', 'ens9', '2-12', 140.0, '2-13', 3.5, 'W-USL',
+           note='FILM (2-12 clip 133.6, 2-13 6.2): the desk stays to the end (Burr sits at it); ens9 takes it off USL in the last bars (was Madison at 116.3)'),
     BRING('hamilton-desk', 'ens9', '2-13', 128.2, '2-13', 133.4, 0.0, 1.9, 0, wing='D-UC',
           note='2-14: the crew bring his desk on in front of him at the decision (hamilton-lyrics); ens9 carries it from D-UC (REVIEW 2)'),
     # REVIEW 3: Hurricane's storm furniture - the ring carry chairs and hoist them overhead in the storm (Blankenbuehler,
@@ -472,8 +512,8 @@ SEGMENT_7 = [
     STRIKE('hamilton-desk', 'hamilton', '2-16', 139.2, '2-16', 145.4, 'D-UC',
            note='struck as the room goes to the cold dawn (cue 1081): Hamilton takes it as he goes off upstage (REVIEW 2: he passes it)'),
     P('king-stool', 'stool', "The King's stool", '#8c2a22'),
-    DARK('king-stool', '2-11', 1.0, *behind((4.2, -1.6), -30, 0.35), -30, note='2-11: set UL in the dark while he walks to it'),
-    STRIKE('king-stool', 'king', '2-11', 34.6, '2-11', 36.4, 'W-MSL', note='he takes his stool with him as he runs off after the papers drop (REVIEW 3)'),
+    DARK('king-stool', '2-11', 1.0, *behind((-5.6, 2.2), 70, 0.35), 70, note='2-11: FILM (clip 3.0-31.2 wides) set SR, off the downstage end of the SR stair, in the dark while he walks to it (was UL)'),
+    STRIKE('king-stool', 'king', '2-11', 34.6, '2-11', 36.6, 'W-DSR', note='he takes his stool with him as he runs off SR after the papers drop (REVIEW 3; FILM: SR)'),
     P('burn-bench', 'bench', 'Bench', OAK, size=[1.2, 0.45, 0.4]),
     DARK('burn-bench', '2-14', 121.0, -0.3, 2.85, 0, note='set behind the three as they Travel DS: "the Burn bench is already in place" (hamilton-lyrics; REVIEW 2); she sits at (-0.4, 3.2), DS of it'),
     HIDE('burn-bench', '2-15', 217.0, (-0.3, 2.85), note='struck in the dark after she goes (cue 1065)'),
@@ -502,7 +542,7 @@ SEGMENT_7 = [
 # ===== END SEGMENT 7 =====
 
 # ===== SEGMENT 8 (2-17..2-23) =====
-# 2-17 Stay Alive (Reprise): Philip's table rides the outer ring from 12 o'clock (set in the shot's blackout) round by SL
+# 2-17 Stay Alive (Reprise): Philip's table rides the outer ring from up SR (set in the shot's blackout; FILM ROUND) round by SL
 # to the front (ETC's renders of 1104.4 / 1104.5 / 1110; gen_seg8.py TABLE_REVOLVE), gliding between a few points on the
 # ring (RULING FT) with Philip on it; it rides on with the family as the platform turns them away in the dark of 2-18. Hamilton's desk and its chair in
 # 2-20 (Burr's, centre) and 2-21 (Hamilton's, near SR); the box Hamilton stands on in 2-22.
@@ -514,18 +554,21 @@ def _s8_table(track, t, ang):   # the table on the outer ring, its long side alo
     return PLACE('philip-table', track, t, x, z, (180.0 - ang + 180.0) % 360.0 - 180.0)
 # RULING FT: a placed prop GLIDES from one placed waypoint to the next, so the ride is a few points on the ring (every 31°,
 # a chord at most 0.11 m inside the arc) with a hold at each end, not a step every 0.5 s.
-_S8_REV = [_s8_table('2-17', 8.66, 0.0)] + [_s8_table('2-17', 8.66 + 23.8 * k / 6, 31.0 * k) for k in range(1, 7)]
+# FILM ROUND (2-24): set up SR (315) in the shot's blackout, where the bearers carry Philip to it (the clip at 11.4-14);
+# the platform carries it clockwise round by SL (24.9) to the front (33.4): 231 deg in seven glides of 33 deg
+_S8_REV = [_s8_table('2-17', 14.0, 315.0)] + [_s8_table('2-17', 14.0 + 18.46 * k / 7, 315.0 + 33.0 * k) for k in range(1, 8)]
 _S8_OFF = [_s8_table('2-18', 0.4, 186.0), _s8_table('2-18', 3.45, 221.0), _s8_table('2-18', 6.5, 256.0)]
 SEGMENT_8 = [
     P('philip-table', 'table', "Philip's table", WALNUT, size=[1.4, 0.75, 0.8]),
-    DARK('philip-table', '2-17', 0.6, 0.0, -2.02, 180, note="2-17: set at 12 o'clock on the outer ring in the shot's blackout (1104); Philip lies on it by 4.2 (ETC render of 1104.4)"),
+    DARK('philip-table', '2-17', 0.6, *_s8_ring(2.97, 315.0), -135, note="2-17: set up SR on the outer ring in the shot's blackout; the bearers lay Philip on it by 12 (film round: the clip at 11.4-14)"),
     *_S8_REV,
     *_S8_OFF,
     HIDE('philip-table', '2-18', 13.0, _s8_ring(2.97, 256.0), note='struck in the dark (1120, the deck dark; only the tight special on Angelica) once Philip is off SR'),
     DARK('hamilton-desk', '2-19', 236.0, 0.0, 1.15, 0, note="2-20: set in the change; Burr's desk centre (cue 1193), he sits behind it at (0, 0.6)"),
     P('desk-chair', 'chair', 'The desk chair', WALNUT),
     DARK('desk-chair', '2-19', 236.0, 0.0, 0.1, 0, note="2-20: Burr's chair behind the desk centre (cue 1193: Burr seated at a desk); he stands at (0, 0.6)"),
-    CARRY('hamilton-desk', '2-20', 147.75, 'hamilton', note='in the blackout (cue 1206) Hamilton moves it to his place near SR'),
+    HIDE('hamilton-desk', '2-20', 147.75, (0.0, 1.15), note='struck in the blackout (cue 1206); FILM ROUND: Hamilton is no longer at it (he stands in the DSR pool from 129), so it is moved in the dark, not carried'),
+    DARK('hamilton-desk', '2-21', 0.3, -2.8, 3.15, 0, note='2-21: set near SR in the dark'),
     HIDE('desk-chair', '2-20', 147.8, (0.0, 0.1), note='moved in the blackout (cue 1206)'),
     DARK('desk-chair', '2-21', 0.3, -2.8, 2.1, 0, note="2-21: Hamilton's chair at the desk near SR (ironinkpen); he stands at (-2.8, 2.6), Eliza behind it"),
     PLACE('hamilton-desk', '2-21', 0.44, -2.8, 3.15, 0, note='2-21: the desk near SR (ironinkpen); he sits behind it at (-2.8, 2.6)'),

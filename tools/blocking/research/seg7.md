@@ -417,3 +417,86 @@ on the duel line itself. They step in on the count, arriving at 169.9-170.6 (aft
 the inner ones first, and all face the house:
 ens2 (-1.34, -0.44); ens3 (-0.69, -0.06); ens4 (-0.05, 0.32); ens6 (1.25, 1.08); ens7 (1.89, 1.46); ens8 (2.54, 1.84);
 ens9 (3.19, 2.22); facing 0. Merge --check: 0 errors, 0 warnings, 791 waypoints; the sampler finds no new close pass.
+
+## Film round (2026-10-24)
+
+The brief: `tools/blocking/AGENT-FILM.md`. The film frames read are in the vision cache (`tools/vision/cache/<clip>/frames`,
+5 a second, `at` = seconds into the album track). Clips exist for 2-11, 2-12, 2-14 and 2-16; **none for 2-13 or 2-15**,
+so those two were changed only for stillness, from the earlier evidence. Orientation was checked on every wide shot by
+the SL stair (upstage SL, rising towards SL: frame right) and the turntable; the shots taken from the SR side (2-11
+9.3-18.7, the We Know closes by the stair) were used for who and what, not for sides. Every change is marked `FILM` in
+`seg7_gen.py`, `props.py`, `dance.py` and `follow.py`. Merge: 0 errors, 0 warnings; `dance.py --check 7`: 0 errors;
+`follow.py --check`: 0 problems; `props.py --check`: no seg 7 WARN.
+
+### 2-11 The Adams Administration (clip, 283 frames; anchors good to ~43, a guess after)
+- 3.0 wide: the King already seated on a stool far **SR**, just off the downstage end of the SR stair, facing across;
+  Burr SR of centre. He is there in every wide to 31.2. **Changed:** his stool and him from UL (4.2, -1.6) to
+  (-5.6, 2.2); he runs off SR (W-DSR) with it at 34.6.
+- 9.3-18.7 (closes from the SR side): Burr beside the King, turning to him and dancing next to him. **Changed:** Burr
+  in at (-2.3, 2.6), struts over to the King (16.6), back towards centre (21.6); moves: point, two-step, shoulder-pop,
+  head-bob, the gloat.
+- 18.7: Jefferson already on, upstage SL; 21.8 wide: SL of centre; 24.9 / 28.1 wides: **Madison with him**, the two just
+  SL of centre mid-stage, Burr SR of centre. **Changed:** Jefferson keeps Jack's ruled time (on at 19) but comes from
+  W-MSL, not DSR, to (0.7, 2.4); Madison enters with him (was 40.2 from DSR).
+- 21.8: Hamilton already at the upper gallery rail (was 24.5). **Changed:** arrives 21.0.
+- 25-40 wides: several of the company in white sit or dance at the edges (the SL stair, the SL balcony, UC on the deck).
+  **Not added** (a question for Jack: watchers at the edges in 2-11 and 2-12).
+- 43.3: Burr, Jefferson, Madison in a line DS (SR to SL); behind them the desk and its chairs already set, empty; 49:
+  Hamilton seated at it. **Changed:** Hamilton comes down after the drop and brings the desk on from D-UC by 46.0
+  (props.py; was brought on at 2-12 1.0).
+- Stillness (still.py): 64 % -> 39 %.
+
+### 2-12 We Know (clip, 737 frames; good anchors throughout)
+- 2.8: the three walk in from SR in a group, Hamilton at his desk. 14.7 wide: **the desk is SL of centre on the
+  turntable**, Hamilton standing SL of it facing SR, the three in a line SR of it: Burr furthest SR, Madison, Jefferson
+  nearest the desk. 24.5: Jefferson at centre by the desk's SR end. 36.9 / 42.9: **Jefferson and Burr behind the desk**
+  (Jefferson both arms up), Madison SR of it, Hamilton SL. 67.7: the same, Burr with the letter. 73.2-75.5 (closes):
+  Burr gives Hamilton the letter. ~95 wide: **Hamilton now SR of the desk, pointing**, Jefferson at its SL end, Madison
+  crossing its front. 123.4: Hamilton walking the front, Burr at the desk, Jefferson over him, **Maria in red standing
+  on the deck upstage SR**. 133.6 wide: **Burr seated at the desk**, Jefferson and Madison going off SR, Hamilton far SL,
+  Philip seated on the USG just SL of centre. 2-13 0.2-6.2 (the clip runs on): Burr and Hamilton face to face SR of
+  centre, Maria still SR.
+- **Changed:** the number restaged to those places (the review passes' DS-key moves and Burr's DSR special replaced).
+  Burr no longer exits at 136.9: he stays, faces Hamilton at C, and backs off UR as Hurricane starts (he is UR for
+  Hurricane anyway). Jefferson and Madison exit SR (were MSR / MSL at 116.3). The desk stays to the end; ens9 takes it
+  off USL in the last bars (was Madison at 116.3). Maria on the deck UR (-3.6, -1.6) from 104 (was the SL gallery corner
+  8-130). Philip's USG place (0.4, -3.35).
+- The film holds a tableau here, so places hold; the lines got gestures (point, finger-wag, shoo, air-quotes, lean-in,
+  reach-up; the two rewinds kept). Eliza and Philip on the galleries and Maria UR are watchers, still on purpose.
+- Stillness: 90 % -> 78 % (the rest is the watchers and the dialogue tableau).
+
+### 2-13 Hurricane (no clip)
+- Only the top is seen (the We Know clip, 0.2-6.2): Burr and Hamilton face to face, Maria SR. Burr now leaves Hamilton
+  for his UR place by 3.0 (was entering at 16.0).
+- Stillness only: the outer ring sways between the storm memory and the town (35-51), ens5-8 throw their arms on the
+  storm memory, the three left after the montage reach up at the golden sky, sway, and sing the motif; Hamilton breathes
+  and gestures at the still points but stays in the eye (on purpose). Burr sitting UR is on purpose. 58 % -> 44 %.
+
+### 2-14 The Reynolds Pamphlet (clip, 642 frames)
+- 2.6-41.6 wides: the company never stands in the horseshoe: they dance low and wide, crouching, pages up, throughout.
+  ~28: Hamilton standing on the desk, the three SR of it reading. ~42.6 wide: the desk at C, **Maria in red behind it**,
+  Hamilton SL of it, the King on the SR balcony. 60.2-81.9: Angelica the one bright body in the blue (a followspot).
+  93-113: the ring hurling pages, the King in it.
+- **Changed:** Maria leaves at 43.6 (was 38.0). Moves for the ring (chest-pump, two-step, stomp, head-bob, bounce) from
+  6 to 51, the three DS and the USG reader moving throughout, Angelica's verse and Washington gestures; Hamilton on the
+  desk (19.5-33) and in the middle of the ring is held still on purpose (the film holds him), with one hit at 92.
+  57 % -> 25 %.
+
+### 2-15 Burn (no clip)
+- Stillness only: she kneels to burn each letter (75.5, 150) and rises; two travels in the angry verse (96, 111) and in
+  the bridge (176, 183); gestures. 51 % -> 42 %; the bench sits are kept.
+
+### 2-16 Blow Us All Away (clip, 882 frames)
+- 13.6-29.7 (shots 1-4, the 26.4 wide): Philip is not alone at the top: three young men in tricorns dance round him at
+  centre and the girls dance too. **Added:** ens2, ens3, ens4 as his friends (11.5-29), dancing (two-step, the hook's
+  bojangles), off before they bring the theatre chairs on. 32.3-46.9: the two women flirting (sway). 88.5-138.2: father
+  and son face to face, Hamilton's hands on his shoulders (129-131), the pistols (138.2). 161-166: Philip pacing; the
+  company in a line with arms up for the count.
+- **Changed:** Philip paces DSR (146-160); moves for all of these; the count's seven reach up as they arrive (they keep
+  the ruled arrival 169.9-170.6; the film has them in their line by 162). 70 % -> 43 %.
+
+### Followspots (follow.py SEGMENT 7)
+Spot 2 (stage R): Burr in 2-11 and 2-12, the King at King DR, Angelica's verse at full level, Burr in chorus 2, Hamilton
+in the office in 2-16. Spot 3 (stage L): Jefferson, Hamilton in We Know, Philip made to read, the SL gallery voice,
+Eacker. Spot 1 (centre): Hamilton on the gallery, Madison, Jefferson in We Know, Hamilton through Hurricane and the
+Pamphlet, Eliza in Burn (low, 0.55), Philip in 2-16. All three out by 2-16 167.4.

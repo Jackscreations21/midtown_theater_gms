@@ -1,4 +1,4 @@
-# STATE — 2026-10-16, evening (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#10 merged; nothing is local-only)
+# STATE — 2026-10-24 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#16 merged; `film-round` PR open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,6 +6,34 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
+- **The film round (2026-10-24, branch `film-round`, PR OPEN; HANDOFF.md's newest block; RULING GL):** every segment
+  re-blocked against the Disney+ frames by eight Opus agents, the stillness filled (show mean 65 % → 41 % still,
+  `tools/blocking/still.py`), the three followspots real and following actors (423 picks, `tools/blocking/follow.py`),
+  facings continuous, 19 light fixes. **His eye on it, then these questions from the agents** (each with its evidence in
+  `tools/blocking/research/segN.md` "Film round"):
+  - 1-02/1-03: the film fills the street, tavern and death verse with the company and lights three lamps; ours keeps
+    REVIEW2's cut-back company and one lamp. 1-05: the sisters' order across the stage (ours Angelica SR, Eliza C, Peggy SL).
+  - 1-08: the desk stays on through the duet in the film (Hamilton sits at it at 4:44, after his 4:37 strike); the sisters
+    on the side balconies (film) or the upstage gallery (ours).
+  - 1-14: Hamilton in a chair, not at Washington's desk (keep the desk?); Angelica beside Eliza from 0:07?
+  - 1-19, 1-22, 1-23 contradict his "good" marks (sides swapped to the film's: Burr SR, Hamilton SL in 1-22/1-23; 1-19 round
+    1-18's table). Accept? Yorktown's two gowned women on the gallery: Peggy and Angelica (by gown colour only)?
+  - 2-01: the film's rolling stair is the fixed SL stair here. 2-03/2-04: the piano pushed off ~178; James sets a chair ~200.
+  - 2-07: the armchair's place; 2-08's row flipped to the film (Madison SR, Burr SL); 2-10: the King's stool on at ~1:24?
+  - 2-11: Jefferson's 0:19 entrance now from SL; the edge watchers in 2-11/2-12 (need chairs); 2-16: the count's seven by 2:42?
+  - 2-18: Eliza and Angelica nearly still (the film); 2-19: 8 voters vs the film's ~12; 2-20: Hamilton up from the desk at 1:55.
+  - Moves the library lacks (the agents' wish list): a toast, a seated layer (chair dance, nodding, the King's jamming), `lie`,
+    `write`, a whisper, arms folded, a crouched creep, arms-out T, a stagger, a paper held out.
+  - Cue keys that no longer sit on people and the audit could not fix: 1-12, 1-16, 1-17 keys; 2-09 Q998–1000 (the SL stair
+    special: Washington no longer climbs); 1-05 Q174.5 ch91 (planned, does not land); Eacker's box (2-16, as before).
+- **THE STAGE MANAGER — asked 2026-10-24, NOT built, next:** Jack: *"make a stage manger thing where i can call ther show
+  and i can give 5 minuet and plcsses calss for the actors and make it so there are atcually people in the spotbooth moving
+  the lights and think of somemore stuff for it"*, then *"make it so you can have it where i have to start each song or i
+  just have to call the starts of both halfs"*. His answers: his GO starts the lighting and sound sequences (inside a song the
+  cues run themselves); a calling mode switch — every song, or only the two acts; the prompt desk in the SL wing; REAL
+  backstage — the cast in the dressing rooms and green room before the show, "five minutes" answered, "places" walks them
+  to their wings, no GO until everyone is at places; three operators in the booth swinging the Lycians. Spec it
+  (`docs/superpowers/specs/`), propose more (headset chatter, cue lights, house management, a show report), then build.
 - **The hallway and the booth doors (2026-10-23, PR #15 MERGED, `main` `8cdec76`):** Jack, *"make a hallway to get backstage from the lobby and make it so i
   can open the door to get into the spot booth."* A 30 m hallway up the outside of house 1's house-right wall (x −11.85…−10.00),
   from an opening beside the box office (under a BACKSTAGE sign) to the crossover's west end. A door on E across it just past
@@ -60,7 +88,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 - **Johnny Tremain on Theatre 2 — PR #8 MERGED (2026-10-16, `main` `daa9bcd`), post-merge done (branches deleted both sides, worktrees removed):** his own play, two acts, 26 scenes — the set as
   sized stand-ins with model slots, two stage lifts and an underground under Theatre 2 (RULINGS GI, GJ), a 128-unit rig
   with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's newest DONE block.
-- **Rulings are at GK (GL next).** GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
+- **Rulings are at GL (GM next).** GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
   rails stay down in the deck, so nothing guards the hole while a lift is away (PR #13, merged). GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
   them off. GJ (2026-10-16): an underground under Theatre 2 for storage. Earlier: **GH**. The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO

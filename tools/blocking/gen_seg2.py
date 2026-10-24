@@ -94,8 +94,11 @@ WOMEN = ["ens6", "ens7", "ens8", "ens9"]
 # ================================================================= 1-07 YOU'LL BE BACK
 T = "1-07"
 k = "king"
-w(k, T, 3.5, 0.0, -2.3, 0, dwell=38.3)        # revealed UC (Q190.01, photo 192/193: him alone in the ring UC)
-w(k, T, 49.0, 0.0, 4.1, 0)                     # Q194 George DC (photo 194; ch 93 lands at (0, 4.2)) - a stately walk
+w(k, T, 3.5, 0.0, -2.3, 0, dwell=1.0)         # revealed UC (Q190.01, photo 192/193: him alone in the ring UC)
+# FILM (2026-10-24): the clip has him at the door at 2.6 (frame 20) and already down at the lip, lit by the front spot,
+# by 10.6 (frame 60) - he walks down on the first verse (was: held UC 38 s, walked down on Q194 at 42-49)
+w(k, T, 12.5, 0.0, 3.9, 0)
+w(k, T, 49.0, 0.0, 4.1, 0)                     # Q194 George DC (photo 194; ch 93 lands at (0, 4.2))
 w(k, T, 68.5, 0.0, 4.6, 0)                     # Q194.2 the threat - a step to the edge
 w(k, T, 77.0, 0.6, 4.2, -10)                   # Q194.4 sing-along - eases SL
 w(k, T, 92.0, 0.0, 4.1, 0)                     # Q194.6 verse 2 DC
@@ -124,9 +127,49 @@ T = "1-08"
 # R2: photos 202 / 202.01 / 204 show ONE figure in a special at the centre of the disc and the DR pair (the spy and
 # the redcoat); nobody else is lit. The earlier two marching rows of the company are cut. The centre figure is taken
 # to be Hamilton (his verse follows at Q206).
+OFF["G-UC"] = (0.6, -4.8)       # up the backstage stair and through the passage onto the upstage gallery (gen6.py's)
+PASS = (0.6, -3.35)
+
+
+def gal_on(a, tr, t0, spot, f):
+    """FILM: through the passage onto the upstage gallery at spot (gen6.py's gal_enter)."""
+    d = {"track": tr, "at": round(t0, 2), "x": OFF["G-UC"][0], "z": OFF["G-UC"][1], "off": True, "y": "gallery"}
+    W[a].append(d)
+    w(a, tr, t0 + 1.3, PASS[0], PASS[1], dwell=0, y="gallery")
+    w(a, tr, t0 + 1.3 + max(0.8, math.hypot(spot[0] - PASS[0], spot[1] - PASS[1]) / 1.3), spot[0], spot[1], f, y="gallery")
+
+
+def gal_off(a, tr, t0, spot):
+    """FILM: along the gallery to the passage and off."""
+    w(a, tr, t0, spot[0] + 0.001, spot[1], dwell=0, y="gallery")
+    t1 = t0 + max(0.6, math.hypot(spot[0] - PASS[0], spot[1] - PASS[1]) / 1.5)
+    w(a, tr, t1, PASS[0], PASS[1], dwell=0, y="gallery")
+    W[a].append({"track": tr, "at": round(t1 + 1.1, 2), "x": OFF["G-UC"][0], "z": OFF["G-UC"][1], "off": True, "y": "gallery"})
+
+
+# FILM (2026-10-24, clip 1-08 frames 70 / 110 / 128, at 13.8 / 21.8 / 25.4): the top is the whole company in a loose line
+# across the stage looking out (the harbour), the three sisters spread wide in front of it - Eliza far SR, Angelica DC,
+# Peggy far SL - Hamilton (no coat) in the middle of the line, Mulligan (the beanie) SR of him. They are still there at
+# 25.4. (Was: the sisters close together DC and gone at 21.6, no company.) The friends stand in the line and step out of
+# it to their places for his verse (NOTES3 has them on with him), the ensemble walks off to the wings as he starts.
+LINE08 = {"ens8": (-5.1, -0.5), "laurens": (-3.8, 0.1), "mulligan": (-2.6, 0.4), "lafayette": (-1.4, 0.5),
+          "ens2": (1.4, 0.5), "ens3": (2.6, 0.4), "ens4": (3.8, 0.1), "ens6": (5.0, -0.2)}
+LINE08_OUT = {"ens8": ("W-MSR", 28.5), "ens2": ("W-MSL", 29.5), "ens3": ("W-MSL", 29.0), "ens4": ("W-MSL", 28.5),
+              "ens6": ("W-MSL", 28.0)}
+for a in ("lafayette", "mulligan"):
+    off(a, "1-07", 200.0, "W-MSR")
+for a, (x, z) in LINE08.items():
+    w(a, "1-08", 3.0, x, z, 0)
+for a, (ent, t) in LINE08_OUT.items():
+    off(a, "1-08", t, ent)
 off("hamilton", "1-07", 199.0, "W-USR")
 w("hamilton", "1-07", 205.9, 0.0, 0.6, 0)        # in the transition (Q202 photo: already at the centre)
 w("hamilton", T, 29.6, -1.2, 3.7, 0)             # Q206 Binkley's 'Ham dsc' (preset 259), lit again in Q274
+# FILM (frames 200 / 250, at 39.8 / 49.8): he does not stand in his pool for the verse: by 40 he is over at the centre
+# with Laurens, and by 50 he is in among the five of them (Burr too), talking to Mulligan with his hands
+w("hamilton", T, 37.5, -0.3, 3.0, -20)
+w("hamilton", T, 46.0, -1.55, 2.95, -60)
+w("hamilton", T, 51.5, -1.0, 3.5, 0)
 # NOTES3 (Jack, 2026-10-14): "at around 55 seconds in hamilton goes off then he comes back when mulligan comes back on"
 # (was: on beside Washington from Q274, photos 274 / 278 read as him): he walks off DSR from his verse spot at 54.8 and
 # comes back on with Mulligan for the battle verse (125, below)
@@ -137,8 +180,9 @@ off("hamilton", T, 59.5, "W-DSR")
 FRIENDS108 = [("laurens", 26.0, (-2.4, 3.2), 20, 59.0), ("mulligan", 26.7, (-2.75, 2.15), 35, 60.6),
               ("lafayette", 27.4, (-1.45, 2.35), 15, 60.2)]
 for a, t0, (x, z), f, t1 in FRIENDS108:
-    off(a, T, t0, "D-UC")
-    w(a, T, t0 + math.hypot(x - OFF["D-UC"][0], z - OFF["D-UC"][1]) / 1.45, x, z, f)
+    # FILM: they step out of the company line to their places (was: down from the door at t0)
+    lx, lz = LINE08[a]
+    w(a, T, t0 + 1.2 + math.hypot(x - lx, z - lz) / 1.3, x, z, f)
     off(a, T, t1, "W-DSR")
 off("burr", T, 27.0, "W-DSL")
 w("burr", T, 31.4, 1.9, 3.3, -30)                # SL, watching; he crosses to announce the General at 53
@@ -156,10 +200,13 @@ off("ens5", T, 31.5, "W-DSR")
 # REVIEW 3 (video): the Disney+ clip's comments put the three sisters "front and center of the stage and then they run
 # off" in the first seconds (Angelica at 0:14 and 0:16, "Angelica's acting in the first few seconds"): they walk on in
 # the dark after the King's button, look out over the house (the harbour), and run off SL before the kill (Q204 22.22).
-for a, x, z in (("angelica", 0.0, 3.25), ("eliza", -0.8, 3.35), ("peggy", 0.8, 3.35)):
-    off(a, "1-07", 205.2, "W-MSR")
-    w(a, T, 2.2, x, z, 0, dwell=15.8)
-    off(a, T, 21.6, "W-DSL")
+# FILM (frames 110 / 128): spread wide, Eliza far SR, Angelica DC, Peggy far SL, and still there at 25.4; each runs off
+# to her own side as Hamilton's verse starts (Angelica SL, upstage of Burr coming on DSL)
+for a, x, z, ent0, t1, ent in (("angelica", 0.0, 3.7, "W-MSR", 28.2, "W-MSL"), ("eliza", -4.4, 3.2, "W-DSR", 27.0, "W-DSR"),
+                               ("peggy", 4.4, 3.2, "W-DSL", 26.8, "W-DSL")):
+    off(a, "1-07", 205.2, ent0)
+    w(a, T, 2.2, x, z, 0, dwell=22.3)
+    off(a, T, t1, ent)
 
 # Q274 Here comes the General: photo 274 / 274.01 - Washington at the head of a SINGLE FILE of soldiers standing in the
 # blue-white centre lane, Hamilton DSR of its head. Washington and seven ensemble walk down from the door in the
@@ -205,14 +252,26 @@ off("hamilton", T, 146.5, "W-DSR")
 off("mulligan", T, 125.0, "W-DSR")
 w("mulligan", T, 129.5, -2.3, 3.55, 40, dwell=12.4)
 off("mulligan", T, 146.0, "W-DSR")
-DESERT = [("ens10", 128.0), ("ens8", 131.5), ("ens7", 135.0), ("ens6", 138.5), ("ens4", 142.0), ("ens3", 145.5),
-          ("ens5", 149.0), ("ens2", 152.5)]
-for a, t in DESERT:
-    x, z = BLOCK[a]
-    ent = "W-USL" if z < 0.3 else ("W-MSL" if z < 2.0 else "W-DSL")
-    w(a, T, t, x, z, face(x, z, 0.0, 3.2), dwell=0)
+# FILM (2026-10-24, clip 1-08): the company does not stand in a block for 70 s. Frames 290 / 315 (57.8 / 62.8): they
+# dance all round Washington; 505 (100.8): a line across the stage, dancing, Washington among them; 600 (119.8): a wide
+# line across at mid-stage, lunging, arms out; 660 (131.8): round Hamilton on the floor; 728 (145.4): a line UPSTAGE on
+# the SL half, arms up, Washington SR of it; 800 (159.8): the last four salute round him; 860 (171.8): he is alone.
+# So: the block SL (NOTES3's place for the file to step out to) dances there to 96, then spreads into the line across
+# (z 1.0, clear of the battle pair DR at z 3.3), dancing (dance.py), at 141 walks up into the line upstage SL, and the
+# desertions run 149.5-160 (was 128-152.5, from the block, standing). The SR end goes off SR, upstage of Washington.
+LINE97 = {"ens10": -3.9, "ens8": -2.9, "ens7": -1.9, "ens6": -0.9, "ens2": 0.9, "ens4": 1.9, "ens3": 2.9, "ens5": 3.9}
+UPL = {"ens10": -0.4, "ens8": 0.4, "ens7": 1.2, "ens6": 2.0, "ens2": 2.8, "ens4": 3.6, "ens3": 4.4, "ens5": 5.2}
+for a, x in LINE97.items():
+    w(a, T, 100.5 if x < 0 else 99.5, x, 1.0, 0)
+    w(a, T, 143.0, UPL[a], -1.7, 0)
+DESERT = [("ens5", 149.5, "W-USL"), ("ens10", 150.5, "W-USR"), ("ens3", 152.5, "W-USL"), ("ens8", 153.5, "W-USR"),
+          ("ens4", 155.5, "W-USL"), ("ens7", 156.5, "W-USR"), ("ens2", 158.5, "W-MSL"), ("ens6", 160.0, "W-MSL")]
+for a, t, ent in DESERT:
+    x, z = UPL[a], -1.7
+    w(a, T, t, x, z, 0, dwell=0)
     ex, ez = OFF[ent]
     off(a, T, t + math.hypot(ex - x, ez - z) / 1.5 + 0.3, ent)
+w("washington", T, 146.0, -1.5, -0.8, 30)        # FILM 728 (145.4): SR of the upstage line as it raises its arms
 # Q283 Washington alone
 w("washington", T, 163.5, 0.0, 2.45, 0)                # SPOT: Q283 the white shaft ch93 lands at (0, 2.37), r 0.75
 # Q283.5 (night march light, 168.7): R2 - the twelve-soldier night march is cut. Two soldiers set Washington's desk and
@@ -237,6 +296,12 @@ off("burr", T, 220.0, "W-MSR")
 # DL of the desk (ch4 (1.37, 2.33)); for the duet (Q286-Q287.5) the two keys are ch4 (Hamilton) and ch2 (-1.78, 2.54).
 w("washington", T, 226.0, -0.3, 1.75, 75)
 w("hamilton", T, 228.0, 1.1, 2.6, -75)
+# FILM (frames 1030 / 1300, at 205.8 / 259.8): the tent is not two men planted for 100 s: Washington comes round the desk,
+# Burr steps in to plead, Hamilton paces on his side; a few steps each between the lines (dance.py adds the hands)
+w("burr", T, 195.0, -1.5, 2.05, 70)
+w("washington", T, 200.0, 0.55, 1.75, -60)
+w("washington", T, 238.0, 0.75, 1.35, -60)
+w("hamilton", T, 240.0, 2.15, 1.95, -110)
 w("washington", T, 251.0, 0.15, 1.8, 70)       # Q285.5 advice - the two specials tighten
 w("hamilton", T, 252.0, 0.95, 2.4, -100)
 w("hamilton", T, 266.0, 1.25, 2.85, -10)       # Q286 Hamilton accepts - steps out into his key
@@ -280,7 +345,15 @@ for i, (a, x, ent) in enumerate(FIN):
     off(a, T, round(t2 + math.hypot(ex, ez - LANE[k]) / 1.5, 2), ent2)
 w("washington", T, 302.0, 0.0, LANE[0], 0, dwell=16.94)   # SPOT: the front of the file (was ch12 (-0.47, 2.52))
 w("hamilton", T, 302.0, 0.0, LANE[1], 0, dwell=16.94)     # SPOT: behind him (was ch14 (0.47, 2.52); ch93 (0, 2.37))
-off("burr", T, 291.0, "W-MSR")                             # NOTES3: Burr comes back for the file's middle, in first
+# FILM (frames 1420 / 1470, at 283.8 / 293.8): the three sisters watch from the galleries above the company's dance -
+# Angelica SR, Eliza centre, Peggy SL (the film has them on the side balconies too; the upstage gallery is the one the
+# page reaches from the passage). They go before the file forms.
+GAL108 = {"angelica": (-3.0, -3.3), "eliza": (-0.8, -3.3), "peggy": (3.2, -3.3)}
+for a, t0 in (("angelica", 276.0), ("peggy", 277.0), ("eliza", 278.0)):
+    gal_on(a, T, t0, GAL108[a], 0)
+for a, t0 in (("eliza", 298.5), ("peggy", 299.7), ("angelica", 300.9)):
+    gal_off(a, T, t0, GAL108[a])
+off("burr", T, 291.0, "W-MSR")                          # NOTES3: Burr comes back for the file's middle, in first
 w("burr", T, 298.0, 0.0, LANE[5], 0)                       # (he leaves just in time for 1-09's W-DSL, 318.94)
 # BUTTON and blackout: the two men leave in the dark
 off("washington", "1-09", 3.4, "W-DSR")         # NOTES3: from the file's head DSR, Hamilton (behind him) MSR: no crossing
@@ -366,29 +439,31 @@ off("lafayette", T, 68.9, "W-DSR")
 # three sisters together SR and two men SL - the earlier passes had it the other way round. The men hold SL; Angelica
 # watches them, then the sisters gather SR; Eliza crosses from her SL pool round the downstage edge.
 # (the three go round the downstage half, where no couple is, and up the SR side outside the ring)
+# FILM (2026-10-24, clip 1-10 frame 10, at 1.8): at the top of Helpless the three are NOT together SR: Eliza is in the
+# middle, Angelica just SL of her, Peggy out SR, the couples dancing round them (was: all three SR on the outer ring, from
+# photo 300.3). Kept outside the turning ring (r 2.2 about (0, 0.95)).
 w("peggy", T, 64.0, 0.4, 1.6, 0, dwell=0)
 w("peggy", T, 65.6, -0.7, 3.0, dwell=0)
-w("peggy", T, 67.3, -2.7, 2.9, dwell=0)
+w("peggy", T, 67.6, -3.2, 2.6, dwell=0)
 w("angelica", T, 64.5, 0.85, 2.85, 60, dwell=0)
-w("angelica", T, 66.2, -1.0, 3.75, dwell=0)
-w("angelica", T, 67.6, -2.75, 3.25, dwell=0)
+w("angelica", T, 67.6, 1.5, 3.4, dwell=0)
 w("eliza", T, 63.9, 3.1, 1.8, -20, dwell=0)
-w("eliza", T, 65.9, 1.0, 3.9, dwell=0)
-w("eliza", T, 67.6, -1.6, 4.0, dwell=0)
+w("eliza", T, 65.6, 1.6, 4.4, dwell=0)
+w("eliza", T, 67.6, -0.3, 3.6, dwell=0)
 
 # ================================================================= 1-10 HELPLESS
 T = "1-10"
 # Q300.3 (photo): the sisters SR on the outer ring, the two men SL. The men go off SL at once.
-w("peggy", T, 0.05, -3.1, 0.3, 70)
-w("angelica", T, 0.05, -3.45, 1.1, 70)
-w("eliza", T, 0.05, -3.0, 2.25, 60, dwell=1.0)
+w("peggy", T, 0.05, -3.2, 2.6, 60)
+w("angelica", T, 0.05, 1.5, 3.4, -40)
+w("eliza", T, 0.05, -0.3, 3.6, 0, dwell=1.0)
 w("hamilton", T, 0.05, 3.2, 1.35, -110, dwell=1.5)
 off("hamilton", T, 6.0, "W-MSL")
 w("burr", T, 0.05, 3.65, 2.4, -110, dwell=1.0)
 off("burr", T, 4.5, "W-DSL")
 # Eliza spirals out from SR to DSC for her chorus (Q300.4); Angelica 'Sister DR out' holds SR with Peggy
-w("eliza", T, 5.0, -2.5, 3.4, dwell=0)
-w("eliza", T, 8.0, -1.2, 4.4, dwell=0)
+w("eliza", T, 5.0, -1.3, 4.4, dwell=0)            # FILM: a turn round her spot among the dancers
+w("eliza", T, 8.0, 0.8, 4.5, dwell=0)
 w("eliza", T, 11.3, 0.1, 3.75, 0)               # SPOT: Q300.4 her DSC key ch13 lands (0.1, 2.9); 0.6 m clear of the ring
 
 # the couples: CCW from the ball (WB 63.84) to Helpless 28.24, then dance, then chorus 2 CCW again (fan write-up:
@@ -400,8 +475,10 @@ for i, (m, wo) in enumerate(zip(MEN, WOMEN)):
         ring(a, T, 0.5, 28.2, r, h0 - 0.6, h0 - 12.0, f=0, step=1.0, start=False)
         ring(a, T, 60.6, 84.5, r, h0 - 12.0, h0 - 24.0, f=0, step=1.0, start=True)
 # Q300.6 ball memory: Angelica takes Peggy's hands, they charge down to Eliza - the triangle
-w("angelica", T, 28.3, -3.45, 1.1, 70, dwell=0)
-w("peggy", T, 28.3, -3.1, 0.3, 70, dwell=0)
+w("angelica", T, 28.3, 1.5, 3.4, -40, dwell=0)
+w("peggy", T, 28.3, -3.2, 2.6, 60, dwell=0)
+w("peggy", T, 29.5, -1.0, 2.7, dwell=0)           # FILM: from SR, round upstage of her two sisters
+w("peggy", T, 30.3, 0.9, 3.0, dwell=0)
 w("angelica", T, 31.0, 0.0, 3.5, 0)
 w("peggy", T, 31.0, 0.8, 4.2, -20)
 w("eliza", T, 31.0, -0.8, 4.2, 20)
@@ -415,17 +492,23 @@ w("peggy", T, 34.0, 1.0, 4.5, 60)
 # Q300.8 Hamilton walks in UL - first sight; Washington goes to shake his hand
 off("hamilton", T, 30.0, "W-USL")
 w("hamilton", T, 36.2, 3.2, -1.5, -120, dwell=0.8)
-w("hamilton", T, 41.5, 3.4, 0.2, -60)
 w("washington", T, 41.0, 2.8, 0.6, 60, dwell=2.0)
 off("washington", T, 50.0, "W-MSL")
 # Eliza pulls Angelica downstage as he passes
 w("eliza", T, 35.0, -2.3, 3.9, 30)                # first sight: Eliza DR at the end of the light strip from his UL (fan write-up)
 w("eliza", T, 39.5, -1.4, 4.6, -20)
 w("angelica", T, 40.0, -0.5, 4.7, -20)
-# he goes back to the steps (the foot of the SL stair)
-w("hamilton", T, 47.0, 2.45, -2.45, -40, y="top")   # perched on the SL stair's lower treads
+# he goes back to the steps. FILM (2026-10-24, clip 1-10 frames 380 / 440 / 477, at 75.8 / 87.8 / 95.2): the steps are the
+# SR stair - at 76 he is up on the SR side with Angelica, at 88 she walks him in from SR while Eliza comes across from far
+# SL, and at 95 the three stand Angelica SR, Hamilton, Eliza SL (was: the SL stair, Eliza SR and Angelica SL: mirrored).
+# He crosses to it round downstage of the sisters (first sight at the SL stair's foot, frame 180, is kept).
+w("hamilton", T, 41.5, 3.4, 0.2, -60, dwell=1.2)
+w("hamilton", T, 44.4, 1.6, 2.4, dwell=0)
+w("hamilton", T, 47.4, -3.0, 2.5, dwell=0)
+w("hamilton", T, 48.6, -4.4, 2.15, dwell=0)
+w("hamilton", T, 49.6, -4.4, 1.6, 140, y="top")   # perched on the SR stair's lowest tread
 # Q301.2 Angelica crosses to him on the steps
-w("angelica", T, 54.5, 2.1, -1.6, 60)
+w("angelica", T, 54.5, -3.75, 2.35, -100)       # FILM: to him at the SR stair
 w("eliza", T, 56.0, 0.1, 3.75, 0)                  # back to her spot for chorus 2 (SPOT: in ch13 again)
 # Peggy changes partners: Laurens takes her. REVIEW 3: the clip's comments have Peggy with Laurens in the background of
 # the ball from 0:45 to 1:35 ("dancing together"), so he cuts in at 44, not 62, and Mulligan goes then.
@@ -434,17 +517,17 @@ w("laurens", T, 44.0, 1.8, 3.4, -60)
 w("peggy", T, 44.5, 1.2, 4.1, 60)
 off("mulligan", T, 48.5, "W-MSL")
 # Q301.6 Angelica brings him down to Eliza - the three DC
-w("hamilton", T, 85.0, 2.45, -2.45, -40, dwell=0, y="top")
-w("angelica", T, 85.0, 2.1, -1.6, -40, dwell=0)
-# SPOT: Q301.6 "the three held in cool-white specials DC" are ch12 (-0.78, 2.31), ch13 (0, 1.97), ch14 (0.78, 2.31):
-# Eliza SR, Hamilton in the middle, Angelica on his SL side; they come round downstage of the parked couples.
-w("hamilton", T, 87.5, 2.9, 0.3, dwell=0)
-w("angelica", T, 87.5, 3.6, 0.4, dwell=0)
-w("hamilton", T, 89.0, 2.6, 2.4, dwell=0)
-w("angelica", T, 89.3, 3.2, 2.6, dwell=0)
-w("hamilton", T, 91.0, 0.0, 2.0, -68)
-w("angelica", T, 91.3, 0.78, 2.31, -80)
-w("eliza", T, 89.0, -0.78, 2.31, 60)
+w("hamilton", T, 85.0, -4.4, 1.6, 140, dwell=0, y="top")
+w("angelica", T, 85.0, -3.75, 2.35, -100, dwell=0)
+# SPOT: Q301.6 "the three held in cool-white specials DC" are ch12 (-0.78, 2.31), ch13 (0, 1.97), ch14 (0.78, 2.31).
+# FILM: Angelica SR, Hamilton in the middle, Eliza SL; she brings him in from the SR stair and Eliza comes across from SL.
+w("hamilton", T, 86.0, -4.4, 2.15, dwell=0)
+w("hamilton", T, 88.0, -2.6, 2.75, dwell=0)
+w("angelica", T, 88.0, -2.9, 3.3, dwell=0)
+w("hamilton", T, 91.0, 0.0, 2.0, 68)
+w("angelica", T, 91.3, -0.78, 2.31, 80)
+w("eliza", T, 80.5, 3.3, 3.0, -60)
+w("eliza", T, 89.0, 0.78, 2.31, -60)
 # Laurens and Peggy dance off. REVIEW 3: Peggy does not go: as Angelica leaves the couple and the letters begin she does her
 # "little dance" with a letter in her hand (the clip's 1:43-1:45, the most-liked comments; the side-by-side shows the
 # same dance in Satisfied) - she runs Laurens to the DL portal and comes back dancing (dance.py).
@@ -456,9 +539,9 @@ for i, (m, wo) in enumerate(zip(MEN, WOMEN)):
     for j, (a, r) in enumerate(((m, 1.6), (wo, 2.2))):
         x, z = clock(r, CPL_H[i])
         off(a, T, 108.0 + 0.9 * i + 0.45 * j, wing(x, z))
-w("hamilton", T, 105.3, -1.45, 1.35, dwell=0)     # SPOT: round upstage of Eliza to DR
+w("hamilton", T, 105.3, -1.45, 1.35, dwell=0)     # SPOT: round upstage of Angelica to DR
 w("hamilton", T, 107.0, -3.1, 2.8, 35)
-w("eliza", T, 105.3, 0.7, 3.2, dwell=0)            # SPOT: round downstage of Angelica to DL
+w("eliza", T, 105.3, 1.7, 2.6, dwell=0)            # SPOT: on her own side to DL
 w("eliza", T, 107.0, 2.9, 3.0, -35)
 w("angelica", T, 108.0, 2.2, 3.6, -30)
 w("angelica", T, 110.5, 2.6, 3.5, 60)              # snatches them
@@ -566,8 +649,11 @@ AISLE = {"ens2": (-1.6, -1.0), "ens6": (-1.8, 0.0), "ens3": (-2.0, 1.0), "ens7":
 for a, (x, z) in AISLE.items():
     w(a, T, 233.0, x, z, 75 if x < 0 else -75)
 # Hamilton waits at DC for his bride; Washington beside the aisle's foot
-w("hamilton", T, 230.0, 0.35, 3.9, 180)
-w("washington", T, 230.5, -2.7, 3.7, 60)
+# FILM (2026-10-24, clip 1-10 frame 1170, at 233.8): the groom waits out SR with Washington beside him while the company
+# stands in its arc and the bride comes down (was: waiting DC from 230); he crosses to DC just before the bridesmaids
+w("hamilton", T, 228.0, -3.0, 2.6, 60, dwell=5.5)
+w("hamilton", T, 236.5, 0.35, 3.9, 180)
+w("washington", T, 230.5, -4.2, 2.6, 60)
 # the bridesmaids and groomsmen go round the outside to UC
 w("angelica", T, 220.0, 3.3, -0.8, dwell=0)
 w("angelica", T, 226.0, 1.8, -2.25, dwell=0)
