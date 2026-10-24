@@ -211,6 +211,39 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 #show .sh-list .sh-rec { color: var(--muted); font-style: italic; }
 #show .sh-list .sh-aud { color: var(--accent); }
 @media (max-width: 640px) { #show { width: calc(100% - 24px); } #build:not([hidden]) ~ #show { right: 12px; } }
+/* the stage manager's calling panel (THE STAGE MANAGER): the Show panel's look, on the left; the God mic over the view */
+#sm { position: absolute; top: 12px; left: 12px; width: 340px; max-height: calc(100% - 64px); overflow: auto; background: rgb(23,21,27); border: 1px solid var(--line); border-radius: 6px; padding: 10px 12px; display: grid; grid-auto-rows: max-content; gap: 7px; font-size: 12px; z-index: 6; }
+#sm[hidden] { display: none; }
+#sm h2 { font-size: 12px; font-weight: 600; margin: 4px 0 0; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+#sm .row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+#sm button { padding: 4px 8px; font-size: 12px; }
+#sm button[aria-pressed=true] { border-color: var(--accent); color: var(--accent); }
+#sm label { color: var(--muted); display: flex; align-items: center; gap: 4px; }
+#sm .note { color: var(--muted); font-size: 11px; overflow-wrap: anywhere; }
+#sm .sm-head { position: sticky; top: -10px; z-index: 1; display: flex; align-items: center; justify-content: space-between; margin: -10px -12px 0; padding: 8px 12px 6px; background: rgb(23,21,27); border-bottom: 1px solid var(--line); }
+#sm .sm-head b { font-size: 13px; font-weight: 600; }
+#sm .sm-states { display: flex; flex-wrap: wrap; gap: 2px 8px; font: 10px var(--mono); color: var(--muted); }
+#sm .sm-states .on { color: var(--accent); font-weight: 600; }
+#sm .sm-state { font: 600 16px var(--mono); color: var(--accent); }
+#sm .sm-clock { font: 12px var(--mono); color: var(--muted); margin-left: auto; font-variant-numeric: tabular-nums; }
+#sm .sm-next { font: 12px var(--mono); color: var(--fg); min-height: 1.4em; overflow-wrap: anywhere; }
+#sm .sm-sb, #sm .sm-go { flex: 1; padding: 8px; font-weight: 600; }
+#sm .sm-sb[aria-pressed=true] { background: #5a1610; border-color: #ff4a30; color: #fff; }
+#sm .sm-go { background: #1f4d2a; border-color: #3f9a55; }
+#sm .sm-any { border-color: #a0602a; }
+#sm kbd { font: 10px var(--mono); color: var(--muted); margin-left: 4px; }
+#sm .sm-refused { color: #ff9b7a; }
+#sm .sm-cv { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 4px; }
+#sm .sm-log { display: grid; max-height: 170px; overflow: auto; border: 1px solid var(--line); border-radius: 4px; padding: 2px 0; }
+#sm .sm-l { display: flex; gap: 6px; padding: 1px 6px; font: 11px var(--mono); }
+#sm .sm-l span:first-child { color: var(--muted); flex: none; }
+#sm .sm-l b { font-weight: 600; flex: none; min-width: 3.6em; }
+#sm .sm-l.sm b { color: var(--accent); } #sm .sm-l.mic { color: #e8d9b0; } #sm .sm-l.co { color: var(--muted); }
+#sm textarea { width: 100%; box-sizing: border-box; background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 4px; font: 12px var(--mono); resize: vertical; }
+#sm-mic { position: absolute; left: 50%; bottom: 48px; transform: translateX(-50%); z-index: 6; max-width: min(640px, calc(100% - 32px)); pointer-events: none; background: rgba(23,21,27,.92); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; font: 13px/1.4 var(--sans, system-ui, sans-serif); color: var(--fg); }
+#sm-mic[hidden] { display: none; }
+#sm-mic b { font: 600 10px var(--mono); color: var(--accent); letter-spacing: .06em; margin-right: 6px; }
+@media (max-width: 640px) { #sm { width: calc(100% - 24px); } }
 </style>
 </head>
 <body>
@@ -504,7 +537,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set)$/.test(o.name)) o.traverse(take);
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk)$/.test(o.name)) o.traverse(take);
   baked.traverse(take);
   return list;
 }
@@ -4399,13 +4432,17 @@ function showHouse(up) {                                  // the house lights, a
 // preset), the audio pauses, the house lights come up, and the show waits for Play, which steps into the held track and takes
 // the house out again. Jack: "at the end of nonstop it blacks out then the lights go back to what they were at preshow and it
 // waits for me to press play". Seeking anywhere clears a hold.
+// THE STAGE MANAGER's hook (RULING GM): a track is held at its top for its own `hold` (the interval) or for the prompt desk's
+// calling mode (smHolds: `songs` holds every number while the desk is in use; with the desk unused it is always false).
+const showHeld = j => !!SHW.d.tracks[j].hold || smHolds(j);
 function showHold() {
   const tr = SHW.d.tracks[SHW.ti];
   SHW.lt = tr.len + tr.post; showFireTo(tr.start + tr.len + tr.post - 1e-6);   // after its tail (FQ)
   SHW.playing = false; SHW.hold = true; SHW.gap = true;
   if (SHW.A) SHW.A.pause();
   if (SND.check) { SND.check = null; SND.note = ''; }      // a check cut short by the interval says nothing (the next seek re-arms it)
-  showHouse(true); showUI(true); requestRender();
+  if (SHW.d.tracks[SHW.ti + 1].hold) showHouse(true);       // the interval brings the house up; a song held by the desk (GM) leaves it as it is
+  showUI(true); requestRender();
 }
 function showPause(on = SHW.playing) {
   if (!SHW.on) return showStart(!on);
@@ -4479,7 +4516,7 @@ function showTick(dt, silent = false) {
       // 384.99 + 0.01 lands an ulp short of 385: roll over (or hold) here, or showFireTo's own tolerance fires the next track's 0.0 cue first
       while (SHW.lt >= tr[SHW.ti].len + tr[SHW.ti].post - 1e-7) {
         if (SHW.ti + 1 >= tr.length) { showFireTo(SHW.d.end); showEnd(); return true; }
-        if (tr[SHW.ti + 1].hold) { showHold(); return true; }
+        if (showHeld(SHW.ti + 1)) { showHold(); return true; }   // the interval, or the desk's hold (GM)
         SHW.lt -= tr[SHW.ti].len + tr[SHW.ti].post + tr[SHW.ti + 1].pre; SHW.ti++;
         if (!silent) showTrackAudio();
       }
@@ -4515,7 +4552,7 @@ function showAudioEnded() {                                  // an event, not a 
   showFireTo(tr[SHW.ti].start + tr[SHW.ti].len - 1e-6);     // the cues the track's end left waiting
   if (tr[SHW.ti].post > 0) { showTail(); return; }          // 1-23's ten seconds, 2-23's open end (FQ): the clock runs on
   if (SHW.ti + 1 >= tr.length) { showEnd(); return; }
-  if (tr[SHW.ti + 1].hold) { showHold(); return; }
+  if (showHeld(SHW.ti + 1)) { showHold(); return; }         // the interval, or the desk's hold (GM)
   SHW.ti++; SHW.lt = -tr[SHW.ti].pre; showTrackAudio(); showFireTo(showT()); showUI(true);
 }
 function showAudioEl() {
@@ -4723,7 +4760,7 @@ function showSoundTick() {                                   // the file's time 
   while (i + 1 < tr.length && tr[i + 1].file <= t + 1e-3) i++;
   while (i > 0 && tr[i].file > t + 1e-3) i--;
   if (i !== SHW.ti) {
-    if (i > SHW.ti && tr.slice(SHW.ti + 1, i + 1).some(x => x.hold)) { showHold(); return; }   // the interval: the file runs on, the show does not
+    if (i > SHW.ti && tr.slice(SHW.ti + 1, i + 1).some(x => showHeld(x.i))) { showHold(); return; }   // (or the desk's hold, GM)   // the interval: the file runs on, the show does not
     if (i > SHW.ti) showFireTo(tr[SHW.ti].start + tr[SHW.ti].len - 1e-6);   // the cues the last track's end left waiting
     SHW.ti = i;
     if (SHW.files.has(i)) { SHW.lt = Math.max(0, t - tr[i].file); showTrackAudio(); return; }   // his own file for this one wins
@@ -4979,7 +5016,7 @@ function showHud() {
   H.time.textContent = `${m}:${s.toFixed(1).padStart(4, '0')}`;
   H.sec.textContent = `${t.toFixed(1)} s in · of ${showFmt(tr.len)}`;
   H.cue.textContent = c && c.ti === SHW.ti ? `Q ${c.q}${c.label ? ` · ${c.label}` : ''}` : c ? `Q ${c.q} (from ${D.tracks[c.ti].id})` : 'before the first cue';
-  H.state.textContent = (SHW.hold ? `${D.tracks[SHW.ti + 1].hold} — press Play` : SHW.playing ? '' : 'paused') + (SND.note && SHW.A === SHW.stA ? (SHW.playing && !SHW.hold ? '' : ' · ') + SND.note : '');
+  H.state.textContent = (SHW.hold ? `${D.tracks[SHW.ti + 1].hold || 'Held for the GO'} — press Play` : SHW.playing ? '' : 'paused') + (SND.note && SHW.A === SHW.stA ? (SHW.playing && !SHW.hold ? '' : ' · ') + SND.note : '');
 }
 function showUI(force) {
   const E = SHW.E, D = SHW.d;
@@ -4994,7 +5031,7 @@ function showUI(force) {
     E.audio.textContent = ''; return;
   }
   const tr = D.tracks[SHW.ti], c = D.cues[SHW.cue], nx = D.cues[SHW.cue + 1];
-  E.now.textContent = SHW.hold ? `${D.tracks[SHW.ti + 1].hold} — press Play for ${D.tracks[SHW.ti + 1].title}` : c ? `Q ${c.q}${c.label ? ` · ${c.label}` : ''} · ${tr.title} ${showFmt(SHW.lt)}` : `${tr.id} ${tr.title} ${showFmt(SHW.lt)} · before the first cue`;
+  E.now.textContent = SHW.hold ? `${D.tracks[SHW.ti + 1].hold || 'Held for the GO'} — press Play for ${D.tracks[SHW.ti + 1].title}` : c ? `Q ${c.q}${c.label ? ` · ${c.label}` : ''} · ${tr.title} ${showFmt(SHW.lt)}` : `${tr.id} ${tr.title} ${showFmt(SHW.lt)} · before the first cue`;
   E.next.textContent = nx ? `Next: ${showCueLine(nx)}${nx.ti === SHW.ti || nx.T - showT() < 600 ? ` · in ${showFmt(nx.T - showT())}` : ''}` : 'Next: — (the last cue)';
   E.clock.textContent = `${tr.id} ${showFmt(SHW.lt)} / ${showFmt(tr.len)}`;
   if (!SHW.scrubbing) { E.scrub.min = String(-tr.pre); E.scrub.max = String(showScrubMax(tr)); E.scrub.value = String(SHW.lt); }
@@ -7714,6 +7751,635 @@ const FOL_API = {
   data: () => FOL.d, get spots() { return FOL.spots.map(S => ({ spot: S.n, id: S.id, entries: S.L.length })); }, get problems() { return FOL.probs; },
   get perf() { return Object.assign({ tickMs: +FOL.ms.toFixed(3) }, FOL.perf); },
   tune: { FOL_SIZES, FOL_GELS, FOL_TOP },
+};
+
+/* ---------------------------------------------------------------- THE STAGE MANAGER: THE DESK AND THE CALLING
+   Jack: "make a stage manger thing where i can call ther show and i can give 5 minuet and plcsses calss for the actors"; "make
+   it so … i have to start each song or i just have to call the starts of both halfs". The spec is docs/superpowers/specs/
+   2026-10-24-stage-manager-design.md (RULINGS GM–GQ, binding). This section is builder A's part: MIDTOWN.sm.
+   THE DESK (GO). A prompt desk in house 1's prompt corner: the stage-left wall, just upstage of the worklight's switch box,
+   at deck level, its caller sitting between the wall and the desk and facing the stage (smBuildDesk, measured off the
+   worklight's own switch: WORKLIGHT.list[0].swFace / target.cz). The corner is a pocket: the set's SL brick closes the wing
+   at z 2.08 (measured with the walk's rays), SL Boom 2's tower stands at x −7.35, z 1.21; the desk fits z 1.13…1.98. A sloped top with the prompt book, a small monitor (a canvas
+   plan with the bodies as dots, redrawn a few times a second while anyone is near or the panel is open — NOT a second 3D
+   render: smMonDraw), the desk's two cue lights (red STANDBY, green GO), a headset on a hook and the God mic on a gooseneck.
+   E at the desk while walking (a target of THE DOORS' aim, SM.target) sits the walker there and opens THE CALLING PANEL;
+   E or Esc leaves. Seated, S is STANDBY and Space is GO (smKey, a capture-phase listener ahead of the walk's: the walk never
+   sees the keys while seated). The stool is not in the walk's grid (the seat is inside it); the desk is ('prompt desk').
+   THE HOLDS (GM). One mechanism with the interval's (showHold): showHeld(j) in the show player is the track's own `hold`
+   (2-01, the interval) OR smHolds(j) — `songs` mode while the desk is in use holds at the top of every number (the clock stops
+   at the track's start, its lead-in included); `acts` adds nothing (the album runs on, number into number, as Play does).
+   A song hold leaves the house lights where they are (the interval's brings them up). GO is showPause(false) on a hold — the
+   held track's audio and clock start together — or showStart / showPause(false) at the top. With the desk unused
+   (SM.engaged false) nothing here touches the show: the Show panel behaves exactly as before.
+   THE STATE (PRESHOW → HOUSE OPEN → HALF → FIFTEEN → FIVE → PLACES → ACT ONE → INTERVAL → (FIFTEEN, FIVE, PLACES) → ACT TWO →
+   CURTAIN). The calls move it, in any order he likes (GP: times are not enforced); the first GO of an act moves it into the
+   act, and is refused while anyone is not at places (MIDTOWN.company.state().missing) unless he presses "GO anyway"; the
+   interval comes on its own when the show holds at 2-01; CURTAIN is his call after the bows.
+   THE OTHER BUILDERS, through the contract only, every call guarded: MIDTOWN.company (B: call(kind), state(), on(fn), act)
+   and MIDTOWN.booth (C: standby(), go()). With no company, places counts as complete and there are no answers; with no booth,
+   Lights and Sound answer the standby from here (SM_STUB). Their lines come back through MIDTOWN.sm.log(who, text).
+   THE GOD MIC: the call as text over the view (#sm-mic) and, with the desk's toggle, the browser's own voice (speechSynthesis).
+   FRONT OF HOUSE: the house manager on the headset ("House is open", "House is in, you're clear"), and the preshow
+   announcement (OUR text: phones off, no photography, enjoy the show) on Act One's GO, before the house goes out.
+   THE SHOW REPORT: every call and GO with its time, the acts' run times, the interval, every GO without a standby and every
+   "GO anyway" with who was missing, and his notes; downloaded as a text file, the last one kept in localStorage.
+   TIME: answers, lamps and the announcement run off the frame's dt (smTick, riding lxPanelTick); timestamps are the wall
+   clock (Date), which is what a show report records. No setTimeout. */
+const SM_STATES = ['PRESHOW', 'HOUSE OPEN', 'HALF', 'FIFTEEN', 'FIVE', 'PLACES', 'ACT ONE', 'INTERVAL', 'ACT TWO', 'CURTAIN'];
+const SM_BACKSTAGE = new Set(['PRESHOW', 'HOUSE OPEN', 'HALF', 'FIFTEEN', 'FIVE', 'PLACES', 'INTERVAL']);   // the company is off stage: B's layer owns the bodies
+const SM_DESK = { dz: 0.35, w: 0.85, d: 0.55, gap: 0.78, top: [1.00, 1.12], seat: 0.48, eye: 1.22, pitch: -0.10 };   // the desk's middle upstage of the switch, its length along the wall, depth, its near edge off the wall, the top's near / far height over the deck; the seat off the wall; the seated eye
+const SM_MON = { w: 512, h: 272, hz: 4, near: 7 };            // the monitor's canvas; redraws a second; drawn while the walker is within `near` m of the desk (or the panel is open)
+const SM_STUB = [['Lights', 'Standing by', 0.8], ['Sound', 'Standing by', 1.4]];   // with no booth (MIDTOWN.booth): who answers a standby, and after how long (s of frame time)
+const SM_LAMP_GO = 2.0;                                       // s: the green GO lamp stays lit, then out
+const SM_KEY = 'midtown.sm.report';                            // localStorage: the last show report
+// The words. The calls are a stage manager's own; the preshow announcement is ours (RULING: no lyrics, no production copy).
+const SM_WORDS = {
+  house: 'Ladies and gentlemen of the company, the house is now open. Please keep off the stage. The house is open.',
+  half: 'Ladies and gentlemen of the company, this is your half-hour call. Half an hour, please.',
+  fifteen: 'Ladies and gentlemen of the company, this is your fifteen-minute call. Fifteen minutes, please.',
+  five: 'Ladies and gentlemen of the company, this is your five-minute call. Five minutes, please.',
+  places1: 'Places, please, for the top of Act One. Places, please.',
+  places2: 'Places, please, for the top of Act Two. Places, please.',
+  interval: 'Thank you, Act One. That is the interval. Fifteen minutes, please.',
+  curtain: 'And that is the curtain. Thank you, everybody, a lovely show.',
+  preshow: 'Good evening, and welcome to the Midtown. Before we begin, please make sure your mobile phones are switched off. '
+    + 'Photography and recording of any kind are not permitted during the performance. Thank you, and enjoy the show.',
+};
+const SM_CALLS = [['house', 'House open'], ['half', 'Half'], ['fifteen', 'Fifteen'], ['five', 'Five'], ['places', 'Places'], ['curtain', 'Curtain']];
+const SM = {
+  state: 'PRESHOW', act: 1, mode: 'acts', engaged: false, seated: false, voice: true, chatter: false,
+  standby: null, refused: null, pending: null, armed: -1, queue: [], lamp: { sb: false, go: 0 }, lastCall: null, ended: false, wasHold: false, going: false,
+  desk: null, stool: null, target: null, lamps: null, mon: null, el: null, E: {}, mic: null, micT: 0, log: [], co: null, coFn: null,
+  report: null, uiT: 0, perf: { ms: 0, max: 0, n: 0 },
+};
+const smCo = () => window.MIDTOWN && window.MIDTOWN.company || null;   // builder B's, when it is there
+const smBooth = () => window.MIDTOWN && window.MIDTOWN.booth || null;  // builder C's
+const smNow = () => new Date();
+const smClock = d => d.toTimeString().slice(0, 8);
+const smDur = ms => { const s = Math.max(0, Math.round(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor(s / 60) % 60; return `${h}:${String(m).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`; };
+function smFreshReport() { return { started: smNow(), mode: SM.mode, calls: [], gos: [], acts: { 1: null, 2: null }, interval: null, noStandby: [], anyway: [], notes: '', done: null }; }
+SM.report = smFreshReport();
+
+// ---- THE HOLD (GM): the show player's showHeld(j) asks this as well as the track's own `hold`.
+function smHolds(j) { return SM.engaged && SM.mode === 'songs' && j > 0 && j !== SM.armed && !!SHW.d && j < SHW.d.tracks.length; }   // armed: a GO given early
+
+// ---- THE DESK
+function smBuildDesk() {
+  if (SM.desk) return SM.desk;
+  const w = WORKLIGHT.list.find(r => r.house === 1);
+  const wall = w ? w.swFace : -9.50, zc = (w ? w.target.cz : HOUSE.archZ + WORKLIGHT.sw.dz) + SM_DESK.dz, deck = HOUSE.deckY;
+  const D = SM_DESK, x0 = wall + D.gap, x1 = x0 + D.d, xm = (x0 + x1) / 2, z0 = zc - D.w / 2, z1 = zc + D.w / 2;
+  const B = (sx, sy, sz, x, y, z) => new THREE.BoxGeometry(sx, sy, sz).translate(x, y, z);
+  const wood = wlStd(0x4a4038, 0.75, 0.22), steel = wlStd(0x45484e, 0.50, 0.20, 0.4), paper = wlStd(0xe9e3d3, 0.9, 0.55), black = wlStd(0x1c1c20, 0.6, 0.10), foam = wlStd(0x1b1b1d, 0.95, 0.06);   // a wing is dark: they glow a little, as the desk's own blue lamp would show them
+  const mesh = (name, geos, mat) => wlMesh(`prompt desk: ${name}`, geos, mat);
+  // the cabinet (a box on the deck, its front a kick panel) and the sloped top, low edge to the caller
+  const [yn, yf] = D.top, slope = Math.atan2(yf - yn, D.d), topY = (yn + yf) / 2 + deck;
+  const top = new THREE.BoxGeometry(D.d / Math.cos(slope) + 0.04, 0.03, D.w + 0.04).rotateZ(slope).translate(xm, topY, zc);
+  const cab = [B(D.d - 0.06, yn - 0.04, D.w - 0.04, xm + 0.02, deck + (yn - 0.04) / 2, zc), top,
+    B(0.03, 0.10, D.w + 0.04, x0 - 0.005, deck + yn - 0.05, zc)];           // the lip the book rests against
+  // the monitor on its arm at the upstage end of the far edge, its screen toward the caller
+  const mz = z1 - 0.20, my = deck + yf + 0.26, mx = x1 - 0.06;
+  const mon = [B(0.04, 0.30, 0.46, mx + 0.03, my, mz), B(0.03, 0.22, 0.03, mx + 0.04, deck + yf + 0.06, mz), B(0.12, 0.015, 0.16, mx + 0.03, deck + yf + 0.01, mz)];
+  const cv = document.createElement('canvas'); cv.width = SM_MON.w; cv.height = SM_MON.h;
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
+  const screen = new THREE.Mesh(new THREE.PlaneGeometry(0.42, 0.42 * SM_MON.h / SM_MON.w).rotateY(-Math.PI / 2).translate(mx - 0.002, my, mz),
+    new THREE.MeshBasicMaterial({ map: tex, toneMapped: false }));
+  screen.name = 'prompt desk: monitor screen';
+  // the prompt book, open on the slope: two leaves either side of the spine
+  const book = [];
+  for (const s of [-1, 1]) book.push(new THREE.BoxGeometry(0.30, 0.012, 0.21).translate(0, 0, s * 0.108).rotateZ(slope).translate(xm - 0.02, topY + 0.022, zc - 0.12));
+  const cover = new THREE.BoxGeometry(0.31, 0.008, 0.45).rotateZ(slope).translate(xm - 0.02, topY + 0.016, zc - 0.12);
+  // the cue lights: a small panel at the downstage end of the far edge, red STANDBY over green GO
+  const lz = z0 + 0.10, ly = deck + yf + 0.09, lx = x1 - 0.05;
+  const panel = [B(0.03, 0.16, 0.08, lx + 0.02, ly, lz)];
+  const lampMat = c => new THREE.MeshBasicMaterial({ color: c, toneMapped: false });
+  const red = new THREE.Mesh(new THREE.SphereGeometry(0.018, 12, 8).translate(lx, ly + 0.035, lz), lampMat(0x2a0806));
+  const green = new THREE.Mesh(new THREE.SphereGeometry(0.018, 12, 8).translate(lx, ly - 0.035, lz), lampMat(0x062a0a));
+  red.name = 'prompt desk: standby lamp'; green.name = 'prompt desk: go lamp';
+  // the God mic: a gooseneck from the top's downstage corner toward the caller, its capsule foam-black
+  const gb = new THREE.Vector3(x0 + 0.10, deck + yn + 0.035, z0 + 0.12), gm = new THREE.Vector3(x0 + 0.06, deck + yn + 0.22, z0 + 0.14), gt = new THREE.Vector3(x0 - 0.06, deck + yn + 0.30, z0 + 0.16);
+  const neck = [wlRod(gb, gm, 0.006, 6), wlRod(gm, gt, 0.006, 6), new THREE.CylinderGeometry(0.03, 0.035, 0.02, 14).translate(gb.x, gb.y, gb.z)];
+  const capsule = [new THREE.SphereGeometry(0.018, 10, 8).scale(1.6, 1, 1).translate(gt.x - 0.01, gt.y, gt.z)];
+  // the headset on a hook on the cabinet's downstage end: the hook, the band, two cups and the boom mic
+  const hz = z0 + 0.02, hy = deck + 0.82, hx = xm - 0.05;
+  const hook = [B(0.02, 0.02, 0.06, hx, hy, hz - 0.03)];
+  const band = new THREE.TorusGeometry(0.085, 0.008, 6, 18, Math.PI).translate(hx, hy - 0.085, hz - 0.06);   // a half ring over x, its top on the hook
+  const cups = [-1, 1].map(s => new THREE.CylinderGeometry(0.035, 0.035, 0.03, 14).rotateZ(Math.PI / 2).translate(hx + s * 0.085, hy - 0.10, hz - 0.06));
+  const boomA = new THREE.Vector3(hx + 0.085, hy - 0.11, hz - 0.08), boomB = new THREE.Vector3(hx + 0.03, hy - 0.19, hz - 0.11);
+  const headset = [band, ...cups, wlRod(boomA, boomB, 0.004, 5)];
+  // the group: in the walk's grid by name ('prompt desk')
+  const g = new THREE.Group(); g.name = 'prompt desk'; g.userData.house = 1;
+  g.add(mesh('cabinet', cab, wood), mesh('monitor', mon, steel), screen, mesh('book cover', [cover], black), mesh('book', book, paper),
+    mesh('cue lights', panel, steel), red, green, mesh('god mic', neck, steel), mesh('god mic capsule', capsule, foam), mesh('hook', hook, steel), mesh('headset', headset, black));
+  // the stool (not in the grid: the seat is where the walker sits)
+  const sx = wall + D.seat, stoolH = 0.66;
+  const st = [new THREE.CylinderGeometry(0.17, 0.17, 0.05, 18).translate(sx, deck + stoolH, zc), new THREE.CylinderGeometry(0.025, 0.025, stoolH - 0.02, 8).translate(sx, deck + stoolH / 2, zc),
+    new THREE.CylinderGeometry(0.20, 0.22, 0.025, 18).translate(sx, deck + 0.0125, zc), new THREE.TorusGeometry(0.15, 0.01, 6, 20).rotateX(Math.PI / 2).translate(sx, deck + 0.24, zc)];
+  const stool = new THREE.Group(); stool.name = 'prompt desk stool';
+  stool.add(mesh('stool', st, steel));
+  scene.add(g, stool); g.updateMatrixWorld(true); stool.updateMatrixWorld(true);
+  SM.desk = g; SM.stool = stool;
+  SM.lamps = { red, green, offR: new THREE.Color(0x2a0806), onR: new THREE.Color(0xff2a14), offG: new THREE.Color(0x062a0a), onG: new THREE.Color(0x24ff4a) };
+  SM.mon = { cv, g: cv.getContext('2d'), tex, screen, t: 0, base: null, key: '' };
+  SM.seat = new THREE.Vector3(sx, deck, zc);
+  SM.target = { name: 'prompt desk', kind: 'prompt desk', cx: xm, cz: zc, fy: deck, label: () => SM.seated ? 'At the prompt desk · S standby · Space GO · E or Esc to leave · drag to look' : 'E — sit at the prompt desk (call the show)', use: () => smSit(true) };
+  smMonDraw(true);
+  colliderStale();                                            // the walk's grid takes the desk in
+  console.info(`stage manager: the prompt desk in house 1's prompt corner — the wall at x ${wall.toFixed(3)}, the desk x ${x0.toFixed(2)}…${x1.toFixed(2)}, z ${z0.toFixed(2)}…${z1.toFixed(2)}; the seat at (${sx.toFixed(2)}, ${zc.toFixed(2)})`);
+  return g;
+}
+
+// ---- THE MONITOR: a plan of house 1's stage and the backstage block, the bodies as dots (audience view: SL on the right)
+const SM_PLAN = { x0: -10.6, x1: 30.6, z0: -0.6, z1: 17.6 };
+function smMonXY(x, z) {
+  const P = SM_PLAN, top = 30, s = Math.min((SM_MON.w - 16) / (P.x1 - P.x0), (SM_MON.h - top - 8) / (P.z1 - P.z0));
+  const ox = (SM_MON.w - s * (P.x1 - P.x0)) / 2;
+  return [ox + (P.x1 - x) * s, top + (P.z1 - z) * s, s];
+}
+function smMonBase() {
+  const c = document.createElement('canvas'); c.width = SM_MON.w; c.height = SM_MON.h;
+  const g = c.getContext('2d'), R = (xa, za, xb, zb) => { const [ax, ay] = smMonXY(xa, za), [bx, by] = smMonXY(xb, zb); return [Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay)]; };
+  g.fillStyle = '#0b1118'; g.fillRect(0, 0, c.width, c.height);
+  g.lineWidth = 1;
+  // backstage: the block, the corridor wall, the rooms
+  g.strokeStyle = '#2a3a4c'; g.fillStyle = '#111b26';
+  g.fillRect(...R(BACKSTAGE.x0, BACKSTAGE.stageZ.h1, BACKSTAGE.x1, BACKSTAGE.farZ)); g.strokeRect(...R(BACKSTAGE.x0, BACKSTAGE.stageZ.h1, BACKSTAGE.x1, BACKSTAGE.farZ));
+  g.beginPath(); { const [ax, ay] = smMonXY(BACKSTAGE.x0, BACKSTAGE.corridorZ), [bx] = smMonXY(BACKSTAGE.x1, 0); g.moveTo(ax, ay); g.lineTo(bx, ay); } g.stroke();
+  g.font = '8px system-ui, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#5c7188';
+  for (const r of BACKSTAGE.rooms) {
+    const [ax, ay] = smMonXY(r.x0, BACKSTAGE.roomZ0), [bx, by] = smMonXY(r.x1, BACKSTAGE.roomZ1);
+    g.strokeRect(Math.min(ax, bx), Math.min(ay, by), Math.abs(bx - ax), Math.abs(by - ay));
+    g.fillText(r.name.replace('DRESSING ROOM', 'DR'), (ax + bx) / 2, (ay + by) / 2);
+  }
+  // Theatre 2's stage, dim
+  g.strokeStyle = '#1f2a36'; g.strokeRect(...R(HOUSE2.dx - 9.8, HOUSE.glbArchZ, HOUSE2.dx + 10.0, HOUSE.backZ));
+  // house 1's stage: the stage house, the set's sides, the proscenium opening (bright), the deck in front
+  g.fillStyle = '#16212d'; g.fillRect(...R(-9.8, HOUSE.archZ, 10.0, BACKSTAGE.stageZ.h1));
+  g.strokeStyle = '#3d556e'; g.strokeRect(...R(-9.8, HOUSE.archZ, 10.0, BACKSTAGE.stageZ.h1));
+  g.setLineDash([3, 3]); g.strokeStyle = '#33485d';
+  for (const x of [-8.65, 8.65]) { const [ax, ay] = smMonXY(x, HOUSE.archZ + 0.5), [, by] = smMonXY(x, BACKSTAGE.stageZ.h1); g.beginPath(); g.moveTo(ax, ay); g.lineTo(ax, by); g.stroke(); }
+  g.setLineDash([]);
+  g.strokeStyle = '#e2a640'; g.lineWidth = 2;
+  { const [ax, ay] = smMonXY(-HOUSE.openW / 2, HOUSE.archZ), [bx] = smMonXY(HOUSE.openW / 2, HOUSE.archZ); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, ay); g.stroke(); }
+  g.lineWidth = 1; g.fillStyle = '#5c7188'; g.font = '9px system-ui, sans-serif';
+  { const [x, y] = smMonXY(0, HOUSE.archZ - 0.45); g.fillText('HOUSE', x, y); }
+  { const [x, y] = smMonXY(-9.0, 5.5); g.save(); g.translate(x, y); g.rotate(-Math.PI / 2); g.fillText('SL', 0, 0); g.restore(); }
+  { const [x, y] = smMonXY(9.3, 5.5); g.save(); g.translate(x, y); g.rotate(-Math.PI / 2); g.fillText('SR', 0, 0); g.restore(); }
+  { const [x, y] = smMonXY(HOUSE2.dx, 5.5); g.fillStyle = '#2f3e4e'; g.fillText('THEATRE 2', x, y); }
+  return c;
+}
+const smV = new THREE.Vector3();
+function smMonDraw(force) {
+  const M = SM.mon; if (!M) return;
+  if (!M.base) M.base = smMonBase();
+  const g = M.g, W = SM_MON.w;
+  g.drawImage(M.base, 0, 0);
+  // the bar: the state and the show's clock
+  g.fillStyle = '#1b2a3c'; g.fillRect(0, 0, W, 24);
+  g.textBaseline = 'middle'; g.textAlign = 'left'; g.font = '600 13px system-ui, sans-serif'; g.fillStyle = '#c9d6e6';
+  g.fillText(`STAGE · ${SM.state}${SM_BACKSTAGE.has(SM.state) && SM.state !== 'PRESHOW' && SM.state !== 'INTERVAL' ? ` (Act ${SM.act === 1 ? 'One' : 'Two'})` : ''}`, 8, 12);
+  g.textAlign = 'right'; g.font = '12px ui-monospace, monospace';
+  const D = SHW.d;
+  g.fillStyle = SHW.hold ? '#e2a640' : SHW.playing ? '#7fd18a' : '#6f8399';
+  g.fillText(D ? `${D.tracks[SHW.ti].id} ${showFmt(SHW.lt)}${SHW.hold ? ' HOLD' : SHW.playing ? '' : ' ‖'}` : '—', W - 8, 12);
+  // the bodies
+  let n = 0;
+  for (const a of ACT.actors) {
+    if (!a.obj) continue;
+    a.obj.getWorldPosition(smV);
+    const [x, y] = smMonXY(smV.x, smV.z);
+    g.beginPath(); g.arc(x, y, 3.2, 0, Math.PI * 2);
+    if (a.obj.visible) { g.fillStyle = a.color || '#d8d8d8'; g.fill(); } else { g.strokeStyle = '#55606c'; g.stroke(); }
+    n++;
+  }
+  // the desk
+  if (SM.seat) { const [x, y] = smMonXY(SM.seat.x, SM.seat.z); g.fillStyle = '#e2a640'; g.fillRect(x - 3, y - 3, 6, 6); g.font = '8px system-ui, sans-serif'; g.textAlign = 'right'; g.fillText('SM', x - 5, y); }
+  g.textAlign = 'left'; g.font = '9px system-ui, sans-serif'; g.fillStyle = '#6f8399'; g.fillText(`${n} bodies`, 6, SM_MON.h - 7);
+  M.tex.needsUpdate = true; requestRender();
+}
+
+// ---- THE CUE LIGHTS (the desk's own)
+function smLamps() {
+  const L = SM.lamps; if (!L) return;
+  L.red.material.color.copy(SM.lamp.sb ? L.onR : L.offR);
+  L.green.material.color.copy(SM.lamp.go > 0 ? L.onG : L.offG);
+  requestRender();
+}
+
+// ---- THE GOD MIC and the headset
+function smSpeak(text, voice) {
+  if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) return null;
+  try { const u = new SpeechSynthesisUtterance(text); u.rate = 1.0; if (voice) Object.assign(u, voice); speechSynthesis.speak(u); return u; } catch (e) { return null; }
+}
+function smMic(text, who = 'God mic') {
+  SM.micT = Math.max(4, text.length / 14 + 1.5);
+  if (!SM.mic) { const el = document.createElement('div'); el.id = 'sm-mic'; el.hidden = true; el.setAttribute('aria-live', 'polite'); document.getElementById('stage').append(el); SM.mic = el; }
+  SM.mic.innerHTML = ''; const b = document.createElement('b'); b.textContent = who.toUpperCase(); SM.mic.append(b, document.createTextNode(' ' + text)); SM.mic.hidden = false;
+  smLog(who, text, 'mic');
+  return SM.voice ? smSpeak(text) : null;
+}
+// A line on the headset (or the God mic): the panel's log and the report's record. MIDTOWN.sm.log(who, text) — the booth's and
+// the company's lines come in here.
+function smLog(who, text, kind = '') {
+  const e = { t: smNow(), who: String(who || ''), text: String(text || ''), kind };
+  SM.log.push(e); if (SM.log.length > 400) SM.log.shift();
+  if (SM.chatter && kind !== 'mic' && who !== 'SM') smSpeak(`${e.who}: ${e.text}`, { pitch: 0.8, rate: 1.1 });
+  if (SM.E.log) smLogRow(e);
+  return e;
+}
+function smLogRow(e) {
+  const L = SM.E.log, d = document.createElement('div'); d.className = 'sm-l ' + (e.kind || (e.who === 'SM' ? 'sm' : ''));
+  const t = document.createElement('span'); t.textContent = smClock(e.t); const w = document.createElement('b'); w.textContent = e.who; const x = document.createElement('span'); x.textContent = e.text;
+  d.append(t, w, x); L.append(d); while (L.children.length > 200) L.firstChild.remove();
+  L.scrollTop = L.scrollHeight;
+}
+
+// ---- THE COMPANY (B) through the contract
+function smHookCompany() {
+  const C = smCo();
+  if (!C || SM.co === C || typeof C.on !== 'function') return;
+  SM.co = C;
+  SM.coFn = ev => {
+    if (!ev) return;
+    if (ev.type === 'answer') smLog(ev.label || ev.id || 'company', ev.text || 'Thank you', 'co');
+    else if (ev.type === 'allPlaces') { smLog('ASM', `Everyone is at places for Act ${SM.act === 1 ? 'One' : 'Two'}`); SM.refused = null; }
+    smUI(true);
+  };
+  try { C.on(SM.coFn); } catch (e) { console.warn('stage manager: the company would not take a listener —', e); }
+}
+function smPlaces() {                                         // → { complete, at, of, missing: [labels], none }
+  const C = smCo();
+  let s = null; try { s = C && typeof C.state === 'function' ? C.state() : null; } catch (e) { s = null; }
+  if (!s) return { complete: true, at: 0, of: 0, missing: [], none: true };
+  const lab = new Map((s.bodies || []).map(b => [b.id, b.label || b.id]));
+  const missing = (s.missing || []).map(id => lab.get(id) || String(id));
+  return { complete: missing.length === 0, at: s.atPlaces || 0, of: s.of || (s.bodies || []).length, missing, none: false, s };
+}
+function smCompanyCall(kind) {
+  const C = smCo(); if (!C) return;
+  try { C.act = SM.act; if (typeof C.call === 'function') C.call(kind); }   // act: which act's starts PLACES walks to (A sets it)
+  catch (e) { console.warn(`stage manager: the company's ${kind} call failed —`, e); }
+}
+
+// ---- THE CALLS (GP)
+function smEngage() { if (!SM.engaged) { SM.engaged = true; SM.report = smFreshReport(); SM.report.mode = SM.mode; } }
+function smCall(kind) {
+  const act2 = SM.state === 'INTERVAL' || (SM.act === 2 && SM_BACKSTAGE.has(SM.state));
+  if (kind === 'clear') return smClear();
+  if (kind === 'curtain') {
+    if (SM.state !== 'ACT TWO') { smLog('ASM', 'Curtain is for after the bows, in Act Two'); return false; }
+    smEngage();
+    SM.report.calls.push({ t: smNow(), kind: 'Curtain' });
+    if (SM.report.acts[2]) SM.report.acts[2].end = smNow();
+    SM.state = 'CURTAIN'; SM.standby = null; SM.lamp.sb = false; smLamps();
+    smMic(SM_WORDS.curtain); smCompanyCall('curtain');
+    if (SHW.on) showHouse(true);                             // the house lights up for the audience going out
+    SM.report.done = smNow(); smSaveReport();
+    smLog('FOH', 'House lights are up. Thank you, everyone.');
+    smUI(true); return true;
+  }
+  if (!SM_BACKSTAGE.has(SM.state)) { smLog('ASM', `No ${kind} call during ${SM.state}`); return false; }
+  if (kind === 'house') {
+    if (act2 || SM.state === 'INTERVAL') { smLog('ASM', 'The house opens before Act One'); return false; }
+    smEngage(); SM.state = 'HOUSE OPEN'; SM.act = 1;
+    if (SHW.d) showSeek(0, -SHW.d.tracks[0].pre);             // the preshow look, house lights up (the panel's own preshow)
+    smMic(SM_WORDS.house); smCompanyCall('home');
+    smLog('FOH', 'House is open');
+  } else if (kind === 'half') {
+    if (act2) { smLog('ASM', 'The half is before Act One'); return false; }
+    smEngage(); SM.state = 'HALF'; smMic(SM_WORDS.half); smCompanyCall('half');
+  } else if (kind === 'fifteen' || kind === 'five' || kind === 'places') {
+    smEngage(); SM.state = kind.toUpperCase();
+    smMic(kind === 'places' ? SM_WORDS['places' + SM.act] : SM_WORDS[kind]); smCompanyCall(kind);
+  } else return false;
+  SM.lastCall = { kind, t: smNow(), act: SM.act };
+  SM.report.calls.push({ t: SM.lastCall.t, kind: SM_CALLS.find(c => c[0] === kind)[1] + (SM.act === 2 ? ' (interval)' : '') });
+  smUI(true); return true;
+}
+function smClear() {                                           // "Clear to start?" — front of house answers
+  smLog('SM', 'FOH, are we clear to start?');
+  const p = smPlaces();
+  if (!SM_BACKSTAGE.has(SM.state) || SM.state === 'PRESHOW') { SM.queue.push({ t: 1.0, who: 'FOH', text: SM.state === 'PRESHOW' ? 'The house is not open yet' : 'You are already running' }); return false; }
+  SM.queue.push({ t: 1.2, who: 'FOH', text: p.complete ? "House is in, you're clear" : `House is in — but backstage is not: ${p.missing.length} not at places` });
+  return p.complete;
+}
+
+// ---- STANDBY and GO (GN)
+function smNext() {                                            // the sequence the next GO starts: { i, track, top }
+  const D = SHW.d; if (!D) return null;
+  const tr = D.tracks;
+  let i;
+  if (!SHW.on) i = SM_BACKSTAGE.has(SM.state) && SM.act === 1 ? 0 : SHW.ti;
+  else if (SHW.hold) i = SHW.ti + 1;
+  else if (!SHW.playing) i = SHW.ti;
+  else if (SM.mode === 'songs') i = SHW.ti + 1 < tr.length ? SHW.ti + 1 : -1;
+  else { i = -1; for (let j = SHW.ti + 1; j < tr.length; j++) if (tr[j].hold) { i = j; break; } }
+  if (i < 0 || i >= tr.length) return null;
+  return { i, track: tr[i] };
+}
+function smStandby() {
+  const n = smNext();
+  if (!n) { smLog('SM', 'Standby… (nothing to stand by for)'); return false; }
+  smEngage();
+  SM.standby = { i: n.i, t: smNow() };
+  SM.lamp.sb = true; SM.lamp.go = 0; smLamps();
+  smLog('SM', `Standby lights and sound, ${n.track.title}`);
+  const B = smBooth();
+  if (B && typeof B.standby === 'function') { try { B.standby(); } catch (e) { console.warn('stage manager: the booth standby failed —', e); } }
+  else for (const [who, text, t] of SM_STUB) SM.queue.push({ t, who, text });
+  smUI(true); return true;
+}
+function smGo(anyway = false) {
+  const D = SHW.d;
+  if (!D) { smLog('ASM', 'The show is not loaded yet'); return false; }
+  if (SM.pending) { SM.pending.t = 0; SM.pending.done = true; return true; }   // GO again during the announcement: the house goes out now
+  if (SM.state === 'CURTAIN') { smLog('ASM', 'The show is down'); return false; }
+  const n = smNext();
+  if (!n) { smLog('SM', 'Go… (nothing is held)'); return false; }
+  const first = SM_BACKSTAGE.has(SM.state);                    // the first GO of an act
+  const early = !first && SHW.on && SHW.playing && !SHW.hold;  // songs mode, the number before still running: the GO is taken now and that top is not held
+  if (early && n.track.hold) { smLog('ASM', 'The interval comes first'); return false; }
+  if (first && !anyway) {
+    const p = smPlaces();
+    if (!p.complete) {
+      SM.refused = { missing: p.missing.slice(), t: smNow() };
+      smLog('ASM', `Not yet — ${p.missing.length} not at places: ${p.missing.slice(0, 8).join(', ')}${p.missing.length > 8 ? ' …' : ''}`);
+      smUI(true); return false;
+    }
+  }
+  smEngage();
+  const tr = n.track, R = SM.report, now = smNow();
+  const go = { t: now, track: `${tr.id} ${tr.title}`, standby: !!(SM.standby && SM.standby.i === n.i), anyway: first && anyway, missing: first && anyway && SM.refused ? SM.refused.missing.slice() : [] };
+  if (go.anyway && !go.missing.length) go.missing = smPlaces().missing;
+  R.gos.push(go);
+  if (!go.standby) R.noStandby.push(go);
+  if (go.anyway) R.anyway.push(go);
+  SM.refused = null; SM.standby = null;
+  SM.lamp.sb = false; SM.lamp.go = SM_LAMP_GO; smLamps();
+  smLog('SM', `Lights and sound… GO${go.anyway ? ' (anyway)' : ''}`);
+  const B = smBooth(); if (B && typeof B.go === 'function') { try { B.go(); } catch (e) { console.warn('stage manager: the booth go failed —', e); } }
+  if (early) { SM.armed = n.i; smLog('ASM', `${tr.title} will run straight on`); smUI(true); return true; }
+  if (first) {
+    SM.act = tr.act; SM.state = tr.act === 2 ? 'ACT TWO' : 'ACT ONE'; SM.ended = false;
+    const C = smCo(); if (C) { try { C.act = SM.act; } catch (e) { /* read-only: B's to say */ } }
+    R.acts[SM.act] = { start: now, end: null };
+    if (SM.act === 2 && R.interval && !R.interval.end) R.interval.end = now;
+    if (SM.act === 1) {                                         // the preshow announcement first, then the house goes out and the show starts
+      const u = smMic(SM_WORDS.preshow, 'Front of house');
+      const est = Math.max(4, SM_WORDS.preshow.length / 15);   // s: about how long the voice takes (its own end event ends it sooner)
+      SM.pending = { t: u ? est + 3 : est, spoken: !!u, done: false };
+      if (u) u.onend = () => { if (SM.pending) SM.pending.done = true; };   // an event, not a timer: the voice has finished
+      smUI(true); return true;
+    }
+  }
+  smStart();
+  smUI(true); return true;
+}
+function smStart() {                                           // the held sequence: its audio and its clock together
+  SM.going = true;
+  if (!SHW.on) showStart(true); else showPause(false);
+  SM.going = false; SM.wasHold = SHW.hold;
+}
+
+// ---- THE FRAME (riding lxPanelTick): answers, lamps, the announcement, the interval, the monitor, the panel
+function smTick(dt) {
+  const t0 = performance.now();
+  let moved = false;
+  if (SM.queue.length) {
+    for (const q of SM.queue) q.t -= dt;
+    while (SM.queue.length && SM.queue[0].t <= 0) { const q = SM.queue.shift(); smLog(q.who, q.text); }
+    SM.queue.sort((a, b) => a.t - b.t);
+  }
+  if (SM.lamp.go > 0) { SM.lamp.go -= dt; if (SM.lamp.go <= 0) { SM.lamp.go = 0; smLamps(); } }
+  if (SM.pending) { SM.pending.t -= dt; if (SM.pending.done || SM.pending.t <= 0) { SM.pending = null; smStart(); smUI(true); } }
+  if (SM.micT > 0) { SM.micT -= dt; if (SM.micT <= 0 && SM.mic) SM.mic.hidden = true; }
+  if (SM.engaged) {
+    smHookCompany();
+    // the interval: the show held itself at 2-01 (its own `hold`) — the company goes home, the clock of the interval starts
+    if (SM.state === 'ACT ONE' && SHW.on && SHW.hold && SHW.d.tracks[SHW.ti + 1] && SHW.d.tracks[SHW.ti + 1].hold) {
+      SM.state = 'INTERVAL'; SM.act = 2; const now = smNow();
+      if (SM.report.acts[1]) SM.report.acts[1].end = now;
+      SM.report.interval = { start: now, end: null };
+      smMic(SM_WORDS.interval); smCompanyCall('interval');
+      smLog('FOH', 'Interval — the bars are open'); smUI(true);
+    }
+    // a song hold (songs mode): the ASM says where it stands
+    if (SHW.hold && !SM.wasHold && SM.state !== 'INTERVAL') { const tr = SHW.d.tracks[SHW.ti + 1]; if (tr) smLog('ASM', `Holding — the top of ${tr.id} ${tr.title}`); smUI(true); }
+    SM.wasHold = SHW.on && SHW.hold;
+    if (SM.armed >= 0 && SHW.ti >= SM.armed) SM.armed = -1;
+    if (SM.state === 'ACT TWO' && !SM.ended && SHW.on && SHW.ti === SHW.d.tracks.length - 1 && SHW.lt >= SHW.d.tracks[SHW.ti].len) {
+      SM.ended = true; smLog('ASM', 'That is the end of the music — call Curtain after the bows'); smUI(true);
+    }
+  }
+  // the monitor, a few times a second, only while someone can see it
+  if (SM.mon) {
+    const near = SM.seated || (SM.el && !SM.el.hidden) || (walking && SM.seat && Math.hypot(player.pos.x - SM.seat.x, player.pos.z - SM.seat.z) < SM_MON.near);
+    if (near && (SM.mon.t -= dt) <= 0) { SM.mon.t = 1 / SM_MON.hz; smMonDraw(); moved = true; }
+  }
+  if (SM.el && !SM.el.hidden && (SM.uiT -= dt) <= 0) { SM.uiT = 0.25; smUI(false); }
+  const ms = performance.now() - t0, P = SM.perf; P.ms = ms; P.max = Math.max(P.max, ms); P.n++;
+  return moved;
+}
+
+// ---- SEATED: the walker at the desk (the walk's step is swapped for this while seated)
+function smSit(on) {
+  if (on === SM.seated) { if (on) smPanel(true); return SM.seated; }
+  if (on) {
+    if (!walking || !SM.seat) return false;
+    SM.back = player.pos.clone();
+    player.pos.copy(SM.seat); const g = groundAt(SM.seat.x, SM.seat.z, SM.seat.y + 0.2); if (g !== null) player.pos.y = g;
+    player.vel.set(0, 0, 0); player.onGround = true; player.crouched = false;
+    yaw = -Math.PI / 2; pitch = SM_DESK.pitch;                 // facing the stage (+x)
+    keys.clear();
+    if (document.pointerLockElement === canvas) document.exitPointerLock();   // the mouse to the panel
+    SM.seated = true; smPanel(true);
+    smLog('SM', 'On headset');
+  } else {
+    SM.seated = false; keys.clear();
+    player.eyeH = Math.min(player.eyeH, WALK.eye);
+    smPanel(false);
+  }
+  hint.textContent = SM.seated ? 'At the prompt desk · S standby · Space GO · E or Esc to leave · drag to look' : HINT_ORBIT;
+  if (!SM.seated && walking) walkHint();
+  requestRender();
+  return SM.seated;
+}
+function smSeatStep(dt) {
+  const was = player.eyeH;
+  player.eyeH += (SM_DESK.eye - player.eyeH) * Math.min(1, dt * 6);
+  if (Math.abs(player.eyeH - SM_DESK.eye) < 1e-3) player.eyeH = SM_DESK.eye;
+  player.bob = 0; placeCamera();
+  return player.eyeH !== was;
+}
+const walkStepSM = walkStep;
+walkStep = dt => SM.seated ? smSeatStep(dt) : walkStepSM(dt);  // seated: no walking, no gravity; the look still works
+
+// THE KEYS, ahead of the walk's listener (capture on window): seated (or the panel open in the orbit view), the desk's own.
+function smKey(e) {
+  if (e.target && /^(INPUT|SELECT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if (editing) return;
+  const open = SM.el && !SM.el.hidden;
+  if (!SM.seated && !(open && !walking)) return;
+  const swallow = () => { e.preventDefault(); e.stopPropagation(); };
+  if (e.code === 'KeyE' || e.code === 'Escape') { if (!e.repeat) { if (SM.seated) smSit(false); else smPanel(false); } swallow(); return; }
+  if (e.code === 'KeyS') { if (!e.repeat) smStandby(); swallow(); return; }
+  if (e.code === 'Space') { if (!e.repeat) smGo(false); swallow(); return; }
+  if (SM.seated && /^(Key[WADC]|Arrow|Shift)/.test(e.code)) swallow();   // no walking off with the desk
+}
+addEventListener('keydown', smKey, true);
+
+// ---- THE CALLING PANEL
+function smBuildPanel() {
+  if (SM.el) return;
+  const el = SM.el = document.createElement('div'); el.id = 'sm'; el.hidden = true;
+  el.innerHTML = `<div class="sm-head"><b>Prompt desk</b><button class="sm-x" title="Leave the desk (E or Esc)">Leave</button></div>
+<div class="sm-states" aria-label="Where the show is"></div>
+<div class="row"><span class="sm-state"></span><span class="sm-clock"></span></div>
+<div class="row" role="group" aria-label="Calling mode"><span class="note">Hold at</span><button class="sm-m" data-m="songs" title="The show holds at the top of every number: GO starts each">every number</button><button class="sm-m" data-m="acts" title="The show holds only at the tops of Act One and Act Two; the album runs on between">the two acts</button></div>
+<div class="sm-next"></div>
+<div class="row"><button class="sm-sb" title="S">STANDBY <kbd>S</kbd></button><button class="sm-go" title="Space">GO <kbd>Space</kbd></button><button class="sm-any" hidden title="Start the act with people missing (the report notes who)">GO anyway</button></div>
+<div class="sm-refused note"></div>
+<h2>Calls</h2>
+<div class="row sm-calls"></div>
+<div class="row"><button class="sm-clear" title="Front of house: is the house in?">Clear to start?</button><label><input class="sm-voice" type="checkbox" checked> God mic voice</label><label><input class="sm-chat" type="checkbox"> Headset voice</label></div>
+<h2>Company</h2>
+<div class="sm-co note"></div>
+<h2>Monitor</h2>
+<div class="sm-mon"></div>
+<h2>Headset</h2>
+<div class="sm-log" aria-live="polite"></div>
+<h2>Show report</h2>
+<textarea class="sm-notes" rows="3" placeholder="Notes for the report"></textarea>
+<div class="row"><button class="sm-dl">Download report</button><button class="sm-last" title="The last report this browser kept">Last report</button><button class="sm-reset" title="Back to PRESHOW (the report starts again)">New show</button></div>
+<div class="note sm-rep"></div>`;
+  document.getElementById('stage').appendChild(el);
+  const q = s => el.querySelector(s), E = SM.E;
+  Object.assign(E, { states: q('.sm-states'), state: q('.sm-state'), clock: q('.sm-clock'), next: q('.sm-next'), sb: q('.sm-sb'), go: q('.sm-go'), any: q('.sm-any'), refused: q('.sm-refused'),
+    calls: q('.sm-calls'), co: q('.sm-co'), log: q('.sm-log'), notes: q('.sm-notes'), rep: q('.sm-rep'), modes: [...el.querySelectorAll('.sm-m')], callBtns: {} });
+  for (const s of SM_STATES) { const d = document.createElement('span'); d.textContent = s; d.dataset.s = s; E.states.append(d); }
+  for (const [k, t] of SM_CALLS) { const b = document.createElement('button'); b.textContent = t; b.dataset.k = k; E.calls.append(b); E.callBtns[k] = b; }
+  E.calls.addEventListener('click', e => { const b = e.target.closest('[data-k]'); if (b) smCall(b.dataset.k); });
+  for (const b of E.modes) b.addEventListener('click', () => smMode(b.dataset.m));
+  q('.sm-x').addEventListener('click', () => { if (SM.seated) smSit(false); else smPanel(false); });
+  E.sb.addEventListener('click', () => smStandby());
+  E.go.addEventListener('click', () => smGo(false));
+  E.any.addEventListener('click', () => smGo(true));
+  q('.sm-clear').addEventListener('click', () => smClear());
+  q('.sm-voice').addEventListener('change', e => { SM.voice = e.target.checked; if (!SM.voice && window.speechSynthesis) speechSynthesis.cancel(); });
+  q('.sm-chat').addEventListener('change', e => { SM.chatter = e.target.checked; });
+  E.notes.addEventListener('input', () => { SM.report.notes = E.notes.value; });
+  q('.sm-dl').addEventListener('click', () => smDownload());
+  q('.sm-last').addEventListener('click', () => smDownload(true));
+  q('.sm-reset').addEventListener('click', () => smReset());
+  // the buttons never keep the focus: Space is GO, not "press the last button again"
+  el.addEventListener('click', e => { if (e.target.closest('button') && document.activeElement && document.activeElement.blur) document.activeElement.blur(); });
+  if (SM.mon) { SM.mon.cv.className = 'sm-cv'; q('.sm-mon').append(SM.mon.cv); }   // the monitor's own canvas: the same picture as on the desk
+  for (const e of SM.log) smLogRow(e);
+  smUI(true);
+}
+function smPanel(on) {
+  smBuildPanel();
+  SM.el.hidden = !on;
+  if (on && SM.mon) { SM.mon.t = 0; }
+  smUI(true);
+}
+function smMode(m) {
+  if (m !== 'songs' && m !== 'acts') return SM.mode;
+  if (SM.mode !== m) { SM.mode = m; if (SM.engaged) { SM.report.mode = m; smLog('SM', `Calling ${m === 'songs' ? 'every number' : 'the two acts'}`); } }
+  smUI(true); return SM.mode;
+}
+function smUI(force) {
+  const E = SM.E; if (!E.state || (!force && SM.el.hidden)) return;
+  for (const d of E.states.children) d.className = d.dataset.s === SM.state ? 'on' : '';
+  E.state.textContent = SM.state + (SM_BACKSTAGE.has(SM.state) && !['PRESHOW', 'INTERVAL'].includes(SM.state) ? ` · Act ${SM.act === 1 ? 'One' : 'Two'}` : '');
+  const D = SHW.d;
+  E.clock.textContent = `${smClock(smNow())}${D ? ` · ${D.tracks[SHW.ti].id} ${showFmt(SHW.lt)}${SHW.hold ? ' HOLD' : SHW.on && SHW.playing ? '' : ' paused'}` : ''}`;
+  for (const b of E.modes) b.setAttribute('aria-pressed', String(b.dataset.m === SM.mode));
+  const n = smNext();
+  E.next.textContent = SM.pending ? 'Front of house is speaking — the house goes out after' : n ? `Next: ${n.track.id} ${n.track.title}${SM_BACKSTAGE.has(SM.state) ? ` (the top of Act ${n.track.act === 2 ? 'Two' : 'One'})` : ''}${SM.standby && SM.standby.i === n.i ? ' · standing by' : ''}` : 'Next: — nothing held';
+  E.sb.setAttribute('aria-pressed', String(!!SM.standby));
+  E.go.disabled = !n || SM.state === 'CURTAIN';
+  E.any.hidden = !SM.refused;
+  E.refused.textContent = SM.refused ? `Refused: not at places — ${SM.refused.missing.join(', ')}` : '';
+  const back = SM_BACKSTAGE.has(SM.state);
+  for (const [k, b] of Object.entries(E.callBtns)) {
+    b.disabled = k === 'curtain' ? SM.state !== 'ACT TWO' : !back || ((k === 'house' || k === 'half') && (SM.act === 2 || SM.state === 'INTERVAL'));
+    b.setAttribute('aria-pressed', String(!!SM.lastCall && SM.lastCall.kind === k && SM.lastCall.act === SM.act && back));
+  }
+  // the company: who has answered the last call, who is at places
+  const p = smPlaces();
+  if (p.none) E.co.textContent = 'No company backstage on this page: places counts as complete, no answers.';
+  else {
+    const last = SM.lastCall && SM.lastCall.kind !== 'house' ? SM.lastCall.kind : null, bodies = (p.s && p.s.bodies) || [];
+    const ans = last ? bodies.filter(b => b.answered && b.answered[last]) : [];
+    E.co.textContent = `${last ? `Answered "${last}": ${ans.length} of ${bodies.length}${ans.length && ans.length < bodies.length ? ` (not yet: ${bodies.filter(b => !(b.answered && b.answered[last])).map(b => b.label || b.id).slice(0, 10).join(', ')})` : ''} · ` : ''}`
+      + `At places: ${p.at} of ${p.of}${p.missing.length ? ` — missing ${p.missing.slice(0, 12).join(', ')}${p.missing.length > 12 ? ' …' : ''}` : ' — complete'}`;
+  }
+  const R = SM.report;
+  E.rep.textContent = `${R.calls.length} calls · ${R.gos.length} GOs · ${R.noStandby.length} without a standby · ${R.anyway.length} GO anyway${R.done ? ' · the report is kept (Last report)' : ''}`;
+  if (E.notes.value !== R.notes && document.activeElement !== E.notes) E.notes.value = R.notes;
+}
+
+// ---- THE SHOW REPORT
+function smReportText(R = SM.report) {
+  const d = x => x ? smClock(new Date(x)) : '—', L = [];
+  L.push('MIDTOWN — HAMILTON · SHOW REPORT', `Date: ${new Date(R.started).toDateString()}`, `Calling: ${R.mode === 'songs' ? 'every number held for its GO' : 'the two act tops (the album runs on between)'}`, '');
+  L.push('CALLS'); for (const c of R.calls) L.push(`  ${d(c.t)}  ${c.kind}`); if (!R.calls.length) L.push('  none');
+  L.push('', 'GOs'); for (const g of R.gos) L.push(`  ${d(g.t)}  ${g.track}${g.standby ? '' : '  [no standby]'}${g.anyway ? `  [GO anyway — missing: ${g.missing.join(', ') || 'nobody listed'}]` : ''}`); if (!R.gos.length) L.push('  none');
+  const run = a => a && a.start && a.end ? `${smDur(new Date(a.end) - new Date(a.start))} (${d(a.start)} – ${d(a.end)})` : a && a.start ? `from ${d(a.start)}, not ended` : '—';
+  L.push('', 'RUN TIMES', `  Act One:  ${run(R.acts[1])}`, `  Interval: ${run(R.interval)}`, `  Act Two:  ${run(R.acts[2])}`);
+  L.push('', `GOs WITHOUT A STANDBY: ${R.noStandby.length}`); for (const g of R.noStandby) L.push(`  ${d(g.t)}  ${g.track}`);
+  L.push('', `GO ANYWAY: ${R.anyway.length}`); for (const g of R.anyway) L.push(`  ${d(g.t)}  ${g.track} — missing: ${g.missing.join(', ') || 'nobody listed'}`);
+  L.push('', 'NOTES', ...(R.notes ? R.notes.split('\n').map(s => '  ' + s) : ['  none']));
+  return L.join('\n') + '\n';
+}
+function smSaveReport() {
+  const text = smReportText();
+  try { localStorage.setItem(SM_KEY, JSON.stringify({ at: smNow().toISOString(), text })); } catch (e) { /* storage refused: the download still works */ }
+  return text;
+}
+function smDownload(last = false) {
+  let text = null;
+  if (last) { try { const s = JSON.parse(localStorage.getItem(SM_KEY) || 'null'); text = s && s.text; } catch (e) { text = null; } if (!text) { smLog('ASM', 'No report kept in this browser yet'); return null; } }
+  else text = smSaveReport();
+  const a = document.createElement('a'), url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+  a.href = url; a.download = `midtown-show-report-${smNow().toISOString().slice(0, 10)}.txt`; document.body.append(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+  return text;
+}
+function smReset() {
+  Object.assign(SM, { state: 'PRESHOW', act: 1, engaged: false, standby: null, refused: null, pending: null, armed: -1, queue: [], lastCall: null, ended: false, wasHold: false });
+  SM.lamp.sb = false; SM.lamp.go = 0; smLamps();
+  SM.report = smFreshReport();
+  if (SHW.hold && !(SHW.d && SHW.d.tracks[SHW.ti + 1] && SHW.d.tracks[SHW.ti + 1].hold)) showSeekT(showT());   // a song hold is the desk's: let it go
+  smCompanyCall('home');
+  smLog('SM', 'New show: back to preshow');
+  smUI(true);
+}
+function smState() {
+  const p = smPlaces(), n = smNext();
+  return { state: SM.state, act: SM.act, mode: SM.mode, engaged: SM.engaged, backstage: SM_BACKSTAGE.has(SM.state), seated: SM.seated,
+    lastCall: SM.lastCall ? { kind: SM.lastCall.kind, at: SM.lastCall.t.toISOString(), act: SM.lastCall.act } : null,
+    standby: SM.standby ? { track: SHW.d ? SHW.d.tracks[SM.standby.i].id : SM.standby.i } : null, refused: SM.refused ? SM.refused.missing.slice() : null,
+    next: n ? n.track.id : null, places: { complete: p.complete, at: p.at, of: p.of, missing: p.missing, company: !p.none },
+    show: { on: SHW.on, playing: SHW.playing, hold: SHW.hold, track: SHW.d ? SHW.d.tracks[SHW.ti].id : null, t: +SHW.lt.toFixed(2) },
+    lamps: { standby: SM.lamp.sb, go: SM.lamp.go > 0 }, log: SM.log.length, perf: Object.assign({}, SM.perf) };
+}
+
+// ---- the hooks: the frame (after the show's and the actors' ticks), the load's end (the desk, MIDTOWN.sm)
+const lxPanelTickSM = lxPanelTick;
+lxPanelTick = dt => { const a = lxPanelTickSM(dt), b = smTick(dt); return a || b; };
+const buildLightsPanelSM = buildLightsPanel;
+buildLightsPanel = () => {
+  buildLightsPanelSM();
+  try { smBuildDesk(); } catch (e) { console.error('stage manager: the prompt desk could not be built —', e); }
+  if (window.MIDTOWN) window.MIDTOWN.sm = {
+    log: (who, text) => smLog(who, text), state: () => smState(), call: kind => smCall(kind), standby: () => smStandby(), go: anyway => smGo(!!anyway),
+    mode: m => m === undefined ? SM.mode : smMode(m), sit: on => smSit(on !== false), panel: on => smPanel(on !== false), say: text => smMic(String(text)),
+    report: () => smReportText(), download: last => smDownload(!!last), reset: () => smReset(), monitor: () => smMonDraw(true),
+    get desk() { return SM.desk; }, get target() { return SM.target; }, get perf() { return Object.assign({}, SM.perf); }, words: SM_WORDS, tune: { SM_DESK, SM_MON, SM_STUB },
+  };
 };
 
 /* ---------------------------------------------------------------- RIGGING: BOOMS ONTO THE WALLS (agent A)
@@ -11014,6 +11680,7 @@ function doorAim() {
   for (const c of CURTAINS.list) look(c);
   for (const w of WORKLIGHT.list) look(w.target);           // the worklights' switch boxes (THE WORKLIGHTS)
   for (const t of UNDER_TARGETS) look(t);                    // the understage booth's lift switches (THE UNDERGROUND)
+  if (SM.target) look(SM.target);                            // the prompt desk: sit and call the show (THE STAGE MANAGER)
   return best;
 }
 // The hint line while walking: what E would do, when something is in reach (walkHint reads doorAimNow.label); written
