@@ -129,27 +129,39 @@ def facing_to(p, q):
 
 # ================================================================ HAMILTON
 h = actor('hamilton').start('G-UC', 'Hamilton')
-h.enter('G-UC', '2-11', 24.5, (0.0, -3.2), 0, y='gallery', lead=3.0)      # the upper gallery, centre
-h.at('2-11', 29.56, -0.3, -3.1, f=0, y='gallery')                          # to the rail: his reply
+# FILM (2-11 clip, 21.8 and 24.9 wide): already at the gallery rail at 21.8 (was 24.5)
+h.enter('G-UC', '2-11', 21.0, (0.3, -3.2), 0, y='gallery', lead=3.0)      # the upper gallery, centre
+h.at('2-11', 29.56, 0.0, -3.1, f=0, y='gallery')                           # to the rail: his reply
 h.at('2-11', 33.28, -0.3, -3.1, f=0, y='gallery')                          # the papers drop over the rail
 h.at('2-11', 35.6, 0.2, -3.2, f=-20, y='gallery')
-h.exit('2-11', 38.2, 'G-UC')
-h.add(G('2-11', 44.0), 1.25, -4.9, off=True)                               # down the back to the deck door
-h.enter('D-UC', '2-12', 1.0, BEHIND_DESK, 0)                               # the office: behind his desk
+h.exit('2-11', 37.4, 'G-UC')
+# FILM (2-11 43.3 and 49 wide): the desk is set behind the three as they come DS and he is at it by 49 (was: brought on
+# at the top of 2-12); props.py SEGMENT 7 brings it with him from D-UC
+h.add(G('2-11', 40.5), 1.25, -4.9, off=True)                               # down the back to the deck door
+h.enter('D-UC', '2-11', 46.0, BEHIND_DESK, 0)                              # the office: behind his desk
+# 2-12 We Know, FILM (clip wides 14.7, 24.5, 36.9, 42.9, 67.7, 95, 133.6): the desk SL of centre on the turntable; he
+# gets up from it and stands SL of it facing the three, who line up SR of it (Burr furthest SR) and then gather round
+# and behind it; he takes the letter from Burr at its DS edge (73), crosses to its SR side to point at them (95), walks
+# the front (123), and is far SL when Burr sits at the desk (133.6). The SR-quadrant key moves of the review passes are
+# replaced by these places.
 h.face('2-12', 9.44, 0)
-h.face('2-12', 21.08, -25)
-h.at('2-12', 36.0, 0.9, 2.2, f=-15)                                        # round the desk as Jefferson pushes
-h.at('2-12', 45.4, -1.1, 3.4, f=10)                                        # he takes the floor, DS key (SPOT: into X4 44 at (-1.3, 3.5))
-h.face('2-12', 61.49, -50)                                                 # to Burr DSR
-h.at('2-12', 67.6, CABINET[0], CABINET[1], f=90, dwell=1.6)                # fetches the letters from the cabinet SL
-h.at('2-12', 72.0, 1.8, 2.8, f=-20)                                        # reads them out
-h.at('2-12', 83.6, -1.0, 3.4, f=0)                                         # the confession (SPOT: back into his key, 1024)
-h.at('2-12', 94.0, 1.0, 2.6, f=-60)                                        # his records, at Jefferson
-h.at('2-12', 106.4, 0.0, 3.4, f=0)                                         # his defence DC
-h.at('2-12', 119.3, -1.3, 3.5, f=60, dwell=None)                           # alone DSR (the accusers gone) (SPOT: in X4 44, 1027)
-h.face('2-12', 121.82, 70)                                                 # to Burr
-h.face('2-12', 131.63, 80)
-h.go('2-12', 141.4, C, f=180)                                              # into the eye (REVIEW 3: his back to the house)
+h.at('2-12', 12.0, 2.9, 1.0, f=-90)                                        # up from the desk, SL of it, to the three
+h.face('2-12', 21.08, -100)
+h.at('2-12', 27.0, 3.1, 1.6, f=-110)
+h.at('2-12', 33.0, 2.8, 0.8, f=-90)
+h.at('2-12', 45.4, 2.6, 1.6, f=-100)
+h.at('2-12', 55.0, 3.0, 1.0, f=-110)
+h.face('2-12', 61.49, -80)
+h.at('2-12', 68.5, 2.9, 1.3, f=-90)
+h.at('2-12', 73.0, 1.9, 1.7, f=-80)                                        # takes the letter from Burr (clip 73.2-75.5 close)
+h.at('2-12', 83.6, 2.8, 1.8, f=-100)                                       # the confession
+h.path('2-12', 87.0, [(1.0, 2.7), (-0.4, 1.5)], '2-12', 92.0, f=90)                                        # SR of the desk, pointing at them (clip ~95 wide)
+h.at('2-12', 106.4, -0.8, 2.3, f=60)                                       # his defence
+h.at('2-12', 116.0, 0.2, 2.8, f=20)
+h.at('2-12', 123.0, -1.0, 1.7, f=60)                                       # walking the front (clip 123.4 wide)
+h.path('2-12', 124.0, [(1.4, 2.8), (3.4, 1.4)], '2-12', 130.0, f=-90)                                       # far SL as Burr sits at the desk (clip 133.6 wide)
+h.face('2-12', 134.5, -100)
+h.path('2-12', 138.5, [(2.0, 2.0), C], '2-12', 141.4, f=180)               # into the eye at C, round the desk's front (REVIEW 3: his back to the house)
 # Hurricane - the still centre
 # REVIEW 3: "Hamilton's slow turn to the audience" at the top (Disney+ clip 9rVURq5isnY, top comment): he turns from
 # upstage to the house over the first bars, by the still point
@@ -195,28 +207,40 @@ h.exit('2-16', 138.4, 'D-UC', speed=1.6, via=[(1.25, -3.4), (-0.8, -0.6), (-0.85
 
 # ================================================================ BURR
 b = actor('burr').start('W-DSR', 'Burr')
-b.enter('W-DSR', '2-11', 2.4, (-3.3, 3.8), 25, speed=1.8)                  # DSR, narrating (SPOT: in X4 42 sooner)
-b.face('2-11', 10.6, 125)                                                  # REVIEW 3: turns and sees the King jamming UL (clip 0:12)
+# FILM (2-11 clip, wides 3.0, 21.8, 24.9, 28.1; closes 9.3-18.7): Burr narrates in the SR half on the deck, not pinned
+# DSR: in at about (-2.3, 2.6), across to the King's stool SR (he turns to him at 10.6 and struts over, 15-19), back
+# towards centre, and dancing on his lines (dance.py)
+b.enter('W-DSR', '2-11', 4.2, (-2.3, 2.6), 25, speed=1.8)                  # SR of centre, narrating
+b.face('2-11', 10.6, -70)                                                  # REVIEW 3: turns and sees the King jamming (FILM: SR, clip 0:12)
 b.face('2-11', 13.2, 25)                                                   # REVIEW 3: and back to the house
-b.at('2-11', 15.6, -2.8, 3.5, f=20)
-b.at('2-11', 26.4, -2.9, 3.85, f=160)                                      # looks up at Hamilton on the gallery (SPOT: clear of X4 44)
-b.at('2-11', 38.6, -2.5, 3.7, f=60)                                        # gloats with Jefferson and Madison (SPOT: in X4 42)
-b.at('2-11', 48.4, -1.6, 4.2, f=20)                                        # the three DS
-b.at('2-12', 9.44, 1.4, 2.7, f=180)                                        # closes on Hamilton at the desk (DS of it)
-b.face('2-12', 21.08, 170)
-b.at('2-12', 36.0, -1.6, 2.6, f=30)                                        # hangs back SR
-b.at('2-12', 46.4, -2.9, 2.9, f=45)                                        # SPOT: clear of Hamilton's key
-b.at('2-12', 61.49, -2.3, 4.6, f=30)                                       # his special DSR near the lip (SPOT: Viper 2 at (-1.8, 4.2))
-b.face('2-12', 69.46, 60)
-b.face('2-12', 82.38, 45)
-b.path('2-12', 111.8, [(-0.6, 4.6), (1.4, 3.8)], '2-12', 116.3, f=-60)     # round to DSL of centre
-b.at('2-12', 132.6, 1.0, 3.6, f=-80)                                       # the warning, closer (SPOT: stays in Viper 2)
-b.exit('2-12', 136.9, 'W-DSL', speed=1.6)
+b.at('2-11', 16.6, -3.6, 2.9, f=-40)                                       # FILM 15.5-18.7: struts over to the King
+b.at('2-11', 21.6, -1.9, 3.1, f=20)                                        # FILM 21.8 wide: back towards centre
+b.at('2-11', 26.4, -2.3, 3.0, f=160)                                       # looks up at Hamilton on the gallery
+b.at('2-11', 31.0, -1.8, 3.4, f=40)                                        # FILM 28.1/31.2: a step in, at Jefferson
+b.at('2-11', 38.6, -2.3, 3.6, f=60)                                        # gloats with Jefferson and Madison
+b.at('2-11', 48.4, -1.6, 4.0, f=20)                                        # the three DS (FILM 43.3, 49 close: SR to SL Burr, Jefferson, Madison)
+# 2-12 We Know, FILM: the three come in from SR and line up SR of the desk, Burr furthest SR (14.7 wide); Burr and
+# Jefferson go round behind the desk (36.9, 42.9, 67.7); Burr hands Hamilton the letter at its DS edge (73.2-75.5 close);
+# back behind it; sits at its DS chair (123.4, 133.6 wide); then up, facing Hamilton at C into Hurricane (2-13 0.2 close,
+# 6.2 wide: the two face to face, Burr SR of him) - he no longer exits at 136.9.
+b.at('2-12', 9.44, -2.4, 0.6, f=90)                                        # the line SR of the desk
+b.face('2-12', 21.08, 100)
+b.at('2-12', 26.0, -2.1, 1.0, f=80)
+b.path('2-12', 32.0, [(-0.2, 0.45), (1.8, 0.3)], '2-12', 36.9, f=0)        # round behind the desk (FILM 36.9)
+b.face('2-12', 45.0, -30)
+b.face('2-12', 61.49, 20)
+b.at('2-12', 66.0, 1.6, 0.3, f=60)
+b.path('2-12', 68.6, [(0.3, 0.9), (1.0, 1.95)], '2-12', 72.6, f=80)        # round the SR end to its front: the letter (FILM 73-75)
+b.face('2-12', 86.0, 20)                                                   # stays at its front as Hamilton crosses behind him
+b.face('2-12', 100.0, 60)
+b.at('2-12', 121.0, 1.4, 1.95, f=-20)                                      # to the chair at its DS edge (FILM 123.4, 133.6: sitting)
+b.at('2-12', 137.6, -1.2, 1.35, f=80)                                      # up, and across to face Hamilton at C (FILM 2-13 0.2-6.2)
 # Hurricane (REVIEW): Burr has the one 'wait for it' line (newtfire libretto) - UR, on Binkley's 'Burr's motif' (116.28)
 # REVIEW 3 (Disney+ clip 9rVURq5isnY comments): "Burr just sitting in the background", then at his line about surviving the storm
 # (2:02-2:03) he "looms up in the foreground", holding his book like a pistol, as the company sing his motif. UR on the
 # deck behind the ring, still; down to the DSR foreground for the motif (116.28); dance.py: point (the book aimed)
-b.enter('W-USR', '2-13', 16.0, (-2.4, -2.9), 20, speed=1.4)
+# FILM (the We Know clip runs into Hurricane: 2-13 0.2 and 6.2): he is still with Hamilton at the top, then backs off UR
+b.at('2-13', 3.0, -2.4, -2.9, f=20)                                        # clear before the ring gathers round him
 b.path('2-13', 111.0, [(-2.8, 3.9)], '2-13', 116.28, f=facing_to((-2.8, 3.9), (0.0, 1.7)))
 b.face('2-13', 125.22, 60)
 b.path('2-13', 138.0, [(-1.0, 3.3)], '2-14', 0.4, f=10)                   # into the narrators' three DC for the Pamphlet
@@ -239,20 +263,29 @@ j = actor('lafayette').start('W-DSR', 'Jefferson')
 # NOTES3 (Jack, 2026-10-15): "jefferson come on at 19" - he walks on DSR at 19 (was 39.0: 20 s earlier; he crosses the
 # wing's sight line at ~19.0 and reaches his spot by 23.1), upstage of Burr in his DSR key, and watches Hamilton fired up
 # on the gallery before the gloat (37.63)
-j.enter('W-DSR', '2-11', 23.1, (-0.8, 2.2), 20, speed=1.7, via=[(-6.0, 4.7), (-4.0, 2.6)])
-j.face('2-11', 25.6, facing_to((-0.8, 2.2), (0.0, -3.2)))                 # Adams fires Hamilton (25.37): up at him
+# FILM (2-11 clip: 18.7 he is already on, upstage SL; 21.8 wide SL of centre; 24.9 and 28.1 wide with Madison just SL
+# of centre, mid-stage): the ruled time kept (on at 19), but he comes from SL (W-MSL), not DSR, and Madison is with him
+j.enter('W-MSL', '2-11', 23.1, (0.7, 2.4), -20, speed=1.7, via=[(5.0, -0.6), (2.6, 0.6)])
+j.face('2-11', 25.6, facing_to((0.7, 2.4), (0.3, -3.2)))                  # Adams fires Hamilton (25.37): up at him
+j.face('2-11', 30.0, -60)                                                  # FILM 31.2: to Burr
 j.face('2-11', 37.63, 20)                                                  # the three gloat
-j.at('2-11', 48.0, -0.4, 4.0, f=0)
-j.at('2-12', 6.5, 0.2, 1.4, f=60)                                          # closes on him at the desk (SR of it)
-j.at('2-12', 21.08, 0.7, 1.9, f=45)                                        # the accusation
-j.last()['dwell'] = round(G('2-12', 29.9) - j.last()['g'], 2)              # REVIEW 3: then WALKS BACKWARDS down to DSC, facing
-                                                                           # him (dance.py: rewind) - Disney+ clip comments
-j.at('2-12', 33.72, -0.3, 4.0, f=20)                                       # pushes in DSC
-j.at('2-12', 44.5, -0.9, 1.7, f=60)                                        # SPOT: out of Hamilton's key
-j.at('2-12', 74.0, 1.3, 2.2, f=30)                                         # reads the letter over his shoulder
+j.at('2-11', 42.0, -0.2, 3.4, f=-20)
+j.at('2-11', 48.0, -0.4, 3.9, f=0)
+# 2-12, FILM: in the line SR of the desk nearest it (14.7 wide), his accusation centre (24.5), the backwards walk, round
+# behind the desk with Burr (36.9, 42.9, 67.7), over Hamilton's shoulder for the letter, the recoil, back at the desk
+# (95 wide: its SL end), over Burr at the desk (123.4), and off SR (133.6 wide: walking off SR)
+j.at('2-12', 9.44, -0.4, 0.9, f=90)                                        # the line SR of the desk, nearest it
+j.at('2-12', 21.08, 0.0, 1.6, f=70)                                        # the accusation
+j.last()['dwell'] = round(G('2-12', 29.9) - j.last()['g'], 2)              # REVIEW 3: then WALKS BACKWARDS, facing him (dance.py: rewind)
+j.at('2-12', 33.72, -0.3, 2.9, f=60)                                       # backs off DS
+j.path('2-12', 35.0, [(0.3, 2.0), (0.35, 0.75), (0.5, 0.15)], '2-12', 38.4, f=20)   # round the SR end, behind the desk (FILM 36.9)
+j.face('2-12', 52.0, 60)
+j.at('2-12', 74.0, 1.3, 0.4, f=10)                                         # leans over the desk to read the letter
 j.last()['dwell'] = round(G('2-12', 80.6) - j.last()['g'], 2)              # REVIEW 3: recoils walking backwards (clip 1:28)
-j.at('2-12', 83.4, -0.6, 1.8, f=45)                                        # recoils
-j.exit('2-12', 116.3, 'W-MSR', speed=1.4)
+j.at('2-12', 83.4, 0.3, 0.15, f=30)                                        # recoils
+j.at('2-12', 88.6, 2.0, 0.35, f=-20)                                       # behind the desk, its SL end (FILM 95 wide)
+j.at('2-12', 121.5, 1.2, 0.4, f=0)                                         # over Burr at the desk (FILM 123.4)
+j.exit('2-12', 126.0, 'W-MSR', speed=1.4, via=[(-5.6, -0.7), (-4.0, -0.6), (-2.4, 0.6), (0.3, 0.6)])   # off SR (FILM 133.6)
 # Pamphlet (REVIEW: the three are DC at Build MC - ETC renders 1039.01/1040; moves from the hamilton-lyrics post)
 j.enter('W-DSL', '2-14', 0.4, (0.0, 3.5), 0, speed=1.5)                   # in the dark at the end of Hurricane
 j.face('2-14', 7.2, 0)                                                     # starts the story
@@ -275,15 +308,24 @@ j.exit('2-14', 124.2, 'W-DSL', speed=1.6, via=[(6.0, 4.75)])   # exits smiling
 
 # ================================================================ MADISON (mulligan)
 m = actor('mulligan').start('W-DSR', 'Madison')
-m.enter('W-DSR', '2-11', 40.2, (-1.8, 1.6), 30, speed=1.7)
-m.at('2-11', 50.5, 0.8, 4.2, f=-20)
-m.at('2-12', 8.4, 2.6, 1.6, f=-60)                                         # SL of the desk
-m.face('2-12', 21.08, -50)
-m.at('2-12', 35.5, 1.6, 3.2, f=-30)
-m.at('2-12', 45.4, 2.2, 1.4, f=-60)
-m.at('2-12', 73.0, 2.6, 2.0, f=-45)                                        # horrified at the letters
-m.at('2-12', 84.0, 2.4, 1.4, f=-45)
-m.exit('2-12', 116.3, 'W-MSL', speed=1.4)
+# FILM (2-11 clip 24.9 and 28.1 wide): Madison is on with Jefferson, SL of him (was: in DSR at 40.2)
+m.enter('W-MSL', '2-11', 24.4, (1.6, 2.3), -30, speed=1.7, via=[(5.0, -0.2), (3.0, 1.0)])
+m.face('2-11', 25.8, facing_to((1.6, 2.3), (0.3, -3.2)))
+m.face('2-11', 31.0, -50)
+m.at('2-11', 42.5, 1.1, 3.6, f=-20)
+m.at('2-11', 50.5, 0.8, 4.0, f=-20)
+# 2-12, FILM: the line SR of the desk (14.7 wide, between Burr and Jefferson), stays SR of it (42.9, 67.7), crosses its
+# front to its SL side (95 wide), and is off DSR at the end (133.6 wide: far SR, downstage)
+m.at('2-12', 6.0, -1.4, 1.5, f=90)                                        # the line SR of the desk
+m.face('2-12', 21.08, 80)
+m.at('2-12', 36.0, -0.9, 1.6, f=60)
+m.at('2-12', 45.4, -0.7, 1.1, f=70)
+m.at('2-12', 73.0, -1.0, 1.7, f=60)                                        # horrified at the letters
+m.at('2-12', 84.0, 0.0, 2.9, f=60)
+m.path('2-12', 93.0, [(1.2, 3.0), (2.7, 2.0)], '2-12', 96.5, f=-80)                                        # across the front to its SL side (FILM 95)
+m.face('2-12', 112.0, -110)
+m.path('2-12', 119.0, [(1.4, 3.4), (-1.5, 3.4), (-4.0, 1.8)], '2-12', 126.5, f=-90)   # off DSR (FILM 133.6: far SR, downstage)
+m.exit('2-12', 129.0, 'W-DSR', speed=1.4)
 m.enter('W-DSL', '2-14', 0.4, (1.0, 3.3), -20, speed=1.5)                 # the three DC at Build MC (REVIEW)
 m.face('2-14', 7.2, -20)
 m.at('2-14', 21.5, 1.1, 3.0, f=-60)                                        # points at Philip's page
@@ -301,12 +343,15 @@ m.exit('2-14', 123.6, 'W-DSL', speed=1.6, via=[(6.0, 4.75)])              # exit
 k = actor('king')
 k.add(G('2-11', 0.0), 0.0, 3.41, f=0, label='King George')               # REVIEW (ruled boundary exception): seg 6 leaves him
                                                                            # ON STAGE in his DC special at the 2-10 blackout
-k.at('2-11', 4.0, 4.2, -1.6, f=-30)                                       # walks in the dark to UL: a stool is brought; he sits and watches
-k.face('2-11', 16.0, -40)
-k.face('2-11', 25.37, -126)                                                # up at Hamilton on the gallery
+# FILM (2-11 clip, 3.0 wide and every wide to 31.2): his stool is SR, just off the SR stair's downstage end, facing
+# across the stage (was UL at (4.2, -1.6)); seated by 3.0
+KING_STOOL = (-5.6, 2.2)
+k.at('2-11', 3.4, KING_STOOL[0], KING_STOOL[1], f=70)                     # walks in the dark to his stool SR; sits and watches
+k.face('2-11', 16.0, 60)
+k.face('2-11', 25.37, 135)                                                 # up at Hamilton on the gallery
 # REVIEW 3: he runs off just after the papers drop (Disney+ clip jpFsc2bDXUk, comments at 0:36-0:37 "running from his
-# book drop"); was a walk off at 47.44
-k.exit('2-11', 34.6, 'W-MSL', speed=2.6)
+# book drop"); was a walk off at 47.44. FILM: off SR, the nearest wing to his stool
+k.exit('2-11', 34.6, 'W-DSR', speed=2.6)
 # Pamphlet (REVIEW): dancing on the balcony, then down the stairs (hamilton-lyrics post) to Binkley's real 'King DR'
 k.enter('G-UC', '2-14', 34.8, (-4.5, -0.3), 0, y='gallery', via=[(0.6, -3.35), (-4.5, -3.35)])
 k.last()['dwell'] = 0.2
@@ -321,7 +366,7 @@ k.exit('2-14', 54.4, 'W-DSR', speed=1.5)
 e = actor('eliza').start('G-UC', 'Eliza')
 # REVIEW 3: We Know - Eliza watches from the upper level ("his son, Eliza and Maria all hanging around up in the top part
 # of the stage"; "Washington, Eliza and Philip watching too" - comments on the Disney+ clip 0VVuEPbjLoU). The SR gallery.
-e.enter('G-UC', '2-12', 6.0, (-4.5, -2.2), 60, y='gallery', via=[(0.6, -3.35), (-4.5, -3.35)])
+e.enter('G-UC', '2-12', 6.0, (-4.5, -2.2), 60, y='gallery', via=[(0.6, -3.35), (-4.5, -3.35)])   # (FILM: not seen in the clip's wides; kept)
 e.exit('2-12', 130.5, 'G-UC', via=[(0.6, -3.35), (-4.5, -3.35)])
 e.enter('G-UC', '2-13', 125.2, (5.35, -0.75), -90, y='gallery', via=[(0.6, -3.35), (4.75, -3.3), (4.9, -2.5), (4.9, -0.75)])  # SPOT: a voice, SL gallery special (Viper 20)
 # REVIEW 3: the voices stay on the second level to the end, staring down at him and his raised pen (Disney+ clip
@@ -334,11 +379,15 @@ e.at('2-15', 42.64, -0.6, 2.4, f=0)                                        # sta
 e.go('2-15', 57.88, BENCH, f=0)                                            # rereading on the bench
 e.go('2-15', 74.7, LANTERN, f=-30)                                         # burns the first letter
 e.at('2-15', 88.0, -0.3, 4.1, f=0)                                         # verse 2 - stands, DS (SPOT: in Viper 4 / 25 / 26)
+e.at('2-15', 96.0, 0.6, 3.6, f=-20)                                       # (no clip for Burn) the angry verse travels: not one spot
 e.at('2-15', 104.0, 0.3, 3.9, f=15)
+e.at('2-15', 111.0, -0.4, 4.2, f=10)
 e.at('2-15', 119.46, -0.6, 2.9, f=facing_to((-0.6, 2.9), BUCKET))         # sings towards the burning bucket
 e.go('2-15', 137.56, BENCH, f=0)                                           # withdraws to the bench
 e.go('2-15', 148.88, LANTERN, f=-30)                                       # the second burning
 e.at('2-15', 167.77, -0.9, 4.0, f=0)                                       # the bridge, DS (SPOT)
+e.at('2-15', 176.0, -0.2, 3.7, f=-15)                                      # (no clip) a few steps on the bridge
+e.at('2-15', 183.0, -0.8, 4.1, f=10)
 e.go('2-15', 190.04, BENCH, f=0)                                           # quieter, the bench
 e.go('2-15', 212.0, LANTERN, f=0)                                          # takes up the lantern
 e.exit('2-15', 217.2, 'W-DSR', speed=1.2)
@@ -372,8 +421,10 @@ p = actor('peggy').start('G-UC', 'Maria Reynolds')
 # REVIEW 3: We Know - Maria watches it unfold "on the side", "in the corner", "in the shadows" (many comments on the
 # Disney+ clip 0VVuEPbjLoU, the top one 9.2K likes; she is seen at 1:48-1:55): the SL gallery's upstage corner, above the
 # cabinet that holds her letters
-p.enter('G-UC', '2-12', 8.0, (4.9, -2.5), -45, y='gallery', via=[(0.6, -3.35), (4.75, -3.3)])
-p.exit('2-12', 130.0, 'G-UC', via=[(0.6, -3.35), (4.75, -3.3)])
+# FILM (2-12 clip, the 123.4 wide and the 2-13 6.2 wide): she stands on the DECK upstage SR, just inboard of the SR
+# stair, in red, from late in the number into Hurricane (the comments' 1:48-1:55); she is not on the SL gallery
+p.enter('W-USR', '2-12', 104.0, (-3.6, -1.6), 70, speed=1.0, via=[(-5.0, -2.9)])
+p.exit('2-12', 141.0, 'W-USR', speed=1.0, via=[(-5.0, -2.9)])
 # REVIEW: in the montage she appears on the upper walkway (a fan account: Maria 'on the upper walkway at key moments')
 p.enter('G-UC', '2-13', 84.38, (-1.0, -3.35), 0, y='gallery')
 p.at('2-13', 92.5, -3.4, -3.35, f=20, y='gallery')                         # drifts along it, red, watching him
@@ -387,13 +438,13 @@ p.exit('2-14', 12.9, 'D-UC', via=[(1.25, -3.4), (0.0, -2.4)])
 p.enter('W-DSR', '2-14', 21.0, (-2.4, 3.9), 20, speed=1.4)                 # DSR, reading a pamphlet
 p.at('2-14', 29.0, -0.6, 0.95, f=60)                                       # circles round behind the desk
 p.at('2-14', 33.0, 0.0, -0.4, f=0)                                         # behind his chair as he steps off the desk (REVIEW 2: the chair is a prop at (0, 0.25))
-p.exit('2-14', 38.0, 'D-UC', via=[(1.25, -3.4), (0.0, -2.4)])             # turns on her heel and goes
+p.exit('2-14', 43.6, 'D-UC', via=[(1.25, -3.4), (0.0, -2.4)])             # turns on her heel and goes (FILM 2-14 ~42.6 wide: still behind the desk at C in red; was 38.0)
 
 # ================================================================ PHILIP (laurens)
 ph = actor('laurens').start('G-UC', 'Philip')
 # REVIEW 3: We Know - "Philip just chilling in the rafters listening to the three roasting his dad", "sitting above the
 # stage looking at Hamilton" (0:10; comments on the Disney+ clip 0VVuEPbjLoU): the upstage gallery, from the top
-ph.enter('G-UC', '2-12', 9.0, (-1.2, -3.35), 10, y='gallery')
+ph.enter('G-UC', '2-12', 9.0, (0.4, -3.35), 0, y='gallery')              # FILM (14.7, 133.6 wides): on the USG just SL of centre, sitting
 ph.exit('2-12', 129.0, 'G-UC')
 ph.enter('G-UC', '2-13', 125.5, (1.6, -3.35), -10, y='gallery')           # REVIEW 3: Hurricane, the 2:28 shot - on the second level
 ph.exit('2-13', 141.8, 'G-UC', speed=1.6)
@@ -419,8 +470,10 @@ ph.at('2-16', 106.5, -0.35, 3.3, f=60)                                    # fath
 ph.at('2-16', 129.5, -0.45, 1.9, f=75)                                    # SPOT: the promise, under the top light (Viper 8)
 ph.face('2-16', 137.27, 60)
 ph.at('2-16', 140.34, -3.0, 3.6, f=30)                                     # alone DSR, nervous
-ph.face('2-16', 151.12, 60)
+ph.at('2-16', 146.0, -2.3, 3.1, f=50)                                      # FILM (161-166): pacing, not planted
+ph.at('2-16', 151.12, -3.0, 3.8, f=60)
 ph.face('2-16', 156.52, 40)
+ph.at('2-16', 160.0, -2.5, 3.3, f=50)
 # REVIEW: the ruled boundary - Philip ends at C facing 0, Eacker at (2.6, 2.0) facing -90; they start back to back on
 # the line between those two marks and pace apart on the count
 PH_END = (-0.4, 2.4); EA_END = (1.6, -1.0)                                 # RE-RULED marks (render 1104.01, fan posts)
@@ -438,6 +491,11 @@ first_wing = {1: 'D-UC', 2: 'W-USR', 3: 'W-USR', 4: 'W-USR', 5: 'W-DSL', 6: 'W-U
               7: 'W-MSL', 8: 'W-MSL', 9: 'W-MSL', 10: 'W-USR'}
 for i in range(1, 11):
     ens[i].start(first_wing[i], f'Ensemble {i}')
+
+# FILM (2-12 clip: the desk is still on at 133.6 and into Hurricane's first bars, 2-13 6.2): it is no longer taken off by
+# Madison at 116.3; ens9 comes on from SL in the last bars and takes it off (props.py SEGMENT 7), clear of the ring
+ens[9].enter('W-MSL', '2-12', 139.4, (2.45, 0.6), -90, speed=1.6)
+ens[9].exit('2-12', 140.0, 'W-USL', speed=1.3)
 
 # ---- 2-11 (REVIEW 2, Jack's verdict): the writer's line of seven at z -1.0 (marked INVENTED) is CUT. Both eyewitness
 # accounts (ironinkpen, hamilton-lyrics) name only the King on his stool, Burr, Hamilton on the gallery and the two
@@ -617,6 +675,14 @@ ens[1].exit('2-16', 51.3, 'W-DSR', speed=1.4)
 ens[6].exit('2-16', 52.0, 'W-DSR', speed=1.4)
 for i in (6, 1):                                                           # back to the company in the wing
     ens[i].add(G('2-16', 58.0), 7.3, 4.6, off=True, label=f'Ensemble {i}')
+# FILM (2-16 clip 13.6-29.7: shots 1-4, the 26.4 wide): Philip is not alone at the top - three young men in tricorns come
+# in with him and dance round him at centre through the first verse and the hook, then go as he turns to the girls SR
+# (30). ens2, ens3, ens4 (they come back with the theatre chairs at 49-51, from the same SL wings).
+FRIENDS = {2: ((-1.3, 3.1), 'W-DSR', 11.5), 3: ((1.3, 3.1), 'W-MSL', 12.0), 4: ((1.9, 2.0), 'W-USL', 12.5)}
+for i, (pos, w, t) in FRIENDS.items():
+    ens[i].enter(w, '2-16', t, pos, 0, speed=1.6)
+    ens[i].face('2-16', 25.85, facing_to(pos, (0.0, 3.8)))
+    ens[i].exit('2-16', 29.0 + 0.3 * (i - 2), w, speed=1.6)
 SEATS = {7: (3.0, 0.6), 2: (3.0, 1.8), 3: (1.6, 1.8), 4: (1.6, 0.6)}     # the theatre audience, SL, facing SR
 seat_w = {7: ('W-MSL', 49.4), 2: ('W-DSL', 49.8), 3: ('W-DSL', 51.4), 4: ('W-USL', 50.6)}
 for i, st in SEATS.items():

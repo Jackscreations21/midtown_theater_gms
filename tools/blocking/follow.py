@@ -235,6 +235,54 @@ SEGMENT_6 = [
 
 # ===== SEGMENT 7 (2-11..2-16) =====
 SEGMENT_7 = [
+    # 2-11 The Adams Administration: Burr narrates SR (spot 2), Hamilton on the gallery from 21 (spot 1), Jefferson SL
+    # of centre from 23 (spot 3); the three DS at the end (spot 1 takes Madison when Hamilton goes)
+    F(2, '2-11', 4.6, 'burr', level=0.8, note='film 2-11 3.0-28 wides: Burr narrating in the SR half; he carries the number'),
+    F(1, '2-11', 21.5, 'hamilton', level=0.9, note='film 2-11 21.8/24.9 wides: Hamilton at the upstage gallery rail, fired; the papers drop at 33.3'),
+    F(3, '2-11', 23.6, 'lafayette', level=0.8, note='film 2-11 24.9 wide: Jefferson SL of centre (on at 19, ruled)'),
+    OUT(1, '2-11', 36.6, note='Hamilton leaves the gallery (37.4)'),
+    F(1, '2-11', 38.2, 'mulligan', level=0.7, note='the three gloat and come DS: Madison, the third voice (film 40.3-49 close)'),
+    # 2-12 We Know: the tableau at the desk. Spot 3 on Hamilton (SL of the desk most of the number), spot 2 on Burr, spot 1
+    # on Jefferson (the accusation, behind the desk)
+    F(3, '2-12', 10.0, 'hamilton', level=0.85, move=1.2, note='film 2-12 14.7 wide: Hamilton up from his desk, SL of it, facing the three'),
+    F(1, '2-12', 10.0, 'lafayette', level=0.75, move=1.0, note='film 2-12 14.7/24.5: Jefferson leads the accusation, nearest the desk'),
+    F(2, '2-12', 10.0, 'burr', level=0.7, note='Burr in the line SR of the desk, then behind it, then the letter (film 73-75)'),
+    OUT(1, '2-12', 125.5, note='Jefferson goes off SR (126)'),
+    OUT(3, '2-12', 141.0, fade=1.5, note='Hamilton into the eye: spot 1 takes him for Hurricane'),
+    F(1, '2-13', 0.3, 'hamilton', size='full', level=0.9, note='Hurricane: Hamilton alone at C, the still centre (no clip: the leading body, in the eye)'),
+    OUT(2, '2-13', 2.0, fade=2.0, note='Burr backs off UR into the dark'),
+    # 2-13 Hurricane (no clip): spot 1 on Hamilton throughout; Burr's motif DSR; the voices on the galleries
+    F(2, '2-13', 116.5, 'burr', level=0.8, note='his motif, looming in the DSR foreground (REVIEW 3: clip comments 2:02-2:03)'),
+    F(2, '2-13', 124.0, 'angelica', size='half', level=0.6, note='a voice on the SR gallery, staring down at him (REVIEW 3: the 2:28 shot)'),
+    F(3, '2-13', 125.6, 'eliza', size='half', level=0.6, note='a voice on the SL gallery'),
+    OUT(2, '2-13', 140.8, note='the voices leave in the FTB'),
+    OUT(3, '2-13', 140.8, note='the voices leave in the FTB'),
+    # 2-14 The Reynolds Pamphlet: spot 1 stays on Hamilton; spot 3 on Jefferson (the story, the desk); spot 2 on Burr,
+    # then the King at King DR, then Angelica's verse in her white light (film 60.2-81.9: she is the bright one in the blue)
+    F(3, '2-14', 0.6, 'lafayette', level=0.85, note='the three DC: Jefferson starts the story (film 2-14 6.8-12.4)'),
+    F(2, '2-14', 0.6, 'burr', level=0.75, note='the three DC: Burr SR of Jefferson'),
+    F(3, '2-14', 22.0, 'laurens', level=0.85, note='Philip left in the middle, made to read (film 22.4-26.0)'),
+    F(3, '2-14', 28.6, 'lafayette', level=0.85, note='back to Jefferson as Philip goes: onto the desk, making it rain'),
+    F(2, '2-14', 41.0, 'king', level=0.9, move=0.6, note='King DR (cue 1042; film 41.6 wide: the King down the SR stair)'),
+    F(2, '2-14', 55.0, 'angelica', level=1.0, move=1.0, note='film 2-14 60.2-81.9: Angelica the brightest body in the blue, head to toe'),
+    OUT(2, '2-14', 85.6, note='she goes off SL (86)'),
+    F(2, '2-14', 89.0, 'burr', level=0.8, note='chorus 2: the three DS hurling pages (film 93.3-98.1)'),
+    OUT(1, '2-14', 115.2, note='Hamilton goes as the title returns (115.66)'),
+    OUT(3, '2-14', 123.6, note='Jefferson exits smiling (124.2)'),
+    OUT(2, '2-14', 126.2, note='Burr follows them off SL (126.9)'),
+    # 2-15 Burn (no clip): Eliza alone, a low open spot inside her specials
+    F(1, '2-15', 6.5, 'eliza', level=0.55, fade=3.0, note='Burn: Eliza alone the whole number (no clip): low, so the candle and the window keep their look'),
+    OUT(1, '2-15', 215.0, fade=3.0, note='the fire dies; she goes with her lantern (217.2)'),
+    # 2-16 Blow Us All Away: spot 1 on Philip; spot 3 on Eacker in his box and at the duel (SL); spot 2 on Hamilton in
+    # his office (SR of centre)
+    F(1, '2-16', 2.0, 'laurens', level=0.85, note='film 2-16 13.6-29.7: Philip leads the number from the top'),
+    F(3, '2-16', 59.0, 'ens5', level=0.8, note='Eacker in his box on the SL gallery, the quarrel (59.4-74)'),
+    OUT(3, '2-16', 73.4, note='Eacker leaves his box (74)'),
+    F(2, '2-16', 82.0, 'hamilton', level=0.8, note='film 2-16 88.5-138.2: Hamilton at his desk, father and son'),
+    OUT(2, '2-16', 138.0, note='Hamilton goes off upstage (138.4)'),
+    F(3, '2-16', 151.6, 'ens5', level=0.8, note='Eacker DSL in his pool for the duel'),
+    OUT(1, '2-16', 167.4, fade=0.5, note='the two leave their pools for the count (167.6); seg 8 takes the duel'),
+    OUT(3, '2-16', 167.4, fade=0.5, note='the same'),
 ]
 # ===== END SEGMENT 7 =====
 
