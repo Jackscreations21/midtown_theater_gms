@@ -5393,9 +5393,17 @@ function actCompile(a) {
   });
   segs.forEach(s => { s.yaw0 = s.len > 1e-3 ? actTanYaw(s, 0) : null; s.yaw1 = s.len > 1e-3 ? actTanYaw(s, 1) : null; });
   P.forEach((p, i) => {
-    const before = segs[i - 1], after = segs[i];
-    p.arrive = before && before.yaw1 !== null ? before.yaw1 : null;
-    p.yaw = p.facing !== null ? p.facing * Math.PI / 180 : p.arrive ?? (after && after.yaw0 !== null ? after.yaw0 : (i > 0 ? P[i - 1].yaw : 0));
+    // THE FACINGS ARE CONTINUOUS (2026-10-24; before, ~1,100 one-frame snaps through the show, some 150°). `arrive` is the yaw
+    // she really has as she reaches p — the walk's tangent, eased out of the yaw she left the last waypoint with when the leg was
+    // too short to finish that turn, or (a turn on the spot: no leg) the yaw she stood at; `yawOut` the one she leaves p with
+    // (mid-turn if she stood less than ACT_TURN). A waypoint walked THROUGH (dwell 0) faces her way of travel: a `facing` there
+    // would be held for no time at all.
+    const before = segs[i - 1], after = segs[i], b = P[i - 1], tan1 = before && before.yaw1 !== null ? before.yaw1 : null;
+    p.arrive = !b ? null : tan1 === null ? b.yawOut : actYawLerp(b.yawOut, tan1, actSmooth((before.t1 - before.t0) / ACT_TURN));
+    p.yaw = p.facing !== null && p.stop ? p.facing * Math.PI / 180 : !p.stop && p.arrive !== null ? p.arrive
+      : tan1 ?? (after && after.yaw0 !== null ? after.yaw0 : (b ? b.yaw : 0));
+    const k = p.arrive !== null ? actSmooth((p.leave - p.T) / ACT_TURN) : 1;
+    p.yawOut = k < 1 ? actYawLerp(p.arrive, p.yaw, k) : p.yaw;
   });
   return { P, segs, probs, timed: !!tr };
 }
@@ -5453,7 +5461,7 @@ function actPose(a, T) {
   const [f, v] = actWarp(t, D, p.stop ? Math.min(ACT_EASE, D / 2) : 0, q.stop ? Math.min(ACT_EASE, D / 2) : 0);
   const u = actArcU(s, f), at = actCR(s, u), ref = p.y + (q.y - p.y) * f;
   let yaw = s.len > 1e-3 ? actTanYaw(s, u) : p.yaw;
-  if (p.stop) yaw = actYawLerp(p.yaw, yaw, actSmooth(t / ACT_TURN));                  // out of her stance into the walk
+  yaw = actYawLerp(p.yawOut, yaw, actSmooth(t / ACT_TURN));                           // out of her stance (or a turn) into the walk
   return { x: at.x, y: actGround(at.x, at.z, ref, p.ey, q.ey, T), z: at.z, yaw, visible: !(p.off && q.off), speed: v * s.len, dist: s.dist0 + f * s.len, label: p.lab, turn: 0, turnK: 1,
     ey: p.ey, ey2: q.ey };
 }

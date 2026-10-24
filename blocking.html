@@ -441,9 +441,13 @@ function actCompile(a) {
   });
   segs.forEach(s => { s.yaw0 = s.len > 1e-3 ? actTanYaw(s, 0) : null; s.yaw1 = s.len > 1e-3 ? actTanYaw(s, 1) : null; });
   P.forEach((p, i) => {
-    const before = segs[i - 1], after = segs[i];
-    p.arrive = before && before.yaw1 !== null ? before.yaw1 : null;
-    p.yaw = p.facing !== null ? p.facing * Math.PI / 180 : p.arrive ?? (after && after.yaw0 !== null ? after.yaw0 : (i > 0 ? P[i - 1].yaw : 0));
+    // the facings, continuous: midtown.html actCompile (2026-10-24)
+    const before = segs[i - 1], after = segs[i], b = P[i - 1], tan1 = before && before.yaw1 !== null ? before.yaw1 : null;
+    p.arrive = !b ? null : tan1 === null ? b.yawOut : actYawLerp(b.yawOut, tan1, actSmooth((before.t1 - before.t0) / ACT_TURN));
+    p.yaw = p.facing !== null && p.stop ? p.facing * Math.PI / 180 : !p.stop && p.arrive !== null ? p.arrive
+      : tan1 ?? (after && after.yaw0 !== null ? after.yaw0 : (b ? b.yaw : 0));
+    const k = p.arrive !== null ? actSmooth((p.leave - p.T) / ACT_TURN) : 1;
+    p.yawOut = k < 1 ? actYawLerp(p.arrive, p.yaw, k) : p.yaw;
   });
   return { P, segs };
 }
@@ -482,7 +486,7 @@ function actPose(a, T) {
   const [f] = actWarp(t, D, p.stop ? Math.min(ACT_EASE, D / 2) : 0, q.stop ? Math.min(ACT_EASE, D / 2) : 0);
   const u = actArcU(s, f), at = actCR(s, u);
   let yaw = s.len > 1e-3 ? actTanYaw(s, u) : p.yaw;
-  if (p.stop) yaw = actYawLerp(p.yaw, yaw, actSmooth(t / ACT_TURN));
+  yaw = actYawLerp(p.yawOut, yaw, actSmooth(t / ACT_TURN));
   return { x: at.x, y: p.y + (q.y - p.y) * f, z: at.z, yaw, visible: !(p.off && q.off), label: p.lab };
 }
 // THE PROPS (RULING FR) — midtown.html propCompile / propPose
