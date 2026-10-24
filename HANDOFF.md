@@ -229,6 +229,42 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-24 (night): Van Wezel's side doors, foyer, holes, orchestra lift and backstage (PR `vw-round`); the Voices button (#23)
+
+Jack, on Van Wezel: *"the doors in the van wezel should go all the way upo to the top of the seating and add doors to all the
+frames"* (then *"i didnt mean taller door i meant more"*), *"also redo the lobby for the van wezel to look mor like the one for
+the other theaters. also add a backstage area to the vanwezel with dressign rooms. also there are a coupla holse in the walls
+of the vanzwezel and also make the stage lift at the front work"*, and later *"remove all the clear stuff from the lobby"*.
+Four Opus builders worked in worktrees, each in its own banner section after `VAN_WEZEL_API`; the lead merged them on `vw-round`:
+- **THE SIDE DOORS** (`vwSideDoorsBuild`, `VW_SIDE`, `MIDTOWN.vanWezel.sideDoors`): 13 portals a side (the model's 8, and 5
+  more at the same 2.438 m spacing up to where the side wall turns). Each is cut open (`vwSideCut`, in the wall's own 32°
+  frame) with a pair of E leaves and a STALLS sign. An outside gallery runs up each side (landings, flights ≤ 0.175 m, a
+  parapet, a brass rail) from the foyer to the top landing at 7.91; house left got its own foyer stair. 25 new pairs of doors.
+- **THE FOYER** (`buildVwFoyer`, `VWF`, `MIDTOWN.vanWezel.foyer`): the lobby's carpet, wall finish, wainscot and rail; a
+  ceiling at 10.90, over the top portal's head; downlights, chandeliers, sconces; Midtown's box office and a bar each side;
+  benches, planters, posters. It replaced step 5's box office. Its light comes from glow (`VWF_GLOW`), not real lights. The
+  lead made it build after the side doors and take their measured portal list, so its facing opens at all 13 portals a side,
+  and raised its ceiling from 9.80.
+- **The glass** (lead, at his word): the foyer's glass walls (`exterior_glass`) are not drawn but stay in the walk's grid
+  (`VW_GLASS_BLOCK`); the foyer's popcorn machine and display glass are gone. Door panes kept.
+- **THE PATCHES** (`vwPatchHoles`, `VW_PATCHES`, `MIDTOWN.vanWezel.patches`): five holes, found by rays and renders from
+  about 1,200 points: the wall tops all round (the walls stop 1.5–3 m under the roof, so the foyer showed over them), a ~8 m
+  slot at each proscenium edge, and the booth window's sides. One mesh in the house's own material.
+- **THE ORCHESTRA LIFT** (`vwLiftBuild`, `vwLiftTick`, `vwLiftHit`, `MIDTOWN.vanWezel.lift`): stops at PIT −2.747, STALLS
+  1.490 (the load state) and STAGE 2.557. It runs off `dt`, and the walker rides it (`vwLiftHit` in `builtHit`). Controls: E at a
+  pedestal on it, a panel on the house-right proscenium return and one in the pit; `VW ▼` / `VW ▲` in the Lifts row. No
+  rising rails (GK); an invisible edge while it is away from STALLS. The house-right stage stair is a wagon that rolls under
+  the lip while the lift travels.
+- **BACKSTAGE** (`vwBackBuild`, `VW_BACK`, `MIDTOWN.vanWezel.backstage`, the "VW Backstage" view): the model's basement is
+  kept and made walkable. 26 E doors: stars 1–2, rooms 3–9, chorus A/B, green room, catering, offices, wardrobe, trap room,
+  mechanical, musicians' lounge, instruments/pit, the pit, the stairs, the passages. The furniture is moved into the rooms;
+  new 30-riser stairs come down from guarded holes in each wing; a ceiling sits on the wall tops; dead ends are walled;
+  signs and lights added. It is drawn only while the camera is in Van Wezel (layers; TRAPS).
+- **Checks on the merged branch:** `vanWezel.check()`, `.sideDoors`, `.foyer` and `.patches` PASS; `.lift` 9/9; `.backstage`
+  5/5; `doors.check()` 73/73; `under.check()` 16/16; `lx.check()` 301/313; console clean.
+- **#23, the Voices button** (merged): the header's "Voices" silences every spoken stage-manager line (`smMute`, `SM.mute`;
+  `smSpeak` returns at once). The text and the log stay. Remembered in localStorage; `MIDTOWN.sm.mute(on)`.
+
 ## DONE — 2026-10-24 (late): the announcement before the show, the exit music after it (PR `preshow-announcement`, RULINGS GR–GS)
 
 Jack: *"add this song to play befor hamilton. make it play this then when it ends wait 5 seconds while burr walks out then

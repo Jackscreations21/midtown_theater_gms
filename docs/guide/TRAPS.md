@@ -2209,3 +2209,16 @@ include the place a failure would show — the corridor behind the house, not on
   `CO.on`; the check now saves and clears it, then restores it. Any new layer needs the same.
 - **A lit material in the booth catches the lobby's SpotLights through the walls** (a SpotLight here casts no shadow): the
   operators use an unlit matcap.
+
+## From the Van Wezel doors, foyer, lift and backstage round (2026-10-24, night)
+
+- **A raycaster skips meshes on a layer it does not have.** Van Wezel's basement is hidden from the other views by layers
+  (`vwBackGate`), so any ray cast against it needs `ray.layers.enableAll()` first, or it finds no floor.
+- **Two builders measuring the same thing from different lists.** The foyer faced the side walls round the model's 8
+  portals while the side-doors builder made 13, so the facing walled the 5 new ones shut. Build the dependant after the
+  measurer and read its list (`buildVwFoyer` reads `vwSide`).
+- **A ceiling height chosen before the doors above it.** The foyer's 9.80 ceiling cut the top portals' heads (10.48).
+- **`visible = false` takes a mesh out of the walk's grid** (`colliderMeshes` skips anything not shown). For a wall the walker
+  must still meet but nobody sees, keep the mesh visible and give it a `visible: false` MATERIAL (`VW_GLASS_BLOCK`, `underMat.block`).
+- **The Browser pane's screenshot can lag one draw behind** a camera move made in script: take it twice before trusting it.
+
