@@ -14756,6 +14756,7 @@ const VWF = {
   glass: [[65.2, 2.4], [35.3, -25.5]],                // house right's straight glass, from the stage house to its tip, where the arc starts
   front: -0.15,                                       // the stage house's front face, the foyer's end either side
   portals: { a0: -19.0, step: 2.437, heads: [7.40, 6.85, 6.30, 5.80, 5.30, 4.85, 4.45, 4.15], half: 0.86, tall: 2.55 },   // each frame's middle (a), its head's top; the last is VW.portal
+  booth: { x0: 71.30, x1: 82.70, y0: 8.40, y1: 11.16 },   // the tech booth on the back wall (source nodes 177–182): the facing stops round it
   band: 3.8, route: 1.4, glassGap: 0.08,              // the clearances (the galleries' 2.5 m and a clear metre; either side of the route; off the glass)
 };
 let vwFoyer = null;
@@ -14979,10 +14980,16 @@ function buildVwFoyer() {
   { const tA = -Math.PI - O.tc, tB = O.tc, R = VWF.wallR, n = 40, tLo = Math.min(tA, tB), tHi = Math.max(tA, tB);
     for (let i = 0; i < n; i++) {
       const ta = tA + (tB - tA) * i / n, tb = tA + (tB - tA) * (i + 1) / n;
-      arcBox('wall', ta, tb, R + 0.005, R + 0.03, F, CL); arcBox('wood', ta, tb, R + 0.03, R + 0.05, F, F + 1.0); arcBox('brass', ta, tb, R + 0.03, R + 0.065, F + 1.0, F + 1.04);
+      // the tech booth (the model's "Light & sound booth", x 71.38…82.62, y 8.41…11.15) stands out from the back wall here: the
+      // facing stops under it and starts again over it, or it walls the booth's window from behind (Jack: "not the tech booth")
+      const xa = ccx + R * Math.cos(ta), xb = ccx + R * Math.cos(tb), booth = Math.max(xa, xb) > VWF.booth.x0 && Math.min(xa, xb) < VWF.booth.x1;
+      if (booth) { arcBox('wall', ta, tb, R + 0.005, R + 0.03, F, VWF.booth.y0); arcBox('wall', ta, tb, R + 0.005, R + 0.03, VWF.booth.y1, CL); }
+      else arcBox('wall', ta, tb, R + 0.005, R + 0.03, F, CL);
+      arcBox('wood', ta, tb, R + 0.03, R + 0.05, F, F + 1.0); arcBox('brass', ta, tb, R + 0.03, R + 0.065, F + 1.0, F + 1.04);
     }
     for (let i = 1; i < 8; i++) {
       const t = tA + (tB - tA) * i / 8;
+      if (Math.abs(ccx + R * Math.cos(t) - (VWF.booth.x0 + VWF.booth.x1) / 2) < (VWF.booth.x1 - VWF.booth.x0) / 2 + 0.4) continue;   // not inside the tech booth
       const g1 = new THREE.BoxGeometry(0.14, 0.3, 0.02).translate(0, 8.4, R + 0.04), g2 = new THREE.BoxGeometry(0.03, 0.03, 0.17).translate(0, 8.375, R + 0.135), g3 = new THREE.CylinderGeometry(0.09, 0.06, 0.21, 12).translate(0, 8.495, R + 0.24);
       for (const [k, g] of [['brass', g1], ['brass', g2], ['glow', g3]]) { g.applyMatrix4(new THREE.Matrix4().makeRotationY(-t + Math.PI / 2)).translate(ccx, 0, ccz); file(k, nonIdx(g)); }
       nSconce++;
