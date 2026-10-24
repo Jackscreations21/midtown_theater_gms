@@ -408,26 +408,38 @@ SEGMENT_5 = [
 # ===== END SEGMENT 5 =====
 
 # ===== SEGMENT 6 (2-06..2-10) =====
-# 2-07 Cabinet Battle #2: "same kind of staging" as #1 (ironinkpen), so six of the company carry their chairs on in the
-# top of the number, sit in a short V (gen6.py CB2: the three seats an arm nearest the vertex of 2-02's V) and take them
-# off as the room clears (956, 127.4). 2-08/2-09 Washington's desk: set "in the background while the focus is on the
-# trio" (ironinkpen) by ens1 from the deck door; Jefferson leaves his resignation on it; One Last Time is played round
-# it (gen6.py WDESK, in the desk pool of 981); struck in the dark of the cut-off. Times are gen6.py's (re-read them
-# from segments/seg6.json if the generator changes): (id, seat, wing, off-time in, arrival, leaves, off-time out).
+# FILM ROUND (2026-10-24; research/seg6.md "Film round"). 2-06/2-07 Cabinet Battle #2: in the film the company brings
+# the Windsor chairs on DURING Schuyler Defeated (2-06 31-62, behind Burr and Hamilton), sits in them for the battle
+# with Burr among them SR (cb2-chair-burr) and Washington in a gilt armchair upstage of centre (cb2-armchair), rises at
+# 2-07 101.5 and clears them as Washington goes (111.6-114.6). 2-08/2-09 Washington's desk: FILM, upstage SR of centre
+# (2-08 162-177, 2-09 6.5-168), set by the Bullet from the deck door during the plotters' answer; struck in the dark of
+# the cut-off. Times are gen6.py's (it prints them as PROPT: keep the two in step): (id, sitter, seat, wing, off-time
+# in [2-06], arrival [2-06], leaves [2-07], off-time out [2-07]).
 S6_LOOK = (0.0, 3.2)
-S6_V = [('ens1', (-3.1, 1.45), 'W-DSR', 5.71, 10.0, 127.6, 131.89), ('ens2', (-2.4, 0.5), 'W-MSR', 4.63, 9.6, 128.2, 133.17),
-        ('ens3', (-1.7, -0.45), 'W-USR', 4.38, 10.4, 129.4, 135.42), ('ens4', (1.7, -0.45), 'W-USL', 4.53, 10.6, 129.0, 135.07),
-        ('ens5', (2.4, 0.5), 'W-MSL', 5.41, 9.8, 128.4, 132.79), ('ens6', (3.1, 1.45), 'W-DSL', 5.91, 10.2, 127.8, 132.09)]
+S6_V = [('cb2-chair-1', 'ens1', (-3.1, 1.45), 'W-DSR', 31.71, 36.0, 111.4, 115.69),
+        ('cb2-chair-2', 'ens2', (-2.4, 0.5), 'W-MSR', 32.23, 37.2, 111.8, 116.77),
+        ('cb2-chair-3', 'ens3', (-1.7, -0.45), 'W-USR', 32.38, 38.4, 112.6, 118.62),
+        ('cb2-chair-4', 'ens4', (1.7, -0.45), 'W-USL', 31.93, 38.0, 112.2, 118.27),
+        ('cb2-chair-5', 'ens5', (2.4, 0.5), 'W-MSL', 35.01, 39.4, 111.6, 115.99),
+        ('cb2-chair-6', 'ens6', (3.1, 1.45), 'W-DSL', 32.31, 36.6, 112.0, 116.29)]
+# Burr's chair: ens7 brings it (2-06), Burr takes it off; Washington's armchair: ens8 brings it and strikes it.
+S6_X = [('cb2-chair-burr', 'ens7', 'burr', (-3.9, 0.3), 'W-MSR', 40.87, 45.0, 110.6, 114.73),
+        ('cb2-armchair', 'ens8', 'ens8', (0.3, -0.15), 'D-UC', 45.26, 49.0, 110.0, 113.71)]
 SEGMENT_6 = [
-    *[P(f'cb2-chair-{k + 1}', 'chair', f'Chair (CB2, {who[3:]})', PINE) for k, (who, seat, wing, t0, t1, t2, t3) in enumerate(S6_V)],
-    *[BRING(f'cb2-chair-{k + 1}', who, '2-07', t0 - 0.1, '2-07', t1, *chair_for(seat, S6_LOOK, 0.45), wing=wing,
-            note='2-07: she carries her chair on while Washington calls the cabinet; sits in the V (ironinkpen: same staging as #1)')
-      for k, (who, seat, wing, t0, t1, t2, t3) in enumerate(S6_V)],
-    *[STRIKE(f'cb2-chair-{k + 1}', who, '2-07', t2, '2-07', t3, wing, note='everyone clears out (ironinkpen; 956): she takes her chair off')
-      for k, (who, seat, wing, t0, t1, t2, t3) in enumerate(S6_V)],
-    BRING('washington-desk', 'ens1', '2-08', 118.7, '2-08', 123.0, -0.4, 0.85, 0, wing='D-UC',
-          note="2-08: set in the background while the focus is on the trio (ironinkpen); ens1 from the deck door; One Last Time is played round it"),
-    HIDE('washington-desk', '2-09', 294.5, (-0.4, 0.85), note='struck in the dark of the cut-off (cue 1001), before the King comes down'),
+    *[P(pid, 'chair', f'Chair (CB2, {who[3:]})', PINE) for pid, who, seat, wing, t0, t1, t2, t3 in S6_V],
+    P('cb2-chair-burr', 'chair', 'Chair (CB2, Burr)', PINE),
+    P('cb2-armchair', 'chair', "Washington's armchair (CB2)", '#b08a3e', size=[0.65, 1.05, 0.6]),
+    *[BRING(pid, who, "2-06", t0 - 0.1, '2-06', t1, *chair_for(seat, S6_LOOK, 0.45), wing=wing,
+            note='2-06 (FILM): she brings her chair on behind Burr and Hamilton; sits in the V for Cabinet Battle #2')
+      for pid, who, seat, wing, t0, t1, t2, t3 in S6_V],
+    *[BRING(pid, who, "2-06", t0 - 0.1, '2-06', t1, *chair_for(seat, S6_LOOK, 0.45), wing=wing,
+            note='2-06 (FILM): set in the same change') for pid, who, by, seat, wing, t0, t1, t2, t3 in S6_X],
+    *[STRIKE(pid, who, '2-07', t2, '2-07', t3, wing, note='FILM 111.6-114.6: the room clears, she takes her chair off')
+      for pid, who, seat, wing, t0, t1, t2, t3 in S6_V],
+    *[STRIKE(pid, by, '2-07', t2, '2-07', t3, wing, note='FILM 111.6-114.6: off with the room') for pid, who, by, seat, wing, t0, t1, t2, t3 in S6_X],
+    BRING("washington-desk", "ens1", "2-08", 119.17, '2-08', 123.0, -1.5, -0.6, 0, wing='D-UC',
+          note="2-08: the Bullet sets it upstage SR of centre (FILM 162-177) while the focus is on the trio; One Last Time is played in front of it"),
+    HIDE('washington-desk', '2-09', 294.5, (-1.5, -0.6), note='struck in the dark of the cut-off'),
 ]
 # ===== END SEGMENT 6 =====
 

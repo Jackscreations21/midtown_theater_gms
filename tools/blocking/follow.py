@@ -229,7 +229,67 @@ SEGMENT_5 = [
 # ===== END SEGMENT 5 =====
 
 # ===== SEGMENT 6 (2-06..2-10) =====
+# FILM ROUND (2026-10-24; research/seg6.md "Film round"; the blocking is gen6.py's). Spot 2 (house left) takes the body
+# on stage RIGHT, spot 3 (house right) stage LEFT, spot 1 the centre. His checklist rulings: 2-06 Eliza and Philip LIT;
+# 2-07 each man's light on his own side, the switch to Hamilton at 1:17, NO blackout at the end (spot 3 carries
+# Jefferson across into 2-08).
 SEGMENT_6 = [
+    # 2-06 Schuyler Defeated
+    F(2, '2-06', 2.5, 'eliza', size='full', level=0.8, fade=1.5, note="his ruling (2-06 row): Eliza lit on the gallery; FILM 18-24 she reads the paper at the rail, SR of Philip"),
+    F(3, '2-06', 2.6, 'laurens', size='full', level=0.8, fade=1.5, note="his ruling: Philip lit beside her, the paper in his hands (FILM 18-24)"),
+    F(1, '2-06', 22.8, 'burr', size='full', level=0.85, fade=0.8, note='the new senator: Burr walks into the light (cue 938); FILM 31.9 he is SR of centre'),
+    OUT(2, '2-06', 27.2, fade=1.5, note='Eliza goes by the passage (cue 939: the gallery out)'),
+    OUT(3, '2-06', 27.0, fade=1.5, note='Philip goes'),
+    F(3, '2-06', 30.8, 'hamilton', size='full', level=0.85, fade=0.6, note='Hamilton storms in from SL to Burr (FILM 31.9: SL of Burr)'),
+    OUT(3, '2-06', 61.0, fade=1.5, note='FILM 62.2: he walks away SL into the dark'),
+    OUT(1, '2-06', 62.6, fade=0.8, note='the button: Burr among the chairs'),
+    # 2-07 Cabinet Battle #2
+    F(1, '2-07', 4.3, 'washington', size='full', level=0.8, fade=0.8, note='FILM 4.8-13.6: Washington centre calls the cabinet, hands out the mics'),
+    F(2, '2-07', 15.5, 'lafayette', size='full', level=0.9, fade=0.6, note="his ruling: Jefferson's light, stage RIGHT, for his verse; it follows him into Hamilton's face (FILM 34.6, 48.6)"),
+    OUT(1, '2-07', 17.0, fade=1.5, note='Washington sits (FILM 53.8): the floor is Jefferson\'s'),
+    F(1, '2-07', 66.5, 'washington', size='full', level=0.75, fade=0.8, note='FILM 68.8: Washington up, centre, hands over to Hamilton'),
+    OUT(1, '2-07', 76.0, fade=1.0, note='back to his armchair'),
+    OUT(2, '2-07', 77.0, fade=1.0, note="his ruling: the switch at 1:17 - Jefferson's light goes as Hamilton's comes"),
+    F(3, '2-07', 77.0, 'hamilton', size='full', level=0.9, fade=0.6, note="his ruling: Hamilton's light, stage LEFT, on at 1:17 (77 s) for his answer"),
+    F(1, '2-07', 93.9, 'washington', size='full', level=0.75, fade=0.6, note='FILM 93.7: Washington up beside the armchair, cutting in; then rules centre (101.5-111.6)'),
+    OUT(1, '2-07', 110.6, fade=1.0, note='FILM 114.6: Washington goes SR with the room'),
+    F(3, '2-07', 112.6, 'lafayette', size='full', level=0.85, move=1.0, note='FILM 114.6: the sides swap: Jefferson SL now, spot 3 swings to him'),
+    F(2, '2-07', 112.6, 'hamilton', size='full', level=0.85, fade=0.6, note='FILM 114.6: Hamilton SR now; the face-off (114.6-139.6)'),
+    F(1, '2-07', 139.4, 'washington', size='full', level=0.7, fade=0.4, note='FILM 139.6: Washington calls from the DSR corner'),
+    OUT(2, '2-07', 140.8, fade=0.8, note='Hamilton goes off SR with him'),
+    OUT(1, '2-07', 141.0, fade=0.8, note='Washington gone'),
+    # 2-08 Washington on Your Side (spot 3 still on Jefferson from 2-07: no blackout between, his ruling)
+    F(2, '2-08', 8.0, 'burr', size='full', level=0.85, fade=0.8, note='FILM 8.2: Burr walks on to him; Burr SR, Jefferson SL (FILM 15)'),
+    F(3, '2-08', 66.5, 'burr', size='full', level=0.85, move=1.0, note='FILM 79: they have swapped, Burr SL now'),
+    F(2, '2-08', 66.5, 'lafayette', size='full', level=0.9, move=1.0, note='Jefferson SR of centre (FILM 79)'),
+    F(1, '2-08', 78.6, 'mulligan', size='full', level=0.85, fade=0.6, note="FILM 82: Madison in from SR for his verse"),
+    F(1, '2-08', 87.0, 'lafayette', size='full', level=0.9, move=0.8, note='FILM 89-123: the row - spot 1 takes Jefferson in the centre'),
+    F(2, '2-08', 87.0, 'mulligan', size='full', level=0.85, move=0.8, note='spot 2 takes Madison, SR'),
+    F(2, '2-08', 155.0, 'burr', size='full', level=0.8, move=1.0, note='FILM 155-177: Burr ends far SR'),
+    F(3, '2-08', 155.0, 'mulligan', size='full', level=0.8, move=1.0, note='FILM 177: Madison ends far SL'),
+    F(2, '2-08', 180.6, 'washington', size='full', level=0.6, move=1.2, note="One Last Time's first picture (FILM 2-08 177 / 2-09 6.5): Washington at the desk"),
+    F(3, '2-08', 180.6, 'hamilton', size='full', level=0.6, move=1.2, note='Hamilton upstage SL, reading (FILM 2-08 177)'),
+    OUT(1, '2-08', 180.8, fade=1.0, note='Jefferson goes'),
+    # 2-09 One Last Time: Washington SR of Hamilton all through (FILM)
+    F(2, '2-09', 8.0, 'washington', size='full', level=0.8, fade=2.0, note='FILM 6.5-168: Washington at and in front of his desk'),
+    F(3, '2-09', 8.0, 'hamilton', size='full', level=0.8, fade=2.0, note='FILM 6.5-168: Hamilton SL of him'),
+    F(3, '2-09', 171.0, 'hamilton', size='full', level=0.95, fade=1.0, note='FILM 179: Hamilton alone DSC, reading the address'),
+    F(2, '2-09', 171.0, 'washington', size='full', level=0.45, fade=1.0, note='Washington upstage of him, held low'),
+    F(2, '2-09', 186.0, 'washington', size='full', level=0.9, fade=1.0, note='side by side (REVIEW 3; FILM 200-217): he takes over the reading'),
+    F(3, '2-09', 186.0, 'hamilton', size='full', level=0.7, fade=1.0, note='beside him, on his left'),
+    OUT(3, '2-09', 222.0, fade=2.0, note='FILM 224: Hamilton steps back; Washington alone'),
+    F(3, '2-09', 249.0, 'hamilton', size=3.0, level=0.55, fade=2.0, note='FILM 239-262: the family together SR (one wide pool takes Eliza and Philip with him)'),
+    F(1, '2-09', 266.0, 'washington', size='full', level=1.0, fade=1.5, note='FILM: Washington DSC in a hard white spot for the end, arms open'),
+    OUT(2, '2-09', 266.5, fade=1.5, note='spot 1 has him'),
+    OUT(3, '2-09', 288.0, fade=3.0, note='the family fades as the note holds'),
+    F(3, '2-09', 294.6, 'king', size='full', level=0.6, fade=1.0, note='FILM: the King in from SL, watching Washington go'),
+    # 2-10 I Know Him
+    OUT(1, '2-10', 3.2, fade=1.5, note='FILM 1.6: Washington walks slowly upstage and off'),
+    F(1, '2-10', 4.5, 'king', size='full', level=0.9, fade=1.0, note='the King alone: UC (FILM 5.2), down to DC (24), the silence, the band, the laugh'),
+    OUT(3, '2-10', 5.5, fade=1.0, note='spot 1 has him'),
+    F(2, '2-10', 33.3, 'ens1', size='half', level=0.6, fade=0.5, note="FILM 33.1-47.1: the Bullet at his SR shoulder, the whisper and the giggle"),
+    OUT(2, '2-10', 47.0, fade=0.5, note='she goes'),
+    OUT(1, '2-10', 95.6, fade=0.0, note='the blackout: he stands in it (seg 7 picks him up at 2-11 0.0)'),
 ]
 # ===== END SEGMENT 6 =====
 
