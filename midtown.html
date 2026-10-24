@@ -552,7 +552,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works: THE THIRD HOUSE
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw foyer)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE
   baked.traverse(take);
   return list;
 }
@@ -13995,8 +13995,8 @@ function buildHouse2(src) {
    floor, a 117 m plinth) is clipped at x 30.40. Moved in y only (never scaled again): its foyer floor 1 cm under the
    lobby's 0.875, so the hallway runs level from one to the other.
    ITS OWN LOBBY is the model's: a glazed foyer wrapping the fan-shaped auditorium (the "Lobby glass & fascia" and the
-   terrace), entered from the hallway through a cut in its west glass. This section adds to it a box office by the
-   hallway's mouth and the signs.
+   terrace), entered from the hallway through a cut in its west glass, dressed as THE LOBBY is (its carpet, walls, ceiling,
+   lights, bar, box office, benches: THE THIRD HOUSE: THE FOYER, below).
    THE HALLWAY (VW_HALL) runs east along z −16.62…−15.12 from an opening in the lobby's east wall (x 30.00…30.20, beside
    the bar; buildLobby leaves it) through the glass into the foyer; built like THE HALLWAY (boxes merged one mesh per
    material, the backstage's and the lobby's materials, battens and no real light), an E door at each end (hangLeafAt: a
@@ -14023,7 +14023,6 @@ const VW = {
   // the lowest house-right portal (the file's node "106…109" mirrored): its posts' centres, world, and its head
   portal: { a: [66.761, -2.911], b: [65.877, -4.343], post: 0.146, depth: 0.628, head: 2.530, landing: 1.15, width: 1.9, going: 0.30 },
   stageStair: { x0: 68.55, x1: 69.95, going: 0.28 },// house right of the lift: from its floor to the stage's lip (z −0.152)
-  boxOffice: { x0: 50.6, x1: 51.2, z0: -21.0, z1: -18.2 },
   missing: false, root: null, works: null, ms: 0,
 };
 const VW_HALL = {
@@ -14235,15 +14234,8 @@ function buildVanWezel(gltf) {
     for (const x of [S.x0 + 0.03, S.x1 - 0.03]) { deskRod(P, 'brass', new THREE.Vector3(x, liftY + rise + 0.9, z0 + S.going / 2), new THREE.Vector3(x, deck + 0.9, lip), 0.025, 8); for (const [y, z] of [[liftY + rise, z0 + S.going / 2], [deck, lip]]) deskRod(P, 'brass', new THREE.Vector3(x, y, z), new THREE.Vector3(x, y + 0.9, z), 0.02, 8); }
     VW.stageStair.n = n; VW.stageStair.rise = rise; VW.stageStair.z0 = z0;
   }
-  // 5. THE BOX OFFICE in the foyer by the hallway's mouth: a counter and a sign
-  if (!VW.missing) {
-    const B = VW.boxOffice;
-    bx('wood', B.x0, B.x1, foyer - 0.02, foyer + 1.05, B.z0, B.z1); bx('stone', B.x0 - 0.08, B.x1 + 0.08, foyer + 1.05, foyer + 1.1, B.z0 - 0.05, B.z1 + 0.05);
-    bx('dark', (B.x0 + B.x1) / 2 - 0.02, (B.x0 + B.x1) / 2 + 0.02, foyer + 1.1, foyer + 2.6, B.z0 + 0.05, B.z0 + 0.1); bx('dark', (B.x0 + B.x1) / 2 - 0.02, (B.x0 + B.x1) / 2 + 0.02, foyer + 1.1, foyer + 2.6, B.z1 - 0.1, B.z1 - 0.05);
-    bx('dark', B.x0 - 0.05, B.x1 + 0.05, foyer + 2.6, foyer + 3.0, B.z0, B.z1);
-    lobbySign(P, 0, 2.4, 0.3, B.x0 - 0.06, foyer + 2.8, (B.z0 + B.z1) / 2, -Math.PI / 2);
-    for (const z of [B.z0 + 0.8, B.z1 - 0.8]) { bx('dark', B.x0 + 0.25, B.x0 + 0.29, foyer + 1.18, foyer + 1.5, z - 0.24, z + 0.24); deskPut(P, 'screen', new THREE.PlaneGeometry(0.44, 0.28), B.x0 + 0.305, foyer + 1.34, z, 0, Math.PI / 2); }
-  }
+  // 5. THE FOYER, dressed as THE LOBBY is: its own group (THE THIRD HOUSE: THE FOYER; it replaces the box office that stood here)
+  if (!VW.missing) buildVwFoyer();
   // 6. One mesh per material: the backstage's for the hallway (its tiles in world metres), the lobby's for its trim
   const MAT = { floor: backstageMat.floor, wall: backstageMat.wall, ceil: backstageMat.ceil, reveal: backstageMat.reveal, frame: backstageMat.frame, housing: backstageMat.housing, glow: backstageMat.glow,
     sign: lobbyMat.sign, wood: lobbyMat.wood, brass: lobbyMat.brass, stone: lobbyMat.stone, dark: lobbyMat.dark, screen: lobbyMat.screen };
@@ -14340,6 +14332,325 @@ const VAN_WEZEL_API = {
     console.info(s); return s;
   },
 };
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE FOYER
+   Jack (2026-10-24): "also redo the lobby for the van wezel to look mor like the one for the other theaters". The model's
+   foyer (VAN WEZEL HALL, above) is a glazed fan round the auditorium: the terrace's tiles underfoot, the auditorium's outer
+   wall bare purple, open to the scalloped roof 17–20 m up, unlit and baked. buildVwFoyer dresses it as THE LOBBY is
+   dressed, in THE LOBBY's own materials (lobbyMat: lit by the hemisphere, each with its own glow), merged one mesh per
+   material, the glass and the building's outside kept:
+   - THE LOBBY's carpet on the whole floor between the glass and the walls, its top at the lobby's and the hallway's floor
+     (0.875, 1 cm over the terrace), the hallway's own floor notched out where it runs in past the glass;
+   - a ceiling at VWF.ceil, under the glass's head (10.02) and over the highest side portal (7.40) and the galleries;
+   - the auditorium's outer wall (both side walls, the back's arc, the stage house's front either side) faced in the
+     lobby's wall finish with its timber wainscot and brass rail, every side portal left open inside its frame;
+   - downlights in the ceiling, chandeliers hanging to VWF.chand, brass sconces high on the walls over the galleries;
+   - house right (the hallway's side): THE LOBBY's box office (a room behind a counter and a glazed screen, its sign),
+     THE LOBBY's bar (front counter, foot rail, a back bar with shelves of bottles, three pendants, its sign), benches,
+     planters, poster stands, bins; house left the same bar and seating mirrored, a seating island for the box office.
+   KEPT CLEAR, nothing standing there: a band VWF.band out from both side walls and the back wall the whole way round (the
+   galleries outside the side portals), VWF.route either side of VW_ROUTE (the walk from the hallway to the house-right
+   portal), and VWF.glassGap from the glass. The pieces are placed in each side's own frame (a: along the side wall toward
+   the stage, from VWF.wall.a; d: out from the wall; the house-left frame the house-right one mirrored about x VW.at.x),
+   and VW_FOYER_API.check() measures every standing piece's footprint against all three. The portals' frames were
+   measured (they stand 31 cm proud of the wall, 1.8 m wide, 2.55 m tall): the wall's facing runs in under them. In the
+   walk's grid by the group's name ('vw foyer', colliderMeshes). */
+const VWF = {
+  floor: 0.875, ceil: 9.80, chand: 6.0,              // the carpet's top; the ceiling; the chandeliers' lowest point
+  c: [77.0, 13.5], wallR: 52.20,                      // the back: the auditorium's back wall, an arc about c (the glass's arc has the same centre)
+  wall: { a: [67.34, -2.0], u: [0.531, 0.847] },      // house right's side wall: through a, along u toward the stage (house left's is its mirror)
+  glass: [[65.2, 2.4], [35.3, -25.5]],                // house right's straight glass, from the stage house to its tip, where the arc starts
+  front: -0.15,                                       // the stage house's front face, the foyer's end either side
+  portals: { a0: -19.0, step: 2.437, heads: [7.40, 6.85, 6.30, 5.80, 5.30, 4.85, 4.45, 4.15], half: 0.86, tall: 2.55 },   // each frame's middle (a), its head's top; the last is VW.portal
+  band: 3.8, route: 1.4, glassGap: 0.08,              // the clearances (the galleries' 2.5 m and a clear metre; either side of the route; off the glass)
+};
+let vwFoyer = null;
+// THE LOBBY's materials, each glowing more of its own colour (the carpet and the painted pieces a flat glow): the lobby is
+// lit by five real downlights of its own, and the foyer by none (one more light costs every lit surface in the page), so
+// its light is in the glow, as the model's is baked into its colours. Cloned at build (the carpet's map is made then).
+const VWF_GLOW = { carpet: 0xc4c4c4, colour: 0x383838, wall: 0.45, ceil: 0.60, wood: 0.45, stone: 0.40, brass: 0.50, dark: 0.30 };
+function vwfMat(key) {
+  const src = lobbyMat[key], g = VWF_GLOW[key];
+  if (g === undefined) return src;
+  const m = src.clone(); m.name = 'vw foyer: ' + key;
+  if (key === 'carpet' || key === 'colour') m.emissive.setHex(g); else m.emissive.copy(src.color).multiplyScalar(g);
+  return m;
+}
+// A side's frame: o + a·al + y·up + d·out (side −1 house right, the hallway's; +1 house left, the mirror: det −1).
+function vwfFrame(side) {
+  const W = VWF.wall, cx = VW.at.x;
+  const o = new THREE.Vector3(cx + side * (cx - W.a[0]), 0, W.a[1]), al = new THREE.Vector3(-side * W.u[0], 0, W.u[1]), out = new THREE.Vector3(side * W.u[1], 0, W.u[0]);
+  const M = new THREE.Matrix4().makeBasis(al, new THREE.Vector3(0, 1, 0), out).setPosition(o);
+  const toW = (a, y, d) => o.clone().addScaledVector(al, a).addScaledVector(out, d).setY(y);
+  const toL = (x, z) => { const p = new THREE.Vector3(x - o.x, 0, z - o.z); return [p.dot(al), p.dot(out)]; };
+  return { side, o, al, out, M, flip: M.determinant() < 0, toW, toL };
+}
+// The foyer's outline on plan (world x, z): the stage house's front, the straight glass (notched round the hallway's
+// floor), the glass's arc, the other side, the other side wall, the back wall's arc. Also its corners, for the facings.
+function vwfOutline() {
+  const cx = VW.at.x, [gx0, gz0] = VWF.glass[0], [gx1, gz1] = VWF.glass[1], W = VWF.wall, [ccx, ccz] = VWF.c, R = VWF.wallR, Fz = VWF.front;
+  const onGlass = z => [gx0 + (gx1 - gx0) * (z - gz0) / (gz1 - gz0), z], onWall = z => [W.a[0] + W.u[0] * (z - W.a[1]) / W.u[1], z];
+  const ex = (W.a[0] - ccx), ez = (W.a[1] - ccz), b = ex * W.u[0] + ez * W.u[1], s = -b - Math.sqrt(b * b - (ex * ex + ez * ez - R * R));   // the side wall meets the arc
+  const corner = [W.a[0] + W.u[0] * s, W.a[1] + W.u[1] * s], m = p => [2 * cx - p[0], p[1]];
+  const H = VW_HALL, hz0 = H.z0 - H.t, hz1 = H.z1 + H.t, hx = H.x1 + 0.02;
+  const Rg = Math.hypot(gx1 - ccx, gz1 - ccz), tg = Math.atan2(gz1 - ccz, gx1 - ccx), tc = Math.atan2(corner[1] - ccz, corner[0] - ccx);
+  const glassArc = [], wallArc = [], n = 48;
+  for (let i = 1; i < n; i++) { const t = tg + (-Math.PI - 2 * tg) * i / n; glassArc.push([ccx + Rg * Math.cos(t), ccz + Rg * Math.sin(t)]); }
+  for (let i = 1; i < n; i++) { const t = (-Math.PI - tc) + (2 * tc + Math.PI) * i / n; wallArc.push([ccx + R * Math.cos(t), ccz + R * Math.sin(t)]); }
+  const west = [onWall(Fz), onGlass(Fz), onGlass(hz1), [hx, hz1], [hx, hz0], onGlass(hz0), [gx1, gz1]];
+  const east = [m([gx1, gz1]), m(onGlass(Fz)), m(onWall(Fz)), m(corner)];
+  return { pts: [...west, ...glassArc, ...east, ...wallArc, corner], corner, sCorner: s, sFront: (Fz - W.a[1]) / W.u[1], tc, Rg, onGlass, onWall };
+}
+// The straight glass's distance out from the side wall at a (a side's frame; the same both sides).
+function vwfGlassD(f, a) {
+  const [g0, g1] = VWF.glass.map(p => f.side < 0 ? p : [2 * VW.at.x - p[0], p[1]]), [a0, d0] = f.toL(...g0), [a1, d1] = f.toL(...g1);
+  return d0 + (d1 - d0) * (a - a0) / (a1 - a0);
+}
+function buildVwFoyer() {
+  const t0 = performance.now(), F = VWF.floor, CL = VWF.ceil, P = {}, stands = [];
+  const O = vwfOutline(), cx = VW.at.x, [ccx, ccz] = VWF.c;
+  const nonIdx = g => g.index ? (() => { const n = g.toNonIndexed(); g.dispose(); return n; })() : g;
+  const flipTris = g => { for (const k of Object.keys(g.attributes)) { const A = g.attributes[k], s = A.itemSize, a = A.array; for (let t = 0; t < A.count; t += 3) for (let c = 0; c < s; c++) { const i = (t + 1) * s + c, j = (t + 2) * s + c, v = a[i]; a[i] = a[j]; a[j] = v; } } return g; };
+  const tint = (g, hex) => { const c = new THREE.Color(hex), n = g.attributes.position.count, a = new Float32Array(n * 3); for (let i = 0; i < n; i++) a.set([c.r, c.g, c.b], i * 3); g.setAttribute('color', new THREE.BufferAttribute(a, 3)); return g; };
+  const file = (key, g) => { (P[key] = P[key] || []).push(g); return g; };
+  // world pieces
+  const wbox = (key, x0, x1, y0, y1, z0, z1) => file(key, nonIdx(new THREE.BoxGeometry(Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0)).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2)));
+  // a box along the arc's chord from angle ta to tb, between radii r0 and r1, y0…y1
+  const arcBox = (key, ta, tb, r0, r1, y0, y1) => {
+    const tm = (ta + tb) / 2, rm = (r0 + r1) / 2, len = 2 * rm * Math.sin(Math.abs(tb - ta) / 2) + 0.01;
+    const g = new THREE.BoxGeometry(len, y1 - y0, r1 - r0).translate(0, (y0 + y1) / 2, 0);
+    g.applyMatrix4(new THREE.Matrix4().makeRotationY(-tm - Math.PI / 2)).translate(ccx + rm * Math.cos(tm), 0, ccz + rm * Math.sin(tm));
+    return file(key, nonIdx(g));
+  };
+  // pieces in a side's frame
+  const lput = (f, key, g) => { g = nonIdx(g); g.applyMatrix4(f.M); if (f.flip) flipTris(g); return file(key, g); };
+  const lbox = (f, key, a0, a1, y0, y1, d0, d1) => lput(f, key, new THREE.BoxGeometry(Math.abs(a1 - a0), Math.abs(y1 - y0), Math.abs(d1 - d0)).translate((a0 + a1) / 2, (y0 + y1) / 2, (d0 + d1) / 2));
+  const lcyl = (f, key, rT, rB, y0, y1, a, d, seg) => lput(f, key, new THREE.CylinderGeometry(rT, rB, y1 - y0, seg).translate(a, (y0 + y1) / 2, d));
+  const lrod = (f, key, a, b, r, seg) => { const p = f.toW(...a), q = f.toW(...b); deskRod(P, key, p, q, r, seg); P[key].push(nonIdx(P[key].pop())); };
+  const lplane = (f, key, w, h, a, y, d, faceA) => {   // a plane w × h facing +d (or +a with faceA)
+    const g = new THREE.PlaneGeometry(w, h); if (faceA) g.rotateY(Math.PI / 2); g.translate(a, y, d); return lput(f, key, g);
+  };
+  const stand = (f, name, a0, a1, d0, d1) => stands.push({ name: `${f.side < 0 ? 'house right' : 'house left'} ${name}`, side: f.side, pts: [[a0, d0], [a1, d0], [a1, d1], [a0, d1]].map(([a, d]) => { const p = f.toW(a, 0, d); return [p.x, p.z]; }) });
+  // a sign from THE LOBBY's canvas at a frame's (a, y, d), facing the frame's direction (fa, fd): placed in the world, never mirrored
+  const lsign = (f, row, w, h, a, y, d, fa, fd) => { const p = f.toW(a, y, d), dir = f.al.clone().multiplyScalar(fa).addScaledVector(f.out, fd); lobbySign(P, row, w, h, p.x, y, p.z, Math.atan2(dir.x, dir.z)); P.sign.push(nonIdx(P.sign.pop())); };
+  // 1. THE FLOOR AND THE CEILING: the outline, carpet up, ceiling down
+  const shape = new THREE.Shape(O.pts.map(([x, z]) => new THREE.Vector2(x, -z)));
+  { const g = new THREE.ShapeGeometry(shape).rotateX(-Math.PI / 2).translate(0, F, 0); file('carpet', nonIdx(g)); }
+  { const g = new THREE.ShapeGeometry(new THREE.Shape(O.pts.map(([x, z]) => new THREE.Vector2(x, z)))).rotateX(Math.PI / 2).translate(0, CL, 0); file('ceil', nonIdx(g)); }
+  const sides = [vwfFrame(-1), vwfFrame(1)], PO = VWF.portals, ports = PO.heads.map((h, i) => ({ a: PO.a0 + PO.step * i, head: h, sill: h - PO.tall }));
+  const low = ports[ports.length - 1];
+  const aC = O.sCorner, aF = (VWF.front - VWF.wall.a[1]) / VWF.wall.u[1];
+  let nDown = 0, nSconce = 0;
+  for (const f of sides) {
+    // 2. THE WALLS: the side wall faced from the corner to the stage house, round each portal's frame; the wainscot and its
+    // rail along it (broken only at the lowest portal, whose opening and landing come down to the floor)
+    const holes = ports.map((p, i) => i === ports.length - 1 ? [p.a - 0.95, p.a + 0.95, F - 0.02, p.head - 0.06] : [p.a - PO.half, p.a + PO.half, p.sill + 0.14, p.head - 0.06]);
+    let a = aC;
+    for (const [h0, h1, y0, y1] of holes) {
+      lbox(f, 'wall', a, h0, F, CL, 0.005, 0.03);
+      if (y0 > F) lbox(f, 'wall', h0, h1, F, y0, 0.005, 0.03);
+      lbox(f, 'wall', h0, h1, y1, CL, 0.005, 0.03);
+      a = h1;
+    }
+    lbox(f, 'wall', a, aF, F, CL, 0.005, 0.03);
+    for (const [a0, a1] of [[aC, low.a - 0.95], [low.a + 0.95, aF]]) { lbox(f, 'wood', a0, a1, F, F + 1.0, 0.03, 0.05); lbox(f, 'brass', a0, a1, F + 1.0, F + 1.04, 0.03, 0.065); }
+    // the stage house's front either side (z VWF.front, glass to wall), faced the same
+    { const g = O.onGlass(VWF.front), w = O.onWall(VWF.front), xs = f.side < 0 ? [g[0], w[0]] : [2 * cx - w[0], 2 * cx - g[0]], z = VWF.front;
+      wbox('wall', xs[0], xs[1], F, CL, z - 0.03, z - 0.005); wbox('wood', xs[0], xs[1], F, F + 1.0, z - 0.05, z - 0.03); wbox('brass', xs[0], xs[1], F + 1.0, F + 1.04, z - 0.065, z - 0.03); }
+    // sconces over the galleries: a brass back plate, an arm, a glowing shade, every 4 m along the wall
+    for (let s = aC + 2.0; s < aF - 1; s += 4.0) {
+      lbox(f, 'brass', s - 0.07, s + 0.07, 8.25, 8.55, 0.03, 0.05); lbox(f, 'brass', s - 0.015, s + 0.015, 8.36, 8.39, 0.05, 0.22);
+      lcyl(f, 'glow', 0.09, 0.06, 8.39, 8.6, s, 0.24, 12); nSconce++;
+    }
+    // 3. THE CEILING'S DOWNLIGHTS over the side's wedge, 3 m apart, and the CHANDELIERS
+    for (let s = aC + 1.5; s < aF; s += 3.0) for (let d = 1.5; d < vwfGlassD(f, s) - 0.6; d += 3.0) { lput(f, 'glow', new THREE.CircleGeometry(0.16, 16).rotateX(Math.PI / 2).translate(s, CL - 0.004, d)); nDown++; }
+    for (const [s, d] of [[-25.5, 8.3], [-16.0, 6.4], [-7.5, 4.9]]) {
+      const y = VWF.chand;
+      lrod(f, 'dark', [s, CL, d], [s, y + 1.1, d], 0.012, 6);
+      lcyl(f, 'brass', 0.05, 0.09, y + 0.85, y + 1.1, s, d, 12); lcyl(f, 'brass', 0.035, 0.035, y + 0.2, y + 0.85, s, d, 8); lcyl(f, 'brass', 0.12, 0.05, y, y + 0.2, s, d, 12);
+      lput(f, 'glow', new THREE.SphereGeometry(0.11, 10, 8).translate(s, y - 0.02, d));
+      for (const [r, yy, n] of [[0.62, y + 0.32, 10], [0.36, y + 0.72, 6]]) {
+        lput(f, 'brass', new THREE.TorusGeometry(r, 0.02, 6, 32).rotateX(Math.PI / 2).translate(s, yy, d));
+        for (let i = 0; i < n; i++) { const t = 2 * Math.PI * (i + 0.5) / n, ca = s + r * Math.cos(t), cd = d + r * Math.sin(t);
+          lcyl(f, 'brass', 0.03, 0.02, yy, yy + 0.05, ca, cd, 8); lput(f, 'glow', new THREE.SphereGeometry(0.065, 10, 6).translate(ca, yy + 0.12, cd)); }
+        lrod(f, 'brass', [s - r, yy, d], [s, yy + (r > 0.5 ? 0.53 : 0.13), d], 0.01, 4); lrod(f, 'brass', [s + r, yy, d], [s, yy + (r > 0.5 ? 0.53 : 0.13), d], 0.01, 4);
+      }
+    }
+    // 4. THE BAR (THE LOBBY's, turned to face out from the wall): its back bar standing at the band's edge
+    { const a0 = -26.5, a1 = -21.5, db = VWF.band + 0.05, df = db + 1.75;   // back bar's back face; the front counter's staff face
+      lbox(f, 'wood', a0 - 0.1, a1 + 0.1, F, F + 2.85, db, db + 0.08);                                   // the back-bar panel, its back to the wall
+      lbox(f, 'wood', a0 - 0.14, a1 + 0.14, F + 2.85, F + 2.95, db - 0.02, db + 0.14);                   // its cornice
+      lbox(f, 'dark', a0, a1, F + 1.1, F + 2.7, db + 0.08, db + 0.1);
+      lbox(f, 'wood', a0, a1, F, F + 0.92, db + 0.08, db + 0.68); lbox(f, 'stone', a0, a1, F + 0.92, F + 0.96, db + 0.08, db + 0.73);   // the back counter
+      const shelves = [F + 1.55, F + 2.08];
+      for (const y of shelves) lbox(f, 'wood', a0, a1, y - 0.03, y, db + 0.1, db + 0.34);
+      const BOTTLE = [0x2c5a32, 0x8a5420, 0xb8c6bc, 0x5a1e26]; let nb = 0;
+      for (const y of [...shelves, F + 0.96]) for (let s = a0 + 0.2; s < a1 - 0.15; s += y > F + 1 ? 0.27 : 0.5) {
+        if (y < F + 1 && s > a1 - 0.8) break;                 // the popcorn machine at the back counter's end
+        const c = BOTTLE[nb++ % BOTTLE.length], d = db + 0.22 + (y < F + 1 ? 0.15 : 0);
+        tint(lcyl(f, 'colour', 0.036, 0.036, y, y + 0.24, s, d, 6), c); tint(lcyl(f, 'colour', 0.012, 0.03, y + 0.24, y + 0.33, s, d, 6), c);
+      }
+      lbox(f, 'glass', a1 - 0.62, a1 - 0.07, F + 0.96, F + 1.6, db + 0.18, db + 0.63);                  // the popcorn machine
+      lbox(f, 'pop', a1 - 0.6, a1 - 0.09, F + 0.97, F + 1.16, db + 0.2, db + 0.61);
+      tint(lbox(f, 'colour', a1 - 0.635, a1 - 0.055, F + 1.6, F + 1.66, db + 0.17, db + 0.64), 0x8a1c1c);
+      lbox(f, 'wood', a0, a1, F, F + 1.02, df, df + 0.55); lbox(f, 'stone', a0 - 0.05, a1 + 0.05, F + 1.02, F + 1.08, df - 0.08, df + 0.63);   // the front counter
+      lbox(f, 'brass', a0, a1, F + 0.9, F + 0.94, df + 0.55, df + 0.57);
+      lrod(f, 'brass', [a0 - 0.1, F + 0.18, df + 0.68], [a1 + 0.1, F + 0.18, df + 0.68], 0.025, 8);
+      for (const s of [a0 + 0.3, (a0 + a1) / 2, a1 - 0.3]) lbox(f, 'brass', s - 0.015, s + 0.015, F + 0.165, F + 0.195, df + 0.55, df + 0.68);
+      lbox(f, 'dark', (a0 + a1) / 2 - 1.25, (a0 + a1) / 2 + 1.25, F + 2.95, F + 3.42, db + 0.06, db + 0.14);   // a board on the cornice,
+      lsign(f, 1, 2.4, 0.3, (a0 + a1) / 2, F + 3.2, db + 0.15, 0, 1);                                    // the sign on it
+      for (const s of [a0 + 0.9, (a0 + a1) / 2, a1 - 0.9]) {        // pendants over the front counter
+        const d = df + 0.28;
+        lrod(f, 'dark', [s, CL, d], [s, F + 2.7, d], 0.006, 4);
+        lcyl(f, 'brass', 0.05, 0.2, F + 2.5, F + 2.7, s, d, 12);
+        lput(f, 'glow', new THREE.CircleGeometry(0.19, 12).rotateX(Math.PI / 2).translate(s, F + 2.497, d));
+      }
+      stand(f, 'bar', a0 - 0.14, a1 + 0.14, db - 0.02, df + 0.71);
+      lcyl(f, 'dark', 0.2, 0.17, F, F + 0.72, a0 - 0.6, df + 0.5, 16); lcyl(f, 'brass', 0.205, 0.205, F + 0.72, F + 0.75, a0 - 0.6, df + 0.5, 16);   // a bin at its end
+      stand(f, 'bar bin', a0 - 0.81, a0 - 0.39, df + 0.29, df + 0.71);
+    }
+    // 5. BENCHES (THE LOBBY's, backless) and PLANTERS along the glass, and POSTER STANDS
+    const bench = (name, a0, a1, d0, d1) => {
+      lbox(f, 'wood', a0, a1, F + 0.40, F + 0.46, d0, d1);
+      for (const s of [a0 + 0.1, a1 - 0.18]) lbox(f, 'dark', s, s + 0.08, F, F + 0.40, d0 + 0.04, d1 - 0.04);
+      stand(f, name, a0, a1, d0, d1);
+    };
+    const planter = (name, s, d, w = 0.56) => {
+      const h = w / 2;
+      lbox(f, 'wood', s - h, s + h, F, F + 0.55, d - h, d + h); lbox(f, 'brass', s - h - 0.01, s + h + 0.01, F + 0.55, F + 0.58, d - h - 0.01, d + h + 0.01);
+      tint(lput(f, 'colour', new THREE.IcosahedronGeometry(w * 0.72, 1).scale(1, 1.25, 1).translate(s, F + 1.05, d)), 0x3a6e32);
+      tint(lput(f, 'colour', new THREE.IcosahedronGeometry(w * 0.5, 1).translate(s + 0.08, F + 1.55, d - 0.05)), 0x4a7e3a);
+      stand(f, name, s - h - 0.01, s + h + 0.01, d - h - 0.01, d + h + 0.01);
+    };
+    const POSTER = [0x7a1e28, 0x1e2e5a, 0x9a7a2a, 0x1e5a5a, 0x4a2450, 0x2a4a2a];
+    let np = f.side < 0 ? 0 : 3;
+    const poster = (name, s, d, fa, fd) => {     // a stand: two legs, a framed poster facing (fa, fd)
+      const along = fa ? [0, 1] : [1, 0];        // the frame's width runs across its facing
+      for (const k of [-0.36, 0.36]) lbox(f, 'dark', s + along[0] * k - 0.02, s + along[0] * k + 0.02, F, F + 1.1, d + along[1] * k - 0.02, d + along[1] * k + 0.02);
+      lbox(f, 'dark', s - (fa ? 0.02 : 0.43), s + (fa ? 0.02 : 0.43), F + 1.1, F + 2.32, d - (fa ? 0.43 : 0.02), d + (fa ? 0.43 : 0.02));
+      const g = tint(new THREE.BoxGeometry(fa ? 0.01 : 0.74, 1.1, fa ? 0.74 : 0.01).translate(s + fa * 0.026, F + 1.71, d + fd * 0.026), POSTER[np++ % POSTER.length]); lput(f, 'colour', g);
+      for (const k of [-0.36, 0.36]) lbox(f, 'dark', s + along[0] * k - 0.15, s + along[0] * k + 0.15, F, F + 0.03, d + along[1] * k - 0.15, d + along[1] * k + 0.15);
+      stand(f, name, s - (fa ? 0.15 : 0.51), s + (fa ? 0.15 : 0.51), d - (fa ? 0.51 : 0.15), d + (fa ? 0.51 : 0.15));
+    };
+    const gd = s => vwfGlassD(f, s) - VWF.glassGap - 0.05;   // a piece's back, just off the glass
+    // (the glass closes in toward the stage: each piece is set off it at its stage end; the front ones between the route and the glass)
+    bench('bench by the glass, back', -28.6, -26.6, gd(-26.6) - 0.42, gd(-26.6)); planter('planter by the glass, back', -29.1, gd(-28.8) - 0.3); planter('planter by the bench, back', -26.0, gd(-25.7) - 0.3);
+    planter('planter by the glass', -15.0, gd(-14.75) - 0.25, 0.5); bench('bench by the glass', -13.0, -11.0, gd(-11.0) - 0.42, gd(-11.0));
+    planter('planter by the glass, front', -10.0, gd(-9.75) - 0.25, 0.5); bench('bench by the glass, front', -8.6, -6.6, gd(-6.6) - 0.42, gd(-6.6));
+    poster('poster stand by the bar', -20.4, VWF.band + 0.5, 0, 1);
+    if (f.side < 0) {
+      // 6. THE BOX OFFICE (house right, THE LOBBY's turned to face along the wall toward the stage, so it faces those coming
+      // in from the hallway): a room behind a counter and a glazed screen, its roof, the fascia, the sign
+      const ac = -30.2, r0 = 6.0, r1 = 9.8, back = ac - 1.7, top = F + 3.4;
+      lbox(f, 'wall', back - 0.12, back, F, top + 0.12, r0, r1);                                    // its back wall
+      lbox(f, 'wall', back - 0.12, ac + 0.1, F, top + 0.12, r0, r0 + 0.12); lbox(f, 'wall', back - 0.12, ac + 0.1, F, top + 0.12, r1 - 0.12, r1);   // its sides
+      lbox(f, 'wall', back, ac + 0.1, top, top + 0.12, r0 + 0.12, r1 - 0.12);                     // its roof
+      lbox(f, 'wood', back - 0.16, ac + 0.14, top + 0.12, top + 0.2, r0 - 0.04, r1 + 0.04);       // and a cornice round it
+      lbox(f, 'wood', back - 0.14, ac + 0.12, F, F + 1.0, r0 - 0.02, r0); lbox(f, 'wood', back - 0.14, ac + 0.12, F, F + 1.0, r1, r1 + 0.02);   // the wainscot outside
+      lbox(f, 'brass', back - 0.155, ac + 0.135, F + 1.0, F + 1.04, r0 - 0.035, r0); lbox(f, 'brass', back - 0.155, ac + 0.135, F + 1.0, F + 1.04, r1, r1 + 0.035);
+      lbox(f, 'wood', back - 0.14, back - 0.12, F, F + 1.0, r0, r1); lbox(f, 'brass', back - 0.155, back - 0.12, F + 1.0, F + 1.04, r0, r1);
+      lbox(f, 'wood', ac - 0.35, ac + 0.1, F, F + 1.0, r0 + 0.12, r1 - 0.12);                    // the counter
+      lbox(f, 'stone', ac - 0.4, ac + 0.25, F + 1.0, F + 1.05, r0 + 0.12, r1 - 0.12);             // its top, 15 cm over the customer's side
+      lbox(f, 'wall', ac - 0.35, ac + 0.1, F + 2.5, top, r0 + 0.12, r1 - 0.12);                   // the fascia over the screen
+      lbox(f, 'dark', ac - 0.35, ac + 0.1, F + 2.45, F + 2.5, r0 + 0.12, r1 - 0.12);
+      lplane(f, 'glass', r1 - r0 - 0.24, 1.4, ac - 0.12, F + 1.75, (r0 + r1) / 2, true);
+      for (let i = 0; i <= 3; i++) { const d = r0 + 0.15 + (r1 - r0 - 0.3) * i / 3; lbox(f, 'dark', ac - 0.15, ac - 0.09, F + 1.05, F + 2.45, d - 0.03, d + 0.03); }
+      lsign(f, 0, 2.6, 0.325, ac + 0.11, F + 2.95, (r0 + r1) / 2, 1, 0);
+      lbox(f, 'wood', back, back + 0.55, F, F + 0.9, r0 + 0.12, r1 - 0.12); lbox(f, 'stone', back, back + 0.6, F + 0.9, F + 0.94, r0 + 0.12, r1 - 0.12);   // the back counter
+      for (const d of [r0 + 1.1, r1 - 1.1]) {                                                     // two ticketing screens, facing the staff
+        lbox(f, 'dark', ac - 0.3, ac - 0.26, F + 1.18, F + 1.5, d - 0.24, d + 0.24); lbox(f, 'dark', ac - 0.29, ac - 0.27, F + 1.05, F + 1.18, d - 0.03, d + 0.03);
+        const g = new THREE.PlaneGeometry(0.44, 0.28).rotateY(-Math.PI / 2).translate(ac - 0.305, F + 1.34, d); lput(f, 'screen', g);
+      }
+      lbox(f, 'dark', back + 0.1, back + 0.4, F + 0.94, F + 1.12, r0 + 1.75, r0 + 2.05);         // the ticket printer
+      for (const [d, fd] of [[r0 - 0.02, -1], [r1 + 0.02, 1]]) for (const s of [back + 0.55, ac - 0.35]) {   // posters on its outer sides
+        lbox(f, 'dark', s - 0.43, s + 0.43, F + 1.14, F + 2.36, d + fd * 0.0, d + fd * 0.04);
+        tint(lbox(f, 'colour', s - 0.37, s + 0.37, F + 1.2, F + 2.3, d + fd * 0.04, d + fd * 0.05), POSTER[np++ % POSTER.length]);
+      }
+      stand(f, 'box office', back - 0.16, ac + 0.25, r0 - 0.06, r1 + 0.06);
+      lcyl(f, 'dark', 0.2, 0.17, F, F + 0.72, ac + 0.5, r0 - 0.4, 16); lcyl(f, 'brass', 0.205, 0.205, F + 0.72, F + 0.75, ac + 0.5, r0 - 0.4, 16);
+      stand(f, 'box office bin', ac + 0.29, ac + 0.71, r0 - 0.61, r0 - 0.19);
+    } else {
+      // house left, where the box office stands house right: a seating island, two benches back to back between planters
+      bench('island bench', -31.6, -29.6, 7.38, 7.8); bench('island bench, back', -31.6, -29.6, 7.86, 8.28);
+      planter('island planter', -32.15, 7.83); planter('island planter, front', -29.05, 7.83);
+      poster('poster stand, back', -30.6, VWF.band + 0.5, 0, 1);
+    }
+  }
+  // 7. THE BACK: the arc faced like the side walls, its wainscot and rail, sconces, downlights round it
+  { const tA = -Math.PI - O.tc, tB = O.tc, R = VWF.wallR, n = 40, tLo = Math.min(tA, tB), tHi = Math.max(tA, tB);
+    for (let i = 0; i < n; i++) {
+      const ta = tA + (tB - tA) * i / n, tb = tA + (tB - tA) * (i + 1) / n;
+      arcBox('wall', ta, tb, R + 0.005, R + 0.03, F, CL); arcBox('wood', ta, tb, R + 0.03, R + 0.05, F, F + 1.0); arcBox('brass', ta, tb, R + 0.03, R + 0.065, F + 1.0, F + 1.04);
+    }
+    for (let i = 1; i < 8; i++) {
+      const t = tA + (tB - tA) * i / 8;
+      const g1 = new THREE.BoxGeometry(0.14, 0.3, 0.02).translate(0, 8.4, R + 0.04), g2 = new THREE.BoxGeometry(0.03, 0.03, 0.17).translate(0, 8.375, R + 0.135), g3 = new THREE.CylinderGeometry(0.09, 0.06, 0.21, 12).translate(0, 8.495, R + 0.24);
+      for (const [k, g] of [['brass', g1], ['brass', g2], ['glow', g3]]) { g.applyMatrix4(new THREE.Matrix4().makeRotationY(-t + Math.PI / 2)).translate(ccx, 0, ccz); file(k, nonIdx(g)); }
+      nSconce++;
+    }
+    const Rd = (R + O.Rg) / 2;
+    for (let t = tLo + 0.04; t < tHi - 0.02; t += 3.2 / Rd) { file('glow', nonIdx(new THREE.CircleGeometry(0.16, 16).rotateX(Math.PI / 2).translate(ccx + Rd * Math.cos(t), CL - 0.004, ccz + Rd * Math.sin(t)))); nDown++; }
+  }
+  // 8. One mesh per material (THE LOBBY's), world frame, never cast or caught, skipped by the build tools; the carpet's uv in
+  // world metres, as the lobby's
+  const group = new THREE.Group(); group.name = 'vw foyer';
+  let tris = 0;
+  for (const [key, geos] of Object.entries(P)) {
+    const geo = mergeGeometries(geos, false); geos.forEach(g => g.dispose());
+    if (!geo) { console.warn(`van wezel foyer: the ${key} pieces did not merge — left out`); continue; }
+    if (key === 'carpet') { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / LOBBY.tile, -p.getZ(i) / LOBBY.tile); }
+    const mesh = new THREE.Mesh(geo, vwfMat(key));
+    mesh.name = 'vw foyer: ' + key; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    tris += geo.attributes.position.count / 3;
+    group.add(mesh);
+  }
+  scene.add(group); group.updateMatrixWorld(true);
+  vwFoyer = { group, stands, outline: O, triangles: tris, downlights: nDown, sconces: nSconce, ms: performance.now() - t0 };
+  console.info(`van wezel foyer: carpet and ceiling (y ${F} / ${CL}) over the foyer's ${O.pts.length}-point outline; the walls faced from the corners (a ${aC.toFixed(2)}) to the stage house round ${ports.length} portals a side; ${stands.length} standing pieces (box office, 2 bars, benches, planters, poster stands, bins), ${nDown} downlights, ${nSconce} sconces, 6 chandeliers · ${group.children.length} meshes, ${tris} triangles · ${vwFoyer.ms.toFixed(0)} ms`);
+  requestRender();
+  return vwFoyer;
+}
+// The check: every standing piece's footprint clear of the galleries' band (both side walls and the back wall), of
+// VW_ROUTE by VWF.route, and inside the glass; the carpet under the route the hallway's height.
+const VW_FOYER_API = {
+  spec: VWF, get built() { return vwFoyer; },
+  check() {
+    if (!vwFoyer) return 'van wezel foyer: not built';
+    const out = [], fails = [], O = vwFoyer.outline, [ccx, ccz] = VWF.c, R = VWF.wallR;
+    const segD = (p, a, b) => { const dx = b[0] - a[0], dz = b[1] - a[1], t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / (dx * dx + dz * dz))); return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dz); };
+    const m = p => [2 * VW.at.x - p[0], p[1]], wf = O.onWall(VWF.front);
+    const tLo = Math.min(O.tc, -Math.PI - O.tc), tHi = Math.max(O.tc, -Math.PI - O.tc);
+    const wallD = p => { let d = Math.min(segD(p, wf, O.corner), segD(p, m(wf), m(O.corner))); const t = Math.atan2(p[1] - ccz, p[0] - ccx); if (t >= tLo && t <= tHi) d = Math.min(d, Math.abs(Math.hypot(p[0] - ccx, p[1] - ccz) - R)); return d; };
+    const route = VW_ROUTE.slice();
+    if (vwBuilt && vwBuilt.frame) { const { fp, out: o } = vwBuilt.frame; route[7] = [fp.x + o.x * 3.0, fp.y + o.y * 3.0]; route[8] = [fp.x - o.x * 0.9, fp.y - o.y * 0.9]; }
+    const routeD = p => { let d = Infinity; for (let i = 0; i + 1 < route.length; i++) if (route[i] && route[i + 1]) d = Math.min(d, segD(p, route[i], route[i + 1])); return d; };
+    const sides = { '-1': vwfFrame(-1), '1': vwfFrame(1) };
+    let worstWall = Infinity, worstRoute = Infinity, worstGlass = Infinity, ww = '', wr = '', wg = '';
+    for (const s of vwFoyer.stands) {
+      const f = sides[s.side];
+      for (let i = 0; i < 4; i++) {           // the corners and the edges' middles
+        const p = s.pts[i], q = s.pts[(i + 1) % 4];
+        for (const r of [p, [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2]]) {
+          const dw = wallD(r), dr = routeD(r), [a, d] = f.toL(...r), dg = vwfGlassD(f, a) - d;
+          if (dw < worstWall) { worstWall = dw; ww = s.name; }
+          if (dr < worstRoute) { worstRoute = dr; wr = s.name; }
+          if (dg < worstGlass) { worstGlass = dg; wg = s.name; }
+        }
+      }
+    }
+    out.push(`${vwFoyer.stands.length} standing pieces: nearest the walls ${worstWall.toFixed(2)} m (${ww}; the band ${VWF.band}), the route ${worstRoute.toFixed(2)} m (${wr}; ${VWF.route}), the glass ${worstGlass.toFixed(2)} m (${wg})`);
+    if (worstWall < VWF.band - 0.005) fails.push('band');
+    if (worstRoute < VWF.route) fails.push('route');
+    if (worstGlass < 0.05) fails.push('glass');
+    if (col.stale) buildCollider();
+    const ys = [[47.5, -15.87], [52, -13.0], [44.0, -26.0], [77, -40.5], [96, -8]].map(([x, z]) => rayDown(x, 2.0, z));
+    out.push(`the floor under the hallway's mouth, the foyer house right, its back, house left: y ${ys.map(y => y === null ? '—' : y.toFixed(3)).join(' / ')}`);
+    if (ys.some(y => y === null || Math.abs(y - VWF.floor) > 0.002)) fails.push('floor');
+    const s = `van wezel foyer: ${fails.length ? 'FAIL (' + fails.join(', ') + ')' : 'PASS'} — ` + out.join(' · ');
+    console.info(s); return s;
+  },
+};
+VAN_WEZEL_API.foyer = VW_FOYER_API;                          // MIDTOWN.vanWezel.foyer.check()
 
 /* ---------------------------------------------------------------- THEATRE 2: THE UNDERGROUND AND THE LIFTS
    RULING GI (2026-10-16), Jack: "make it so there is a stage lift that is used to bring on and off big sets like the ship.
