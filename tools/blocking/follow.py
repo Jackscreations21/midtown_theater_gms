@@ -178,7 +178,7 @@ def check(doc, tracks, only, blocking):
                 probs.append('spot %s %s %.2f on %s: %s at %s' % (s, e['track'], e['at'], e['who'], bad[0][1],
                              ', '.join('%.1f' % b[0] for b in bad[:8]) + (' … (%d)' % len(bad) if len(bad) > 8 else '')))
     for T, L in sorted(onto.items()):
-        whos = [w for _, w in L]
+        whos = [w for _, w in set(L)]                # one spot counts once: an iris / level change on her samples its own moment twice
         for w in set(whos):
             if whos.count(w) > 1: probs.append('note: %s is on %d spots at show time %.1f' % (w, whos.count(w), T))
     return probs

@@ -49,6 +49,11 @@
   term in the materials' shaders clipped to that stage house (the unlit scan brightened, the set, the rig and the actors
   given its irradiance), so nothing behind the back brick sees it. The show takes Stage 1's out with the work look (at the
   panel's open and at every Play); Stop puts it back.
+
+  THE FOLLOWSPOTS (Jack: "use the 3 spotlights to make sure people get lit up fully when they should be"; THE FOLLOWSPOTS below):
+  house 1's three Lycians in the booth play assets/hamilton-follow.json (tools/blocking/follow.py) on the show clock — each dark,
+  or on one actor, turned every frame to where she is and zoomed to the pool's size at her; a pure function of show time, so a
+  seek is a play (MIDTOWN.follow.check()). Only while the show is on; stopped, they are the engine's to drive by hand.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1120,7 +1125,7 @@ const LX_TYPES = {
   'elar-108':        { zoom: 25, power: 0.6, beamK: 0.35, cap: 20 },
   'pixelpar':        { zoom: 25, power: 0.6, beamK: 0.35, cap: 20 },
   'mini-10':         { zoom: 60, power: 0.2, beamK: 0.30, cap: 8 },
-  'lycian':          { zoom: 4, min: 2, max: 8, power: 2.5, beamK: 0.62, cap: 40 },
+  'lycian':          { zoom: 4, min: 2, max: 9, power: 2.5, beamK: 0.62, cap: 40 },   // max 8 → 9 (THE FOLLOWSPOTS): a Lycian 1293 runs ~2–9°, and a full 2.2 m pool at the lip from the booth (~15 m) wants 8.7°
   'colorblaze-48':   { zoom: 110, power: 0.5, strip: true },
   'colorblaze-72':   { zoom: 110, power: 0.6, strip: true },
   'hazer':           { zoom: 0, power: 0, hazer: true },
@@ -1525,7 +1530,7 @@ function lxDrawRec(r) {
     const tanH = Math.tan(st.zoom / 2 * LX_DEG);
     // the depth band: cast across the cone once per aim and zoom (r.band, cleared by lxHitRec); a head on the move or a zoom
     // in a fade takes the plane's estimate each frame instead, and casts when it settles
-    const moving = (r.mover && (st.pan !== st.panTo || st.tilt !== st.tiltTo)) || !!r.fade.zoom;
+    const moving = (r.mover && (st.pan !== st.panTo || st.tilt !== st.tiltTo)) || !!r.fade.zoom || !!r.follow;   // r.follow: a followspot on a body (THE FOLLOWSPOTS), re-aimed every frame she moves
     if (!moving && (!r.band || r.band.zoom !== st.zoom)) lxPoolBand(r, r0, tanH);
     const zr = moving ? lxPoolDepth(r, r0, tanH) : r.band.z;
     lxQ.setFromUnitVectors(LX_Z, r.dir);
@@ -6795,6 +6800,7 @@ function actTick(dt, force = false) {
   const T = actNow();
   if (force || ACT.dirty || T !== ACT.T || SHW.d !== ACT.compiledFor) { const t0 = performance.now(); actUpdate(T); ACT.ms = performance.now() - t0; ACT.T = T; ACT.dirty = false; requestRender(); actUI(false); }
   if (ACT.helpDirty) actHelpers();
+  folTick(force);                                            // THE FOLLOWSPOTS onto the bodies just posed, before the pools are widened to them
   actPoolBands();
   return false;
 }
@@ -7419,7 +7425,287 @@ buildLightsPanel = () => {
       get props() { return ACT.props.map(p => ({ id: p.id, kind: p.kind, item: p.item, label: p.label, size: p.size, waypoints: p.waypoints.length, pose: p.obj.userData.pose || null, visible: p.obj.visible })); },
       propPose: (id, T = actNow()) => { const p = ACT.props.find(x => x.id === id) || ACT.props[id]; if (!p) return null; if (!p.c) p.c = propCompile(p); ACT.root.updateWorldMatrix(true, false); return propPose(p, T); },
     };
+    M.follow = FOL_API; folLoad(FOL_URL);                    // THE FOLLOWSPOTS: they follow these bodies (their plot fetched now, small)
   }).catch(e => { console.error('actors: they could not be set up —', e); ACT.btn.title = 'No actors: ' + (e.message || e); });
+};
+
+/* ---------------------------------------------------------------- THE FOLLOWSPOTS
+   Jack: "use the 3 spotlights to make sure people get lit up fully when they should be" — he ruled that the three followspots
+   follow an actor. The three Lycians in house 1's booth (assets/hamilton-rig.json lycian-1 centre, -2 house left, -3 house
+   right; boothSpots stands them there) are rig units the engine already drives (LX_TYPES 'lycian': xenon, a gel unit with the
+   boomerang's six frames) but carry no channel, so no cue ever reached them: props that never lit. Here they play
+   assets/hamilton-follow.json, which tools/blocking/follow.py writes — ITS DOCSTRING IS THE CONTRACT: per spot ("1".."3"),
+   entries in show order, a pick-up { track, at, who, size, level, fade, move, gel? } or { track, at, out: true, fade }.
+   - A PURE FUNCTION OF THE SHOW CLOCK, as the actors are (folAt): at show time T each spot is dark, or lit on one actor at a
+     level, a pool size and a frame, aimed at a point. The level and size each entry STARTS from (what the entry before leaves
+     at that instant) are folded once, at compile (folCompile); nothing is carried from frame to frame, so a seek is a play
+     (MIDTOWN.follow.check(), the actors' invariant). The aim is where the actor IS at T (actPose: the pose the bodies are
+     drawn from, on the deck, the gallery or a prop's top), so a spot FOLLOWS her; nobody writes a waypoint for the light.
+   - A PICK-UP on a dark spot snaps onto her (the iris set in the dark) and fades up over `fade`. On a spot lit on someone
+     else (still lit: a pick-up inside an OUT's fade counts) it PANS from where the old target is at T to where she is, eased
+     in and out over `move`, the iris going to the new size over the same move and the level over `fade`. On a spot lit on
+     her already, size and level go over `fade` (an iris, a level change). The frame changes at the entry's moment (a
+     boomerang is a lever, not a fade). OUT: the level to 0 over `fade`, still following her while it fades.
+   - THE AIM: the body's centre for a pool that holds her (full, 2.2 m round her 1.65 m), higher for a smaller one — the
+     pool's top FOL_TOP over her crown (half: waist up, head: head and shoulders): max(H / 2, H + FOL_TOP − size / 2) over
+     her feet, in the set's frame (the body scales with the set).
+   - THE ZOOM: the angle that makes the pool `size` across at her, by the engine's own cone (lens radius + tan(zoom / 2) ×
+     throw), clamped to the Lycian's range (LX_TYPES, 2–9°: the throw from the booth is ~15 m to the lip and ~23 m upstage,
+     so a full 2.2 m pool at the lip wants 8.7°; a head pool upstage wants 1.7° and gets 2°, ~0.8 m).
+   - THE UNIT turns as the booth turned it (boothAim: the pan on the unit, the tilt on its head) — from the rig file's rest
+     pose every time (folTurn), so the turn is a function of the target alone, never of last frame's pose. Its pool is marked
+     moving (r.follow: lxDrawRec takes the landing plane's band, as for a travelling mover, not twelve rays every frame), and
+     actPoolBands (run after this, in actTick) widens it to every body in the cone as for any pool, so she is lit head to toe
+     on whatever floor she stands; the real lights go to the brightest units, which a Lycian at a principal's level is.
+   - ONLY WHILE THE SHOW IS ON (SHW.on): the spots are the show's then (no cue touches them). The show's Stop puts every
+     unit's state back (lxjRestore); here the units then turn back to the booth's aim and leave this region's hands, so
+     lx.set('lycian-2', …) drives them by hand as before, and lx.check() (show stopped) is as it was. Theatre 2's three
+     Lycians are THE SECOND HOUSE's props and are not here.
+   MIDTOWN.follow: state(T?), check(opts), load(obj | url), data(), spots, perf, problems. */
+const FOL_URL = 'assets/hamilton-follow.json';
+const FOL_IDS = ['lycian-1', 'lycian-2', 'lycian-3'];        // spots 1, 2, 3 (follow.py: centre, house left, house right)
+const FOL_SIZES = { full: 2.2, half: 1.3, head: 0.7 };       // the pool's diameter at her, m — follow.py's SIZES (the same table: keep them alike)
+const FOL_GELS = ['R3314', 'R33', 'R302', 'R362', 'R54', 'R02'];   // follow.py's GELS, the boomerang in LX_CMODEL 'lycian''s order: frame 1..6 (0 open)
+const FOL_TOP = 0.1;                                         // m: a smaller pool's top over her crown
+const FOL = { d: null, err: null, loading: null, v: 0, spots: [], compiled: '', probs: [], hudText: null, ms: 0, perf: { last: 0, avg: 0, max: 0, n: 0 } };
+const folRamp = (u, d) => d > 0 ? Math.min(1, Math.max(0, u / d)) : 1;
+const folEase = k => k * k * (3 - 2 * k);                    // the operator's swing: away slow, across, settle
+async function folLoad(src) {
+  FOL.err = null;
+  FOL.loading = (async () => {
+    const d = typeof src === 'string' ? await fetch(src, { cache: 'no-cache' }).then(r => { if (!r.ok) throw new Error(`${src}: HTTP ${r.status}`); return r.json(); }) : src;
+    if (!d || typeof d !== 'object' || !d.spots) throw new Error('not a followspot file (no "spots")');
+    FOL.d = d; FOL.v++; requestRender();
+    return Object.fromEntries(Object.entries(d.spots).map(([k, L]) => [k, (L || []).length]));
+  })();
+  try { return await FOL.loading; }
+  catch (e) { FOL.err = e; console.warn('follow: the followspot plot could not be loaded —', e.message || e); return { error: String(e.message || e) }; }
+  finally { FOL.loading = null; }
+}
+// The file's entries on the show clock, sorted, each with the mode it plays in and the level / size it starts from.
+function folCompile() {
+  const D = SHW.d, probs = [];
+  FOL.spots = FOL_IDS.map((id, i) => {
+    const unit = LX.units.find(u => u.userData.id === id), rec = unit ? LX.byUnit.get(unit) : null;
+    if (!rec) probs.push(`spot ${i + 1}: no ${id} in the rig`);
+    const raw = (FOL.d && FOL.d.spots && FOL.d.spots[String(i + 1)]) || [], L = [];
+    raw.forEach((e, k) => {
+      const where = `spot ${i + 1} ${e && e.track} ${e && e.at}: `, tr = e && D.byTrack.get(String(e.track));
+      if (!tr) { probs.push(where + 'no such track'); return; }
+      const o = { k, T: tr.start + (+e.at || 0), track: tr.id, at: +e.at || 0, fade: Math.max(0, Number.isFinite(+e.fade) ? +e.fade : e.out ? 1 : 0.5), note: e.note || '' };
+      if (e.out) { o.out = true; L.push(o); return; }
+      if (!ACT.actors.some(a => a.id === e.who)) { probs.push(where + `${e.who} is not an actor in the blocking — left out`); return; }
+      const size = typeof e.size === 'number' ? e.size : FOL_SIZES[e.size];
+      if (!(size > 0)) probs.push(where + `size ${JSON.stringify(e.size)} not understood — full`);
+      const g = e.gel ? FOL_GELS.indexOf(e.gel) + 1 : 0;
+      if (e.gel && !g) probs.push(where + `gel ${e.gel} is not in the boomerang — open`);
+      L.push(Object.assign(o, { who: e.who, size: size > 0 ? size : FOL_SIZES.full, level: THREE.MathUtils.clamp(Number.isFinite(+e.level) ? +e.level : 1, 0, 1),
+        move: Math.max(0, Number.isFinite(+e.move) ? +e.move : 0.8), gel: Math.max(0, g) }));
+    });
+    L.sort((a, b) => a.T - b.T || a.k - b.k);
+    let prev = null;                                         // the fold: what the entry before leaves at each entry's moment
+    for (const e of L) {
+      const s = prev ? folScalar(prev, e.T) : null, lit = !!(s && s.lit);
+      e.L0 = lit ? s.level : 0; e.D0 = lit ? s.size : e.out ? 0 : e.size;
+      if (e.out) { e.mode = lit ? 'out' : 'dark'; e.who = lit ? s.who : null; e.size = e.D0; e.gel = lit ? s.gel : 0; }
+      else e.mode = !lit ? 'snap' : s.who === e.who ? 'same' : 'pan';
+      prev = e;
+    }
+    return { n: i + 1, id, unit, rec, L, sig: '', wrote: null, rest: false, now: null };
+  });
+  FOL.probs = probs; FOL.compiled = `${FOL.v}|${D ? D.tracks.length + ':' + D.end : ''}`;
+  for (const p of probs) console.warn('follow: ' + p);
+}
+// An entry's level, size, target and frame at T (T at or after its own moment): no aim, no pose.
+function folScalar(e, T) {
+  const u = T - e.T;
+  if (e.mode === 'dark') return { lit: false };
+  if (e.mode === 'out') { const k = folRamp(u, e.fade); return k >= 1 ? { lit: false } : { lit: true, who: e.who, level: e.L0 * (1 - k), size: e.size, gel: e.gel }; }
+  const kl = folRamp(u, e.fade), ks = e.mode === 'pan' ? folEase(folRamp(u, e.move)) : e.mode === 'same' ? kl : 1;
+  return { lit: true, who: e.who, level: e.L0 + (e.level - e.L0) * kl, size: e.D0 + (e.size - e.D0) * ks, gel: e.gel };
+}
+// Where the spot points at T (world), for entry k: on her (a snap, a finished pan), the entry before's aim (the same target, an
+// OUT), or a pan's ease from the old aim to her. D: the size the current target's aim height is taken for.
+function folAim(L, k, T, D, out) {
+  while (L[k].mode === 'same' || L[k].mode === 'out') k--;   // she is who it was already on: a pan to her may still be swinging
+  const e = L[k];
+  if (e.mode === 'pan' && e.move > 0 && T - e.T < e.move) {
+    const from = folAim(L, k - 1, T, e.D0, new THREE.Vector3()), to = folPoint(e.who, T, D, out);
+    if (!from || !to) return to || (from ? out.copy(from) : null);
+    return out.lerpVectors(from, to, folEase(folRamp(T - e.T, e.move)));
+  }
+  return folPoint(e.who, T, D, out);
+}
+// Is entry k's aim still on its way to her at T (a pan not finished)?
+function folSwinging(L, k, T) { while (L[k].mode === 'same' || L[k].mode === 'out') k--; const e = L[k]; return e.mode === 'pan' && e.move > 0 && T - e.T < e.move; }
+// The point on her a pool of diameter D (world m) is aimed at, world, at show time T (her pose there: a pure function of T).
+const folS = new THREE.Vector3();
+function folPoint(who, T, D, out) {
+  const a = ACT.actors.find(x => x.id === who); if (!a) return null;
+  if (!a.c) a.c = actCompile(a);
+  const p = actPose(a, T), s = ACT.group.getWorldScale(folS).x || 1;
+  return ACT.group.localToWorld(out.set(p.x, p.y + Math.max(ACT_H / 2, ACT_H + (FOL_TOP - D / 2) / s), p.z));
+}
+// Each spot at show time T: { lit, who, level, size, gel, aim (world, or null when asked without), k (its entry) }.
+function folAt(S, T, aim = true) {
+  const L = S.L; let lo = 0, hi = L.length;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (L[m].T <= T + 1e-9) lo = m + 1; else hi = m; }
+  const k = lo - 1; if (k < 0) return { lit: false };
+  const s = folScalar(L[k], T); if (!s.lit) return { lit: false };
+  const P = aim ? folAim(L, k, T, s.size, new THREE.Vector3()) : null;
+  if (aim && !P) return { lit: false };
+  return Object.assign(s, { aim: P, k });
+}
+// The unit at a world point from the rig file's rest pose (as boothSpots does it), so the turn is the target's alone.
+function folTurn(S, P) {
+  const u = S.unit, f = RIG_FILE.get(u); if (!f) return;
+  u.rotation.copy(f.r);
+  u.levels.forEach((l, i) => { const h = f.heads[i] && l.object.getObjectByName('head'); if (h) h.quaternion.copy(f.heads[i]); });
+  boothAim(u, P);
+  S.rec.hitStale = true; LX.dirty.add(S.rec);
+}
+const folRestP = () => new THREE.Vector3(...boothSpec.aim);
+// One spot to its state: dark (the booth's aim, level 0) or lit (turned onto the aim, the zoom for the size at her, the level,
+// the frame). Every value set outright and its fades dropped: the engine draws what is set, nothing runs on from it.
+function folApply(S, f) {
+  const r = S.rec, st = r.st, T = r.T;
+  r.fade.level = r.fade.zoom = r.fade.color = null;
+  const was = st.level;
+  if (!f.lit) {
+    if (!S.rest) { folTurn(S, folRestP()); S.rest = true; }
+    st.level = 0; r.follow = false;
+  } else {
+    folTurn(S, f.aim); S.rest = false; r.follow = true;
+    if (r.hitStale) lxHitRec(r);
+    const r0 = r.lensR * r.scale, d = Math.max(0.5, r.org.distanceTo(f.aim));
+    st.zoom = THREE.MathUtils.clamp(2 * Math.atan(Math.max(0.01, f.size / 2 - r0) / d) / LX_DEG, T.min ?? T.zoom, T.max ?? T.zoom);
+    st.level = f.level;
+    const c = st.cm || lxColourInit(S.unit, st), M = c.M;
+    if (M.frames && st.frame !== f.gel && M.frames[f.gel]) { st.frame = f.gel; st.gel = M.frames[f.gel].code; st.color.copy(M.frames[f.gel].c); c.v++; }
+  }
+  if (st.level !== was) LX.lightsDirty = true;
+  LX.dirty.add(r);
+  S.wrote = { level: st.level, zoom: st.zoom, frame: st.frame };
+}
+// The frame's call, from actTick after the bodies are posed and before actPoolBands widens the pools to them. → whether it drew.
+function folTick(force) {
+  if (!LX.ready || !ACT.ready) return false;
+  const on = !!(SHW.on && SHW.d);
+  if (!on) {                                                 // stopped: back to the booth's aim, out of this region's hands (the levels are lxjRestore's)
+    let did = false;
+    for (const S of FOL.spots) if (!S.rest || S.rec && S.rec.follow) { if (S.rec) { S.rec.follow = false; folTurn(S, folRestP()); } S.rest = true; S.sig = ''; S.now = null; did = true; }
+    if (did) { lxFlush(); folHud(); }
+    return did;
+  }
+  if (!FOL.d && !FOL.loading && !FOL.err) folLoad(FOL_URL);
+  if (!FOL.d) return false;
+  if (FOL.compiled !== `${FOL.v}|${SHW.d.tracks.length + ':' + SHW.d.end}`) folCompile();
+  const t0 = performance.now(), T = showT(), sig = `${T}|${rig && rig.userData.placedFor}|${FOL.v}|${ACT.mv}`;
+  ACT.root.updateWorldMatrix(true, false); ACT.group.updateWorldMatrix(false, false);
+  let did = false;
+  for (const S of FOL.spots) {
+    if (!S.rec) continue;
+    const st = S.rec.st, W = S.wrote;
+    // again when the clock moved, or anything else wrote the unit (a seek's lxjFresh darkens and re-zooms every unit)
+    if (!force && S.sig === sig && W && st.level === W.level && st.zoom === W.zoom && st.frame === W.frame && !S.rec.fade.level) continue;
+    S.now = folAt(S, T); folApply(S, S.now); S.sig = sig; did = true;
+  }
+  if (did) {
+    lxFlush(); folHud();
+    const ms = FOL.ms = performance.now() - t0, P = FOL.perf; P.last = ms; P.n++; P.avg += (ms - P.avg) / Math.min(P.n, 60); P.max = Math.max(P.max, ms);
+    requestRender();
+  }
+  return did;
+}
+// The show's readout (showHud's box): "Spot 2: Hamilton · Spot 3: Eliza" while any is lit — the head label she wears now.
+function folHud() {
+  const H = SHW.hud; if (!H) return;
+  if (!H.spots) { H.spots = document.createElement('div'); H.spots.className = 'hud-spots'; H.el.append(H.spots); }
+  const txt = FOL.spots.filter(S => S.now && S.now.lit).map(S => { const a = ACT.actors.find(x => x.id === S.now.who); return `Spot ${S.n}: ${a ? a.tagText || a.name : S.now.who}`; }).join(' · ');
+  if (txt !== FOL.hudText) { FOL.hudText = txt; H.spots.textContent = txt; H.spots.hidden = !txt; }
+}
+// For the console: each spot now (or at T, computed, the units untouched).
+function folState(T) {
+  if (!SHW.d) return { error: 'the show is not loaded yet' };
+  if (FOL.compiled !== `${FOL.v}|${SHW.d.tracks.length + ':' + SHW.d.end}`) folCompile();
+  const at = T === undefined ? showT() : +T;
+  return FOL.spots.map(S => {
+    const f = folAt(S, at), r = S.rec, st = r && r.st;
+    const o = { spot: S.n, id: S.id, lit: !!f.lit, who: f.lit ? f.who : null };
+    if (f.lit) {
+      const a = ACT.actors.find(x => x.id === f.who);
+      Object.assign(o, { name: a ? a.name : f.who, level: +f.level.toFixed(4), size: +f.size.toFixed(3), gel: f.gel ? FOL_GELS[f.gel - 1] : null, aim: f.aim.toArray().map(v => +v.toFixed(3)), entry: f.k });
+    }
+    if (T === undefined && st) Object.assign(o, { unit: { level: +st.level.toFixed(4), zoom: +st.zoom.toFixed(3), frame: st.frame, follow: !!r.follow, pool: r.pool.visible, realLight: r.slot >= 0 ? r.slot : null } });
+    return o;
+  });
+}
+// SEEK = PLAY, as MIDTOWN.actors.check(): at moments through every entry (just after it, mid-fade, mid-pan), the spots after a seek
+// from far away against the spots after playing up to the same moment from `span` s before, in the frame's own order. And the
+// light on her: for every lit moment with a pool meant to hold her whole (2 m or more), her feet and her crown inside the cone.
+function folCheck(opts = {}) {
+  if (!SHW.d) return { error: 'the show is not loaded yet' };
+  if (!ACT.ready || !LX.ready) return { error: 'the actors or the lights are not ready' };
+  if (!FOL.d) return { error: FOL.err ? `no followspot plot: ${FOL.err.message || FOL.err}` : 'the followspot plot is not loaded yet (MIDTOWN.follow.load())' };
+  const t0 = performance.now(), wasOn = SHW.on, wasT = showT(), wasPlaying = SHW.playing;
+  folCompile();
+  for (const a of ACT.actors) a.c = actCompile(a);
+  const all = FOL.spots.flatMap(S => S.L.flatMap((e, i) => {
+    const nx = S.L[i + 1], pts = [e.T + 0.05, e.T + e.fade * 0.5];
+    if (e.mode === 'pan') pts.push(e.T + e.move * 0.4);
+    if (nx && !e.out) pts.push((e.T + nx.T) / 2);
+    return pts;
+  }));
+  // OFF THE INSTANT (actCheck's rule): a pose may step at a waypoint's own time, and so may an entry: 5 ms clear of both
+  const inst = ACT.actors.flatMap(a => a.c.P.map(p => p.T)).concat(FOL.spots.flatMap(S => S.L.map(e => e.T))).sort((a, b) => a - b);
+  const clear = T => { for (let k = 0; k < 8; k++) { let lo = 0, hi = inst.length; while (lo < hi) { const m = (lo + hi) >> 1; if (inst[m] < T - 5e-3) lo = m + 1; else hi = m; } if (lo < inst.length && Math.abs(inst[lo] - T) < 5e-3) T = inst[lo] + 5e-3; else break; } return T; };
+  const n = opts.n || 24, uniq = [...new Set(all)].sort((a, b) => a - b);
+  const pts = (opts.points || uniq.filter((T, i) => i % Math.max(1, Math.floor(uniq.length / n)) === 0).slice(0, n)).map(clear);
+  const span = opts.span ?? 6, step = opts.step || 0.1;
+  if (!wasOn) showStart(false);
+  SHW.playing = false;
+  const snap = () => { lxFlush(); return FOL.spots.map(S => { const r = S.rec, st = r.st; if (r.hitStale) lxHitRec(r);
+    return { lit: st.level > LX_LIVE, who: S.now && S.now.lit ? S.now.who : null, level: st.level, zoom: st.zoom, frame: st.frame, org: r.org.clone(), dir: r.dir.clone() }; }); };
+  const bodyIn = [];
+  const eq = pts.map(T => {
+    T = Math.min(T, SHW.d.max);
+    showSeekT(T > 600 ? T - 600 : T + 600); actTick(0, true);   // a jump from far away first: nothing the last moment left may survive it
+    showSeekT(T); actTick(0, true);
+    const B = snap();
+    showSeekT(Math.max(0, T - span)); actTick(0, true);
+    for (let t = showT(); t < T - 1e-9;) {
+      const d = Math.min(step, T - t);
+      SHW.playing = true; showTick(d, true); lxTick(d); SHW.playing = false; actTick(d); t += d;
+      if (SHW.hold) { SHW.hold = false; showSeekT(t); }
+    }
+    const A = snap(), at = showT();
+    let dl = 0, dz = 0, da = 0, dlit = 0, dwho = 0, dfr = 0;
+    A.forEach((x, i) => { const y = B[i]; if (x.lit !== y.lit) dlit++; if (x.who !== y.who) dwho++; dl = Math.max(dl, Math.abs(x.level - y.level));
+      if (x.lit && y.lit) { dz = Math.max(dz, Math.abs(x.zoom - y.zoom)); da = Math.max(da, x.dir.angleTo(y.dir), x.org.distanceTo(y.org)); if (x.frame !== y.frame) dfr++; } });
+    // the light on her: feet and crown inside the cone (radial ≤ the cone's radius at that depth), for a pool meant to hold her
+    for (const S of FOL.spots) {
+      const f = S.now; if (!f || !f.lit || f.size < 2 || f.level <= LX_LIVE || folSwinging(S.L, f.k, at)) continue;   // mid-pan it is between them, as a real one is
+      const a = ACT.actors.find(x => x.id === f.who), p = actPose(a, at), r = S.rec, tanH = Math.tan(r.st.zoom / 2 * LX_DEG), r0 = r.lensR * r.scale;
+      const miss = [0.02, ACT_H].map(h => { const w = ACT.group.localToWorld(new THREE.Vector3(p.x, p.y + h, p.z)).sub(r.org), z = w.dot(r.dir), rad = Math.sqrt(Math.max(0, w.lengthSq() - z * z));
+        return rad - (r0 + tanH * z); });
+      bodyIn.push({ T: +at.toFixed(3), spot: S.n, who: f.who, zoom: +r.st.zoom.toFixed(2), feet: +miss[0].toFixed(3), crown: +miss[1].toFixed(3), whole: miss.every(m => m <= 0) });
+    }
+    return { T: +at.toFixed(3), lit: dlit, who: dwho, level: +dl.toFixed(6), zoom: +dz.toFixed(6), aim: +da.toFixed(6), frame: dfr };
+  });
+  const pass = eq.every(e => !e.lit && !e.who && !e.frame && e.level <= 1e-4 && e.zoom <= 1e-4 && e.aim <= 1e-4);
+  const whole = bodyIn.every(b => b.whole);
+  if (wasOn) { showSeekT(wasT); if (wasPlaying) showPause(false); } else { showStop(false); showSeekT(wasT); }
+  actTick(0, true);
+  return { pass: pass && whole && !FOL.probs.length, seekEquivalence: { pass, points: eq }, wholeBody: { pass: whole, checked: bodyIn.length, misses: bodyIn.filter(b => !b.whole), points: bodyIn },
+    problems: FOL.probs, entries: FOL.spots.map(S => S.L.length), ms: Math.round(performance.now() - t0),
+    ...(pts.length ? {} : { note: 'the plot has no entries: nothing to compare (MIDTOWN.follow.load(obj) to try one)' }) };
+}
+// MIDTOWN.follow, hung on MIDTOWN by the actors' hook (THE AUTOMATIC ACTORS) once they are in: the spots play on them.
+const FOL_API = {
+  state: T => folState(T), check: opts => folCheck(opts), load: (x = FOL_URL) => folLoad(x),
+  data: () => FOL.d, get spots() { return FOL.spots.map(S => ({ spot: S.n, id: S.id, entries: S.L.length })); }, get problems() { return FOL.probs; },
+  get perf() { return Object.assign({ tickMs: +FOL.ms.toFixed(3) }, FOL.perf); },
+  tune: { FOL_SIZES, FOL_GELS, FOL_TOP },
 };
 
 /* ---------------------------------------------------------------- RIGGING: BOOMS ONTO THE WALLS (agent A)
