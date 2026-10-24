@@ -115,15 +115,20 @@ def build():
     four_dsc(73.9, 75.8)
     turn(H5, M(74.2), 0)
     # ---- Q111 94.9 Lafayette's verse, SR
-    move('lafayette', M(94.9), M(96.5), (-2.45, 3.1), f=20)   # SPOT: ch48
+    # FILM ROUND (2026-10-24): the verses are sung round the table and in the middle of the room, not in DS pools (film
+    # 1-03 frames 486-592: Lafayette up by the table SR, mug in hand; Mulligan centre beside Hamilton; Laurens SR of
+    # centre with Hamilton turned to him from SL). The followspots (follow.py) light each singer where he is.
+    move('lafayette', M(94.9), M(96.5), (-2.0, 1.55), f=40)   # FILM: by the table's front bench, SR end (was (-2.45, 3.1), ch48)
     move('hamilton', M(95.2), M(97.0), (-0.35, 2.6), f=-60)
     move('laurens', M(95.2), M(97.0), (1.15, 2.7), f=-40)
     # ---- Q113 106.8 Mulligan's verse, SL
-    move('mulligan', M(106.8), M(108.4), (2.25, 3.1), f=-20)   # SPOT: ch51
-    move('hamilton', M(106.8), M(107.8), (0.45, 2.55), f=70)
+    move('mulligan', M(106.8), M(108.4), (1.4, 1.6), f=-40)   # FILM (frame 542): centre, beside Hamilton (was (2.25, 3.1), ch51)
+    move('hamilton', M(106.8), M(107.8), (0.2, 2.25), f=face_to((0.2, 2.25), (1.4, 1.6)))
     # ---- Q115 117.5 Laurens' verse, centre, in his pool (NOTES2: the table is UR now, so he is not up on it)
-    move('laurens', M(117.5), M(119.0), (0.55, 3.45), f=0)   # SPOT: ch50
-    move('hamilton', M(117.5), M(119.0), (-0.45, 2.5), f=45)
+    move('hamilton', M(116.0), M(117.4), (1.05, 2.0), f=face_to((1.05, 2.0), (-0.2, 1.55)))   # FILM: SL, turned to him
+    move('mulligan', M(116.2), M(117.8), (2.3, 2.5), f=-60)
+    move('laurens', M(117.5), M(118.3), (0.5, 3.0), d=0)                    # round the front of Hamilton's old place
+    put('laurens', M(119.6), (-0.2, 1.55), f=10)   # FILM (frame 592): just SR of centre (was (0.55, 3.45), ch50)
     # ---- Q117 127.7 Burr cools them down
     # SPOT: down the SR side, clear of the stair and of Lafayette, into his AF (ch2 at (-1.82, 4.25))
     move('burr', M(123.6), M(125.0), (-3.95, -0.7), d=0)      # NOTES2: round the table's SR end
@@ -135,7 +140,8 @@ def build():
     # SPOT: all four keyed: Hamilton ch13, Lafayette ch48 (-2.41, 3.06), Laurens ch50 (0.91, 3.68), Mulligan ch51 (2.20, 3.06)
     move('hamilton', M(139.4), M(141.0), (0.1, 2.5), f=0)
     move('lafayette', M(139.4), M(141.0), (-2.35, 3.05), f=30)
-    move('laurens', M(139.4), M(141.0), (1.25, 3.85), f=-20)   # still in ch50
+    move('laurens', M(140.6), M(141.9), (1.7, 2.3), d=0)                    # FILM ROUND: round Hamilton's SL side
+    put('laurens', M(143.0), (1.25, 3.85), f=-20)   # still in ch50
     move('mulligan', M(139.4), M(141.0), (2.2, 3.1), f=-30)
     # ---- Q119 159.8 the quiet confession: Jack's note (revision 4) -- blue, with ONE white spot at centre:
     # ch13 refocused to (0, 0.3, 1.1), i.e. the centre shaft at (0, 1.15). He goes up into it; the friends hold their pools.
@@ -154,16 +160,34 @@ def build():
         put(e, M(t), WINGS['W_USR'], off=True); W[e][-1]['d'] = 0
         put(e, M(t + dist(WINGS['W_USR'], AT106[e]) / 1.5), AT106[e], f=face_to(AT106[e], H0, 60))
 
-    # REVIEW: the Schuyler sisters watch him from the upstage gallery (two fan staging accounts)
-    for a, x, tl in (('eliza', -1.2, 163.0), ('angelica', 0.0, 164.2), ('peggy', 1.2, 165.4)):
+    # REVIEW: the Schuyler sisters watch him from the galleries (two fan staging accounts). FILM ROUND (2026-10-24; film
+    # 1-03 frames 1035, 1165, 1533, 1588, at 206-316): one up on the upstage gallery's centre, two on the SL end balcony,
+    # all three DANCING up there (arms up and out, the phrase with the company), and they stay to the end of the number
+    # (they were off at 300-303). Eliza takes the upstage gallery, Peggy and Angelica go along to the SL end balcony
+    # (t101's route: the SL arm of the gallery).
+    SL_BAL = {'peggy': (5.1, 2.6), 'angelica': (5.1, 1.6)}
+    for a, tl in (('peggy', 163.0), ('angelica', 164.2)):
         put(a, M(tl), G_UC, off=True, y=GAL)
         W[a][-1]['d'] = 0
         via(a, M(tl + 1.6), (0.6, -3.35), y=GAL)
-        put(a, M(tl + 2.0 + abs(x - 0.6) / 1.3), (x, -3.35), f=0, y=GAL)
-    for a, tl in (('peggy', 300.0), ('angelica', 301.4), ('eliza', 302.8)):
-        x = pos(a)[0]
-        move(a, M(tl), M(tl + abs(x - 0.6) / 1.3 + 0.2), (0.6, -3.35), d=0, y=GAL)
-        put(a, W[a][-1]['t'] + 1.6, G_UC, off=True, y=GAL)
+        via(a, M(tl + 4.9), (4.75, -3.1), y=GAL)
+        via(a, M(tl + 5.9), (4.85, -1.9), y=GAL)
+        via(a, M(tl + 8.2), (4.85, 1.0), y=GAL)
+        put(a, M(tl + 8.4 + dist((4.85, 1.0), SL_BAL[a]) / 1.3), SL_BAL[a], f=-70, y=GAL)
+    put('eliza', M(165.4), G_UC, off=True, y=GAL)
+    W['eliza'][-1]['d'] = 0
+    via('eliza', M(167.0), (0.6, -3.35), y=GAL)
+    put('eliza', M(167.9), (0.0, -3.35), f=0, y=GAL)
+    # off in the blackout (331.25), back the way they came
+    move('eliza', M(331.3), M(331.9), (0.6, -3.35), d=0, y=GAL)
+    put('eliza', M(333.0), G_UC, off=True, y=GAL)
+    for a, tl in (('angelica', 331.3), ('peggy', 331.5)):
+        move(a, M(tl), M(tl + 0.2 + dist(SL_BAL[a], (4.85, 1.0)) / 1.6), (4.85, 1.0), d=0, y=GAL)
+        t = W[a][-1]['t']
+        via(a, t + 1.8, (4.85, -1.9), y=GAL)
+        via(a, t + 2.6, (4.75, -3.1), y=GAL)
+        via(a, t + 5.2, (0.6, -3.35), y=GAL)
+        put(a, t + 6.4, G_UC, off=True, y=GAL)
 
     # ---- Q121 168.2 chorus 2: the three come in round him (no revolve; the five hold their places)
     move('lafayette', M(167.0), M(169.2), (-1.3, 1.1), f=30)
@@ -179,19 +203,20 @@ def build():
     turn(['laurens', 'mulligan'], M(220.9), -30)
     turn(['lafayette', 'laurens', 'mulligan'], M(228.0), 0)
 
-    # ---- Q127 231.9 the death verse: Hamilton alone in the centre shaft (ch13 at (0, 1.15)); the friends freeze apart
-    move('hamilton', M(231.9), M(233.4), (0.0, 1.15), f=0)       # NOTES3: in by 233.4, for imagine-death (dance.py)
-    # NOTES3 (Jack: "there are a lot of parts where they should be dancing and they are just standing still"): the friends
-    # no longer freeze in the corners. Q127 is "slow motion, cold": they walk a slow-motion ring round him (r 2.8 about the
-    # disc's centre, a step a beat of dance.py's slow-walk), 60 degrees counter-clockwise in 19 s -- the show's "falling
-    # left" (Blankenbuehler, BroadwayWorld) -- facing him; the snap back (Q129) takes them to their places as before
-    for a, th in (('lafayette', 240), ('laurens', 180), ('mulligan', 120)):
-        p = ring(2.8, th)
-        move(a, M(231.9), M(234.6), p, f=face_to(p, C, 135))
-    revolve(['lafayette', 'laurens', 'mulligan'], M(235.0), M(254.4), -60, step=15, face_in=True, r=2.8)
+    # ---- Q127 231.9 the death verse. FILM ROUND (2026-10-24; film 1-03 frames 1165-1280, at 232-255): he goes to the
+    # SR edge by the SR stair and sings it from there, alone in a followspot (follow.py), watching; the company dances
+    # it in slow motion in the blue at centre, in the ring of light. Here the friends are that group (the five are off
+    # from Q123 to Q131, Jack's REVIEW2 ruling), close together at centre doing the slow-motion phrase (dance.py), NOT
+    # walking a ring round him (the NOTES3 ring is gone; REVIEW2 had cut the ring too).
+    for a, p, t0 in (('lafayette', (-0.7, 0.9), 231.0), ('laurens', (0.0, 0.2), 231.9), ('mulligan', (0.7, 0.9), 231.9)):
+        move(a, M(t0), M(t0 + 2.4), p, f=face_to(p, (-3.7, 2.5), 120))
+    move('hamilton', M(232.2), M(234.4), (-3.7, 2.5), f=70)       # in by 234.4, for imagine-death (dance.py)
+    # a slow drift of the group a step SL and back as the verse turns (film 1280: the group shifts as it dances)
+    for a, p in (('lafayette', (-0.3, 1.2)), ('laurens', (0.5, 0.5)), ('mulligan', (1.1, 1.3))):
+        move(a, M(242.0), M(245.0), p, f=face_to(p, (-3.7, 2.5), 120))
     # ---- Q129 255.0 the snap back
-    move('hamilton', M(255.0), M(256.6), H0, f=0)   # SPOT: ch13 back at (0, 2.40)
-    move('lafayette', M(255.0), M(257.0), (-2.0, 3.6), f=20)
+    move('hamilton', M(254.6), M(256.8), H0, f=0)   # SPOT: ch13 back at (0, 2.40)
+    move('lafayette', M(256.4), M(258.2), (-2.0, 3.6), f=20)               # once Hamilton is past him
     move('laurens', M(255.0), M(257.0), (2.0, 3.8), f=-20)
     move('mulligan', M(255.0), M(257.0), (3.8, 3.6), f=-30)
     # ---- Q131 265.3 the five come back on (Jack), a loose group upstage of him
