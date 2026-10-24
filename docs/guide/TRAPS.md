@@ -2160,3 +2160,12 @@ include the place a failure would show — the corridor behind the house, not on
   re-dump, re-audit and `pool-dump-diff.py` the two dumps; take back by hand what landed wrong (revert the cue's line
   AND its restore follower).
 - **`MIDTOWN.actors.list` is a getter, not a function** (`MIDTOWN.actors.list.length`).
+- **With the Browser pane hidden the page gets NO animation frames at all** (not merely slow ones): a test that waits on
+  real frames hangs. Use the page's synchronous steps (`MIDTOWN.frame()`, `MIDTOWN.company.debug.step(dt, n)`) or front
+  the pane.
+- **House 1's SL prompt corner is a pocket**, closed by the set's SL brick at z 2.08 and SL Boom 2's tower (x −7.35,
+  z 1.21). The prompt desk had to move upstage of the worklight switch to fit (x −8.72…−8.17, z 1.13…1.98).
+- **A layer over the actors must be off inside `actors.check()`.** The company's backstage walk owns the poses while
+  `CO.on`; the check now saves and clears it, then restores it. Any new layer needs the same.
+- **A lit material in the booth catches the lobby's SpotLights through the walls** (a SpotLight here casts no shadow): the
+  operators use an unlit matcap.
