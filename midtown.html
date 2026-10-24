@@ -7716,6 +7716,448 @@ const FOL_API = {
   tune: { FOL_SIZES, FOL_GELS, FOL_TOP },
 };
 
+/* ---------------------------------------------------------------- THE STAGE MANAGER: THE BOOTH'S OPERATORS
+   Jack: "make it so there are atcually people in the spotbooth moving the lights". BINDING: docs/superpowers/specs/
+   2026-10-24-stage-manager-design.md, RULING GQ and "Proposed, built in v1" items 1–2 (builder C). MIDTOWN.booth.
+   - THREE SPOT OPERATORS in house 1's booth, one behind each Lycian, built from the actors' jointed mannequin (RIG.parts, the
+     same fifteen parts and geometry; an unlit matcap in blacks, opsMat, so no light reaches them through a wall). Each
+     unit's head grows two rear grips (OPS.grip, in the head's own frame: drawn by OPS, not part of the fixture model). Every
+     drawn frame the operator is put where the grips are: his yaw the head's heading, his feet OPS.reach behind the grips'
+     midpoint, his spine leaning to them, his head pitched with the beam; each PALM is put on its grip by the mannequin's own
+     side-view IK (rigArmTo), solved in the spine's frame (so lean and twist count) and corrected on the palm's measured place
+     twice. So the arms follow the pan and tilt exactly as the followspot engine turns the unit (folTick → folTurn); when the
+     tail swings he steps round with it (a step per OPS.step of arc, the feet lifted by the swing's speed).
+   - DARK → RELAXED: hands off, a step back, a slow weight shift. The hands go on OPS.pre s before a pick-up and come off
+     OPS.post s after an OUT has faded (from the spot's compiled plot, FOL.spots[i].L); with the show stopped, a unit lit by
+     hand (lx.set) has its hands on.
+   - A PURE FUNCTION OF THE SPOTS' STATE: the pose is computed outright from the unit's head as posed this frame, the show
+     time and the plot — nothing accumulates from frame to frame — so a seek poses them exactly as playing there does (seek =
+     play holds trivially; the follow engine's own check covers the units they hold). Only the idle breath with the show
+     stopped runs on this region's clock (cosmetic), and the GO reach and the lamps are events (below).
+   - THE DESK: a lighting operator and a sound operator seated in house 1's lighting desk position (buildDeskPosition's two
+     chairs), hands on the faders / the laptop; on go() the lighting operator reaches across to the console's GO and the
+     sound operator taps the laptop (OPS.reachT s, off the frame's dt).
+   - HEADSETS: every operator wears one. Replies go through MIDTOWN.sm.log(who, text) when the stage manager's desk is in
+     (builder A), else console.debug: standby() → "Lights standing by", "Sound standing by", "Spot one standing by" … ; each
+     followspot PICK-UP while the show PLAYS (not a seek) → "Spot two, I have Hamilton" (the head label she wears then).
+   - CUE LAMPS (red STANDBY, green GO, out OPS.green s after the GO): in the booth over the window and on both wings' walls
+     of house 1 (the SM desk's own are A's). Unlit materials, no light added; one mesh per colour for all three places.
+   - DRAWN ONLY WHEN IT PAYS: 80 draw calls between them (16 a body), and every visible mesh is drawn twice while a pool is
+     lit (the pools' depth pass). The booth's three are drawn with the camera in the booth, or in house 1 within OPS.near m
+     of the window with the booth in view; the desk's two with the camera in house 1 within OPS.deskNear m and the desk in
+     view. Hidden, they are neither posed nor drawn. Theatre 2 is untouched (its Lycians are props). Not in the walk's grid,
+     the build tools' or the pools' landing rays (userData.rig).
+   MIDTOWN.booth: standby(), go(), say(text, who), state(), check(opts), hands(), tick(dt, force), tune, perf. */
+const OPS = {
+  grip: { x: 0.18, y: -0.42, z: -0.90, post: -0.28, len: 0.12 },   // the Lycian head's rear grips: its frame (z the beam; the head is 2.01 m long, ±0.29 high)
+  palm: 0.0,             // m: the palm's centre this far behind the grip's centre (0: on it)
+  reach: 0.36,           // m: his feet behind the grips' midpoint, engaged
+  back: 0.18,            // m: and this much further back, relaxed
+  pre: 1.5, post: 1.0,   // s: hands on before a pick-up, off after an OUT's fade
+  arc: 1.75,             // m: his feet's distance from the pan axis (for the steps)
+  step: 0.32,            // m of arc per step as the tail swings
+  near: 18, deskNear: 24,// m: the culling ranges (see above)
+  green: 2.5,            // s: the green GO lamp's time on
+  reachT: 1.2,           // s: the GO reach
+  colors: { spot: 0x464854, lx: 0x3a4458, snd: 0x4a4238 },   // blacks, lifted: the booth and the house are dark through a show
+  lampY: 1.90, lampZ: 4.20,                                         // the wings' lamps: over the deck, and z (both walls are the scan's there, flat to 1 cm)
+};
+const OPS_NUM = ['one', 'two', 'three'];
+const OPS_S = { built: false, tried: false, err: null, group: null, boothG: null, deskG: null, spots: [], desk: [], lamps: null,
+  red: false, green: 0, goAt: -1e9, clock: 0, lastT: null, said: [], vis: { booth: false, desk: false }, ms: 0,
+  perf: { last: 0, avg: 0, max: 0, n: 0 } };
+const opsV = new THREE.Vector3(), opsW = new THREE.Vector3(), opsQ = new THREE.Vector3(), opsFr = new THREE.Frustum(), opsM4 = new THREE.Matrix4();
+const opsSph = { booth: new THREE.Sphere(), desk: new THREE.Sphere() };
+// THEIR MATERIAL IS A MATCAP (unlit, shaded by a small drawn sphere): a lit one took the LOBBY's spot lights through the booth's
+// walls (a SpotLight casts nothing here, TRAPS) and their heads and shoulders came out white in the dark booth. Unlit, they read
+// as dim figures in the booth's work light whatever the show does; no light costs anything for them, and the worklights'
+// patch leaves them alone. One texture, one material per colour.
+let opsCap = null;
+function opsMat(hex) {
+  if (!opsCap) {
+    const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d');
+    const r = g.createRadialGradient(24, 20, 2, 32, 32, 32);
+    r.addColorStop(0, '#9a9a9a'); r.addColorStop(0.55, '#5a5a5a'); r.addColorStop(0.9, '#262626'); r.addColorStop(1, '#141414');
+    g.fillStyle = '#141414'; g.fillRect(0, 0, 64, 64); g.fillStyle = r; g.beginPath(); g.arc(32, 32, 32, 0, 2 * Math.PI); g.fill();
+    opsCap = new THREE.CanvasTexture(c); opsCap.colorSpace = THREE.SRGBColorSpace;
+  }
+  return new THREE.MeshMatcapMaterial({ color: hex, matcap: opsCap });
+}
+// A body: the actors' parts (rigBody's build) in its own material, a headset on the head part. → { g, body, P, seed, palm }
+function opsBody(name, mat, seedId, headset) {
+  const g = new THREE.Group(); g.name = name; g.userData.rig = true;
+  const body = new THREE.Group(), P = {};
+  for (const d of RIG.parts) {
+    const o = new THREE.Mesh(d.geo, mat); o.name = d.name; o.position.copy(d.pos);
+    o.castShadow = false; o.receiveShadow = false; o.userData.rig = true;
+    P[d.name] = o; (d.parent ? P[d.parent] : body).add(o);
+  }
+  const hs = new THREE.Mesh(headset, OPS_S.hsMat); hs.name = 'headset'; hs.userData.rig = true; P.head.add(hs);
+  g.add(body);
+  let h = 0; for (const ch of seedId) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const palm = {};
+  for (const s of ['L', 'R']) { const geo = RIG.parts.find(d => d.name === 'hand_' + s).geo; palm[s] = geo.boundingSphere.center.clone(); }
+  return { g, body, P, seed: (h % 1000) / 1000, palm };
+}
+// The headset, in the head part's frame: a band over the crown ear to ear, two cups, a boom to the mouth.
+function opsHeadsetGeo() {
+  const hd = RIG.parts.find(d => d.name === 'head').geo; hd.computeBoundingBox();
+  const b = hd.boundingBox, cx = (b.min.x + b.max.x) / 2, cz = (b.min.z + b.max.z) / 2, top = b.max.y, w = (b.max.x - b.min.x) / 2 + 0.008;
+  const ear = top - 0.11, gs = [];
+  const band = new THREE.TorusGeometry(w, 0.006, 4, 16, Math.PI).scale(1, (top + 0.006 - ear) / w, 1).translate(cx, ear, cz);
+  gs.push(band);
+  for (const s of [-1, 1]) gs.push(new THREE.CylinderGeometry(0.032, 0.032, 0.022, 10).rotateZ(Math.PI / 2).translate(cx + s * (w + 0.004), ear, cz));
+  const boom = new THREE.CylinderGeometry(0.004, 0.004, 0.13, 5).rotateX(Math.PI / 2 - 0.35).translate(cx + w - 0.01, ear - 0.035, cz + 0.06);
+  gs.push(boom, new THREE.SphereGeometry(0.011, 6, 4).translate(cx + w - 0.02, ear - 0.06, cz + 0.12));
+  const g = mergeGeometries(gs.map(x => x.index ? x.toNonIndexed() : x), false); gs.forEach(x => x.dispose());
+  return g;
+}
+// The two grips, in the Lycian head's frame (its own scale): a post down from the head's underside and a grip back from it.
+function opsGripGeo() {
+  const G = OPS.grip, gs = [];
+  for (const s of [-1, 1]) {
+    gs.push(new THREE.BoxGeometry(0.024, G.post - G.y + 0.02, 0.024).translate(s * G.x, (G.post + G.y) / 2, G.z + G.len / 2 - 0.012));
+    gs.push(new THREE.CylinderGeometry(0.017, 0.017, G.len, 10).rotateX(Math.PI / 2).translate(s * G.x, G.y, G.z));
+  }
+  const g = mergeGeometries(gs.map(x => x.toNonIndexed()), false); gs.forEach(x => x.dispose());
+  return g;
+}
+// The cue lamps: a housing, a red lens over a green one, at each place (world point, the way it faces). → lens meshes and housings.
+function opsLamps(places) {
+  const H = [], R = [], Gr = [];
+  for (const { p, n } of places) {
+    const M = new THREE.Matrix4().compose(p, new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 0, 1), n), new THREE.Vector3(1, 1, 1));
+    H.push(new THREE.BoxGeometry(0.11, 0.22, 0.05).translate(0, 0, 0.025).applyMatrix4(M).toNonIndexed());
+    R.push(new THREE.CircleGeometry(0.034, 16).translate(0, 0.052, 0.052).applyMatrix4(M).toNonIndexed());
+    Gr.push(new THREE.CircleGeometry(0.034, 16).translate(0, -0.052, 0.052).applyMatrix4(M).toNonIndexed());
+  }
+  const mk = (gs, mat, name) => { const m = new THREE.Mesh(mergeGeometries(gs, false), mat); m.name = name; m.userData.rig = true; m.castShadow = m.receiveShadow = false; gs.forEach(g => g.dispose()); return m; };
+  const red = new THREE.MeshBasicMaterial({ color: 0x2a0806, toneMapped: false }), green = new THREE.MeshBasicMaterial({ color: 0x041c08, toneMapped: false });
+  return { housing: mk(H, boothMats.metal, 'cue lamps'), red: mk(R, red, 'cue lamps: standby'), green: mk(Gr, green, 'cue lamps: go'), redMat: red, greenMat: green, places };
+}
+// Built once the actors' body, the lights and the house are in (from the tick). → done?
+function opsBuild() {
+  if (OPS_S.built || OPS_S.tried) return OPS_S.built;
+  if (!ready || !ACT.ready || !RIG.parts || !LX.ready || !houseRoot) return false;
+  OPS_S.tried = true;
+  try {
+    const t0 = performance.now(), S = boothSpec;
+    const group = new THREE.Group(); group.name = 'the booth\'s operators'; group.userData.rig = true;
+    OPS_S.hsMat = opsMat(0x202024); const gripMat = opsMat(0x303034);
+    const hs = opsHeadsetGeo(), gripGeo = opsGripGeo(), spotMat = opsMat(OPS.colors.spot);
+    // THE BOOTH: one behind each unit, by the units' ids (spot n is FOL_IDS[n − 1], as the follow engine numbers them)
+    const boothG = new THREE.Group(); boothG.name = 'spot operators'; boothG.userData.rig = true; group.add(boothG);
+    OPS_S.spots = FOL_IDS.map((id, i) => {
+      const unit = LX.units.find(u => u.userData.id === id), rec = unit ? LX.byUnit.get(unit) : null;
+      const head = unit && unit.levels.length ? unit.levels[0].object.getObjectByName('head') : null;
+      if (!head) { console.warn(`booth operators: no ${id} head — spot ${i + 1} has no operator`); return null; }
+      const op = opsBody(`spot operator ${i + 1}`, spotMat, 'spot-op-' + id, hs);
+      const grips = new THREE.Mesh(gripGeo, gripMat); grips.name = `${id} grips`; grips.userData.rig = true; grips.matrixAutoUpdate = false;
+      boothG.add(op.g, grips);
+      return Object.assign(op, { n: i + 1, id, unit, rec, head, grips, w: 0, err: null });
+    }).filter(Boolean);
+    // THE DESK: house 1's (never Theatre 2's: userData.house tells the two same-named groups apart), its numbers as built
+    const deskGroup = scene.children.find(o => o.name === 'lighting desk' && !o.userData.house);
+    const deskG = new THREE.Group(); deskG.name = 'desk operators'; deskG.userData.rig = true; group.add(deskG);
+    if (deskGroup && Number.isFinite(deskGroup.userData.platformTop)) {
+      const D = DESK, Y0 = deskGroup.userData.platformTop, cx = (D.x0 + D.x1) / 2, tb = D.table, tz = D.z0 - tb.front - tb.d / 2, T = Y0 + tb.h;
+      const k = D.console, kz = tz - tb.d / 2 + 0.03 + k.d / 2, surf = zl => T + k.h + zl * k.rise / k.d, chz = tz - tb.d / 2 - 0.36;
+      const lp = D.laptop, ax = cx + k.w / 2 + 0.07 + lp.w / 2;
+      const V = (x, y, z) => new THREE.Vector3(x, y, z);
+      const lx = opsBody('lighting operator', opsMat(OPS.colors.lx), 'desk-lx', hs), snd = opsBody('sound operator', opsMat(OPS.colors.snd), 'desk-snd', hs);
+      Object.assign(lx, { role: 'lights', x: D.chairs[0], z: chz + 0.04, y: Y0, seat: 0.50,
+        rest: { L: V(cx - 0.30, surf(-0.17) + 0.03, kz - 0.17), R: V(cx - 0.56, surf(-0.17) + 0.03, kz - 0.17) },   // on the fader bed
+        go: { L: V(cx + 0.16, surf(-0.20) + 0.03, kz - 0.20) } });                                                   // the console's GO, by the keypad
+      Object.assign(snd, { role: 'sound', x: D.chairs[1], z: chz + 0.04, y: Y0, seat: 0.50,
+        rest: { L: V(ax + 0.06, T + 0.035, kz - 0.05), R: V(ax - 0.10, T + 0.035, kz - 0.06) },                     // on the laptop's keys
+        go: { L: V(ax + 0.01, T + 0.03, kz - 0.085) } });                                                             // its space bar
+      deskG.add(lx.g, snd.g);
+      OPS_S.desk = [lx, snd];
+      opsSph.desk.set(V(cx, Y0 + 0.8, chz + 0.3), 1.6);
+    } else console.warn('booth operators: no house 1 lighting desk found — no desk operators');
+    opsSph.booth.set(new THREE.Vector3((S.x0 + S.x1) / 2, (S.floor + S.ceil) / 2, S.front - S.depth / 2), 3.6);
+    // THE CUE LAMPS: the booth's over its window (on the front wall's inner face, facing the operators), the wings' on their walls
+    const places = [{ p: new THREE.Vector3(1.10, (S.head + S.ceil) / 2 + 0.02, S.front - 0.002), n: new THREE.Vector3(0, 0, -1) }];
+    const meshes = []; houseRoot.traverse(o => { if (o.isMesh && o.visible) meshes.push(o); });
+    const ray = new THREE.Raycaster(), yL = HOUSE.deckY + OPS.lampY;
+    for (const sx of [-1, 1]) {                               // stage left is −x (the worklight's fly wall), stage right +x
+      ray.set(new THREE.Vector3(sx * 7.5, yL, OPS.lampZ), new THREE.Vector3(sx, 0, 0)); ray.far = 4;
+      const h = ray.intersectObjects(meshes, false).find(h => !/^void/.test(h.object.name)), wx = h ? h.point.x : sx < 0 ? -9.53 : 9.57;
+      if (!h) console.warn(`booth operators: no ${sx < 0 ? 'stage-left' : 'stage-right'} wing wall found for its cue lamp — hung at x ${wx}`);
+      places.push({ p: new THREE.Vector3(wx - sx * 0.004, yL, OPS.lampZ), n: new THREE.Vector3(-sx, 0, 0) });
+    }
+    OPS_S.lamps = opsLamps(places);
+    group.add(OPS_S.lamps.housing, OPS_S.lamps.red, OPS_S.lamps.green);
+    scene.add(group); OPS_S.group = group; OPS_S.boothG = boothG; OPS_S.deskG = deskG;
+    OPS_S.vis = { booth: null, desk: null };                 // seen at the warm-up (compileAsync takes only what is visible); the first tick culls them
+    opsLampsApply();
+    OPS_S.built = true;
+    warmLate();                                               // the matcap program compiled off the first frame they are seen (TRAPS: compile-and-lag)
+    console.info(`booth operators: ${OPS_S.spots.length} spot operators, ${OPS_S.desk.length} at the desk, cue lamps at ${places.length} places (booth, SL wing x ${places[1].p.x.toFixed(2)}, SR wing x ${places[2].p.x.toFixed(2)}) · ${(performance.now() - t0).toFixed(0)} ms`);
+    return true;
+  } catch (e) { OPS_S.err = e; console.error('booth operators: the operators could not be built —', e); return false; }
+}
+// ---- posing (every function here sets every joint it owns outright)
+const opsWrap = a => Math.atan2(Math.sin(a), Math.cos(a));
+function opsIdx(L, T) { let lo = 0, hi = L.length; while (lo < hi) { const m = (lo + hi) >> 1; if (L[m].T <= T + 1e-9) lo = m + 1; else hi = m; } return lo - 1; }
+// How far his hands are on the handles at show time T, 0 … 1: on while lit, on OPS.pre s ahead of a pick-up, off OPS.post s
+// after an OUT has faded. Pure: the compiled plot and T.
+function opsEngage(S, T) {
+  const L = S.L; if (!L || !L.length) return 0;
+  const k = opsIdx(L, T);
+  if (k >= 0 && folScalar(L[k], T).lit) return 1;
+  let w = 0;
+  if (k >= 0 && L[k].out) w = 1 - actSmooth((T - L[k].T - L[k].fade) / OPS.post);
+  for (let j = k + 1; j < L.length; j++) if (!L[j].out) { w = Math.max(w, actSmooth(1 - (L[j].T - T) / OPS.pre)); break; }
+  return Math.max(0, Math.min(1, w));
+}
+// The spine, pelvis, legs standing (or stepping: lift on one foot), the head. sway: the weight shift (−1 … 1).
+function opsStand(op, lean, twist, pitch, liftL, liftR, sway, breath) {
+  const P = op.P, rest = RIG.parts[0].pos;
+  P.pelvis.position.set(rest.x + 0.018 * sway, rest.y + 0.002 * breath, rest.z);
+  P.pelvis.rotation.set(0, 0, -0.03 * sway);
+  rigLeg(P, 'L', 0, 0, 0, liftL, 0); rigLeg(P, 'R', 0, 0, 0, liftR, 0);
+  P.thigh_L.rotation.z = P.thigh_R.rotation.z = -P.pelvis.rotation.z;
+  P.spine.rotation.set(lean + 0.01 * breath, twist, -P.pelvis.rotation.z * 0.7);
+  P.head.rotation.set(-0.6 * lean + pitch, -0.4 * twist, -P.spine.rotation.z * 0.5);
+}
+// Seated: the hips on the seat (seat: its top over his feet), the feet forward on the floor, the spine as asked.
+function opsSit(op, lean, twist, pitch, breath) {
+  const P = op.P, J = RIG.J, rest = RIG.parts[0].pos, hipY = (J.thigh_L.y + J.thigh_R.y) / 2, drop = hipY - (op.seat + 0.10);
+  P.pelvis.position.set(rest.x, rest.y - drop + 0.002 * breath, rest.z);
+  P.pelvis.rotation.set(-0.08, 0, 0);
+  for (const s of ['L', 'R']) {
+    const th = RIG.len['thigh_' + s], sh = RIG.len['shin_' + s], hip = J['thigh_' + s], ank = J['foot_' + s];
+    const [t1, t2] = rigIK(th.len, sh.len, (ank.z - hip.z) + 0.42, (ank.y - hip.y) + drop, 1);
+    const r1 = t1 - th.rest, r2 = (t2 - sh.rest) - r1;
+    P['thigh_' + s].rotation.set(-r1 + 0.08, 0, s === 'L' ? -0.06 : 0.06); P['shin_' + s].rotation.set(-r2, 0, 0); P['foot_' + s].rotation.set(r1 + r2, 0, 0);
+  }
+  P.spine.rotation.set(0.08 + lean + 0.012 * breath, twist, 0);
+  P.head.rotation.set(-0.6 * (0.08 + lean) + pitch, -0.5 * twist, 0);
+}
+// One arm's wrist to a point q in her REST frame (x her left, y up from her feet, z forward; the spine unturned): two-bone IK
+// in 3D, the elbow bent toward a pole (down, out to her side, a little back), each bone turned from its rest direction (the
+// joints' rest places, RIG.J) onto the solved one. rigArmTo's side-view IK is for arms that hang and carry; it throws an
+// arm reaching forward at shoulder height out sideways (0.2 m off the grips), so the operators have this one.
+const opsU = new THREE.Vector3(), opsPole = new THREE.Vector3(), opsE = new THREE.Vector3(), opsR = new THREE.Vector3(), opsQa = new THREE.Quaternion();
+function opsIK(P, s, q) {
+  const J = RIG.J, S = J['upperarm_' + s], E0 = J['forearm_' + s], W0 = J['hand_' + s], sx = s === 'L' ? 1 : -1;
+  const a = S.distanceTo(E0), b = E0.distanceTo(W0);
+  opsU.subVectors(q, S); const D = Math.min(Math.max(opsU.length(), Math.abs(a - b) + 1e-3), a + b - 1e-3); opsU.normalize();
+  opsPole.set(sx * 0.45, -1, -0.25); opsPole.addScaledVector(opsU, -opsPole.dot(opsU)).normalize();
+  const c = Math.min(1, Math.max(-1, (a * a + D * D - b * b) / (2 * a * D))), sn = Math.sqrt(1 - c * c);
+  opsE.copy(opsU).multiplyScalar(a * c).addScaledVector(opsPole, a * sn);           // the elbow, from the shoulder
+  opsQa.setFromUnitVectors(opsR.subVectors(E0, S).normalize(), opsV.copy(opsE).normalize());
+  P['upperarm_' + s].quaternion.copy(opsQa);
+  opsV.copy(opsU).multiplyScalar(D).sub(opsE).normalize().applyQuaternion(opsQa.invert());   // the forearm's way, in the upper arm's frame
+  P['forearm_' + s].quaternion.setFromUnitVectors(opsR.subVectors(W0, E0).normalize(), opsV);
+  P['hand_' + s].rotation.set(-0.2, 0, 0);
+}
+// One arm's palm to a world point: opsIK in the spine's frame (the shoulder's rest place + the spine's own pose), then
+// corrected twice by where the palm landed. The body's world matrices must be current. → the palm's miss (m).
+function opsArmTo(op, s, W) {
+  const P = op.P, sp = P.spine, up = P['upperarm_' + s], hand = P['hand_' + s];
+  opsW.copy(W);
+  let miss = 0;
+  for (let i = 0; i < 3; i++) {
+    opsQ.copy(opsW); sp.worldToLocal(opsQ).add(RIG.J.spine);
+    opsIK(P, s, opsQ);
+    up.updateMatrixWorld(true);
+    opsV.copy(op.palm[s]).applyMatrix4(hand.matrixWorld);
+    miss = opsV.distanceTo(W);
+    if (miss < 0.004) break;
+    opsW.add(opsV.sub(W).negate());
+  }
+  return miss;
+}
+// The arms hanging (relaxed): a little bend, a sway with the breath.
+function opsArmsDown(op, breath) {
+  for (const s of ['L', 'R']) rigArm(op.P, s, 0.03 * breath, 0.14, null);
+  const sx = { L: 1, R: -1 };
+  for (const s of ['L', 'R']) op.P['upperarm_' + s].rotation.z = sx[s] * 0.05;
+}
+// Blend the arms from their hanging pose (relaxed) to the solved one by w: per joint, the angles mixed.
+const OPS_ARM = ['upperarm_L', 'forearm_L', 'hand_L', 'upperarm_R', 'forearm_R', 'hand_R'];
+function opsArmBlend(op, w, solve) {
+  if (w >= 1) { solve(); return; }
+  const P = op.P;
+  opsArmsDown(op, 0); const A = OPS_ARM.map(n => P[n].rotation.toArray());
+  if (w <= 0) return;
+  solve(); OPS_ARM.forEach((n, i) => { const r = P[n].rotation, a = A[i]; r.set(a[0] + (r.x - a[0]) * w, a[1] + (r.y - a[1]) * w, a[2] + (r.z - a[2]) * w); });
+}
+// A spot operator from the unit's head as it stands this frame (and the plot, for his hands and his steps).
+const opsGL = new THREE.Vector3(), opsGR = new THREE.Vector3(), opsF = new THREE.Vector3(), opsMid = new THREE.Vector3();
+function opsSpotPose(op, T, idleT) {
+  const head = op.head, G = OPS.grip;
+  head.updateWorldMatrix(true, false);
+  op.grips.matrix.copy(head.matrixWorld); op.grips.matrixWorldNeedsUpdate = true;
+  opsGL.set(G.x, G.y, G.z - OPS.palm).applyMatrix4(head.matrixWorld);     // his left hand's grip (the head's +x, his left as he faces along it)
+  opsGR.set(-G.x, G.y, G.z - OPS.palm).applyMatrix4(head.matrixWorld);
+  opsF.set(0, 0, 1).transformDirection(head.matrixWorld);                 // the beam
+  const yaw = Math.atan2(opsF.x, opsF.z), pitchDown = Math.asin(Math.max(-1, Math.min(1, -opsF.y)));
+  // his hands: from the plot while the show is on; with it stopped, on when the unit is lit by hand
+  const S = FOL.spots[op.n - 1], on = !!(SHW.on && SHW.d && S && S.L);
+  const w = on ? opsEngage(S, T) : (op.rec && op.rec.st.level > LX_LIVE ? 1 : 0);
+  op.w = w;
+  // the swing: its speed from where the plot aimed a quarter second before (pure: T and T − 0.25)
+  let rate = 0;
+  if (on && w > 0 && S.now && S.now.lit && S.now.aim) {
+    const f0 = folAt(S, T - 0.25), o = op.rec.org;
+    if (f0.lit && f0.aim) rate = opsWrap(Math.atan2(S.now.aim.x - o.x, S.now.aim.z - o.z) - Math.atan2(f0.aim.x - o.x, f0.aim.z - o.z)) / 0.25;
+  }
+  const u = yaw * OPS.arc / OPS.step, k = Math.floor(u), lift = 0.045 * Math.sin(Math.PI * (u - k)) * Math.min(1, Math.abs(rate) / 0.2) * w;
+  const breath = Math.sin(2 * Math.PI * (idleT / 4.8 + op.seed)), shift = Math.sin(2 * Math.PI * (idleT / 9.7 + op.seed * 1.7));
+  const sway = (1 - w) * shift;
+  // where he stands: OPS.reach behind the grips' midpoint along the heading, OPS.back more relaxed
+  opsMid.addVectors(opsGL, opsGR).multiplyScalar(0.5);
+  const back = OPS.reach + (1 - w) * OPS.back, sy = Math.sin(yaw), cy = Math.cos(yaw);
+  op.g.position.set(opsMid.x - sy * back, boothSpec.floor, opsMid.z - cy * back);
+  op.g.rotation.set(0, yaw + (1 - w) * 0.12 * shift, 0);
+  const lean = 0.10 * w + 0.02, twist = Math.max(-0.2, Math.min(0.2, rate * 0.15));
+  opsStand(op, lean, twist, pitchDown * 0.8 * w, k % 2 === 0 ? lift : 0, k % 2 === 0 ? 0 : lift, sway, breath);
+  op.g.updateMatrixWorld(true);
+  let miss = null;
+  opsArmBlend(op, w, () => { miss = Math.max(opsArmTo(op, 'L', opsGL), opsArmTo(op, 'R', opsGR)); });
+  op.err = w >= 1 ? miss : null;
+}
+// A desk operator: seated, hands at rest, the GO reach (r 0 … 1 … 0 over OPS.reachT) to his go point.
+function opsDeskPose(op, idleT, r) {
+  const breath = Math.sin(2 * Math.PI * (idleT / 4.4 + op.seed)), look = Math.sin(2 * Math.PI * (idleT / 13.1 + op.seed * 2.3));
+  op.g.position.set(op.x, op.y, op.z); op.g.rotation.set(0, 0, 0);
+  const lx = op.role === 'lights';
+  opsSit(op, (lx ? 0.12 : 0.08) + 0.10 * r, (lx ? 0.30 : 0.25) * r, (lx ? -0.12 : 0.05) + 0.05 * look, breath);
+  op.g.updateMatrixWorld(true);
+  opsArmTo(op, 'R', op.rest.R);
+  opsV.copy(op.rest.L).lerp(op.go.L, r); if (!lx) opsV.y += 0.03 * Math.sin(Math.PI * Math.min(1, r * 2));
+  opsArmTo(op, 'L', opsV.clone());
+}
+// ---- the lamps
+function opsLampsApply() {
+  const L = OPS_S.lamps; if (!L) return;
+  L.redMat.color.setHex(OPS_S.red ? 0xff2a14 : 0x2a0806);
+  L.greenMat.color.setHex(OPS_S.green > 0 ? 0x28ff50 : 0x041c08);
+}
+// ---- the frame: after the actors and the spots (lxPanelTick's chain), off this frame's dt. → whether it wants a frame drawn.
+function opsTick(dt = 0, force = false) {
+  OPS_S.clock += dt;
+  if (!OPS_S.built && !opsBuild()) return false;
+  const t0 = performance.now();
+  let want = false;
+  // the lamps: the green goes out OPS.green s after a GO
+  if (OPS_S.green > 0) { OPS_S.green = Math.max(0, OPS_S.green - dt); if (OPS_S.green === 0) { opsLampsApply(); want = true; } }
+  // the headset: a pick-up said as the show plays over it (never on a seek, a jump of a second or more)
+  const on = !!(SHW.on && SHW.d), T = on ? showT() : 0;
+  if (on && SHW.playing && OPS_S.lastT !== null && T > OPS_S.lastT && T - OPS_S.lastT < 1) {
+    FOL.spots.forEach((S, i) => {
+      if (!S || !S.L) return;
+      for (let j = opsIdx(S.L, OPS_S.lastT) + 1; j < S.L.length && S.L[j].T <= T + 1e-9; j++) {
+        const e = S.L[j]; if (e.out || e.mode === 'same') continue;
+        const a = ACT.actors.find(x => x.id === e.who);
+        opsSay(`Spot ${OPS_NUM[i]}, I have ${a ? a.tagText || actHead(a) : e.who}`, `Spot ${i + 1}`);
+      }
+    });
+  }
+  OPS_S.lastT = on ? T : null;
+  // who is drawn: the camera's place and view
+  const cp = camera.position, B = boothSpec;
+  camera.updateMatrixWorld();
+  opsFr.setFromProjectionMatrix(opsM4.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
+  const inBooth = cp.x > B.xo0 - 0.3 && cp.x < B.xo1 + 0.3 && cp.y > B.floor - 0.6 && cp.y < B.ceil + 0.6 && cp.z < B.front + 0.5 && cp.z > B.front - B.depth - 0.5;
+  const inHouse = Math.abs(cp.x) < 13 && cp.z > B.wallZ + 0.1 && cp.z < HOUSE.backZ && cp.y < 14;
+  const bv = force || inBooth || (inHouse && cp.distanceTo(opsSph.booth.center) < OPS.near && opsFr.intersectsSphere(opsSph.booth));
+  const dv = force || ((inHouse || inBooth) && OPS_S.desk.length > 0 && cp.distanceTo(opsSph.desk.center) < OPS.deskNear && opsFr.intersectsSphere(opsSph.desk));
+  if (bv !== OPS_S.vis.booth || dv !== OPS_S.vis.desk) { OPS_S.boothG.visible = bv; OPS_S.deskG.visible = dv; OPS_S.vis = { booth: bv, desk: dv }; want = true; }
+  const idleT = on ? T : OPS_S.clock;
+  if (bv) for (const op of OPS_S.spots) opsSpotPose(op, T, idleT);
+  const since = OPS_S.clock - OPS_S.goAt, r = since >= 0 && since < OPS.reachT ? Math.sin(Math.PI * since / OPS.reachT) : 0;
+  if (dv) { for (const op of OPS_S.desk) opsDeskPose(op, idleT, r); if (r > 0) want = true; }
+  if (bv || dv) {
+    const ms = OPS_S.ms = performance.now() - t0, P = OPS_S.perf; P.last = ms; P.n++; P.avg += (ms - P.avg) / Math.min(P.n, 60); P.max = Math.max(P.max, ms);
+    if (on && SHW.playing) want = true;
+  }
+  if (want) requestRender();
+  return want;
+}
+// ---- the headset and the calls (the contract: MIDTOWN.booth.say / standby / go; replies through MIDTOWN.sm.log)
+function opsSay(text, who = 'Booth') {
+  OPS_S.said.push({ who, text, T: SHW.on ? +showT().toFixed(2) : null }); if (OPS_S.said.length > 40) OPS_S.said.shift();
+  const sm = window.MIDTOWN && window.MIDTOWN.sm;
+  if (sm && typeof sm.log === 'function') { try { sm.log(who, text); return; } catch (e) { console.warn('booth operators: MIDTOWN.sm.log failed —', e); } }
+  console.debug(`headset — ${who}: ${text}`);
+}
+function opsStandby() {
+  OPS_S.red = true; OPS_S.green = 0; opsLampsApply(); requestRender();
+  opsSay('Lights standing by', 'Lights'); opsSay('Sound standing by', 'Sound');
+  for (const op of OPS_S.built ? OPS_S.spots : FOL_IDS.map((id, i) => ({ n: i + 1 }))) opsSay(`Spot ${OPS_NUM[op.n - 1]} standing by`, `Spot ${op.n}`);
+}
+function opsGo() {
+  OPS_S.red = false; OPS_S.green = OPS.green; OPS_S.goAt = OPS_S.clock; opsLampsApply(); requestRender();
+}
+// For the console and the report: each operator now.
+function opsState() {
+  return {
+    built: OPS_S.built, error: OPS_S.err ? String(OPS_S.err.message || OPS_S.err) : null, drawn: { ...OPS_S.vis },
+    lamps: { standby: OPS_S.red, go: OPS_S.green > 0 },
+    spots: OPS_S.spots.map(op => ({ spot: op.n, id: op.id, hands: +op.w.toFixed(3), palmMissM: op.err === null ? null : +op.err.toFixed(4),
+      at: op.g.position.toArray().map(v => +v.toFixed(3)), yawDeg: +(op.g.rotation.y * 180 / Math.PI).toFixed(2) })),
+    desk: OPS_S.desk.map(op => ({ role: op.role, at: op.g.position.toArray().map(v => +v.toFixed(3)) })),
+    said: OPS_S.said.slice(-10),
+  };
+}
+// The hands on the handles, measured: each palm's distance from its grip now (for a lit, engaged spot).
+function opsHands() {
+  const out = [];
+  for (const op of OPS_S.spots) {
+    const G = OPS.grip; op.head.updateWorldMatrix(true, false); op.g.updateMatrixWorld(true);
+    const m = s => { const g = new THREE.Vector3(s === 'L' ? G.x : -G.x, G.y, G.z).applyMatrix4(op.head.matrixWorld); return +new THREE.Vector3().copy(op.palm[s]).applyMatrix4(op.P['hand_' + s].matrixWorld).distanceTo(g).toFixed(4); };
+    out.push({ spot: op.n, hands: +op.w.toFixed(3), L: m('L'), R: m('R') });
+  }
+  return out;
+}
+// THE CHECK: through the plot's pans (the show seeked to mid-pan moments and to lit, still moments), each spot's palms against
+// its grips, and the pose a seek gives against the pose playing up to the same moment gives (it is a pure function: equal).
+function opsCheck(opts = {}) {
+  if (!OPS_S.built && !opsBuild()) return { error: 'the operators are not built yet (the actors, the lights or the house not in)' };
+  if (!SHW.d || !FOL.d) return { error: 'the show or the followspot plot is not loaded yet' };
+  const t0 = performance.now(), wasOn = SHW.on, wasT = showT(), wasPlaying = SHW.playing;
+  if (!wasOn) showStart(false);
+  SHW.playing = false;
+  folCompile();
+  const pans = FOL.spots.flatMap((S, i) => S.L.filter(e => e.mode === 'pan' && e.move > 0.3).map(e => ({ i, T: e.T + e.move * 0.5 })));
+  const n = opts.n || 16, pick = pans.filter((p, j) => j % Math.max(1, Math.floor(pans.length / n)) === 0).slice(0, n);
+  const snapPose = () => OPS_S.spots.map(op => [op.g.position.clone(), op.g.rotation.y, ...RIG_NAMES.map(nm => op.P[nm].rotation.clone())]);
+  const diff = (A, B) => { let d = 0; A.forEach((a, i) => { const b = B[i]; d = Math.max(d, a[0].distanceTo(b[0]), Math.abs(a[1] - b[1])); for (let j = 2; j < a.length; j++) d = Math.max(d, Math.abs(a[j].x - b[j].x), Math.abs(a[j].y - b[j].y), Math.abs(a[j].z - b[j].z)); }); return d; };
+  const rows = pick.map(p => {
+    showSeekT(p.T + 600); actTick(0, true); opsTick(0, true);
+    showSeekT(p.T); actTick(0, true); opsTick(0, true);
+    const A = snapPose(), hands = opsHands()[p.i], st = folState()[p.i];
+    showSeekT(p.T - 2); actTick(0, true); opsTick(0, true);
+    for (let t = showT(); t < p.T - 1e-9;) { const d = Math.min(0.1, p.T - t); SHW.playing = true; showTick(d, true); lxTick(d); SHW.playing = false; actTick(d); opsTick(0, true); t += d; if (SHW.hold) { SHW.hold = false; showSeekT(t); } }
+    const B = snapPose();
+    return { T: +p.T.toFixed(2), spot: p.i + 1, who: st.who, lit: st.lit, hands: hands.hands, palmL: hands.L, palmR: hands.R, yawDeg: +(OPS_S.spots[p.i].g.rotation.y * 180 / Math.PI).toFixed(1), seekVsPlay: +diff(A, B).toExponential(2) };
+  });
+  const worst = Math.max(0, ...rows.filter(r => r.hands >= 1).flatMap(r => [r.palmL, r.palmR]));
+  const yaws = rows.map(r => r.yawDeg);
+  if (wasOn) { showSeekT(wasT); if (wasPlaying) showPause(false); } else { showStop(false); showSeekT(wasT); }
+  actTick(0, true); opsTick(0);
+  return { pass: worst <= (opts.tol ?? 0.02) && rows.every(r => r.seekVsPlay <= 1e-6), worstPalmM: +worst.toFixed(4), yawRangeDeg: [Math.min(...yaws), Math.max(...yaws)], points: rows, ms: Math.round(performance.now() - t0) };
+}
+const OPS_API = {
+  standby: () => opsStandby(), go: () => opsGo(), say: (text, who) => opsSay(String(text), who || 'Booth'),
+  state: () => opsState(), hands: () => opsHands(), check: opts => opsCheck(opts), tick: (dt, force) => opsTick(dt || 0, !!force),
+  get perf() { return Object.assign({ tickMs: +OPS_S.ms.toFixed(3) }, OPS_S.perf); }, get group() { return OPS_S.group; }, tune: OPS,
+};
+const lxPanelTickC = lxPanelTick;
+lxPanelTick = dt => { const a = lxPanelTickC(dt), b = opsTick(dt); return a || b; };   // after the actors' tick: the spots are aimed this frame
+const buildLightsPanelC = buildLightsPanel;
+buildLightsPanel = () => {
+  buildLightsPanelC();
+  const M = window.MIDTOWN; if (!M) return;
+  M.booth = OPS_API;
+  const frame = M.frame;
+  M.frame = () => { opsTick(0); frame(); };                // a synchronous frame poses them too (the actors' hook, set later, poses the bodies first)
+};
+
 /* ---------------------------------------------------------------- RIGGING: BOOMS ONTO THE WALLS (agent A)
    Jack: "move these lights back to be attached to the walls" — the booms standing in the HOUSE
    (downstage of the arch) go against the Midtown side walls on vertical boom pipes with brackets. */
