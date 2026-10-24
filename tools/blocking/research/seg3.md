@@ -701,3 +701,126 @@ Inside's threat at 1:10 against the cut at 70.25; the reprise's secret at 1:35 a
 4. 1-14 110-138 s: Lee out on the SL gallery for the slander, Burr below, Hamilton's charge stopped by Washington.
 5. 1-15 36-46 s (spin and bounce), 57-72 s (#6 / #7 with the Bullet at Hamilton's side), 101-105 s (the paces, the shot).
 6. 1-12 0-10 s and 104-112 s: the two slumped guests; 69-78 s, Hamilton shooing his friends.
+
+## Film round (2026-10-24)
+
+Jack: places wrong, too much standing still, use the three followspots. The evidence this time is the Disney+ film
+itself, cut into frames with the album time on each (`tools/vision/cache/<clip>/frames.json`, `at`; the six clips are
+`1-12-the-story-of-tonight-reprise` … `1-17-that-would-be-enough`). All the `at` values below are album seconds in the
+track, tconf 1.0 unless said. Orientation: the film's frame-right is stage LEFT (+x). Places are read off the wide
+shots and are good to about a metre; the close-ups only gave who and what (gesture), not where.
+
+### 1-12 The Story of Tonight (Reprise)
+
+- 0.8 (frame 39, the full proscenium): the four in a loose line right at the front, two pairs: Lafayette and Mulligan at
+  centre shaking hands, Laurens and Hamilton to SL (the SL stair behind Hamilton in the medium shot at 1.2). No table
+  is visible anywhere in the clip (segment 2's carry still brings one; it is kept, Lafayette strikes it).
+- 9-20: the four in a close group, arms round shoulders, glasses (medium); 30: a line across, Mulligan at the SR end,
+  Hamilton at the SL end; 40: three crouched and lunging toward SR, the drunk dance, Hamilton standing watching.
+- 47 (wide): Burr has come on from SR and stands at about x -3.9; Hamilton is walking across to him; the three are far
+  SL (x 3.4-5.2) toasting; one of the passed-out guests is on the SL stair, the other upstage.
+- 52: Burr and Hamilton SR, the friends SL. 60: the two have traded sides, Hamilton SR of Burr. 70: Laurens hanging
+  on Burr's shoulder, Hamilton beside. 79 (wide): all five in a line at centre. 82: the three going off toward the SL
+  stair; Burr and Hamilton left together.
+- 104 (medium-wide): Hamilton SR of centre facing in, Burr SL of him with his back to the camera; 109 close on Burr.
+- Changed: the four's places and their constant small moves (laugh-bob, sway, the toast's reach-up, the crouch lunge);
+  Burr in and staying SR; Hamilton's cross; the friends SL instead of crowding Burr; Laurens' drape (lean-in);
+  the line at 79 and the shoo at ~80 (was 75.4; the tavern-table strike moves with it); the end picture; Hamilton
+  off DR. Stillness 55 % -> 34 % (Hamilton 84 -> 59, Burr 92 -> 80: Burr's scene is talk).
+
+### 1-13 Wait for It
+
+- 10.6 (wide): Burr alone in a hard pool, centre. 60 (wide): he is walking, toward SR, mid-stage.
+- 88.9 (wide and the close at 88.9): FOUR of the company on wooden chairs on the deck at the sides, two each side,
+  seated and watching him; more standing dim on the galleries. 121 (wide): Burr just SR of centre; the chair
+  people downstage at both sides, legs thrown out from the chairs (the chair dance). 133.8 (wide): the four standing
+  beside their chairs (two SR, two SL), more up on the galleries; Burr centre. 159 (medium): the women lunging out
+  from the chairs. 168-175: Burr's arms flung wide ("and we fall"); 180: Burr centre, alone in light.
+- Changed: the review-3 picture of all six on the upstage gallery is half wrong: four (ens7, ens1 SR; ens5 and the
+  watcher ens8 SL) are now on chairs on the deck, which each brings on in chorus 1 and takes off in the outro
+  (props wait-chair-sr / -sr2 / -sl2 and the watcher's, which no longer goes at 51); three (ens6, ens2, ens9) stay on
+  the gallery. Burr walks (verse 2 toward SR, verse 3 SR of centre, the centre in the last chorus). Moves: seated,
+  the chair dance (lunge off the chair, sit, again), standing by the chairs, the arm sweeps and lunges of the final
+  chorus, back on the chairs. Stillness 60 % -> 25 % (Burr 69 -> 65: the soliloquy stays).
+
+### 1-14 Stay Alive
+
+- 7 (wide): a redcoat SR at the front with his musket levelled across at Hamilton, who is SEATED on a chair SL of
+  centre, writing; Eliza (and a second woman beside her, probably Angelica) on the upstage gallery right of centre
+  (x about +2). 15: the Bullet dancing in alone toward Hamilton in his chair; the redcoat kicks. 18: Hamilton seated,
+  close. 25 / 35 (wides): Hamilton seated; redcoats round him, kneeling with muskets (SR, centre-left, two SL),
+  two on the SR gallery; Eliza along the gallery at x about +3.6, then +1.8. No Laurens, no friends, nobody at a desk.
+- 44-47: Washington beside the seated Hamilton; 46.7 Hamilton gets up; redcoats at the sides. 52: Washington SR of
+  centre, Hamilton SL by the chair. 58: Washington walking SR; Hamilton by the chair; redcoats SR, centre, SL; Eliza
+  at the SL end of the upstage gallery.
+- 70-77: Laurens, Lafayette, Hamilton walking DS together (the war reports). 80-90: Washington and Hamilton with a
+  paper. 99 (wide, Monmouth): five or six redcoats centre-right of the deck; Hamilton crossing; Lee in his tan coat.
+  106: Washington at the top of the SR stair (the gallery's SR end) above the battle; the redcoats fighting centre / SL,
+  the Americans SR. 110: Hamilton, Laurens, Lee and another SR; the redcoats SL of centre; one redcoat on the upstage
+  gallery. 116: Lee pulled back, the redcoats firing at the Americans.
+- 130: Lee lit up on the gallery (as review 3). 142-157: Washington, Hamilton, Laurens DS; Hamilton and Laurens close.
+- Changed: Hamilton in his chair from the top (props ham-chair-14, struck by a redcoat at 85.5); three redcoats
+  (ens7, ens9, ens10) from the top, aiming, kneeling, then with the four of the war reports; Washington on at 40 with
+  the desk (Jack's ruling kept: it goes at 50); the friends on at 65.5 (not 29.65) and walking in the war reports;
+  Laurens' top cut-in cut (the film has none); Eliza's gallery places SL of centre, moving between holds, Angelica to
+  her SL; Monmouth turned round: six redcoats as the British centre / SL facing SR, advancing and falling back on
+  Lee's four orders, the Americans (Hamilton, Laurens, Lafayette, Mulligan, Burr) SR, Washington at the gallery's SR
+  end. Stillness 71 % -> 53 % (Eliza 93 -> 89: her letters, kept).
+
+### 1-15 Ten Duel Commandments
+
+- 9 / 10: the three pools (renders confirmed), with dim company at both sides and up on the galleries.
+- 25 (wide): Lee and Burr nose to nose at centre; Hamilton and Laurens together SR; the company dancing at the sides
+  (arms up) and on the SL stair and the galleries.
+- 45 (wide): the Doctor DS of centre-left with his bag; Lee, Hamilton, Burr spread across; company dancing on the
+  galleries and SR. 56-65: the line of ten (confirmed). 69-72: the cluster (confirmed).
+- 81-92: the seconds' scene, a few figures spread in the dark.
+- 99-103 (wide, then overhead): the duellists back to back at centre on the turntable, SIX of the company in a ring
+  round them on its inner ring, dancing (arms up), Hamilton and Burr in the DR / DL corners; company up on the galleries.
+- Changed: the company on from the top at the edges (they no longer come on at 51.6 and go off at 77), dancing on #1-#5
+  (the head snap at #1 included), back to the edges after #8, the ring for the count, off after the shot; #2/#3 as two
+  pairs; the Doctor DS with his bag (on from SR at 38-45, then up centre). Stillness 63 % -> 53 %.
+
+### 1-16 Meet Me Inside
+
+- 3-7: Hamilton and Laurens at SR by the SR stair (the hug). 14 (wide): Hamilton and Laurens far SR; Washington
+  centre pointing at Lee; Lee and the Doctor far SL. 22.6: the SL pair going off. 26.6: Washington crossing, two of the
+  company carrying the bench on at SR, the Doctor with his bag SL. 36-50: Hamilton SR of Washington, hands behind his
+  back; Washington SL. 66-81: the two close, Washington pointing at him.
+- Changed: Lee goes down SL (the Doctor and Burr with him), off DL; Hamilton and Laurens far SR; Washington down to
+  centre; the office mirrored (Hamilton SR of centre, Washington SL, the desk set SL behind him and struck DL); the
+  bench from SR to (0.2, 1.95). Stillness 78 % -> 55 % (Hamilton 93 -> 94: hands behind his back, sourced).
+
+### 1-17 That Would Be Enough
+
+- The clip starts at ~3: a stone bench centre, Eliza SR of it, Hamilton SL of it with his back to her. 20: the two
+  holding each other, standing. 58: he is bent over, walking away; she reaches for him. 60 (wide): he sits on the
+  bench; she stands near. 67-80: she stands behind him, hands on his shoulders. 101: she sits down beside him on his
+  SR. 106-175: the two side by side on the bench to the end.
+- Changed: no seated Hamilton at the top, no chorus revolve, no DC step together: standing scene, he sits at 60,
+  her comfort from behind, then both seated to the black (Jack's ruling: they hold through the fade and go at 1-18's
+  top). Stillness 67 % -> 27 %.
+
+### The followspots (follow.py SEGMENT 3)
+
+The film shows hard white circles on: Burr from his entrance through all of Wait for It; Hamilton in his chair and
+Eliza on the gallery at the top of Stay Alive; Lee on his promotion, his battle and the SL gallery (also Jack's 1-14
+note, "charles lee's spotlight is off"); the three pools of the duel; the seconds; Lee at the lip for the shot;
+Washington's arrival and the office; the couple. Spot 2 (house left) takes SR work, spot 3 the SL, spot 1 centre; all
+three are out by 1-17 175.3 with the button's fade.
+
+### Moves the library does not have (FILM ROUND)
+
+- a glass raised in a toast (1-12 20.3; reach-up stands in);
+- the chair dance: seated, legs thrown out, arms working, without getting up (1-13 118-131; lunge then sit stands in);
+- a seated two-person lean (1-17, the two on the bench, heads together; nothing stands in);
+- a stagger (1-16 Lee, hit; hold-side stands in).
+
+### Not settled (for Jack)
+
+- 1-14: the second woman beside Eliza at the top (frame at 7.1) looks like Angelica; she is still brought on only at 84.
+- 1-14: the film has Hamilton in a chair, not at Washington's desk; the desk still comes on (now at 40) and off at 50
+  per his note. If the desk was only ever the chair, the desk can go.
+- The lighting keys the cue agent built for 1-12 (Burr DRC, Hamilton DLC), 1-16 (Washington DRC, Hamilton DLC) and
+  1-17 (the two keys) no longer match the places; the followspots light the principals there, but the cues need the
+  cue agent's eye.

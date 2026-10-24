@@ -74,7 +74,60 @@ SEGMENT_2 = [
 # ===== END SEGMENT 2 =====
 
 # ===== SEGMENT 3 (1-12..1-17) =====
+# FILM ROUND (2026-10-24; research/seg3.md "Film round"). The film's followspots in this stretch: Burr carried through his
+# entrance into Wait for It; Hamilton in his chair at the top of Stay Alive and Eliza on the gallery; Lee picked out on
+# his promotion, his battle and the SL gallery (Jack's 1-14 note: "charles lee's spotlight is off"); the three pools of
+# the duel and the four principals through it; Hamilton and Washington in the office; the couple on the bench.
+# Spot 2 (house left) takes the stage-right work, spot 3 (house right) the stage-left, spot 1 the centre.
 SEGMENT_3 = [
+    # 1-12 The Story of Tonight (Reprise)
+    F(1, '1-12', 5.0, 'hamilton', level=0.7, note='the four at the front, Hamilton leading the toast (film 0.8-40)'),
+    F(3, '1-12', 6.0, 'laurens', level=0.6, note='Laurens at the SL end of the line (film 30), then far SL with the toasts (52)'),
+    F(2, '1-12', 45.8, 'burr', level=0.8, note='Burr on from SR (film 47): picked up on his entrance'),
+    OUT(3, '1-12', 81.0, note='the friends shooed off (film 82)'),
+    OUT(1, '1-12', 108.4, note='Hamilton goes off DR'),
+    # 1-13 Wait for It: spot 2 stays on Burr from 1-12 (he walks into his pool in the change)
+    F(2, '1-13', 0.6, 'burr', size='full', level=0.9, fade=1.0, note='his song: the spot carried from 1-12 settles on him in his pool (film 10.6: a lone figure in a hard circle)'),
+    F(2, '1-13', 146.2, 'burr', size='full', level=1.0, fade=1.0, note='the final build (film 147-160): up to full'),
+    OUT(2, '1-13', 189.8, fade=1.5, note='the last chord; he goes in the navy hold'),
+    # 1-14 Stay Alive
+    F(3, '1-14', 5.0, 'hamilton', level=0.7, note='film 7-46: Hamilton writing in his chair SL of centre, in a hard pool'),
+    F(1, '1-14', 4.5, 'eliza', level=0.7, note='film 7-58: Eliza on the gallery with her letter'),
+    F(2, '1-14', 40.0, 'washington', level=0.7, note='Washington comes on with his desk (film 44)'),
+    F(2, '1-14', 87.6, 'ens3', level=0.8, move=1.0, note='Charles Lee\'s promotion (cue 445): Jack\'s note "charles lee\'s spotlight is off" - the spot swings onto him DL'),
+    OUT(1, '1-14', 104.4, note='Eliza goes up the gallery passage'),
+    OUT(2, '1-14', 109.6, fade=0.5, note='Lee runs off DR after his retreat'),
+    F(1, '1-14', 120.6, 'ens3', level=0.9, note='Lee out on the SL gallery for his slander (ironinkpen; film 130)'),
+    F(2, '1-14', 121.0, 'washington', level=0.7, note='Washington back on the deck, taking over (film 130-142)'),
+    OUT(1, '1-14', 137.5, note='Lee goes off the SL gallery'),
+    OUT(2, '1-14', 144.5, note='Washington goes off D-UC'),
+    F(1, '1-14', 144.3, 'laurens', level=0.7, note='Laurens and Hamilton alone at the end (film 150), forehead to forehead'),
+    OUT(1, '1-14', 158.0, fade=1.0, note='the fade to the three pools of 1-15'),
+    OUT(3, '1-14', 158.0, fade=1.0, note='the fade to the three pools of 1-15'),
+    # 1-15 Ten Duel Commandments
+    F(2, '1-15', 1.6, 'hamilton', level=0.8, note='the DR pool of the three (cue 450.01; film 9)'),
+    F(3, '1-15', 1.6, 'burr', level=0.8, note='the DL pool of the three'),
+    F(1, '1-15', 1.6, 'laurens', size=2.6, level=0.8, note='the centre pool: the duellists nose to nose (a wider iris takes Lee in too)'),
+    F(1, '1-15', 21.2, 'ens3', size='full', level=0.8, move=0.6, note='#2/#3 (film 25): Lee and Burr nose to nose at centre; spot 2 takes Laurens with Hamilton SR'),
+    F(2, '1-15', 21.6, 'hamilton', size=2.6, level=0.8, note='Hamilton and Laurens together SR (film 25)'),
+    F(1, '1-15', 34.6, 'ens3', size='full', level=0.7, note='the company vocal: the four on the upstage arc'),
+    F(2, '1-15', 52.6, 'hamilton', size='full', level=0.7, note='#5 to #8: the line and the cluster are lit by the rig; the spots stay on the principals'),
+    F(1, '1-15', 79.0, 'laurens', level=0.6, move=1.0, note='the seconds\' scene: Laurens waiting in his mid pool'),
+    F(3, '1-15', 79.0, 'burr', level=0.9, note='the seconds\' scene: Burr (film 75-90)'),
+    F(2, '1-15', 79.6, 'hamilton', level=0.9, note='the seconds\' scene: Hamilton (film 82)'),
+    F(1, '1-15', 104.0, 'ens3', level=1.0, move=0.4, note='the shot: the spot whips to Lee at the lip (cue 474, 104.85)'),
+    # 1-16 Meet Me Inside
+    OUT(3, '1-16', 2.0, note='Burr with his man: the rig takes the SL picture'),
+    F(3, '1-16', 9.6, 'washington', level=0.8, note='Washington arrives (cue at 9.6; film 14)'),
+    OUT(1, '1-16', 21.0, note='Lee carried off SL (film 22.6)'),
+    F(2, '1-16', 31.6, 'hamilton', level=0.8, note='the office: Hamilton SR of centre, hands behind his back (film 36)'),
+    OUT(3, '1-16', 77.6, note='Washington goes off DL with his desk'),
+    # 1-17 That Would Be Enough: spot 2 stays on Hamilton
+    F(1, '1-17', 5.5, 'eliza', level=0.7, note='Eliza comes to him (film ~3: a soft pool on each)'),
+    F(2, '1-17', 2.5, 'hamilton', level=0.6, fade=1.5, note='Hamilton by the bench, his back to her'),
+    F(1, '1-17', 100.0, 'eliza', size=2.6, level=0.7, fade=2.0, note='the two side by side on the bench (film 101-175): spot 1 opens to take them both'),
+    OUT(2, '1-17', 101.0, fade=2.0, note='one pool for the couple from here (spot 1)'),
+    OUT(1, '1-17', 175.3, fade=2.7, note='the button (cue 501): out with the fade; NOTES3: they hold till it is black'),
 ]
 # ===== END SEGMENT 3 =====
 

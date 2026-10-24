@@ -262,27 +262,42 @@ SEGMENT_2 = [
 # ===== END SEGMENT 2 =====
 
 # ===== SEGMENT 3 (1-12..1-17) =====
-# the tavern table struck in 1-12; 1-13 the watcher's chair far SL (cue 410 "the woman on the chair"; the watcher's
-# pool is seen in the production pictures); Washington's desk in 1-14 Stay Alive (seg3gen.py) and 1-16 the office;
-# 1-16/1-17 Hamilton's chair (cue 490 "Hamilton (seated)"), set with the office desk and left for him when it goes
+# the tavern table struck in 1-12; 1-13 the four chairs of Wait for It at the deck's sides (FILM ROUND: the watcher's
+# and three more); 1-14 Hamilton's writing chair (FILM ROUND) and Washington's desk; 1-16 the office desk and the bench
+# Hamilton and Eliza sit on in 1-17
+def _ch13(pid, who, label, sitter, f, wing, t0, t1, s0, s1, note):
+    x, z = behind(sitter, f, 0.55)
+    return [P(pid, 'chair', label, PINE),
+            BRING(pid, who, '1-13', t0, '1-13', t1, x, z, f, wing=wing, note=note),
+            STRIKE(pid, who, '1-13', s0, '1-13', s1, wing, note='she takes it off in the outro fade (seg3gen.py)')]
 SEGMENT_3 = [
-    STRIKE('tavern-table', 'lafayette', '1-12', 75.8, '1-12', 83.0, 'W-MSL', note='the friends leave on 75.4: Lafayette takes it off W-MSL'),
+    STRIKE('tavern-table', 'lafayette', '1-12', 80.5, '1-12', 88.2, 'W-MSL', note='FILM ROUND: the friends are shooed off at ~80 (film 82); Lafayette takes it off W-MSL'),
     P('watcher-chair', 'chair', 'Chair (Ensemble 8)', PINE),
     BRING('watcher-chair', 'ens8', '1-13', 0.4, '1-13', 9.5, *behind((4.0, 2.6), -60, 0.55), -60, wing='W-MSL',
           note='1-13: the woman far SL (cue 410) brings her chair on and sits in her pool (ch10 (4.04, 2.64))'),
-    STRIKE('watcher-chair', 'ens8', '1-13', 51.4, '1-13', 55.6, 'W-MSL', note='she takes it off as her pool fades (cue 413)'),
-    BRING('washington-desk', 'washington', '1-14', 11.5, '1-14', 16.9, 0.0, 0.85, 0, wing='D-UC',
-          note='1-14: Washington brings his desk in from D-UC (cue 429 "a warm pool on the desk"); he stands DS of it'),
+    *_ch13('wait-chair-sr', 'ens7', 'Chair (Ensemble 7)', (-4.6, 2.7), 60, 'W-DSR', 25.0, 30.0, 179.6, 183.4,
+           'FILM ROUND (film 88.9 / 121 / 133.8): the company sit on chairs at the sides of the deck through Wait for It; far SR'),
+    *_ch13('wait-chair-sr2', 'ens1', 'Chair (Ensemble 1)', (-3.0, 0.6), 75, 'W-MSR', 25.0, 30.6, 180.0, 185.0,
+           'FILM ROUND: the second SR chair'),
+    *_ch13('wait-chair-sl2', 'ens5', 'Chair (Ensemble 5)', (3.0, 0.6), -75, 'W-MSL', 25.0, 31.2, 180.0, 185.0,
+           'FILM ROUND: the second SL chair'),
+    STRIKE('watcher-chair', 'ens8', '1-13', 179.6, '1-13', 184.5, 'W-MSL', note='FILM ROUND: she keeps it (film 88.9: still seated far SL) and takes it off in the outro fade'),
+    P('ham-chair-14', 'chair', 'Chair (Hamilton)', PINE),
+    DARK('ham-chair-14', '1-14', 0.3, *behind((2.4, 2.55), -30, 0.55), -30,
+         note='FILM ROUND (film 7-46): Hamilton sits writing on a chair SL of centre from the top; set in the dark between the songs'),
+    STRIKE('ham-chair-14', 'ens10', '1-14', 85.5, '1-14', 90.2, 'W-MSL', note='a redcoat takes it off SL as the war reports end'),
+    BRING('washington-desk', 'washington', '1-14', 34.6, '1-14', 40.0, 0.0, 0.85, 0, wing='D-UC',
+          note='1-14: Washington brings his desk in from D-UC (FILM ROUND: he comes on late, film 44); he stands DS of it'),
     STRIKE('washington-desk', 'ens2', '1-14', 50.0, '1-14', 54.8, 'D-UC',
            note='NOTES3 (Jack): "at 50 washington\'s desk should come off" - no blackout there, so ens2 (free) comes in by the deck door, takes it from behind and goes back out with it'),
-    BRING('washington-desk', 'ens2', '1-16', 21.7, '1-16', 28.5, -1.9, 2.4, 40, wing='W-MSR',
-          note='1-16: ens2 brings it on from SR on the chant (cue 478 turns the deck into his office); behind his place'),
-    STRIKE('washington-desk', 'washington', '1-16', 77.9, '1-16', 82.9, 'W-DSR', note='he takes it off DR on the button'),
+    BRING('washington-desk', 'ens2', '1-16', 21.7, '1-16', 28.5, 1.9, 2.4, -40, wing='W-MSL',
+          note='1-16: ens2 brings it on from SL on the chant (cue 478 turns the deck into his office); behind his place (FILM ROUND: Washington is SL of Hamilton)'),
+    STRIKE('washington-desk', 'washington', '1-16', 77.9, '1-16', 82.9, 'W-DSL', note='he takes it off DL on the button'),
     # REVIEW 3: ironinkpen on That Would Be Enough: "The only thing on stage with them is a little bench, which Hamilton
     # sits on tiredly" - so his seat is a small bench, not a chair (the id is kept; nothing else names it)
     P('office-chair', 'bench', 'Bench (Hamilton)', OAK, size=[1.0, 0.45, 0.4]),
-    BRING('office-chair', 'ens6', '1-16', 22.2, '1-16', 29.0, *behind((0.75, 2.6), -20, 0.7), -20, wing='W-MSL',
-          note='1-16: ens6 brings it on from SL with the desk; Washington leaves it, and Hamilton sits on it at the top of 1-17 (cue 490; ironinkpen: "a little bench")'),
+    BRING('office-chair', 'ens6', '1-16', 21.8, '1-16', 29.0, 0.2, 1.95, 0, wing='W-MSR',
+          note='1-16: ens6 brings it on from SR with the desk (film 26.6); 1-17: the two sit on it side by side (film 60-175)'),
     # (NOTES3: its strike is in SEGMENT 4 now - he takes it off once the fade is black, at 1-18's top)
 ]
 # ===== END SEGMENT 3 =====
