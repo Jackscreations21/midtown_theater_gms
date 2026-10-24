@@ -2169,3 +2169,43 @@ include the place a failure would show — the corridor behind the house, not on
 - **The Van Wezel GLB is in feet** (a 60 ft proscenium): `tools/van-wezel-optimise.py` scales it; never scale it again
   in the page.
 
+## From the orchestra-pit round (2026-10-24)
+
+- **House 1's stage floor is Jack's slab, not the set's deck.** Box 21 (bake 3) is a SOLID box y −0.155…0.845 over x
+  −19.1…10.4, z −1.38…11.0: its top (0.845) is the floor everyone stands on and its front face (z −1.38) is the lip the
+  house sees; the set's deck (0.816, ending z −0.40) and the scan's fill (0.796) are buried inside it, and so are the rail
+  blocks along the apron (boxes 6, 6b, 18, y −0.19…0.81). Measuring "the stage's front edge" off the set or the scan gives
+  z −0.40; the footlights (ch602–607) stand on the real lip at z −1.43…−1.02. Anything under the stage must hollow the slab
+  too (THE ORCHESTRA PIT carves it once at load: `pitCarve`, split along the boxes and dropped — reapplyAll never restores a
+  baked piece, and a delete box never reaches one).
+- **A beam cone that lands on the deck at a slant dips its far rim under the deck.** The cone ends at the landing point on
+  its axis, so for a FOH beam half its far end is up to R·sin(angle) below the floor: hidden by the deck from above, drawn in
+  full from under the stage. All units at full painted light shafts across the pit's ceiling until `LX_BEAM_FS` discarded
+  fragments under y 0.84 in house 1's stage house. Hiding a beam mesh from the console to test this proves nothing: `lxDrawn`
+  re-sets every beam's and the pools quad's `visible` each frame (the budget) — compare all(1) against blackout() instead,
+  each followed by `lx.refresh()` (without it all(1) changes nothing).
+- **A pool's depth band reaches under the deck.** The decal lights whatever the depth pass sees inside its band (front 0.4,
+  behind 0.6 + span/6), so a body standing in a hole in the deck is lit to the knees by a pool on the deck round the hole.
+  The pit's materials have a black albedo (`userData.base`, read by `lxAlbedoOf`); the MD's hips and legs too, his torso,
+  arms and head (which come up through the opening) keep theirs.
+- **Under a stage, every scene light shines straight through the deck.** The hemisphere, the work spots (two of them cast no
+  shadow) and the engine's real lights reach any MeshStandardMaterial below the stage. The pit's materials drop the scene's
+  light in the shader (`pitPatch`, after `lights_fragment_end`) and add their own lamps' terms; the MD's fade the scene's
+  light back in over the deck's top (`PIT_ABOVE`), so his head is lit with the stage.
+- **rigArmTo cannot lift a hand above the shoulder.** Its abduction is `atan2(dx, max(0.05, −dy))`: a target level with the
+  shoulder or above it throws the arm straight out sideways (the first violinists held their arms out like a T). The pit's
+  players and MD use a two-bone IK in 3D with an elbow pole (`pitArm`).
+- **The actors' name tags are drawn with depthTest off**, so they show through every wall and floor — in the pit, through
+  its ceiling, while the show is on. Not the pit's doing (the tags are drawn over everything by design), but very visible there.
+- **A door hinged on its west jamb opens across a way in from the west.** `hangLeaf` hinges at x0 and swings +z; open, the
+  leaf stands perpendicular to the wall and blocked the cross passage. The pit's door is hinged at x1 (`pitHang`, doorLeaf's
+  s −1); `doors.check()` reads its reveals and sweep the same way.
+- **With the Browser pane hidden the page gets NO animation frames at all** (not merely slow ones): a test that waits on
+  real frames hangs. Use the page's synchronous steps (`MIDTOWN.frame()`, `MIDTOWN.company.debug.step(dt, n)`) or front
+  the pane.
+- **House 1's SL prompt corner is a pocket**, closed by the set's SL brick at z 2.08 and SL Boom 2's tower (x −7.35,
+  z 1.21). The prompt desk had to move upstage of the worklight switch to fit (x −8.72…−8.17, z 1.13…1.98).
+- **A layer over the actors must be off inside `actors.check()`.** The company's backstage walk owns the poses while
+  `CO.on`; the check now saves and clears it, then restores it. Any new layer needs the same.
+- **A lit material in the booth catches the lobby's SpotLights through the walls** (a SpotLight here casts no shadow): the
+  operators use an unlit matcap.

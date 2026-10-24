@@ -258,6 +258,76 @@ WEZEL HALL" (`MIDTOWN.vanWezel`, a "Van Wezel" view button).
   - Its surfaces are unlit, with the light baked into the colours, so the House light slider doesn't touch them.
   - Only one side door can be reached.
   - The hallway is ~15 m long, painted like the backstage hallway.
+## DONE — 2026-10-24: the orchestra pit under house 1's stage and the conductor's opening (branch `orchestra-pit`, PR open)
+
+Jack: *"make an orchstar pit under the hamstage and make ther be a littlw hole at the front of the stage like hamilton has for
+the conductor"*. One Opus builder; `midtown.html` "HOUSE WORKS: THE ORCHESTRA PIT" (`MIDTOWN.pit`, a "Pit" view button).
+- **The stage front is box 21's lip (z −1.38, top 0.845), not the set's deck (z −0.40):** Jack's baked slab buries both
+  decks. The pit is x −5.5…5.5, z −1.28…3.5, floor y −2.0; joists to 0.54, a lip beam to 0.32 (hides ch285/286).
+- **The opening:** x −0.55…0.55, z −1.27…−0.82 (1.10 × 0.45 m, 11 cm behind the lip, so footlight ch605 keeps its strip).
+  It is 0.45 deep, not 0.6, because the DSC marks reach z −0.79…−0.94 (actors over it: 7 actor-seconds at 0.45 vs ~76
+  at 0.6). An invisible lid in the walk's grid closes it. There is no rail (the real one has none).
+- **The band:** the MD on a riser (crown 0.41 m over the deck, facing upstage, keyboard, monitor, lamp) and nine
+  players from the actors' rig: keys 2, guitar, bass, drums, percussion, two violins, viola, cello. They play on the beat
+  grid as a pure function of show time. The players are instanced per body part; the 3D arm solve is `pitArm`.
+- **Lighting:** no real lights. Pit materials take only 22 lamp terms; they are black to the pools and the worklights,
+  except the MD's upper body.
+- **The way down:** a guarded hole in the crossover (x −5.15…−1.85) and a 16-riser stair to a passage under the set's
+  house-right side, then a door on E into the pit. `PIT_CUTS` in `reapplyAll` (the ground plane, the stalls floor, the
+  back tower's foot); `pitCarve` carves box 21, boxes 6/6b/18 and box 4's foot at every load.
+- **Two fixes outside it:** `LX_BEAM_FS` discards beam fragments below y 0.84 in house 1's stage house (a slanted cone's
+  rim dipped into the pit), and `under.check()` gains the pit's walls as blockers (it had relied on house 1's ground
+  plane: 15/16 → 16/16).
+- **Checks:** `pit.check()` 11/11, negative-checked (door open; slab removed). `actors.check()`, `follow.check()`,
+  `show.check()` seek-equivalence, `walls`, `jt`, `jtLights` identical to main; `lx.check()` 301/313; doors 19/19 (+ the
+  pit door); console clean. Frame: +0.7…+4.5 ms depending on the view (Intel, rough).
+- **His to decide:**
+  1. The opening's size.
+  2. Nudge the King's, Burr's and Hamilton's DSC marks ~0.2 m upstage? A toe is over the opening's back edge for ~145
+     actor-seconds.
+  3. The walker can stand on the lid, over the MD's head.
+  4. The head tags show through the pit ceiling (they draw over everything).
+## DONE — 2026-10-24: the stage manager — calling the show, the company backstage, the booth's operators (branch `stage-manager`, PR open on main after #17 merged; RULINGS GM–GQ)
+
+Jack: *"make a stage manger thing where i can call ther show and i can give 5 minuet and plcsses calss for the actors and
+make it so there are atcually people in the spotbooth moving the lights and think of somemore stuff for it"*, then
+*"make it so you can have it where i have to start each song or i just have to call the starts of both halfs"*. The
+spec, with his answers as rulings: `docs/superpowers/specs/2026-10-24-stage-manager-design.md`. Three Opus builders in
+worktrees, three new sections just before RIGGING: BOOMS ONTO THE WALLS:
+- **THE DESK AND THE CALLING (`MIDTOWN.sm`).** The prompt desk sits in house 1's SL prompt corner, at x −8.72…−8.17,
+  z 1.13…1.98: a pocket closed by the set's SL brick at z 2.08 and SL Boom 2. It carries a sloped top, the book, a canvas
+  plan monitor at 4 Hz, red and green lamps, a headset, the God mic and a stool. E sits you there and opens the panel:
+  - **The mode (GM):** every number, or the two acts. `showHeld(j)` = the track's own hold OR `smHolds(j)`, in the three
+    places the clock decides to hold.
+  - **The calls:** House open, Half, Fifteen, Five, Places, Curtain, and "Clear to start?". STANDBY is S, GO is Space.
+  - **Places gate:** the first GO of an act is refused while the company is not all at places; "GO anyway" goes
+    regardless.
+  - **Front of house:** the announcement (our own text) is spoken before Act One.
+  - **The show report:** downloaded and kept in localStorage.
+  - **Voice:** the God mic text uses `speechSynthesis`, with a toggle.
+- **THE COMPANY BACKSTAGE (`MIDTOWN.company`).** Homes in DR1–4, the green room and wardrobe, with idle shifts.
+  - Answers are seeded 0.4–2.6 s after a call, shown as bubbles over the heads.
+  - PLACES walks a hand-made route graph: two corridor lanes, the slots, the wings, the gallery from house left. Bodies
+    are spaced 0.9 s apart at every junction. The company opens and shuts doors.
+  - Hand-over to the blocking is exact for anyone seen at the act's top. Every body is OFF at both tops, though, so a
+    body parked off stands in a 0.55 m cluster round its shared spot (lead's change). Before, up to six stood inside each
+    other on the gallery landing.
+  - It is a layer: `CO.on` in `actUpdate` / `actTick`. `actors.check()` turns it off while it runs (lead's change: with
+    the company backstage the check measured their walk).
+- **THE BOOTH'S OPERATORS (`MIDTOWN.booth`).**
+  - **Spot operators:** three mannequins on the spots' rear grips with a 3D two-bone IK (`opsIK`). Palms are within 4 mm
+    of the grips through pans. They step round as the tail swings, and hands go off when the spot is dark.
+  - **Desk operators:** Lights and Sound sit at the lighting desk; Lights reaches on GO.
+  - **Headset and lamps:** headset replies through `MIDTOWN.sm.log` ("Spot two, I have Hamilton"). Cue lamps hang in the
+    booth and on both wing walls.
+  - **Look and cost:** an unlit matcap, because a lit material caught the lobby's SpotLights through the walls. Culled
+    unless the booth is in view.
+- **Checked, all together:** a whole call on the merged page — House open, Half, Five (20 × 3 answers), Places (20/20),
+  STANDBY (Lights, Sound, Spots 1–3 standing by), GO (the announcement, ACT ONE playing, the company back to show mode).
+  - The checks: `actors.check()` passes (with the company backstage too), `follow.check()`, `booth.check()`,
+    `show.check()` seek-equivalence, and `lx.check()` 301/313. The console is clean.
+  - The builders' own runs covered the songs/acts holds, the interval, refusal + GO anyway, curtain and report, and the
+    act-2 hand-over (0 m for all 20).
 
 ## DONE — 2026-10-24: the film round — every segment against the footage, the stillness, the three followspots (branch `film-round`, PR open; RULING GL)
 
