@@ -229,6 +229,48 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-24: the stage manager — calling the show, the company backstage, the booth's operators (branch `stage-manager`, PR open on main after #17 merged; RULINGS GM–GQ)
+
+Jack: *"make a stage manger thing where i can call ther show and i can give 5 minuet and plcsses calss for the actors and
+make it so there are atcually people in the spotbooth moving the lights and think of somemore stuff for it"*, then
+*"make it so you can have it where i have to start each song or i just have to call the starts of both halfs"*. The
+spec, with his answers as rulings: `docs/superpowers/specs/2026-10-24-stage-manager-design.md`. Three Opus builders in
+worktrees, three new sections just before RIGGING: BOOMS ONTO THE WALLS:
+- **THE DESK AND THE CALLING (`MIDTOWN.sm`).** The prompt desk sits in house 1's SL prompt corner, at x −8.72…−8.17,
+  z 1.13…1.98: a pocket closed by the set's SL brick at z 2.08 and SL Boom 2. It carries a sloped top, the book, a canvas
+  plan monitor at 4 Hz, red and green lamps, a headset, the God mic and a stool. E sits you there and opens the panel:
+  - **The mode (GM):** every number, or the two acts. `showHeld(j)` = the track's own hold OR `smHolds(j)`, in the three
+    places the clock decides to hold.
+  - **The calls:** House open, Half, Fifteen, Five, Places, Curtain, and "Clear to start?". STANDBY is S, GO is Space.
+  - **Places gate:** the first GO of an act is refused while the company is not all at places; "GO anyway" goes
+    regardless.
+  - **Front of house:** the announcement (our own text) is spoken before Act One.
+  - **The show report:** downloaded and kept in localStorage.
+  - **Voice:** the God mic text uses `speechSynthesis`, with a toggle.
+- **THE COMPANY BACKSTAGE (`MIDTOWN.company`).** Homes in DR1–4, the green room and wardrobe, with idle shifts.
+  - Answers are seeded 0.4–2.6 s after a call, shown as bubbles over the heads.
+  - PLACES walks a hand-made route graph: two corridor lanes, the slots, the wings, the gallery from house left. Bodies
+    are spaced 0.9 s apart at every junction. The company opens and shuts doors.
+  - Hand-over to the blocking is exact for anyone seen at the act's top. Every body is OFF at both tops, though, so a
+    body parked off stands in a 0.55 m cluster round its shared spot (lead's change). Before, up to six stood inside each
+    other on the gallery landing.
+  - It is a layer: `CO.on` in `actUpdate` / `actTick`. `actors.check()` turns it off while it runs (lead's change: with
+    the company backstage the check measured their walk).
+- **THE BOOTH'S OPERATORS (`MIDTOWN.booth`).**
+  - **Spot operators:** three mannequins on the spots' rear grips with a 3D two-bone IK (`opsIK`). Palms are within 4 mm
+    of the grips through pans. They step round as the tail swings, and hands go off when the spot is dark.
+  - **Desk operators:** Lights and Sound sit at the lighting desk; Lights reaches on GO.
+  - **Headset and lamps:** headset replies through `MIDTOWN.sm.log` ("Spot two, I have Hamilton"). Cue lamps hang in the
+    booth and on both wing walls.
+  - **Look and cost:** an unlit matcap, because a lit material caught the lobby's SpotLights through the walls. Culled
+    unless the booth is in view.
+- **Checked, all together:** a whole call on the merged page — House open, Half, Five (20 × 3 answers), Places (20/20),
+  STANDBY (Lights, Sound, Spots 1–3 standing by), GO (the announcement, ACT ONE playing, the company back to show mode).
+  - The checks: `actors.check()` passes (with the company backstage too), `follow.check()`, `booth.check()`,
+    `show.check()` seek-equivalence, and `lx.check()` 301/313. The console is clean.
+  - The builders' own runs covered the songs/acts holds, the interval, refusal + GO anyway, curtain and report, and the
+    act-2 hand-over (0 m for all 20).
+
 ## DONE — 2026-10-24: the film round — every segment against the footage, the stillness, the three followspots (branch `film-round`, PR open; RULING GL)
 
 Jack: *"can you look the the audio and videso agian there is still a lot of stuff wrong. the sound in someplases onliine
