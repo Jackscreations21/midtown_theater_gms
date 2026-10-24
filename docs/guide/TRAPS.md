@@ -2143,3 +2143,20 @@ include the place a failure would show — the corridor behind the house, not on
 - **The Browser pane runs on the Intel UHD**, and so may his Chrome. The page prints the GPU at load (`midtown: rendering
   on …`). With the T2 rig up, a 1080p frame costs ~100 ms there (~55 ms with no terms); the CPU floor is ~15 ms (≈800
   draw calls).
+
+## From the film round (2026-10-24)
+
+- **A facing could snap in one frame, three ways, and nothing flagged it.** `actors.check()` moves every sample 5 ms clear
+  of waypoint times, so a yaw that STEPS at an instant passes seek = play on both sides of the step. Three causes, all fixed
+  (`arrive` / `yawOut` in actCompile, the editor and the plot): a turn on the spot (a zero-length leg: no tangent to arrive
+  along), a `facing` on a dwell-0 waypoint, a leg shorter than ACT_TURN (the next turn started from the wrong yaw). To find
+  steps, pose at T ± 4 ms over every waypoint's T and leave (the 2026-10-24 scan found 1,769 over 20°). Two waypoints at
+  ONE instant still step: a data matter for the generators.
+- **A segment agent's find-and-replace reached another segment's section.** Segment 5 renamed `desk-chair` →
+  `writing-chair` in its own props and the replace also hit four comment lines in segment 8's `dance.py` section; the merge
+  conflicted there. Diff each agent branch's hunks against its own `# ===== SEGMENT N` markers before merging.
+- **The spot audit's fixes can land where nobody is.** `--fix` aims at a person, but the dump after it is the truth: in
+  this round one re-aim landed in the house (z 8.4) and Eacker's swap stopped on the SL gallery rail again. Always
+  re-dump, re-audit and `pool-dump-diff.py` the two dumps; take back by hand what landed wrong (revert the cue's line
+  AND its restore follower).
+- **`MIDTOWN.actors.list` is a getter, not a function** (`MIDTOWN.actors.list.length`).

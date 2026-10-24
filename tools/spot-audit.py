@@ -106,12 +106,31 @@ def person_lights(cue):
     return out
 
 
+def followspots(tracks):
+    """-> on(T): the actor ids a followspot is on at show time T (assets/hamilton-follow.json, tools/blocking/follow.py). A body in
+    a followspot is lit, whatever the cue's own units do, so she is not a `named` miss; the spot's fade in and out is ignored."""
+    try: spots = json.load(open(os.path.join(ROOT, 'assets', 'hamilton-follow.json'), encoding='utf-8'))['spots']
+    except OSError: return lambda T: set()
+    L = [sorted(((tracks[e['track']]['start'] + e['at'], e) for e in es if e['track'] in tracks), key=lambda te: te[0]) for es in spots.values()]
+    def on(T):
+        out = set()
+        for es in L:
+            cur = None
+            for t, e in es:
+                if t > T: break
+                cur = e
+            if cur and not cur.get('out'): out.add(cur['who'])
+        return out
+    return on
+
+
 def audit(dump_dir, tracks_only=None):
     d, tracks, actors = BP.load_inputs(os.path.join(ROOT, 'assets', 'hamilton-blocking.json'))
     order = sorted(tracks, key=lambda t: tracks[t]['i'])
     eos = {c['q']: c for c in json.load(open(os.path.join(ROOT, 'assets', 'hamilton-eos.json'), encoding='utf-8'))['cues']}
     _, show, _ = load_show()
     showq = {(c['track'], c['q']): c for c in show}
+    follow_on = followspots(tracks)
     seq, rows = [], []                                   # seq: every cue in show order with its dump; rows: the misses
     for tid in order:
         f = os.path.join(dump_dir, tid + '.json')
@@ -152,7 +171,8 @@ def audit(dump_dir, tracks_only=None):
                     else: continue
                     if math.hypot(p['x'] - cx, p['z'] - cz) <= cr + SLACK: cnt[aid] = cnt.get(aid, 0) + 1
             return sorted(a for a, n in cnt.items() if n >= need), sorted(cnt)
-        lit_people = set()
+        lit_people = {aid for aid in {a for P in poses for a in P}             # FOLLOWSPOTS (2026-10-24): on her at two of the three moments
+                      if sum(1 for sec in samples if aid in follow_on(T0 + sec)) >= 2}
         for p in s['pl']:
             inn, anyin = who_in(p)
             s['inn'][p['ch']] = (inn, anyin)

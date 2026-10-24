@@ -229,6 +229,43 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-24: the film round — every segment against the footage, the stillness, the three followspots (branch `film-round`, PR open; RULING GL)
+
+Jack: *"can you look the the audio and videso agian there is still a lot of stuff wrong. the sound in someplases onliine
+has the left and right channels so you can use that too. there are also a lot of scenes when people ar just standing
+still when they should be dancing or moving. also use the 3 spotlights to make sure people get lit up fully when they
+should be. there are also a lot of scenes when people are just in the wrong place"*. RULING GL (2026-10-24, his pick):
+the three followspots FOLLOW an actor, picked up by a cue and tracked every frame until an OUT. Nine Opus agents in
+worktrees: one engine, eight segments (brief `tools/blocking/AGENT-FILM.md`).
+
+- **Stereo, measured and dropped:** the film's and the album's lead vocals are dead centre (Cabinet Battle #2 vocal band
+  within ±0.7 dB; only ensemble and effects move), so left/right cannot place a singer in our copies.
+- **`tools/blocking/still.py`** (new): every run of 8 s+ where someone on stage neither walks nor dances. The show was
+  65 % still (mean of the songs' on-stage share), 2-03 94 %, 2-23 95 %; after the round **41 %** (2-03 18 %, 2-01 13 %,
+  2-05 22 %). What is left is mostly still on purpose (soliloquies, listeners, tableaux) and says so in the generators.
+- **Places from the film**, per segment in `tools/blocking/research/segN.md` "Film round (2026-10-24)" (every frame read,
+  by clip and `at`). The mirrored ones: 1-10 the steps and the three DC; 1-16 the office; 1-22 and 1-23 Burr SR /
+  Hamilton SL; 2-06 Burr/Hamilton; 2-08 the row of three; 2-05 Jefferson SR / Madison SL at the table. 9,067 waypoints
+  (was 7,153 at review 3), 80 props.
+- **The followspots** (`midtown.html` "THE FOLLOWSPOTS": `folLoad`, `folCompile`, `folAt`, `folTurn`, `folApply`,
+  `folTick` from `actTick` before `actPoolBands`; `MIDTOWN.follow` state/check/load/data): house 1's three Lycians are real
+  lights now, driven only while the show runs. Data: `tools/blocking/follow.py` (format in its docstring; eight sections)
+  → `assets/hamilton-follow.json`, 423 picks. Lycian zoom range widened 2–8° → 2–9° (a 2.2 m pool at the lip needs 8.7°).
+  `follow.check()` seek = play and whole body in the beam at 40 sampled picks.
+- **Facings continuous** (page, editor, plot — one rule in three copies): a turn on the spot snapped round in one frame,
+  a facing on a walked-through waypoint held for no time, a leg shorter than the 0.6 s turn left her mid-turn and the
+  next turn began from the wrong yaw. Each waypoint now carries `arrive` (the yaw she really has) and `yawOut`. One-frame
+  snaps over 20° in the show: 1,769 → 20 (the 20 are two waypoints at one instant, a data matter). Page vs plot: within
+  1 mm / 0.14° at 220 poses.
+- **The spotlight audit learned the followspots** (a body in a followspot is lit): named misses 3 → 1 after 19 fixes
+  (re-aims and Washington's swap in 1-14). Two the tool wrote were taken back by hand: 1-02 Q82 ch44 landed in the house
+  (z 8.4), and Eacker's swap in 2-16 stopped on the SL gallery rail again (as on 10-16). The dump diff showed no
+  unit moved in a cue the tool did not write.
+- **Checks:** merge 0/0; `follow.py --check` 0; `props.py --check` 0; `actors.check()` seek = play at 120 moments;
+  `follow.check()` pass; `show.check()` seek-equivalence pass (its `pass` is false only for the 16 channels with no unit,
+  as on main); `lx.check()` 301/313 stopped; console clean.
+- **His questions from the agents** (none answered yet): in STATE.md's top item.
+
 ## DONE — 2026-10-23: a hallway from the lobby to backstage, and the booth doors on E (PR #15, merged `8cdec76`)
 
 Jack: *"make a hallway to get backstage from the lobby and make it so i can open the door to get into the spot booth."*
