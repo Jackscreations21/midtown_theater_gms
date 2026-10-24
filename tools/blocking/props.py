@@ -503,7 +503,7 @@ SEGMENT_7 = [
 # ===== END SEGMENT 7 =====
 
 # ===== SEGMENT 8 (2-17..2-23) =====
-# 2-17 Stay Alive (Reprise): Philip's table rides the outer ring from 12 o'clock (set in the shot's blackout) round by SL
+# 2-17 Stay Alive (Reprise): Philip's table rides the outer ring from up SR (set in the shot's blackout; FILM ROUND) round by SL
 # to the front (ETC's renders of 1104.4 / 1104.5 / 1110; gen_seg8.py TABLE_REVOLVE), gliding between a few points on the
 # ring (RULING FT) with Philip on it; it rides on with the family as the platform turns them away in the dark of 2-18. Hamilton's desk and its chair in
 # 2-20 (Burr's, centre) and 2-21 (Hamilton's, near SR); the box Hamilton stands on in 2-22.
@@ -515,18 +515,21 @@ def _s8_table(track, t, ang):   # the table on the outer ring, its long side alo
     return PLACE('philip-table', track, t, x, z, (180.0 - ang + 180.0) % 360.0 - 180.0)
 # RULING FT: a placed prop GLIDES from one placed waypoint to the next, so the ride is a few points on the ring (every 31°,
 # a chord at most 0.11 m inside the arc) with a hold at each end, not a step every 0.5 s.
-_S8_REV = [_s8_table('2-17', 8.66, 0.0)] + [_s8_table('2-17', 8.66 + 23.8 * k / 6, 31.0 * k) for k in range(1, 7)]
+# FILM ROUND (2-24): set up SR (315) in the shot's blackout, where the bearers carry Philip to it (the clip at 11.4-14);
+# the platform carries it clockwise round by SL (24.9) to the front (33.4): 231 deg in seven glides of 33 deg
+_S8_REV = [_s8_table('2-17', 14.0, 315.0)] + [_s8_table('2-17', 14.0 + 18.46 * k / 7, 315.0 + 33.0 * k) for k in range(1, 8)]
 _S8_OFF = [_s8_table('2-18', 0.4, 186.0), _s8_table('2-18', 3.45, 221.0), _s8_table('2-18', 6.5, 256.0)]
 SEGMENT_8 = [
     P('philip-table', 'table', "Philip's table", WALNUT, size=[1.4, 0.75, 0.8]),
-    DARK('philip-table', '2-17', 0.6, 0.0, -2.02, 180, note="2-17: set at 12 o'clock on the outer ring in the shot's blackout (1104); Philip lies on it by 4.2 (ETC render of 1104.4)"),
+    DARK('philip-table', '2-17', 0.6, *_s8_ring(2.97, 315.0), -135, note="2-17: set up SR on the outer ring in the shot's blackout; the bearers lay Philip on it by 12 (film round: the clip at 11.4-14)"),
     *_S8_REV,
     *_S8_OFF,
     HIDE('philip-table', '2-18', 13.0, _s8_ring(2.97, 256.0), note='struck in the dark (1120, the deck dark; only the tight special on Angelica) once Philip is off SR'),
     DARK('hamilton-desk', '2-19', 236.0, 0.0, 1.15, 0, note="2-20: set in the change; Burr's desk centre (cue 1193), he sits behind it at (0, 0.6)"),
     P('desk-chair', 'chair', 'The desk chair', WALNUT),
     DARK('desk-chair', '2-19', 236.0, 0.0, 0.1, 0, note="2-20: Burr's chair behind the desk centre (cue 1193: Burr seated at a desk); he stands at (0, 0.6)"),
-    CARRY('hamilton-desk', '2-20', 147.75, 'hamilton', note='in the blackout (cue 1206) Hamilton moves it to his place near SR'),
+    HIDE('hamilton-desk', '2-20', 147.75, (0.0, 1.15), note='struck in the blackout (cue 1206); FILM ROUND: Hamilton is no longer at it (he stands in the DSR pool from 129), so it is moved in the dark, not carried'),
+    DARK('hamilton-desk', '2-21', 0.3, -2.8, 3.15, 0, note='2-21: set near SR in the dark'),
     HIDE('desk-chair', '2-20', 147.8, (0.0, 0.1), note='moved in the blackout (cue 1206)'),
     DARK('desk-chair', '2-21', 0.3, -2.8, 2.1, 0, note="2-21: Hamilton's chair at the desk near SR (ironinkpen); he stands at (-2.8, 2.6), Eliza behind it"),
     PLACE('hamilton-desk', '2-21', 0.44, -2.8, 3.15, 0, note='2-21: the desk near SR (ironinkpen); he sits behind it at (-2.8, 2.6)'),

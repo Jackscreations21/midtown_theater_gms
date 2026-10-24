@@ -220,21 +220,25 @@ def revolve(a, d_ang, t0, t1, step=25.0, end_facing=None):
 # front. Nobody in the number but the four (the Doctor has a line): the bearers and the seven gallery watchers are cut.
 TABLE_F = (-0.3, 3.9)       # the table at the front, between the DS pools ch7/ch9 (angle 186 on the outer ring)
 TAB_R = 2.97
-H_T = (-1.15, 3.55); E_T = (0.6, 3.6); DOC_T = (-0.35, 3.0)
-E_SL = (2.0, 2.65)          # Eliza's special SL (ch14, 1112)
-TAB_T0, TAB_T1, TAB_A1 = 8.66, 32.46, 186.0
-def tab_ang(t):             # the table's angle round C (0 = 12 o'clock, clockwise), from the cue renders
-    if t <= TAB_T0: return 0.0
+# FILM ROUND (2-24, the Disney+ clip; research/seg8.md "Film round"): the family at the table, both UPSTAGE of it (Philip's
+# head SL): Hamilton behind his head and chest, Eliza on Hamilton's SR side (clip 33.4 wide, 64-97 close).
+H_T = (0.2, 3.3); E_T = (-0.55, 3.3); DOC_T = (-1.2, 2.7)
+# FILM ROUND: two of the company catch Philip and carry him to the table UPSTAGE SR (clip 11.4-14: the bearers at SR with
+# the table behind them); the platform then carries the table clockwise round by SL (the clip at 24.9: at SL under the
+# stair) to the front (33.4). Was: at 12 o'clock from 8.66 with no bearers.
+TAB_A0, TAB_T0, TAB_T1, TAB_A1 = 315.0, 14.0, 32.46, 186.0 + 360.0
+def tab_ang(t):             # the table's angle round C (0 = 12 o'clock, clockwise)
+    if t <= TAB_T0: return TAB_A0
     if t >= TAB_T1: return TAB_A1
-    return TAB_A1 * (t - TAB_T0) / (TAB_T1 - TAB_T0)
-TABLE_REVOLVE = [(round(TAB_T0 + 0.5 * k, 2), round(tab_ang(TAB_T0 + 0.5 * k), 1)) for k in range(int((TAB_T1 - TAB_T0) / 0.5) + 1)]
-TABLE_UC = clock(TAB_R, 0.0)
+    return TAB_A0 + (TAB_A1 - TAB_A0) * (t - TAB_T0) / (TAB_T1 - TAB_T0)
+TABLE_SR = clock(TAB_R, TAB_A0)
 
 # Philip: handed over from seg 7 downstage of centre, his back to the house (coordinator's re-ruled mark); shot, he
-# staggers upstage in the blackout to the table at 12 o'clock and lies on it; the platform carries him round to the front
+# staggers, two of the company catch him and carry him upstage SR to the table; the platform carries him round to the front
 wp('laurens', '2-17', 0.0, -0.4, 2.4, facing=180, dwell=0.5, label='Philip')
-walk('laurens', T('2-17', 4.2), TABLE_UC, facing=0)
-circle('laurens', TAB_R, 0.0, TAB_A1, T('2-17', TAB_T0), T('2-17', TAB_T1), step=15, end_facing=0)
+walk('laurens', T('2-17', 2.0), (-0.9, 1.8), facing=-150)
+walk('laurens', T('2-17', 12.0), TABLE_SR, facing=0)
+circle('laurens', TAB_R, TAB_A0, TAB_A1, T('2-17', TAB_T0), T('2-17', TAB_T1), step=15, end_facing=0)
 hold('laurens', T('2-17', 36.36), -35)       # to his father
 hold('laurens', T('2-17', 75.19), 20)        # to his mother
 hold('laurens', T('2-17', 106.78), 0)        # dies
@@ -255,31 +259,41 @@ S17_EX = {'ens2': 'W-USR', 'ens3': 'W-USR', 'ens6': 'W-MSL', 'ens7': 'W-MSL', 'e
 for k, (e, p) in enumerate(S17.items()):
     wp(e, '2-17', 0.0, p[0], p[1], facing=0, dwell=0.0, label='Ensemble %s' % e[3:])
     hold(e, T('2-17', 0.36 + 0.06 * k), face(p, (-0.4, 2.4)), dwell=0.9)       # they turn to the shot
-S17_GO = {'ens2': 1.3, 'ens3': 2.0, 'ens7': 1.3, 'ens6': 2.0, 'ens9': 1.3, 'ens8': 2.0}   # the nearer one first, in file
+S17_GO = {'ens7': 1.3, 'ens6': 2.0, 'ens9': 1.3, 'ens8': 2.0}   # the nearer one first, in file
 for e, t in S17_GO.items():
     leave(e, S17_EX[e], T('2-17', t), speed=1.5)
-# the Doctor: steps aside from Philip's stagger up to the table, then to the inside of the table; rides round with it, ends
-# behind it at the front (1110)
-walk('ens4', T('2-17', 1.8), (0.6, 0.0), facing=-20)
-wpa('ens4', T('2-17', 6.0), *clock(2.2, 0.0), facing=180, label='The Doctor')
-circle('ens4', 2.2, 0.0, TAB_A1 - 4, T('2-17', TAB_T0), T('2-17', TAB_T1), step=15, end_facing=180)
+# FILM ROUND: the bearers (ens2, ens3) catch him either side and carry him up to the table SR (clip 11.4-14), then go off SR
+walk('ens2', T('2-17', 2.0), (-1.35, 1.8), facing=90, dwell=0)
+walk('ens3', T('2-17', 2.1), (-0.45, 1.8), facing=-90, dwell=0)
+walk('ens2', T('2-17', 12.0), (TABLE_SR[0] - 0.55, TABLE_SR[1] + 0.35), facing=60)
+walk('ens3', T('2-17', 12.0), (TABLE_SR[0] + 0.45, TABLE_SR[1] + 0.55), facing=-60)
+leave('ens2', 'W-USR', T('2-17', 14.0), speed=1.3)
+leave('ens3', 'W-USR', T('2-17', 14.6), speed=1.3)
+# the Doctor (brown coat, the clip at 17-25): waits by the table, meets Hamilton, takes him aside SR (clip 24.9: the two far
+# SR, the table SL), walks with him to the table as it reaches the front (clip 30) and stands upstage SR of it (33.4)
+walk('ens4', T('2-17', 3.0), (-1.0, -0.2), facing=-60)
+hold('ens4', T('2-17', 6.0), -100)
+walk('ens4', T('2-17', 16.5), (-1.95, 0.15), facing=-120)
+walk('ens4', T('2-17', 25.5), (-2.45, 1.85), facing=-110)
+walk('ens4', T('2-17', 33.5), DOC_T, facing=37)
 
-# Hamilton runs in by the deck door on "Lose Wedge" to the table's leading end and rides round with it, ending at its SR
-# end (in the DS pool ch7)
-_ha0 = tab_ang(10.9) + 18
-enter('hamilton', 'D-UC', clock(2.85, _ha0), T('2-17', 10.9), face(clock(2.85, _ha0), clock(TAB_R, tab_ang(10.9))),
-      speed=2.4, label='Hamilton', via=[(2.1, -2.0)])
-circle('hamilton', 2.85, _ha0, TAB_A1 + 18, T('2-17', 10.9), T('2-17', TAB_T1), step=15, end_facing=70)
-hold('hamilton', T('2-17', 36.36), 80)
+# Hamilton runs in by the deck door on "Lose Wedge" to Philip at the table up SR (clip 14: in upstage centre); the Doctor
+# takes him aside SR; he walks to the table as the platform brings it to the front and leans over his son
+enter('hamilton', 'D-UC', (-1.5, -0.6), T('2-17', 12.5), face((-1.5, -0.6), TABLE_SR), speed=2.4, label='Hamilton')
+walk('hamilton', T('2-17', 17.5), (-2.4, 0.45), facing=70)
+walk('hamilton', T('2-17', 25.0), (-3.0, 1.3), facing=60)
+walk('hamilton', T('2-17', 33.0), H_T, facing=-5)       # facing down over the table
+hold('hamilton', T('2-17', 36.36), -15)
 
-# Eliza comes in from upstage centre, down the SL side of the ring into her special, then to the table
-enter('eliza', 'D-UC', E_SL, T('2-17', 59.64), -120, speed=2.0, label='Eliza')
-walk('eliza', T('2-17', 75.19), E_T, facing=-70)
-hold('hamilton', T('2-17', 75.5), 60)
-walk('ens4', T('2-17', 94.82), (-1.45, 2.15), facing=40)      # the doctor gives up, steps back
-hold('eliza', T('2-17', 94.82), -80)
-hold('hamilton', T('2-17', 107.5), 70)
-hold('eliza', T('2-17', 107.5), -60)
+# FILM ROUND: Eliza comes in from up SR (the clip at 62: in a doorway SR, the table to her SL) and goes to the table on
+# Hamilton's SR side (68.4: beside him behind Philip). Was: from upstage centre into her special SL.
+enter('eliza', 'W-USR', (-2.3, 1.6), T('2-17', 61.5), 110, speed=2.0, label='Eliza')
+walk('eliza', T('2-17', 68.4), E_T, facing=15)
+hold('hamilton', T('2-17', 75.5), -25)
+walk('ens4', T('2-17', 94.82), (-1.9, 2.2), facing=40)      # the doctor gives up, steps back
+hold('eliza', T('2-17', 94.82), 25)
+hold('hamilton', T('2-17', 107.5), -10)
+hold('eliza', T('2-17', 107.5), 10)
 
 # =====================================================================================
 # 2-18 IT'S QUIET UPTOWN   0 dark / 8.6 Angelica DS / 23.6 company in / 31 the move uptown /
@@ -304,14 +318,19 @@ leave('eliza', 'W-DSR', T('2-18', 7.4), speed=1.1)
 # Angelica narrates DSL, in black
 # SPOTLIGHT: her tight special (ch4, 1121) is DS just SR of centre at (-0.71, 4.0); she stands in it, downstage of
 # the couples' circle (the fan accounts' DSL would need the special re-aimed)
-ANG_DS = (-0.25, 4.6)
-enter('angelica', 'W-DSL', ANG_DS, T('2-18', 8.6), -15, label='Angelica')
-walk('angelica', T('2-18', 38.5), (3.4, 3.9), dwell=0)                # round the outside of the circling couples
-walk('angelica', T('2-18', 42.0), (4.1, -0.3), facing=-60)           # her special goes; she watches from UL
-hold('angelica', T('2-18', 89.35), face((4.1, -0.3), (-1.95, 2.0)))  # turns to Hamilton
+# FILM ROUND (the clip at 6.6 and 33.6): she stands SL, mid-stage, while he is at the centre; she drifts slowly up SL
+# as the couples circle. Was: downstage of centre in her special (the fan accounts' DSL; the film agrees with them).
+ANG_DS = (2.75, 1.7)
+enter('angelica', 'W-DSL', ANG_DS, T('2-18', 8.6), -40, label='Angelica')
+walk('angelica', T('2-18', 22.0), (2.95, 2.3), facing=-45)
+walk('angelica', T('2-18', 38.5), (3.75, 1.0), facing=-60)           # outside the circling couples (r 2.9)
+walk('angelica', T('2-18', 52.0), (4.1, -0.3), facing=-60)           # her special goes; she watches from UL
+walk('angelica', T('2-18', 75.0), (4.3, 0.6), facing=-80)
+hold('angelica', T('2-18', 89.35), face((4.3, 0.6), (0.0, 1.9)))    # turns to Hamilton
 leave('angelica', 'W-USL', T('2-18', 98.0))
 enter('angelica', 'W-DSR', (-3.2, 4.25), T('2-18', 166.0), 20)       # her second solo, DSR
-hold('angelica', T('2-18', 208.28), 45)
+walk('angelica', T('2-18', 190.0), (-3.55, 3.7), facing=30)          # a few steps in her solo
+walk('angelica', T('2-18', 208.28), (-3.0, 4.2), facing=45)
 leave('angelica', 'W-DSR', T('2-18', 250.5), speed=1.0)
 
 # the company: couples circling the outer ring round Hamilton (the film's editor: "several couples" circle him on the
@@ -332,7 +351,7 @@ def ent_for(ang):
 R1 = 2.9
 # SPOTLIGHT: "Hamilton alone on the ring - his special SR" / "Pull in to Hamilton" (ch12 at (-2.43, 2.31), full,
 # 68-96 s, the only bright light at 89-96): he walks out of the centre to the SR side, inside the couples' circle
-H_QC = (-1.95, 2.0)
+H_QC = (0.0, 1.9)            # FILM ROUND: at the centre, not SR (below)
 for k, e in enumerate(QU):
     a0 = QU_ENS[e]
     p = clock(R1, a0)
@@ -354,11 +373,16 @@ for k, e in enumerate(QU):
     if ang >= 330: ex = 'W-USR'
     leave(e, ex, T('2-18', 96.2 + 0.2 * k), speed=1.1)
 
-# Hamilton: alone at the centre of the circle
+# Hamilton: alone at the centre of the circle. FILM ROUND: he moves inside it (the clip at 47: among the passing couples)
+# and is at the CENTRE, not SR, when the company pulls in (the clip at 94: alone mid-stage centre, the company at both
+# sides reaching their arms to him). Was: out to his SR special at 70.
+H_QC = (0.0, 1.9)
 enter('hamilton', 'D-UC', C, T('2-18', 31.0), 0, speed=1.1)
-hold('hamilton', T('2-18', 38.4), 0)                 # his verse
-hold('hamilton', T('2-18', 60.45), -10)              # his prayer
-walk('hamilton', T('2-18', 70.0), H_QC, facing=20)   # seen in the street, alone on the SR side of the ring
+walk('hamilton', T('2-18', 44.0), (-0.45, 1.3), facing=-30)   # his verse
+walk('hamilton', T('2-18', 55.0), (0.4, 1.15), facing=25)
+walk('hamilton', T('2-18', 63.0), (0.05, 1.5), facing=-5)     # his prayer
+walk('hamilton', T('2-18', 76.0), (-0.5, 1.95), facing=-40)   # seen in the street
+walk('hamilton', T('2-18', 86.0), H_QC, facing=10)
 hold('hamilton', T('2-18', 89.35), 0)
 # SPOTLIGHT: "Hamilton DSC" is Binkley's preset 151 "Ham DSC" (ch43, focus (0.27, 2.53)); her special for the plea
 # (ch1, 1130) is re-aimed beside it at (1.60, 2.44). The couple's front-centre business is played there, not at z 4.
@@ -366,7 +390,9 @@ H_PLEA = (0.3, 2.45)
 walk('hamilton', T('2-18', 100.0), H_PLEA, facing=60)
 # Eliza comes down from upstage centre to the front, beside him; he sings to her
 enter('eliza', 'D-UC', (1.45, 2.5), T('2-18', 104.72), -90, speed=1.3)
-hold('hamilton', T('2-18', 132.4), 75)               # the vow
+walk('hamilton', T('2-18', 112.0), (0.65, 2.35), facing=80)   # a step toward her
+walk('hamilton', T('2-18', 122.0), (0.35, 2.6), facing=60)    # and back
+walk('hamilton', T('2-18', 132.4), (0.7, 2.3), facing=75)     # the vow
 # they swap places: he goes round behind her to her SL side
 walk('hamilton', T('2-18', 144.5), (1.3, 1.35), dwell=0)
 walk('hamilton', T('2-18', 146.5), (2.3, 2.45), facing=-100)
@@ -374,6 +400,13 @@ walk('eliza', T('2-18', 149.0), (0.9, 2.35), facing=80)
 # side by side, she looking straight out
 walk('eliza', T('2-18', 165.5), (0.5, 2.25), facing=0)
 walk('hamilton', T('2-18', 166.5), (1.4, 2.35), facing=-10)
+# FILM ROUND (the clip at 167: he walks round her while she stands still and the couples dance round them both; she is
+# still on purpose, as in the film, all number long)
+walk('hamilton', T('2-18', 174.0), (1.25, 1.55), facing=-120, dwell=0)
+walk('hamilton', T('2-18', 181.0), (0.05, 1.5), facing=150, dwell=0)
+walk('hamilton', T('2-18', 188.0), (-0.45, 2.3), facing=100)
+walk('hamilton', T('2-18', 198.0), (-0.1, 3.0), facing=40)
+walk('hamilton', T('2-18', 204.0), (1.1, 2.75), facing=-60)
 # the couple go to centre together
 walk('eliza', T('2-18', 208.28), (-0.35, 0.95), facing=0)
 walk('hamilton', T('2-18', 208.6), (0.35, 0.95), facing=-10)
@@ -421,34 +454,58 @@ for k, e in enumerate(QU):
 # (the upstage gallery); Burr left alone on the deck.
 # =====================================================================================
 J = 'lafayette'; M = 'mulligan'
-# SPOTLIGHT: centred in their apron specials (Jefferson ch2 at (-1.99, 3.58), Madison ch5 at (-0.97, 3.79))
+# FILM ROUND (2026-10-24; research/seg8.md "Film round"): the Disney+ clip read against the album clock. What it changed:
+#  - the top (clip 5, the high wide): the stage EMPTY but for Jefferson walking on DSR and Madison at the centre; the
+#    company comes on for Burr's vamp (clip 63.5: walking on SR as Burr works the room). Was: the eight on from 3.4.
+#  - 21-28: both at the front, Madison SR and Jefferson SL of him, then face to face (Madison wiping his eyes).
+#  - 63.5: Burr at the centre with Jefferson and Madison just SL of him, going up; 77: the company everywhere, dancing,
+#    their papers overhead, Burr SR among them. Was: the eight standing still 3-79.
+#  - 104: Hamilton at the CENTRE, his back to us, the company in two lines from the sides, down SR and SL, facing him.
+#    Was: Hamilton UC at the head of an up-and-down alley.
+#  - 124-148: the two men ALONE. Was: the company stood upstage through it.
+#  - 152: the company back, bunched upstage centre, backs to us, looking up at Hamilton on the gallery; Jefferson and
+#    Madison SL, Burr far SR (167: SR front, looking up). Was: Jefferson and Madison SR, Burr SL.
+#  - 167: the company dancing (turns, arms out) mid-stage; 184.5: Burr at centre front, the company in an arc behind him.
+#    Was: Burr up SL for the verdict.
+# SPOTLIGHT: their apron specials (Jefferson ch2 at (-1.99, 3.58), Madison ch5 at (-0.97, 3.79)); the followspots now
+# carry them when the film moves them off those.
 J_DSR = (-2.3, 3.7); M_DR = (-1.1, 3.85)
 enter(J, 'W-DSR', J_DSR, T('2-19', 5.0), 15, label='Jefferson')
-enter(M, 'W-DSR', (-1.3, 3.15), T('2-19', 6.8), -40, label='Madison')    # wiping his eyes
+enter(M, 'D-UC', (-0.4, 1.6), T('2-19', 6.8), -40, label='Madison')    # wiping his eyes
 hold(J, T('2-19', 7.56), 15)
-walk(M, T('2-19', 36.04), M_DR, facing=-40)
-hold(J, T('2-19', 37.0), 40)
-hold(J, T('2-19', 50.28), 50)                     # watches Burr's vamp
-walk(J, T('2-19', 79.0), (-3.6, 1.3), facing=60)  # the townspeople take the floor; J & M aside SR
-walk(M, T('2-19', 79.6), (-3.75, 2.3), facing=60)
-hold(J, T('2-19', 92.96), 140)                    # Madison urges the letter to Hamilton
-hold(M, T('2-19', 93.5), 10)
-J_SPLIT = (-3.0, 1.75); M_SPLIT = (-3.6, 2.5)
-walk(J, T('2-19', 107.13), J_SPLIT, facing=40)
-walk(M, T('2-19', 107.6), M_SPLIT, facing=40)
-hold(J, T('2-19', 121.52), 90)
-walk(J, T('2-19', 152.37), (-2.6, 2.4), facing=160)   # all eyes up to Hamilton
-walk(M, T('2-19', 152.9), (-3.4, 3.2), facing=160)
-walk(J, T('2-19', 190.5), (-0.5, 3.4), facing=0)  # Jefferson wins: to DC
-hold(J, T('2-19', 201.77), 40)                    # with Burr
-hold(J, T('2-19', 215.1), 180)                    # to the crowd
+walk(M, T('2-19', 13.0), (-1.9, 3.6), facing=60)
+walk(J, T('2-19', 14.0), (-0.2, 3.75), facing=20)
+walk(J, T('2-19', 19.5), (0.9, 3.7), facing=-70)
+walk(M, T('2-19', 27.0), (-0.55, 3.55), facing=90)        # face to face
+hold(J, T('2-19', 27.4), -90)
+walk(M, T('2-19', 36.04), M_DR, facing=-20)
+walk(J, T('2-19', 37.0), (0.6, 3.3), facing=-40)
+walk(J, T('2-19', 45.0), (1.4, 3.0), facing=-60)
+walk(J, T('2-19', 56.0), (1.6, 0.2), facing=-80)          # up with Burr as he works the room
+walk(M, T('2-19', 57.0), (0.8, -0.15), facing=-60)
+walk(J, T('2-19', 79.0), (3.7, 1.0), facing=-70)          # the townspeople take the floor; J & M aside SL
+walk(M, T('2-19', 79.6), (4.0, 1.9), facing=-80)
+hold(J, T('2-19', 92.96), 160)                            # Madison urges the letter to Hamilton
+hold(M, T('2-19', 93.5), -20)
+J_SPLIT = (3.4, -0.5); M_SPLIT = (4.1, 0.4)
+walk(J, T('2-19', 107.13), J_SPLIT, facing=-60)
+walk(M, T('2-19', 107.6), M_SPLIT, facing=-70)
+hold(J, T('2-19', 121.52), -100)
+walk(J, T('2-19', 147.0), (2.6, 2.6), facing=-100)
+walk(J, T('2-19', 152.37), (1.8, 3.3), facing=180)        # all eyes up to Hamilton
+walk(M, T('2-19', 152.9), (4.0, 3.2), facing=-150)
+walk(J, T('2-19', 190.5), (-0.5, 3.4), facing=0)          # Jefferson wins: to DC
+hold(J, T('2-19', 201.77), 40)                            # with Burr
+hold(J, T('2-19', 215.1), 180)                            # to the crowd
 hold(J, T('2-19', 228.63), 0)
 leave(J, 'W-DSR', T('2-19', 230.0))
-walk(M, T('2-19', 195.0), (-2.4, 3.0), facing=40)
-leave(M, 'W-DSR', T('2-19', 230.3))
+walk(M, T('2-19', 195.0), (2.5, 3.5), facing=-80)
+leave(M, 'W-DSL', T('2-19', 230.3))
 
 B_UL = (4.2, -1.6)
 enter('burr', 'W-USL', B_UL, T('2-19', 19.5), -30, label='Burr')
+walk('burr', T('2-19', 30.0), (2.9, -0.7), facing=-60)    # FILM ROUND: he is never still, the pamphlet in his hand
+walk('burr', T('2-19', 41.0), (3.7, 0.6), facing=-80)
 # the vamp: Burr from voter to voter with his pamphlets, then the centre of their ring
 # REVIEW 3 (video): the Disney+ clip's comments at its 1:06-1:08 (album ~61, the clip runs ~5 s ahead) laugh at Burr
 # "walking on like a rectangle"; Blankenbuehler (Broadway Direct, 2020): "Most staging around Burr is linear. It's square."
@@ -459,48 +516,57 @@ for t, p, f in ((52.5, (2.7, 1.25), -90), (55.8, (-1.3, 1.25), -90), (57.6, (-1.
     walk('burr', T('2-19', t), p, facing=f, dwell=0.3)
 walk('burr', T('2-19', 62.6), C, facing=0)
 hold('burr', T('2-19', 65.05), 0)                  # the company chants for him
+walk('burr', T('2-19', 70.0), (-1.0, 1.8), facing=-60)   # FILM ROUND (77): SR among the dancing company
+walk('burr', T('2-19', 76.0), (-2.0, 2.6), facing=30)
 # the townspeople's line: he crouches and weaves behind it, lunges at the one who likes him
 for t, p, f in ((81.5, (2.9, 2.45), 0), (84.0, (1.35, 2.45), 0), (86.5, (-0.35, 2.45), 0)):
     walk('burr', T('2-19', t), p, facing=f, dwell=0.5)
 walk('burr', T('2-19', 88.5), (-1.65, 2.55), facing=0, dwell=1.0)
-walk('burr', T('2-19', 91.5), (-2.6, 1.6), facing=60)
+walk('burr', T('2-19', 91.5), (-3.6, 3.1), facing=60)
 walk('burr', T('2-19', 103.5), (-1.3, 3.7), dwell=0)
 walk('burr', T('2-19', 105.5), (1.3, 3.7), dwell=0)
-walk('burr', T('2-19', 107.13), (3.2, 2.2), facing=-40)
-walk('burr', T('2-19', 121.52), (0.8, 3.45), facing=-70)   # meets Hamilton DSC (SPOTLIGHT: in ch1 of 1162)
-walk('burr', T('2-19', 145.0), (2.8, 2.9), facing=-40)
-hold('burr', T('2-19', 158.5), face((2.8, 2.9), (0.0, -3.35)))   # looks up at Hamilton's endorsement
-walk('burr', T('2-19', 175.0), (4.4, 0.2), dwell=0)
-walk('burr', T('2-19', 177.5), B_UL, facing=-40)
-hold('burr', T('2-19', 184.92), -55)               # the verdict on him
-walk('burr', T('2-19', 197.5), (4.4, 0.2), dwell=0)
+walk('burr', T('2-19', 107.13), (2.2, 3.55), facing=-40)
+walk('burr', T('2-19', 121.52), (0.8, 3.45), facing=-70)   # meets Hamilton DSC (film 124: SL of him; SPOTLIGHT: ch1 of 1162)
+walk('burr', T('2-19', 130.0), (1.1, 3.0), facing=-80)
+walk('burr', T('2-19', 138.0), (0.6, 3.6), facing=-70)
+walk('burr', T('2-19', 145.0), (-2.3, 3.0), facing=40)     # FILM ROUND (152-167): far SR, then SR front
+hold('burr', T('2-19', 158.5), face((-2.3, 3.0), (0.0, -3.35)))   # looks up at Hamilton's endorsement
+walk('burr', T('2-19', 166.0), (-1.9, 2.5), facing=165)
+walk('burr', T('2-19', 175.0), (-2.6, 3.3), facing=150)
+walk('burr', T('2-19', 182.0), (0.0, 3.3), facing=0)       # FILM ROUND (184.5): centre front for the verdict
+hold('burr', T('2-19', 184.92), 0)                 # the verdict on him
+walk('burr', T('2-19', 188.5), (1.6, 2.6), facing=-60)
 walk('burr', T('2-19', 201.77), (0.5, 3.4), facing=-40)
 hold('burr', T('2-19', 215.1), -20)
 walk('burr', T('2-19', 229.72), (0.7, 3.2), facing=0)  # alone in his special (ch1 at (0.87, 3.16))
 
-# Hamilton: in at the back for the letters (the echo UC), down to Burr, then up to the gallery for his endorsement
-# SPOTLIGHT: the echo's cold centre-top (ch13, 1158/1160) lands at (0, -0.83): he stands in it, at the head of the alley
-enter('hamilton', 'D-UC', (0.0, -1.45), T('2-19', 99.25), 0, speed=1.1)
+# Hamilton: in for the letters at the CENTRE, his back to the house (FILM ROUND, 104), down to Burr, then up to the gallery
+H_LET = (0.0, 1.0)
+enter('hamilton', 'D-UC', (0.0, 0.3), T('2-19', 99.25), 0, speed=1.1)
+walk('hamilton', T('2-19', 104.0), H_LET, facing=180)
+hold('hamilton', T('2-19', 114.0), -100)
+hold('hamilton', T('2-19', 118.0), 100)
 walk('hamilton', T('2-19', 121.52), (-0.75, 3.45), facing=70)    # SPOTLIGHT: in ch4 of 1162
-leave('hamilton', 'D-UC', T('2-19', 135.0), speed=1.3, via=[(0.0, 0.6), (0.0, -2.7)])   # up the middle of the company
+walk('hamilton', T('2-19', 128.0), (-0.45, 3.05), facing=85)
+leave('hamilton', 'D-UC', T('2-19', 135.0), speed=1.3, via=[(0.0, 0.6), (0.0, -2.7)])   # up the middle
 enter('hamilton', 'G-UC', (0.0, -3.35), T('2-19', 152.37), 0, ty='gallery')
 hold('hamilton', T('2-19', 157.94), 0)
+walk('hamilton', T('2-19', 168.0), (-0.7, -3.35), facing=10, y='gallery')    # FILM ROUND (167): a little SR of centre
+walk('hamilton', T('2-19', 180.0), (0.2, -3.35), facing=0, y='gallery')      # (184.5): back to the centre
 hold('hamilton', T('2-19', 184.92), 45)
 leave('hamilton', 'G-UC', T('2-19', 188.5), speed=1.3)
 
-# the voters. REVIEW 2: eight, not ten; only the shapes the fan account gives are kept - a loose crowd Burr goes through
-# person to person, the line facing the house that he weaves behind, the two facing lines holding letters out to
-# Hamilton. The writer's ring round Burr (63), the SR/SL camps (110), the deadlock lines (144) and the eruption line
-# (191) are cut (invented): the company stands where it is and turns.
+# the voters: eight (REVIEW 2: fewer than the film's dozen, Jack's verdict). FILM ROUND: on for Burr's vamp, not at the top;
+# they mill and dance with their papers (65-79), line up facing the house (80), make two lines from the sides to Hamilton at
+# the centre (95), clear for the two men (121.5), come back bunched upstage under the gallery (150), dance mid-stage (160),
+# make an arc behind Burr (182) and point at him when Jefferson wins (dance.py).
 VOT = ENS[:8]
 CROWD = [(-2.0, 2.3), (-0.65, 2.4), (0.65, 2.3), (2.0, 2.4),
          (-1.95, 0.1), (-0.65, 0.3), (0.65, 0.1), (1.95, 0.3)]
 CROWD_ENT = ['W-DSR', 'W-DSR', 'W-DSL', 'W-DSL', 'W-USR', 'D-UC', 'D-UC', 'W-USL']
 for k, e in enumerate(VOT):
     p = CROWD[k]
-    enter(e, CROWD_ENT[k], p, T('2-19', 3.4 + 0.3 * k), 0, speed=1.8, label='Ensemble %s' % e[3:])
-    hold(e, T('2-19', 7.56 + 0.15 * k), face(p, J_DSR) * 0.6)
-    hold(e, T('2-19', 19.5 + 0.15 * k), face(p, B_UL) * 0.6)
+    enter(e, CROWD_ENT[k], p, T('2-19', 48.0 + 0.3 * k), face(p, C) * 0.5, speed=1.6, label='Ensemble %s' % e[3:])
     hold(e, T('2-19', 50.28 + 0.15 * k), face(p, C) * 0.5)          # Burr's vamp: they watch him work the room
 def formation(t, spots, facing_fn, stagger=0.15):
     """move the eight from where they are to these spots (matched to keep paths short), arriving t + k*stagger."""
@@ -508,21 +574,39 @@ def formation(t, spots, facing_fn, stagger=0.15):
     for k, e in enumerate(VOT):
         walk(e, t + stagger * k, dst[k], facing=facing_fn(dst[k]))
     return dict(zip(VOT, dst))
+# the campaign: the room mills round Burr (FILM ROUND, 63.5-77)
+formation(T('2-19', 67.5), [(-3.0, 1.2), (-1.6, 0.4), (-0.3, 2.7), (1.0, 1.9), (2.4, 0.6), (3.1, 2.5), (1.6, 3.4), (-2.9, 3.1)],
+          lambda p: face(p, C), stagger=0.2)
+formation(T('2-19', 73.5), [(-3.4, 1.9), (-1.0, 0.1), (0.5, 2.9), (1.7, 1.2), (3.0, 0.1), (2.7, 3.3), (-0.4, 3.7), (-1.2, 3.5)],
+          lambda p: face(p, C) + 180, stagger=0.2)
 # the townspeople: a line facing the house (ironinkpen)
 formation(T('2-19', 80.0), [(-2.8 + 0.8 * i, 3.3) for i in range(8)], lambda p: 0, stagger=0.1)
-# the letters: two lines facing each other, an alley up to Hamilton UC, papers held out to him (ironinkpen)
-ALLEY = [(-1.0, -1.2 + 0.95 * i) for i in range(4)] + [(1.0, -1.2 + 0.95 * i) for i in range(4)]
-AL = formation(T('2-19', 95.0), ALLEY, lambda p: 125 if p[0] < 0 else -125, stagger=0.15)
-# REVIEW 3 (video): the clip's comments at 1:46-1:56 (album ~101-111; the clip runs ~5 s ahead of the album): the company
-# pressing Hamilton, and "Jon Rua getting all up in his face" - Rua is the Charles Lee body, ens3. He steps out of the alley
-# into Hamilton's face, and back.
-walk('ens3', T('2-19', 110.0), (0.0, -0.85), facing=180)
-walk('ens3', T('2-19', 113.4), AL['ens3'], facing=125 if AL['ens3'][0] < 0 else -125)
-# the two men's exchange DSC: the company falls back (1162), and stays there
+# the letters: two lines from the sides down SR and SL, facing Hamilton at the centre, papers held out (FILM ROUND, 104)
+LINES = [(-1.25 - 0.7 * i, 1.25 + 0.5 * i) for i in range(4)] + [(1.25 + 0.7 * i, 1.25 + 0.5 * i) for i in range(4)]
+AL = formation(T('2-19', 97.0), LINES, lambda p: face(p, H_LET), stagger=0.15)
+# REVIEW 3 (video): "Jon Rua getting all up in his face" (album ~101-111) - Rua is the Charles Lee body, ens3: out of his
+# line into Hamilton's face, and back.
+walk('ens3', T('2-19', 110.0), (0.05, 0.4), facing=0)
+walk('ens3', T('2-19', 113.4), AL['ens3'], facing=face(AL['ens3'], H_LET))
+# the two men's exchange: the company clears (FILM ROUND, 124-148 the two alone)
 for k, e in enumerate(VOT):
-    q = (AL[e][0], AL[e][1] - 1.2)
-    walk(e, T('2-19', 121.52 + 0.1 * k), q, facing=face(q, (0.0, 3.45)) * 0.8)
+    leave(e, 'W-USR' if last(e)['x'] < 0 else 'W-USL', T('2-19', 121.6 + 0.25 * k), speed=1.4)
+# the endorsement: they come back bunched under the gallery, backs to the house, looking up at him (FILM ROUND, 152)
+UNDER = [(-1.4, -0.9), (-0.7, -1.0), (0.0, -0.9), (0.7, -1.0), (1.4, -0.9), (-1.0, -0.2), (0.0, -0.25), (1.0, -0.2)]
+for k, e in enumerate(VOT):
+    p = UNDER[k]
+    ent = 'W-USR' if p[0] < -0.3 else ('W-USL' if p[0] > 0.3 else 'D-UC')
+    enter(e, ent, p, T('2-19', 150.0 + 0.3 * k), 180, speed=1.4, label='Ensemble %s' % e[3:])
     hold(e, T('2-19', 157.94 + 0.1 * k), 180)                         # up to Hamilton on the gallery
+# they dance out mid-stage (FILM ROUND, 167: turns, arms out), and make an arc behind Burr for the verdict (184.5)
+formation(T('2-19', 162.0), [(-3.0, 0.6), (-1.8, 1.6), (-0.6, 0.6), (0.6, 1.6), (1.8, 0.6), (3.0, 1.6), (-1.0, 2.6), (0.9, 2.5)],
+          lambda p: 0, stagger=0.2)
+formation(T('2-19', 170.0), [(-3.2, 1.4), (-2.0, 0.4), (-0.8, 1.6), (0.4, 0.5), (1.6, 1.7), (2.9, 0.5), (-0.1, 2.5), (2.6, 2.2)],
+          lambda p: 0, stagger=0.2)
+ARC19 = [(-3.6, 2.6), (-2.6, 2.0), (-1.5, 1.6), (-0.5, 1.45), (0.5, 1.45), (1.5, 1.6), (2.6, 2.0), (3.6, 2.6)]
+formation(T('2-19', 182.0), ARC19, lambda p: 0, stagger=0.1)
+for k, e in enumerate(VOT):
+    q = pos(e)
     hold(e, T('2-19', 191.0 + 0.12 * k), face(q, (-0.5, 3.4)) * 0.8)   # Jefferson wins: to him
 for k, e in enumerate(VOT):
     x = last(e)['x']
@@ -540,49 +624,57 @@ for k, e in enumerate(VOT):
 # bring Burr the long letter a page at a time; for Weehawken one of the company stands SL and one SR staring out.
 # The film editor: the company leans toward the two men.
 # =====================================================================================
-DESK = (0.0, 0.6); B_SL = (3.1, 3.0)     # SPOTLIGHT: Burr's SL place moved into the challenge pool ch45 (3.05, 3.68)
+DESK = (0.0, 0.6)
+# FILM ROUND (2026-10-24; research/seg8.md "Film round"): the Disney+ clip against the album clock.
+#  - 31.4: Burr centre, four dancers crouched round him in red; 40-47: the company dancing hard round the desk he sits at
+#    (lunges, turns, a slide). Was: the six walked to the sides at 33.5 and stood.
+#  - 91-93: Burr stands SR, Hamilton at the desk, the company behind the desk with him (one waving a page). Was: Burr SL.
+#  - 115: Hamilton up from the desk, standing SR of centre, Burr centre-SL; 129-147: Hamilton in a pool DSR, Burr in a
+#    pool DSL, a second beside each from 142, the company in a line upstage, facing out. Was: Hamilton at the desk to the
+#    blackout, Burr SL from 73, the company at the sides.
+B_SR = (-2.7, 2.7); B_SL = (2.3, 3.2); H_SR = (-2.3, 3.2)
 walk('burr', T('2-20', 9.0), (-0.35, 3.05), facing=-20)     # the rant (SPOTLIGHT: inside his steel shaft ch93)
 walk('burr', T('2-20', 17.38), (0.0, 2.2), facing=0)
 walk('burr', T('2-20', 32.54), DESK, facing=0)              # sits at the desk centre
 hold('burr', T('2-20', 67.44), 0)                           # signs
-walk('burr', T('2-20', 73.0), B_SL, facing=-75)             # gives up the desk, stands SL
-hold('burr', T('2-20', 92.0), -80)                          # his aside, towards Hamilton
-hold('burr', T('2-20', 99.0), -20)
-hold('burr', T('2-20', 128.19), -80)                        # the challenge
-hold('burr', T('2-20', 136.61), 0)
+hold('burr', T('2-20', 70.0), 0)
+walk('burr', T('2-20', 72.5), (-1.6, 0.0), facing=-120, dwell=0)   # up round behind Hamilton coming to the desk
+walk('burr', T('2-20', 77.0), B_SR, facing=75)              # gives up the desk, stands SR (FILM ROUND, 91)
+hold('burr', T('2-20', 92.0), 80)                           # his aside, towards Hamilton
+walk('burr', T('2-20', 99.0), (-1.2, 2.55), facing=40)
+walk('burr', T('2-20', 111.0), (0.9, 2.6), facing=-80)      # (115: centre-SL)
+walk('burr', T('2-20', 128.5), B_SL, facing=-80)            # the challenge, in the DSL pool (129)
+hold('burr', T('2-20', 136.61), -10)
 leave('burr', 'W-DSL', T('2-20', 148.0), speed=1.3)
 
 enter('hamilton', 'W-DSR', (-2.4, 2.5), T('2-20', 70.0), 60, speed=1.3)
 walk('hamilton', T('2-20', 74.81), DESK, facing=0)         # takes the desk, writes his list
-hold('hamilton', T('2-20', 119.69), 55)                     # refuses: towards Burr
+walk('hamilton', T('2-20', 116.0), (-1.4, 2.0), facing=60)  # FILM ROUND (115): up from the desk
+hold('hamilton', T('2-20', 119.69), 80)                     # refuses: towards Burr
+walk('hamilton', T('2-20', 128.5), H_SR, facing=60)         # in the DSR pool (129)
 hold('hamilton', T('2-20', 136.61), 10)
 
-# REVIEW 2: six of the company, from the sides, only for what the evidence gives them: the courier who takes Burr's letter
-# to Hamilton and the ones who bring Burr the pages (ironinkpen), the lean as it escalates (the film's editor), one SR and
-# one SL staring out at Weehawken (ironinkpen). The writer's steel fan at 17.38 (Burr's rant is his alone) and the ring
-# round both men at 136.61 are cut (invented). They come on for the first crossing (1195, 67.44).
-OS_HOME = {'ens1': (-3.7, -0.7), 'ens6': (-3.5, 0.55),
-           'ens7': (3.9, -0.9), 'ens8': (4.1, 0.3), 'ens9': (3.95, 1.5), 'ens10': (4.25, 2.35)}
-OS_ENT = {'ens1': 'W-USR', 'ens6': 'W-USR', 'ens7': 'W-USL', 'ens8': 'W-MSL', 'ens9': 'W-MSL', 'ens10': 'W-DSL'}
-# REVIEW 3 (video): the Disney+ clip's comments put the company ON for Burr's rant after all: "I understand why the dancers
-# swayed the way they did" through his rant about the room he was kept out of (the company echoes him, 17.38-30, bars
-# 8-14), "everything was red and everyone was dancing". The six come on for it behind him (the writer's upstage fan, cut in
-# review 2, comes back on this evidence; dance.py sways them), and then go to their places at the sides (the jury, the film's
-# editor) instead of walking on at 60. The Bullet (ens1) brings Burr his quill as he starts to write (the clip at 0:42, album
-# ~41, cue 38.59: "the one who plays the bullet ... gives burr the pen").
-OS_FAN = [clock(3.0, a) for a in (300, 330, 15, 40, 65, 90)]    # two SR, four SL, as their places at the sides
+# REVIEW 2: six of the company, from the sides. REVIEW 3 (video): on for Burr's rant, swaying (dance.py); the Bullet (ens1)
+# brings Burr his quill (album ~41); Charles Lee (ens3) holding his side (~60.5); ens7 teases Burr with the last page.
+# FILM ROUND: three SR (the page-bringers, since Burr now stands SR) and three SL; they dance round the desk 38-47.
+OS_HOME = {'ens7': (-3.9, -0.9), 'ens8': (-4.1, 0.3), 'ens9': (-3.95, 1.5),
+           'ens1': (3.7, -0.7), 'ens6': (3.5, 0.55), 'ens10': (4.25, 2.35)}
+OS_ENT = {'ens7': 'W-USR', 'ens8': 'W-USR', 'ens9': 'W-DSR', 'ens1': 'W-USL', 'ens6': 'W-MSL', 'ens10': 'W-DSL'}
+OS_FAN = [clock(3.0, a) for a in (300, 330, 15, 40, 65, 90)]
 FAN = dict(zip(OS_HOME, hungarian([OS_HOME[e] for e in OS_HOME], OS_FAN)))
 for k, e in enumerate(OS_HOME):
     p = FAN[e]
     enter(e, OS_ENT[e], p, T('2-20', 16.4 + 0.3 * k), face(p, (0.0, 2.2)), speed=1.3, label='Ensemble %s' % e[3:])
+# FILM ROUND (40): in round the desk to dance (dance.py), then out to their places at the sides
+DRING = [clock(2.0, a, (0.0, 0.9)) for a in (250, 295, 335, 25, 65, 110)]
+DR = dict(zip(OS_HOME, hungarian([pos(e) for e in OS_HOME], DRING)))
+for k, e in enumerate(OS_HOME):
+    walk(e, T('2-20', 35.0 + 0.2 * k), DR[e], facing=face(DR[e], DESK))
+walk('ens1', T('2-20', 38.4), (0.6, 0.45), facing=-90, dwell=0.8)      # the quill, from his SL side
+walk('ens1', T('2-20', 41.0), DR['ens1'], facing=face(DR['ens1'], DESK))
 for k, e in enumerate(OS_HOME):
     p = OS_HOME[e]
-    walk(e, T('2-20', 33.5 + 0.4 * k), p, facing=face(p, DESK) * 0.6)
-walk('ens1', T('2-20', 38.4), (-0.6, 0.45), facing=90, dwell=0.8)     # the quill, from his SR side
-walk('ens1', T('2-20', 43.0), OS_HOME['ens1'], facing=face(OS_HOME['ens1'], DESK) * 0.6)
-# REVIEW 3 (video): as Burr's letter asks Hamilton to set a meeting, "the actor who plays Charles Lee comes out holding his
-# side" (the clip at 1:01, album ~60.5): Lee's wound from his own duel, a ghost of it. ens3, up SR (where he comes on is
-# not given), gone before Hamilton comes on that side at 70.
+    walk(e, T('2-20', 49.0 + 0.4 * k), p, facing=face(p, DESK) * 0.6)
 enter('ens3', 'W-USR', (-2.8, -2.0), T('2-20', 60.5), 70, speed=1.0, label='Charles Lee')
 leave('ens3', 'W-USR', T('2-20', 63.0), speed=1.2, label='Ensemble 3')
 # the courier: ens6 takes Burr's letter from the desk across to Hamilton
@@ -590,28 +682,38 @@ cr = 'ens6'
 walk(cr, T('2-20', 67.6), (0.55, 1.1), dwell=0.6, facing=-120)
 walk(cr, T('2-20', 70.8), (-1.75, 2.2), facing=-110, dwell=0.8)
 walk(cr, T('2-20', 76.5), OS_HOME[cr], facing=face(OS_HOME[cr], DESK))
-# the pages of Hamilton's list, brought to Burr one at a time
-for e, t, stop in (('ens7', 79.5, (2.45, 2.4)), ('ens8', 83.5, (2.35, 3.25)), ('ens9', 87.5, (2.6, 2.05))):
+# the pages of Hamilton's list, brought to Burr one at a time (now from SR, where he stands)
+for e, t, stop in (('ens7', 79.5, (-2.1, 2.3)), ('ens8', 83.5, (-2.15, 3.2)), ('ens9', 87.5, (-2.3, 2.0))):
     home = OS_HOME[e]
-    walk(e, T('2-20', t), stop, facing=face(stop, B_SL), dwell=0.8)
+    walk(e, T('2-20', t), stop, facing=face(stop, B_SR), dwell=0.8)
     walk(e, T('2-20', t + 4.2), home, facing=face(home, DESK))
-# Hamilton's signed reply goes across
-walk('ens7', T('2-20', 103.2), (0.6, 1.05), dwell=0.6, facing=-120)
-# REVIEW 3 (video): the clip at 1:40-1:50 (album ~100-108), the most-liked moment in its comments: the woman bringing the
-# last page "hands burr the paper then takes it away then gives it back and laughs at him". ens7 (Martha's body, a woman).
-walk('ens7', T('2-20', 105.6), (2.45, 2.4), facing=50)
-walk('ens7', T('2-20', 106.6), (2.1, 2.1), facing=50)            # snatches it back
-walk('ens7', T('2-20', 107.6), (2.45, 2.4), facing=50, dwell=0.4)  # and gives it again
+# FILM ROUND (93): two stand behind his desk as he writes (they sway, dance.py)
+walk('ens1', T('2-20', 78.0), (0.85, -0.35), facing=0)
+walk('ens10', T('2-20', 79.0), (-0.85, -0.4), facing=0)
+# Hamilton's signed reply goes across: ens7 takes it from the desk; "hands burr the paper then takes it away then gives it
+# back and laughs at him" (REVIEW 3, the clip at ~100-108)
+walk('ens7', T('2-20', 103.2), (-0.6, 1.05), dwell=0.6, facing=120)
+walk('ens7', T('2-20', 105.6), (-0.65, 2.2), facing=-110)
+walk('ens7', T('2-20', 106.6), (-0.3, 1.95), facing=-110)            # snatches it back
+walk('ens7', T('2-20', 107.6), (-0.65, 2.2), facing=-110, dwell=0.4)  # and gives it again
 walk('ens7', T('2-20', 111.2), OS_HOME['ens7'], facing=face(OS_HOME['ens7'], DESK))
-# 111.09 escalates: the country leans in (half a metre toward the desk); 130.1 Weehawken: one SR, one SL staring out
-WEE = {'ens1': (-3.7, 3.6), 'ens10': (4.2, 1.2)}
+walk('ens1', T('2-20', 109.0), OS_HOME['ens1'], facing=face(OS_HOME['ens1'], DESK))
+walk('ens10', T('2-20', 109.5), OS_HOME['ens10'], facing=face(OS_HOME['ens10'], DESK))
+# 111.09 escalates: the country leans in (half a metre toward the desk)
 for k, e in enumerate(OS_HOME):
     h = OS_HOME[e]; d = math.hypot(DESK[0] - h[0], DESK[1] - h[1])
     q = (h[0] + 0.5 * (DESK[0] - h[0]) / d, h[1] + 0.5 * (DESK[1] - h[1]) / d)
     walk(e, T('2-20', 113.0 + 0.3 * k), q, facing=face(q, DESK))
-    if e in WEE:
-        walk(e, T('2-20', 130.1), WEE[e], facing=0)
-    hold(e, T('2-20', 136.61 + 0.1 * k), last(e)['facing'] if e in WEE else face((last(e)['x'], last(e)['z']), (1.55, 1.8)))
+# FILM ROUND (129): the jury, a line upstage facing out; (142) a second beside each man for Weehawken
+JURY = [(-3.5, -1.6), (-2.1, -1.7), (-0.7, -1.75), (0.7, -1.75), (2.1, -1.7), (3.5, -1.6)]
+JY = dict(zip(OS_HOME, hungarian([pos(e) for e in OS_HOME], JURY)))
+for k, e in enumerate(OS_HOME):
+    walk(e, T('2-20', 126.0 + 0.3 * k), JY[e], facing=0)
+SECONDS = {'ens8': (H_SR[0] + 0.75, H_SR[1] + 0.15), 'ens6': (B_SL[0] + 0.75, B_SL[1] + 0.15)}
+for e, p in SECONDS.items():
+    walk(e, T('2-20', 140.5), p, facing=0)
+for k, e in enumerate(OS_HOME):
+    hold(e, T('2-20', 141.5 + 0.1 * k), 0)
 
 # =====================================================================================
 # 2-21 BEST OF WIVES AND BEST OF WOMEN   0.44 pre-dawn, Hamilton at his desk / 7.72 Eliza behind him /
@@ -631,8 +733,10 @@ for k, e in enumerate(OS_HOME):
 H_DESK = (-2.8, 2.6)
 walk('hamilton', T('2-21', 0.44), H_DESK, facing=0)          # the desk, now near SR, in the dark
 E_BEHIND = (-2.6, 1.6)      # REVIEW 2: behind his chair (props.py), not in it
-enter('eliza', 'W-DSR', E_BEHIND, T('2-21', 7.72), 10, speed=1.3, via=[(-3.8, 2.4)])
-walk('eliza', T('2-21', 19.96), (-2.05, 2.25), facing=-70)     # her plea, at his side
+# FILM ROUND (the clip at 8.4: she stands apart SR of him, watching him write; 21: behind his chair, her arms round him;
+# 38: standing at his SR side, he holding her hand). Was: straight in behind him at 7.72, then at his side for the plea.
+enter('eliza', 'W-DSR', (-4.2, 2.3), T('2-21', 7.72), 80, speed=1.3)
+walk('eliza', T('2-21', 16.5), E_BEHIND, facing=10)            # behind him; her arms round him (dance.py comfort)
 hold('hamilton', T('2-21', 21.0), 40)
 walk('eliza', T('2-21', 35.6), (-2.3, 1.6), dwell=0)              # starts back to bed, round behind his chair;
 walk('eliza', T('2-21', 36.6), (-3.3, 1.45), facing=40)           # he catches her hand
@@ -700,6 +804,11 @@ for k, (e, a) in enumerate(ARC22.items()):
     p = clock(3.5, a)
     ent = 'W-USR' if a > 300 else ('D-UC' if a < 40 else 'W-USL')
     enter(e, ent, p, T('2-22', 5.0 + 0.8 * k), face(p, C) * 0.6, speed=1.3, label='Ensemble %s' % e[3:])
+# FILM ROUND (no clip for 2-22): the arc does not stand 90 s - it walks slowly a quarter-turn's worth round the ring and
+# back as the duel is set (invented, slow; hamilton-lyrics has the platform turning through the number)
+for k, (e, a) in enumerate(ARC22.items()):
+    circle(e, 3.5, a, a + 22, T('2-22', 24.0), T('2-22', 46.0), step=11, end_facing=face(clock(3.5, a + 22), C) * 0.6)
+    circle(e, 3.5, a + 22, a, T('2-22', 64.0), T('2-22', 88.0), step=11, end_facing=face(clock(3.5, a), C) * 0.6)
 # Burr and Van Ness (ens2) come on SL
 enter('burr', 'W-MSL', (3.2, 2.3), T('2-22', 9.84), -40, label='Burr')
 enter('ens2', 'W-MSL', (3.85, 1.3), T('2-22', 11.4), -60, label='Ensemble 2')
@@ -724,6 +833,10 @@ walk('hamilton', T('2-22', 26.0), (-3.3, 3.0), facing=40)
 walk('hamilton', T('2-22', 31.0), (-2.2, 3.4), facing=-20)
 walk('hamilton', T('2-22', 34.45), H_PLACE, facing=face(H_PLACE, BD))
 walk('burr', T('2-22', 34.45), BD, facing=face(BD, H_PLACE))
+# FILM ROUND (no clip for 2-22): Burr keeps moving while he narrates (hamilton-lyrics: "Hamilton freezes while Burr keeps
+# moving"), a few straight legs SL before his confession
+walk('burr', T('2-22', 44.0), (3.7, 2.2), facing=-70)
+walk('burr', T('2-22', 52.0), (3.0, 3.5), facing=-40)
 walk('ens2', T('2-22', 27.0), (3.75, 0.55), facing=face((3.75, 0.55), BD))
 # the seconds meet at centre and check the pistols, then go back
 walk('ens2', T('2-22', 40.0), (0.4, 0.95), facing=-90)
@@ -975,8 +1088,10 @@ for k, e in enumerate(MOURN):
     a = ang_of(q, BURR_DSC)
     leave(e, 'W-USR' if q[0] < -0.5 else ('W-USL' if q[0] > 0.5 else 'D-UC'), T('2-22', 250.0 + 0.4 * k), speed=1.0)
 hold('burr', T('2-22', 215.22), -25)
+walk('burr', T('2-22', 228.0), (2.75, 2.75), facing=-60)    # FILM ROUND (no clip): a few steps as the city mourns
 walk('burr', T('2-22', 239.22), BURR_DSC, facing=0)          # his reckoning DSC
 hold('burr', T('2-22', 252.44), -45)                        # replays the moment
+walk('burr', T('2-22', 259.0), (0.6, 3.15), facing=-30)
 walk('burr', T('2-22', 266.44), (-0.1, 2.75), facing=0)    # alone, centre (SPOTLIGHT: ch4 at (-0.09, 2.75))
 hold('burr', T('2-22', 281.83), 0)
 
@@ -1032,6 +1147,12 @@ for ent, members in groups.items():
         first_off = [x for x in A[a] if x.get('off')][-1]
         if first_off['_T'] < T('2-22', 292.8): print('NOTE early finale entrance', a, first_off['track'], first_off['at'])
 walk('washington', T('2-23', 15.0), W_SLOT, facing=0)        # back into the company
+# FILM ROUND (no clip for 2-23; hamilton-lyrics: "the company circles down"): the company does not stand 45 s in its rings -
+# it walks them slowly round (the outer ring 15 degrees, the inner 10) before it comes down into the three lines at 50
+for e in ENS[4:]:
+    revolve(e, 15, T('2-23', 5.0), T('2-23', 46.0), step=8)
+for e in ENS[:4] + ['angelica', 'peggy']:
+    revolve(e, 10, T('2-23', 5.0), T('2-23', 46.0), step=8)
 # Jefferson: up the backstage stair, along the gallery, to the top of the SR stair
 wpa(J, T('2-23', 8.0), 0.6, -4.8, y='gallery', off=True, dwell=0, label='Jefferson')
 wpa(J, T('2-23', 9.1), 0.6, -3.35, y='gallery', dwell=0)
@@ -1064,6 +1185,16 @@ for k, a in enumerate(LIN):
     walk(a, T('2-23', 56.0 + 0.08 * k), SLOT[a], facing=face(SLOT[a], ELIZA_IN) * 0.7)
 for k, a in enumerate(LIN):
     hold(a, T('2-23', 62.6 + 0.08 * k), face(SLOT[a], (0.0, 4.0)) * 0.7)
+# FILM ROUND (no clip): slow, deliberate - on "her work" the company takes a slow step in toward her, and on "her years"
+# steps back (Jefferson, Madison and Philip make the soldiers' triangle meanwhile; Angelica goes to her)
+STEPPERS = ENS + ['peggy', 'burr', 'washington']
+def toward(p, q, d):
+    L = math.hypot(q[0] - p[0], q[1] - p[1]) or 1.0
+    return (p[0] + d * (q[0] - p[0]) / L, p[1] + d * (q[1] - p[1]) / L)
+for k, a in enumerate(STEPPERS):
+    s = toward(SLOT[a], (0.0, 4.0), 0.5)
+    walk(a, T('2-23', 80.0 + 0.1 * k), s, facing=face(s, (0.0, 4.0)) * 0.7)
+    walk(a, T('2-23', 108.0 + 0.1 * k), SLOT[a], facing=face(SLOT[a], (0.0, 4.0)) * 0.7)
 # Eliza: enters where the company parts, everyone turns to her; she comes down to the front
 enter('eliza', 'D-UC', ELIZA_IN, T('2-23', 58.3), 0, label='Eliza', dwell=0)
 walk('eliza', T('2-23', 62.48), (0.0, 4.0), facing=0)
@@ -1083,6 +1214,8 @@ walk('eliza', T('2-23', 102.0), (0.35, 3.4), dwell=0)
 walk('eliza', T('2-23', 104.0), (0.4, 3.95), dwell=0)
 walk('eliza', T('2-23', 106.0), (0.1, 4.0), facing=-10)
 # Washington comes up behind her and smiles; bows his head
+walk('eliza', T('2-23', 115.0), (-0.3, 3.8), facing=-15)       # FILM ROUND (no clip): she moves a little in her shaft
+walk('eliza', T('2-23', 121.0), (0.1, 4.05), facing=10)
 walk('washington', T('2-23', 114.59), (0.6, 3.25), facing=15)
 hold('washington', T('2-23', 119.94), 15)
 # the company closes in behind her (two rows round her)
@@ -1094,6 +1227,8 @@ G = dict(zip(CLOSE, hungarian([pos(a) for a in CLOSE], ROW1 + ROW2)))
 for k, a in enumerate(CLOSE):
     walk(a, T('2-23', 124.5 + 0.15 * k), G[a], facing=face(G[a], (0.0, 4.4)) * 0.5)
 walk('eliza', T('2-23', 126.93), (0.0, 3.95), facing=0)
+walk('eliza', T('2-23', 135.0), (0.35, 3.85), facing=-10)
+walk('eliza', T('2-23', 147.0), (-0.1, 4.0), facing=0)
 # Hamilton comes on behind them, where she first entered
 enter('hamilton', 'D-UC', (0.0, -1.6), T('2-23', 150.0), 0, speed=1.0, label='Hamilton')
 # the company spreads upstage: he is revealed
@@ -1113,6 +1248,11 @@ hold('eliza', T('2-23', 167.2), 90)
 walk('eliza', T('2-23', 172.0), (-0.85, 2.6), facing=90)
 walk('hamilton', T('2-23', 172.2), (-0.15, 2.6), facing=-90)
 walk('washington', T('2-23', 183.36), (-0.5, 1.45), facing=0)  # Washington behind them
+# FILM ROUND (no clip): slow and deliberate - the spread company draws in a little toward the couple, twice
+for k, a in enumerate([a for a in CLOSE if a != 'washington']):
+    s1 = toward(SP[a], (0.0, 3.0), 0.4); s2 = toward(s1, (0.0, 3.0), 0.3)
+    walk(a, T('2-23', 188.0 + 0.1 * k), s1, facing=face(s1, (0.0, 3.0)) * 0.6)
+    walk(a, T('2-23', 203.0 + 0.1 * k), s2, facing=face(s2, (0.0, 3.0)) * 0.6)
 # the last line: he walks her down and gives her away; she goes into her pool DSC
 # SPOTLIGHT: her shaft ch93 (0, 3.62) r 0.7 is the gasp's pool; she stands in it alone, the men step back out of it
 walk('eliza', T('2-23', 199.6), (0.0, 4.2), facing=0)

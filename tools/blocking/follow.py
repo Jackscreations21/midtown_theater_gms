@@ -287,7 +287,86 @@ SEGMENT_7 = [
 # ===== END SEGMENT 7 =====
 
 # ===== SEGMENT 8 (2-17..2-23) =====
+# Read from the Disney+ clips for 2-17..2-21 (research/seg8.md "Film round"); 2-22 and 2-23 have no clip, so the spot is on
+# whoever leads the moment. Spot 2 (house left) takes stage RIGHT, spot 3 (house right) stage LEFT, spot 1 the centre.
 SEGMENT_8 = [
+    # 2-17 Stay Alive (Reprise): a dark blue stage, the family warm at the table (the clip, 33-106)
+    F(2, '2-17', 12.5, 'hamilton', level=0.6, note='film 2-17 14: he runs in to Philip up SR, and is with the Doctor SR to 30'),
+    F(1, '2-17', 14.0, 'laurens', level=0.6, note='Philip on the table as the platform carries it round to the front (film 24.9, 33.4)'),
+    F(2, '2-17', 33.0, 'hamilton', level=0.75, note='film 33.4: at the table, bent over his son'),
+    F(3, '2-17', 61.5, 'eliza', level=0.75, note='film 62: Eliza in from up SR, to the table on his SR side'),
+    OUT(1, '2-17', 109.6, fade=0, note='the blackout on the scream'),
+    OUT(2, '2-17', 109.6, fade=0, note='the blackout'),
+    OUT(3, '2-17', 109.6, fade=0, note='the blackout'),
+    # 2-18 It's Quiet Uptown
+    F(3, '2-18', 8.6, 'angelica', level=0.7, note='film 2-18 6.6-33.6: Angelica narrates SL, mid-stage'),
+    F(1, '2-18', 31.0, 'hamilton', level=0.7, note='film 33.6, 47: alone at the centre among the circling couples'),
+    OUT(3, '2-18', 52.0, fade=2.0, note='her narration done; she watches up SL in the dark'),
+    F(1, '2-18', 89.35, 'hamilton', level=1.0, fade=1.5, note='film 94: the pull-in - he is the only bright thing, alone at centre'),
+    F(1, '2-18', 100.0, 'hamilton', level=0.8, fade=2.0, note='down to his plea'),
+    F(3, '2-18', 104.72, 'eliza', level=0.75, note='film 103-147: Eliza SL of him, still as stone'),
+    F(2, '2-18', 166.0, 'angelica', level=0.7, note="Angelica's second solo DSR"),
+    OUT(2, '2-18', 250.0, fade=2.0, note='Angelica goes'),
+    OUT(1, '2-18', 262.0, fade=2.0, note='they leave together arm in arm (film 246: the couple at the centre till the end)'),
+    OUT(3, '2-18', 262.0, fade=2.0, note='with him'),
+    # 2-19 The Election of 1800
+    F(3, '2-19', 5.0, 'lafayette', level=0.8, note='film 2-19 5: Jefferson walks on DSR; he crosses SL of Madison by 21'),
+    F(2, '2-19', 6.8, 'mulligan', level=0.75, note='film 5-28: Madison in at the centre, then SR at the front'),
+    F(1, '2-19', 19.5, 'burr', level=0.8, note='Burr up SL, then working the room (film 63.5-77) - never still'),
+    F(3, '2-19', 79.0, 'lafayette', level=0.5, fade=1.5, note='the townspeople take the floor; J & M aside SL'),
+    F(2, '2-19', 79.6, 'mulligan', level=0.5, fade=1.5, note='aside SL'),
+    F(2, '2-19', 99.25, 'hamilton', level=0.9, move=1.2, note='film 104: Hamilton at the centre between the lines of letters'),
+    OUT(3, '2-19', 121.0, fade=1.5, note='film 124-148: the two men alone'),
+    OUT(2, '2-19', 134.5, fade=1.0, note='Hamilton goes up the middle to the gallery'),
+    F(2, '2-19', 152.4, 'hamilton', level=1.0, note='film 152-184: the endorsement from the centre of the gallery'),
+    F(3, '2-19', 152.4, 'lafayette', level=0.7, note='film 152: Jefferson SL as all eyes go up to Hamilton'),
+    F(3, '2-19', 187.73, 'lafayette', level=1.0, fade=1.0, note='Jefferson wins (film 200: at centre, the company pointing)'),
+    OUT(2, '2-19', 188.5, fade=1.0, note='Hamilton off the gallery'),
+    OUT(3, '2-19', 229.5, fade=1.0, note='Jefferson goes'),
+    OUT(1, '2-19', 236.5, fade=1.0, note='Burr alone as the band stops, then dark'),
+    # 2-20 Your Obedient Servant
+    F(1, '2-20', 0.2, 'burr', level=0.85, note='film 2-20 10-31: tight on Burr, in his steel shaft and at the desk'),
+    F(2, '2-20', 70.0, 'hamilton', level=0.8, note='film 88-93: Hamilton at the desk, Burr SR; 129-147 Hamilton in the DSR pool'),
+    OUT(1, '2-20', 147.68, fade=0, note='blackout (cue 1206)'),
+    OUT(2, '2-20', 147.68, fade=0, note='blackout'),
+    # 2-21 Best of Wives and Best of Women
+    F(2, '2-21', 0.44, 'hamilton', size='half', level=0.6, note='film 2-21 8.4: writing at his desk, pre-dawn'),
+    F(3, '2-21', 7.72, 'eliza', level=0.6, note='film 8.4: Eliza in SR, watching him; 21 behind him; 38 at his side'),
+    F(2, '2-21', 16.5, 'hamilton', size='full', level=0.6, fade=1.5, note='opens out to take the two of them (film 21: her arms round him)'),
+    OUT(2, '2-21', 44.0, fade=0, note='the snap FTB (cue 1238)'),
+    OUT(3, '2-21', 44.0, fade=0, note='the snap FTB'),
+    # 2-22 The World Was Wide Enough (no clip)
+    F(2, '2-22', 3.6, 'hamilton', level=0.75, note='no clip: he rises from the chair SR and walks the ground'),
+    F(3, '2-22', 9.84, 'burr', level=0.8, note='no clip: Burr narrates SL'),
+    F(1, '2-22', 101.42, 'ens1', size='half', level=0.6, note='FIRE: the Bullet takes the shot at his pistol and creeps toward him'),
+    F(3, '2-22', 103.42, 'burr', level=0.45, fade=1.5, note='Burr frozen in his aim through the monologue'),
+    F(2, '2-22', 103.42, 'hamilton', level=1.0, fade=1.0, note="Hamilton's monologue: the one bright figure"),
+    OUT(1, '2-22', 155.0, fade=1.0, note='the Bullet into the knot at the centre'),
+    F(1, '2-22', 160.0, 'washington', level=0.7, note='Washington beside him, then up the SL stair'),
+    F(1, '2-22', 174.5, 'eliza', level=0.8, move=1.0, note='ELIZA: she takes his hand and pulls him to centre'),
+    OUT(1, '2-22', 181.0, fade=1.0, note='she goes up SR'),
+    F(3, '2-22', 191.18, 'burr', level=0.8, fade=0.3, note='the shot'),
+    F(1, '2-22', 226.0, 'eliza', level=0.6, note='the sisters either side of him as he rises'),
+    OUT(2, '2-22', 247.5, fade=1.5, note='Hamilton off along the bridge'),
+    OUT(1, '2-22', 251.5, fade=1.5, note='Eliza goes'),
+    F(3, '2-22', 239.22, 'burr', level=1.0, fade=1.5, note="Burr's reckoning DSC, then alone"),
+    OUT(3, '2-22', 292.8, fade=3.0, note='FTB'),
+    # 2-23 Who Lives, Who Dies, Who Tells Your Story (no clip)
+    F(1, '2-23', 0.44, 'washington', level=0.8, note='no clip: Washington opens at centre'),
+    OUT(1, '2-23', 15.0, fade=1.0, note='back into the company'),
+    F(2, '2-23', 16.76, 'lafayette', level=0.7, note='Jefferson at the top of the SR stair'),
+    OUT(2, '2-23', 30.0, fade=1.0),
+    F(3, '2-23', 30.01, 'mulligan', level=0.7, note='Madison DSL'),
+    F(3, '2-23', 43.27, 'burr', level=0.7, note='Burr DS'),
+    OUT(3, '2-23', 50.0, fade=1.0, note='the company comes down into its lines'),
+    F(1, '2-23', 58.3, 'eliza', level=0.9, note='Eliza enters; she carries the number to the gasp'),
+    F(2, '2-23', 88.92, 'angelica', level=0.7, note='Angelica beside her'),
+    OUT(2, '2-23', 103.0, fade=1.5, note='Angelica back into the company'),
+    F(3, '2-23', 114.59, 'washington', level=0.6, note="Washington behind her at the monument"),
+    OUT(3, '2-23', 124.5, fade=1.5),
+    F(2, '2-23', 153.42, 'hamilton', level=0.8, note='the company spreads: Hamilton revealed'),
+    OUT(1, '2-23', 211.8, fade=0, note='the blackout after the gasp'),
+    OUT(2, '2-23', 211.8, fade=0, note='the blackout'),
 ]
 # ===== END SEGMENT 8 =====
 
