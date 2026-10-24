@@ -2161,6 +2161,14 @@ include the place a failure would show — the corridor behind the house, not on
   AND its restore follower).
 - **`MIDTOWN.actors.list` is a getter, not a function** (`MIDTOWN.actors.list.length`).
 
+## From the Van Wezel round (2026-10-24)
+
+- **GLTFLoader renames nodes**: "exterior: tex 29" arrives as `exterior_tex_29`. Match the loaded names, not the file's.
+- **A console raycast hits the invisible `TransformControlsPlane`** (Build mode's gizmo): filter it out of any hand-made
+  pick, and give the Raycaster a `camera` when the scene has Sprites (the head tags).
+- **The Van Wezel GLB is in feet** (a 60 ft proscenium): `tools/van-wezel-optimise.py` scales it; never scale it again
+  in the page.
+
 ## From the orchestra-pit round (2026-10-24)
 
 - **House 1's stage floor is Jack's slab, not the set's deck.** Box 21 (bake 3) is a SOLID box y −0.155…0.845 over x

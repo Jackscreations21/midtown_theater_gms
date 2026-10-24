@@ -229,6 +229,35 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-24: the third house — Van Wezel Hall east of Theatre 2, its own foyer, a hallway from the lobby (branch `van-wezel`, PR open)
+
+Jack: *"[van-wezel-hall_1.glb] can you have an agent add this theater on the side of the one already there. make them
+have seperate lobbys but connect them by a hallway."* The model was made for him by another Claude session. Its 49
+textures were checked and are procedural noise, so it is committed. One Opus builder; section "THE THIRD HOUSE: VAN
+WEZEL HALL" (`MIDTOWN.vanWezel`, a "Van Wezel" view button).
+- **The model:** in FEET, so `tools/van-wezel-optimise.py` scales it ×0.3048 and turns it 180° (upstage +z). It drops
+  the grounds, bay, parking and palms, then merges by region and look: 964 meshes / 318 materials → 57 meshes, 11.7 →
+  7.4 MB (`assets/van-wezel-hall.glb`; re-run the script on a new source).
+- **Placement:** origin (77, 1.4896, 0); proscenium at z 0; foyer floor 1 cm under the lobby's 0.875. Moved in y only.
+  The roof eave clears Theatre 2, and the terrace is trimmed at x 30.40.
+- **Its lobby is the model's own glazed foyer**, with a box office and a "VAN WEZEL HALL" sign (`LOBBY_SIGNS`).
+- **The hallway `VW_HALL`:** x 30.20…47.00, z −16.82…−14.92. It runs from an opening in the lobby's east wall beside the
+  bar, with an E door at each end (`hangLeafAt`, a door turned about y).
+- **Inside:** stalls doors on a 4-riser landing, and a 6-riser stair from the lowered orchestra lift to the stage. The
+  house curtain is flown out.
+- **If the model is missing,** the hallway ends at a solid wall.
+- **Cost:** boot view +12 draw calls, +1 shader program, about +0.7 ms. Inside the hall: 45–299 calls, 2.6–7.4 ms.
+  Load +0.3 s. It loads at startup, not lazily (cheaper than a freeze and a grid rebuild).
+- **Checks:** `vanWezel.check()` PASS (no vertex inside Theatre 2, the lobby or the backstage; the hallway floor
+  continuous, worst step 10 mm; the route lobby → stage walks with no gap). `doors.check()` 21/21, `actors.check()`,
+  `follow.check()`, `show.check()` seek-equivalence, `lx.check()` 301/313, `walls.check()` unchanged; console clean.
+- **His to decide:**
+  - The orchestra lift is lowered to the stalls so the aisle walks onto it; in the model it stood at stage height as a
+    thrust.
+  - The stalls doors swing OUT (Midtown's swing in, RULING GG).
+  - Its surfaces are unlit, with the light baked into the colours, so the House light slider doesn't touch them.
+  - Only one side door can be reached.
+  - The hallway is ~15 m long, painted like the backstage hallway.
 ## DONE — 2026-10-24: the orchestra pit under house 1's stage and the conductor's opening (branch `orchestra-pit`, PR open)
 
 Jack: *"make an orchstar pit under the hamstage and make ther be a littlw hole at the front of the stage like hamilton has for

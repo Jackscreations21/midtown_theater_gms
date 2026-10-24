@@ -6,8 +6,9 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **The orchestra pit (2026-10-24, branch `orchestra-pit`, PR open, independent of the stage-manager PR #18 — whichever
-  merges second conflicts in STATE/HANDOFF/midtown.html; keep both):** HANDOFF.md's pit block; the "Pit" view button. His
+- **Van Wezel Hall (2026-10-24, PR #20 open, main merged in after #18 and #19):** the third house east of Theatre 2, its foyer, the hallway; HANDOFF.md's Van Wezel
+  block ends with his five questions.
+- **The orchestra pit (2026-10-24, PR #19 MERGED):** HANDOFF.md's pit block; the "Pit" view button. His
   four questions are at the end of that block.
 - **The film round (2026-10-24, branch `film-round`, PR OPEN; HANDOFF.md's newest block; RULING GL):** every segment
   re-blocked against the Disney+ frames by eight Opus agents, the stillness filled (show mean 65 % → 41 % still,
@@ -29,7 +30,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
     `write`, a whisper, arms folded, a crouched creep, arms-out T, a stagger, a paper held out.
   - Cue keys that no longer sit on people and the audit could not fix: 1-12, 1-16, 1-17 keys; 2-09 Q998–1000 (the SL stair
     special: Washington no longer climbs); 1-05 Q174.5 ch91 (planned, does not land); Eacker's box (2-16, as before).
-- **THE STAGE MANAGER (2026-10-24, branch `stage-manager`, BUILT, pushed; PR open (#17 merged 2026-10-24);
+- **THE STAGE MANAGER (2026-10-24, branch `stage-manager`, BUILT, pushed; PR #18 MERGED;
   HANDOFF.md's newest block; RULINGS GM–GQ; spec `docs/superpowers/specs/2026-10-24-stage-manager-design.md`).** Walk to the
   SL prompt corner, E at the desk. **His eye, then these decisions:** every body is OFF at both act tops in the blocking, so at
   GO they vanish where places left them (show bodies waiting in the wings, or leave it); Burr's act-2 start (world −6.03,
