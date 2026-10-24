@@ -287,6 +287,9 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
     <button id="w-1" aria-pressed="false" disabled title="Hanging the worklights…">Stage 1</button>
     <button id="w-2" aria-pressed="false" disabled title="Hanging the worklights…">Theatre 2</button>
   </div>
+  <div class="mode" role="group" aria-label="Stage manager voices">
+    <button id="sm-voices" aria-pressed="true" title="The stage manager's spoken lines: the God mic, the spots, front of house and the company on the headset">Voices</button>
+  </div>
   <label class="bright" for="bright">House light <input id="bright" type="range" min="0.4" max="3" step="0.05" value="1.4"></label>
   <div class="mode" role="group" aria-label="Movement">
     <button id="m-orbit" aria-pressed="true">Orbit</button>
@@ -8061,9 +8064,23 @@ function smLamps() {
 
 // ---- THE GOD MIC and the headset
 function smSpeak(text, voice) {
-  if (!window.speechSynthesis || !window.SpeechSynthesisUtterance) return null;
+  if (SM.mute || !window.speechSynthesis || !window.SpeechSynthesisUtterance) return null;
   try { const u = new SpeechSynthesisUtterance(text); u.rate = 1.0; if (voice) Object.assign(u, voice); speechSynthesis.speak(u); return u; } catch (e) { return null; }
 }
+// THE VOICES SWITCH (Jack, 2026-10-24: "make a toggle button to turn off the voiceses for spots and foh and all that stuff with
+// the sm"). The header's "Voices" silences every spoken line (the God mic and the headset: the spots, front of house, the
+// company) and stops what is speaking; the lines still show as text and go in the log. The calling panel's two boxes stay the
+// finer choice under it. Remembered in this browser.
+SM.mute = (() => { try { return localStorage.getItem('midtown-sm-mute') === '1'; } catch (e) { return false; } })();
+function smMute(on = !SM.mute) {
+  SM.mute = !!on;
+  if (SM.mute && window.speechSynthesis) speechSynthesis.cancel();
+  try { localStorage.setItem('midtown-sm-mute', SM.mute ? '1' : '0'); } catch (e) { /* not remembered */ }
+  const b = document.getElementById('sm-voices');
+  if (b) { b.setAttribute('aria-pressed', String(!SM.mute)); b.textContent = SM.mute ? 'Voices off' : 'Voices'; }
+  return SM.mute;
+}
+{ const b = document.getElementById('sm-voices'); if (b) b.addEventListener('click', () => smMute()); smMute(SM.mute); }
 function smMic(text, who = 'God mic') {
   SM.micT = Math.max(4, text.length / 14 + 1.5);
   if (!SM.mic) { const el = document.createElement('div'); el.id = 'sm-mic'; el.hidden = true; el.setAttribute('aria-live', 'polite'); document.getElementById('stage').append(el); SM.mic = el; }
@@ -8468,7 +8485,7 @@ buildLightsPanel = () => {
   try { smBuildDesk(); } catch (e) { console.error('stage manager: the prompt desk could not be built —', e); }
   if (window.MIDTOWN) window.MIDTOWN.sm = {
     log: (who, text) => smLog(who, text), state: () => smState(), call: kind => smCall(kind), standby: () => smStandby(), go: anyway => smGo(!!anyway),
-    mode: m => m === undefined ? SM.mode : smMode(m), sit: on => smSit(on !== false), panel: on => smPanel(on !== false), say: text => smMic(String(text)),
+    mode: m => m === undefined ? SM.mode : smMode(m), sit: on => smSit(on !== false), panel: on => smPanel(on !== false), say: text => smMic(String(text)), mute: on => smMute(on === undefined ? !SM.mute : !!on),
     report: () => smReportText(), download: last => smDownload(!!last), reset: () => smReset(), monitor: () => smMonDraw(true),
     get desk() { return SM.desk; }, get target() { return SM.target; }, get perf() { return Object.assign({}, SM.perf); }, words: SM_WORDS, tune: { SM_DESK, SM_MON, SM_STUB },
   };
