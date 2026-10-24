@@ -1,4 +1,4 @@
-# STATE — 2026-10-24 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#16 merged; #17 (the film round) MERGED; `stage-manager` PR open)
+# STATE — 2026-10-24, evening (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#20 merged; `main` `852c232`)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,15 +6,43 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **Van Wezel Hall (2026-10-24, PR #20 open, main merged in after #18 and #19):** the third house east of Theatre 2, its foyer, the hallway; HANDOFF.md's Van Wezel
-  block ends with his five questions.
-- **The orchestra pit (2026-10-24, PR #19 MERGED):** HANDOFF.md's pit block; the "Pit" view button. His
-  four questions are at the end of that block.
-- **The film round (2026-10-24, branch `film-round`, PR OPEN; HANDOFF.md's newest block; RULING GL):** every segment
-  re-blocked against the Disney+ frames by eight Opus agents, the stillness filled (show mean 65 % → 41 % still,
-  `tools/blocking/still.py`), the three followspots real and following actors (423 picks, `tools/blocking/follow.py`),
-  facings continuous, 19 light fixes. **His eye on it, then these questions from the agents** (each with its evidence in
-  `tools/blocking/research/segN.md` "Film round"):
+**2026-10-24: four PRs merged in one day** (each has a DONE block in HANDOFF.md, newest first). `main` is **`852c232`**
+(#20). Nothing is local-only. **Post-merge tidy still owed** (the sandbox refuses remote deletes, so Jack or a terminal):
+delete the merged branches `film-round`, `stage-manager`, `orchestra-pit`, `van-wezel` both sides
+(`git push origin --delete <name>`), and the agent worktrees under `.claude/worktrees/` (`git worktree list`; never
+`git add -A` while they exist).
+
+- **#20 Van Wezel Hall (RULING-free; HANDOFF's newest block):** a third house east of Theatre 2 (origin x 77), its own
+  glazed foyer and box office, a 15 m hallway from the Midtown lobby's east end beside the bar. `assets/van-wezel-hall.glb`
+  was made for Jack by another Claude session; its textures are procedural, so it is committed. It was in feet:
+  `tools/van-wezel-optimise.py` scales and merges it. **His to decide:**
+  - the orchestra lift lowered to the stalls (the only way onto its stage), or raised as a thrust;
+  - its stalls doors swing out;
+  - it is unlit, with the light baked into its colours, so it is off the House light slider;
+  - only one side door can be reached.
+- **#19 the orchestra pit (HANDOFF block):** under house 1's stage. The conductor's opening is 1.10 × 0.45 m, 11 cm behind
+  box 21's lip (z −1.38), with the MD's head and shoulders in it. A band of nine plays on the beat. The way down is a stair
+  from the crossover, a passage, and a door on E. A "Pit" button. **His to decide:**
+  - the opening's size;
+  - nudge the King's, Burr's and Hamilton's DSC marks ~0.2 m upstage (a toe over its back edge at moments);
+  - the walker can stand on the lid over the MD;
+  - head tags show through the pit ceiling.
+- **#18 THE STAGE MANAGER (RULINGS GM–GQ; spec `docs/superpowers/specs/2026-10-24-stage-manager-design.md`):** walk to the
+  SL prompt corner, E at the desk. Hold at every number or the two acts. The calls: House open, Half, Fifteen, Five,
+  Places, Curtain. The company answers from the dressing rooms and walks to places. STANDBY / GO. The booth's operators
+  swing the followspots. Front of house; the show report. **His to decide:**
+  - every body is OFF at both act tops, so at GO they vanish from the wings (show them waiting?);
+  - Burr's act-2 start (world −6.03, −0.49) sits behind a thin panel;
+  - the booth is very dark in a show;
+  - a snap pick-up jumps the operator with the unit (a dark pre-aim would move `follow.check`);
+  - the operators and the walking company are not in the walk's collision grid;
+  - the SL cue lamp is upstage of his masking box 4.
+  
+  Not built (FUTURE): a late actor, an audience filling the seats, a show relay, calling single light cues (ruled out).
+- **#17 the film round (RULING GL):** every segment re-blocked against the Disney+ frames (still share 65 % → 41 %,
+  `tools/blocking/still.py`). The three followspots follow actors (423 picks, `tools/blocking/follow.py`). Facings
+  continuous; an unfinished turn carries into the walk. 19 light fixes. **His eye on it with the music, then the
+  agents' questions** (evidence per song in `tools/blocking/research/segN.md` "Film round"):
   - 1-02/1-03: the film fills the street, tavern and death verse with the company and lights three lamps; ours keeps
     REVIEW2's cut-back company and one lamp. 1-05: the sisters' order across the stage (ours Angelica SR, Eliza C, Peggy SL).
   - 1-08: the desk stays on through the duet in the film (Hamilton sits at it at 4:44, after his 4:37 strike); the sisters
@@ -30,15 +58,6 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
     `write`, a whisper, arms folded, a crouched creep, arms-out T, a stagger, a paper held out.
   - Cue keys that no longer sit on people and the audit could not fix: 1-12, 1-16, 1-17 keys; 2-09 Q998–1000 (the SL stair
     special: Washington no longer climbs); 1-05 Q174.5 ch91 (planned, does not land); Eacker's box (2-16, as before).
-- **THE STAGE MANAGER (2026-10-24, branch `stage-manager`, BUILT, pushed; PR #18 MERGED;
-  HANDOFF.md's newest block; RULINGS GM–GQ; spec `docs/superpowers/specs/2026-10-24-stage-manager-design.md`).** Walk to the
-  SL prompt corner, E at the desk. **His eye, then these decisions:** every body is OFF at both act tops in the blocking, so at
-  GO they vanish where places left them (show bodies waiting in the wings, or leave it); Burr's act-2 start (world −6.03,
-  −0.49) is in a pocket behind a thin panel his last 0.6 m passes through; the booth is very dark in a show (the operators
-  read as dim figures); a snap pick-up jumps the operator with the unit (a dark pre-aim in folTick would fix it, and moves
-  `follow.check`); the operators and the walking company are not in the walk's collision grid; the SL wing's cue lamp is
-  upstage of his baked masking `box 4`. Not built, his to pick (FUTURE): a late actor, an audience filling the seats, a show
-  relay backstage, calling single light cues (ruled out for now).
 - **The hallway and the booth doors (2026-10-23, PR #15 MERGED, `main` `8cdec76`):** Jack, *"make a hallway to get backstage from the lobby and make it so i
   can open the door to get into the spot booth."* A 30 m hallway up the outside of house 1's house-right wall (x −11.85…−10.00),
   from an opening beside the box office (under a BACKSTAGE sign) to the crossover's west end. A door on E across it just past
@@ -63,10 +82,11 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   `https://jackscreations21.github.io/midtown_theater_gms/midtown.html` — LIVE since 2026-10-15 (`index.html` redirects there). **The old
   link `…/gms-theater-game/midtown.html` is dead:** gms-theater's PR #236 (merged 2026-10-15) removed the Midtown
   files from that repository; only its record files keep the Midtown blocks, frozen at the split.
-- **What `main` holds:** the house at 1:1 with the Hamilton set and rig, the lighting engine, the whole show
-  auto-timed (891 cues), the automatic actors with the show's choreography (dance round 2, RULING GF), the video
-  capture pipeline, Theatre 2 beside the first with its own followspot booth and lighting desk, one lobby behind
-  both with E-key doors and a curtain in each passage, and the backstage block's SPEC with two stubs.
+- **What `main` holds (2026-10-24):** the house at 1:1 with the Hamilton set and rig, the lighting engine, the whole show
+  auto-timed, the automatic actors re-blocked against the film with three followspots that follow them, the stage
+  manager (calling, the company backstage, the booth's operators), the orchestra pit under house 1's stage, the video
+  capture pipeline, Theatre 2 with Johnny Tremain, its lifts and underground, one lobby behind both with E-key doors,
+  the backstage block, the hallways, and Van Wezel Hall east of Theatre 2 with its own foyer.
 - **PR #1 (`backstage`) is MERGED** (2026-10-15, `main` `22777e6`): the backstage block — the shell (two Opus agents, cherry-picked
   from `gms-theater` worktrees as patches `66dfbf7` and `b3575a4`): one block x −10…30.2, z 9.1…17.2, floor level
   with the stages; house 1's two slots beside the set and a pair of E-key doors cut through Theatre 2's back brick
@@ -162,15 +182,8 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
    land on house 1 only (`houseScene()` — one line to include Theatre 2); house 1's desk measure costs ~1.3 s of the
    load and the faster copy Theatre 2 uses would save ~0.9 s but moves its geometry by ~1e-8 m (TRAPS); Theatre 2's
    followspot props stay full size when house 1's set is "fitted" (house 1's spots shrink with the set).
-3a. **The actors' next round (from PR #234): his act-1 notes on the dancing.** Jack watched act 1 after dance round 2
-   (RULING GF) and wrote verdicts into the blocking checklist https://claude.ai/artifact/4Q5Xh37ZmSinhtsJbVhAub
-   (`songs`): 14 good, 7 need work (1-01 spotlights off — a CUE note; 1-02 the table farther to centre; 1-03 My Shot
-   needs a real dance track; 1-04 the chairs' exit and the lead-in to 1-05; 1-05 Burr, re-check; 1-11 the rewind;
-   1-14 the desk off at 50 and Lee's spotlight — a CUE note; 1-17 wait for the blackout; 1-20 Yorktown's box and
-   line-up), two notes with no verdict (1-08, 1-18 — Lafayette stands IN the table: no raised standing yet). Act 2 not
-   watched. **The full brief, with his words per song and the method (segment generators, `props.py`, `dance.py`,
-   `MIDTOWN.actors.check()`), is HANDOFF.md's block "NEXT SESSION: HIS ACT-1 NOTES — SEVEN FIXES AND TWO SETS OF
-   TIMINGS".** Read the checklist again first; he may add act 2.
+3a. **His act-1 dancing notes (from PR #234)** were applied in the notes round (PR #6, 10-16), and the film round
+   (#17) went over every song again; what is open about the blocking is #17's questions at the top of this file.
 3. **His re-check through the cue checklist.** The brief is the artifact https://claude.ai/artifact/FpiGBBW8LicWbaRb1nTUjg
    ("Hamilton Cue Checklist": collection `songs`, doc id = track id, fields `status` / `notes` / `updatedAt`). **Read
    it with `ArtifactData` `list` (or `query` on `status != good`) at the start of every cue round.** Nine songs carry

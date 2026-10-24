@@ -229,7 +229,31 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-24: the third house — Van Wezel Hall east of Theatre 2, its own foyer, a hallway from the lobby (branch `van-wezel`, PR open)
+## NEXT SESSION: **HIS EYE ON TODAY'S FOUR, HIS ANSWERS; THE POST-MERGE TIDY** (2026-10-24, evening; PRs #17–#20 merged)
+
+Rulings at **GQ** (GR next). `main` is **`852c232`**. STATE.md's top block lists, per PR, what he is to look at and
+decide. In order:
+1. **The tidy** (Jack or a terminal; the sandbox refuses remote deletes): delete `film-round`, `stage-manager`,
+   `orchestra-pit` and `van-wezel` both sides, and the agent worktrees under `.claude/worktrees/` (`git worktree list`,
+   then `git worktree remove`).
+2. **His eye on the film round with the music** (#17): watch both acts. The agents' questions are in STATE.md, with the
+   evidence per song in `tools/blocking/research/segN.md` "Film round (2026-10-24)". Re-read both checklists first
+   (the blocking one, https://claude.ai/artifact/4Q5Xh37ZmSinhtsJbVhAub; the cue one, …FpiGBBW8LicWbaRb1nTUjg).
+3. **His call through the stage manager** (#18): walk to the SL prompt corner, E at the desk, call a whole act. Then his
+   decisions in STATE.md (bodies vanishing from the wings at GO first).
+4. **The pit (#19) and Van Wezel Hall (#20):** his eye; their questions are in STATE.md.
+5. Then the older list in STATE.md (the cue checklist re-check, the rig placements, the player's body, the headset run…).
+
+**Method notes from today** (the traps are in TRAPS.md, "From the film round", "From the Van Wezel round", the pit's):
+- Segment agents work in worktrees on `# ===== SEGMENT N` sections. Diff each branch's hunks against its own markers
+  before merging; one find-and-replace reached another segment.
+- Regenerate with every generator, then `blocking-merge.py`, then `follow.py --check`. `still.py` measures stillness.
+- After any light fix: re-dump, re-audit, then `pool-dump-diff.py`.
+- With the Browser pane hidden the page gets no animation frames: use `MIDTOWN.frame()` and the `debug.step` helpers.
+- PRs that all add a name to the walk's collider regex conflict on that one line. Keep every name.
+- GitHub can take 2–3 minutes to compute mergeability after a big push. Poll the API's `mergeable` until it is not null.
+
+## DONE — 2026-10-24: the third house — Van Wezel Hall east of Theatre 2, its own foyer, a hallway from the lobby (PR #20, merged `852c232`)
 
 Jack: *"[van-wezel-hall_1.glb] can you have an agent add this theater on the side of the one already there. make them
 have seperate lobbys but connect them by a hallway."* The model was made for him by another Claude session. Its 49
@@ -258,7 +282,7 @@ WEZEL HALL" (`MIDTOWN.vanWezel`, a "Van Wezel" view button).
   - Its surfaces are unlit, with the light baked into the colours, so the House light slider doesn't touch them.
   - Only one side door can be reached.
   - The hallway is ~15 m long, painted like the backstage hallway.
-## DONE — 2026-10-24: the orchestra pit under house 1's stage and the conductor's opening (branch `orchestra-pit`, PR open)
+## DONE — 2026-10-24: the orchestra pit under house 1's stage and the conductor's opening (PR #19, merged `3b0b91a`)
 
 Jack: *"make an orchstar pit under the hamstage and make ther be a littlw hole at the front of the stage like hamilton has for
 the conductor"*. One Opus builder; `midtown.html` "HOUSE WORKS: THE ORCHESTRA PIT" (`MIDTOWN.pit`, a "Pit" view button).
@@ -287,7 +311,7 @@ the conductor"*. One Opus builder; `midtown.html` "HOUSE WORKS: THE ORCHESTRA PI
      actor-seconds.
   3. The walker can stand on the lid, over the MD's head.
   4. The head tags show through the pit ceiling (they draw over everything).
-## DONE — 2026-10-24: the stage manager — calling the show, the company backstage, the booth's operators (branch `stage-manager`, PR open on main after #17 merged; RULINGS GM–GQ)
+## DONE — 2026-10-24: the stage manager — calling the show, the company backstage, the booth's operators (PR #18, merged `4621a81`; RULINGS GM–GQ)
 
 Jack: *"make a stage manger thing where i can call ther show and i can give 5 minuet and plcsses calss for the actors and
 make it so there are atcually people in the spotbooth moving the lights and think of somemore stuff for it"*, then
@@ -329,7 +353,7 @@ worktrees, three new sections just before RIGGING: BOOMS ONTO THE WALLS:
   - The builders' own runs covered the songs/acts holds, the interval, refusal + GO anyway, curtain and report, and the
     act-2 hand-over (0 m for all 20).
 
-## DONE — 2026-10-24: the film round — every segment against the footage, the stillness, the three followspots (branch `film-round`, PR open; RULING GL)
+## DONE — 2026-10-24: the film round — every segment against the footage, the stillness, the three followspots (PR #17, merged `f5c723d`; RULING GL)
 
 Jack: *"can you look the the audio and videso agian there is still a lot of stuff wrong. the sound in someplases onliine
 has the left and right channels so you can use that too. there are also a lot of scenes when people ar just standing
