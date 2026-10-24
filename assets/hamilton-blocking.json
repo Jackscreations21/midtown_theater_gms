@@ -1219,8 +1219,8 @@
    {"track": "2-23", "at": 230.36, "move": "bow", "counts": 4.0, "note": "NOTES3: bow 3, together in the line; they file off both sides from 234.2"}
   ]},
   {"id": "burr", "name": "Burr", "color": "#c9a23a", "path": [
-   {"track": "1-01", "at": -10.0, "x": -7.3, "z": 4.6, "dwell": 2.0, "off": true, "label": "Burr"},
-   {"track": "1-01", "at": -3.5, "x": -1.9, "z": 4.05, "dwell": 13.5, "facing": 0.0},
+   {"track": "1-01", "at": -10.0, "x": -7.3, "z": 4.6, "dwell": 5.0, "off": true, "label": "Burr"},
+   {"track": "1-01", "at": -0.5, "x": -1.9, "z": 4.05, "dwell": 10.5, "facing": 0.0},
    {"track": "1-01", "at": 12.5, "x": -1.45, "z": 4.2, "dwell": 3.3, "facing": 0.0},
    {"track": "1-01", "at": 19.0, "x": -4.4, "z": 3.2, "dwell": 44.4, "facing": 40.0},
    {"track": "1-01", "at": 66.0, "x": -1.6, "z": 3.9, "dwell": 5.2, "facing": 0.0},

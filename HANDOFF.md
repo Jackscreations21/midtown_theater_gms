@@ -229,6 +229,31 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-24 (late): the announcement before the show, the exit music after it (PR `preshow-announcement`, RULINGS GR–GS)
+
+Jack: *"add this song to play befor hamilton. make it play this then when it ends wait 5 seconds while burr walks out then
+it starts the music"*, then *"put the audio on github also"*, then *"make it so this starts playing whenever the actors start
+walking off after bowing at the end and dont make the lighst go out onstage after the bow make them stay where they where
+dutrign bows"*.
+- **RULING GR, the announcement** (`assets/audio/king-george-announcement.mp3`, 30.0 s; show file `announce` {url, gap 5}):
+  the first Play from before Burr's walk seats the clock at 1-01 −5 and HOLDS it while the recording plays (`ANN`,
+  `annStart`, the hold at the top of `showTick`); its `ended` event lets the clock run: 5 s of lead-in, then the music. The
+  global clock is untouched (the lead-in stays 10 s, its first 5 s are skipped), so `blocking-merge.py`, `ident.py`,
+  `blocking-plot.py` and `blocking.html` needed nothing. Pause pauses it; any seek or Stop drops it.
+  `MIDTOWN.show.announce` reads it. Burr's walk-on moved from −8…−3.5 to −5…−0.5 (`seg1/t101.py`; seg1 re-exported, the
+  merge re-run; first checked that the untouched generators reproduce the committed blocking byte for byte).
+- **RULING GS, the exit music** (`assets/audio/exit-music.mp3`, 113 s; show file `exit` {url, track 2-23, at 234.2}): it
+  starts where the line splits and files off (`gen_seg8.py` `EXIT_AT`). `exmTick` asks every tick whether it should be
+  playing (clock in its span, show playing) and re-seats a drift over 1.5 s. So Pause, Stop and a seek need no hooks of
+  their own. The element is made at load (metadata only). `MIDTOWN.show.exit` reads it. **Cue 1300 (the fade to black at
+  239.8) is removed**: the bows' look (1298/1299) stays up.
+- **Both files are committed** (`.gitignore` names them; the album soundtrack stays local).
+- **Checked in the pane:** the clock held at −5 through the whole announcement and ran on after it; pause/resume; the exit
+  music seated at the right second on a seek into the walk-off and stopped with Stop; the stage lit at 2-23 4:10.
+  `show.check()` seek-equivalence and timeline pass (pass is false only for the known 16 channels with no rig unit),
+  `lx.check()` 301/313, `actors.check()` PASS, `follow.py --check` 0 problems, console clean. The live run with the
+  frame loop was not seen: the pane was hidden, so it got no animation frames.
+
 ## NEXT SESSION: **HIS EYE ON TODAY'S FOUR, HIS ANSWERS; THE POST-MERGE TIDY** (2026-10-24, evening; PRs #17–#20 merged)
 
 Rulings at **GQ** (GR next). `main` is **`852c232`**. STATE.md's top block lists, per PR, what he is to look at and

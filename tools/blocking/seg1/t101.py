@@ -20,7 +20,9 @@ def build():
     # ---- Burr Enters (Q36 2.0): walks on from the DSR wing and starts the story
     # SPOT: Burr's AF stand-in (ch2, preset 117 BURR) lands at (-1.82, 4.25): he walks into it and works inside it
     # REVIEW2 (Jack): Burr walks on in the 10 s lead-in and is in his place when the music starts at 0
-    move('burr', A(-8.0), A(-3.5), (-1.9, 4.05), f=0)
+    # Jack (2026-10-24): the announcement plays, "then when it ends wait 5 seconds while burr walks out then it starts the music"
+    # -- the page holds the clock at -5 through the announcement (show file `announce`), so he walks in the last 5 s
+    move('burr', A(-5.0), A(-0.5), (-1.9, 4.05), f=0)
     move('burr', A(10.0), A(12.5), (-1.45, 4.2), f=0)
     move('burr', A(15.8), A(19.0), (-4.4, 3.2), f=40)          # gives the floor to Laurens
 

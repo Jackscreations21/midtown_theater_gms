@@ -16,6 +16,10 @@ assets/audio/*
 !assets/audio/preshow.mp3
 !assets/audio/act1.m4a
 !assets/audio/act2.m4a
+# the King George announcement played before 1-01 (Jack, 2026-10-24: "put the audio on github also")
+!assets/audio/king-george-announcement.mp3
+# the exit music after the bows (Jack, 2026-10-24)
+!assets/audio/exit-music.mp3
 
 # the blocking generators' output (tools/blocking/*.py write it; tools/blocking-merge.py reads it) and their bytecode
 tools/blocking/segments/

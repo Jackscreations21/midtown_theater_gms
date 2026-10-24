@@ -4168,6 +4168,9 @@ async function showLoad(urls = {}) {
     if (SHW.on) showStop();
     SHW.d = showCompile(eos, show); SHW.urls = u;
     SHW.sound = null;                                        // Jack's one-file album, if it is on this machine (git-ignored: absent on Pages)
+    annStop(); ANN.d = show.announce && show.announce.url ? { url: show.announce.url, gap: THREE.MathUtils.clamp(+show.announce.gap || 0, 0, SHW.d.tracks[0].pre) } : null;
+    const ex = show.exit, exTr = ex && ex.url && SHW.d.byTrack.get(String(ex.track));
+    exmStop(); EXM.d = exTr ? { url: ex.url, ti: exTr.i, at: +ex.at || 0 } : null; EXM.el = null; if (EXM.d) exmEl();
     const st = SHW.st = show.soundtrack || null;
     if (st && st.url && SHW.d.tracks.every(t => t.file !== null)) {
       try { const r = await fetch(st.url, { method: 'HEAD', cache: 'no-cache' }); if (r.ok) SHW.sound = { url: st.url, seek: st.seek && Array.isArray(st.seek.toc) && st.seek.toc.length === 100 && +st.seek.cell > 0 ? st.seek : null, env: st.envelope && st.envelope.url ? st.envelope : null }; } catch (e) { /* not here: YouTube, then silence */ }
@@ -4391,6 +4394,7 @@ const showT = () => SHW.d ? SHW.d.tracks[SHW.ti].start + SHW.lt : 0;
 
 // ---- seek: home, fold, snap
 function showSeekT(T) {
+  annStop();                                                 // any seek drops the announcement
   const D = SHW.d, tr = D.tracks;
   T = THREE.MathUtils.clamp(T, 0, D.max);
   let i = 0; while (i + 1 < tr.length && tr[i + 1].start - tr[i + 1].pre <= T + 1e-9) i++;   // a track owns its lead-in, itself and its tail
@@ -4470,6 +4474,9 @@ function showPause(on = SHW.playing) {
     return true;
   }
   SHW.playing = !on;
+  if (SHW.playing && !ANN.on) annStart();                    // Play from the top: the announcement first
+  if (ANN.on) { if (SHW.playing) ANN.el.play().catch(annFail); else ANN.el.pause(); }
+  exmTick();                                                 // the exit music follows Play / Pause (the click is the gesture it needs)
   if (SHW.playing && SHW.houseUp) showHouse(false);
   if (SHW.playing) wlShow(true);                             // Stage 1's worklight out at every Play (THE WORKLIGHTS)
   const A = SHW.A;
@@ -4480,7 +4487,8 @@ function showPause(on = SHW.playing) {
 function showStop(camBack = true) {
   if (!SHW.on) return false;
   SHW.on = false; SHW.playing = false; SHW.hold = false; SHW.houseUp = true; SHW.haze = null; SHW.house = null;
-  applyBright();                                             // the house lights back to the slider
+  annStop(); exmStop();
+  applyBright();                                            // the house lights back to the slider
   if (SHW.A) SHW.A.pause();
   SND.bins.length = 0; SND.check = null; SND.note = '';
   const ytBox = document.getElementById('sh-yt'); if (ytBox) ytBox.hidden = true;
@@ -4513,6 +4521,56 @@ function showTail() {
   if (SND.check) { SND.check = null; SND.note = ''; }      // a check cut short by the tail: no stale "moving it" (the next seek re-arms it)
   showUI(true);
 }
+// THE ANNOUNCEMENT (Jack, 2026-10-24: "add this song to play befor hamilton. make it play this then when it ends wait 5
+// seconds while burr walks out then it starts the music"). The show file's `announce` ({ url, gap }) takes the first Play
+// from the top of the show: the clock goes to gap s before 1-01's 0 and HOLDS there while the recording plays; its end (an
+// event, not a timer) lets the clock run — the last gap s of the lead-in (FQ: Burr walks on), then the music at 0. The
+// global clock is untouched: the lead-in stays SHW_LEAD s and its first SHW_LEAD − gap s are skipped. Pause pauses it; a
+// seek or Stop drops it. The file is committed (Jack: "put the audio on github also").
+const ANN = { d: null, el: null, on: false };
+function annStart() {
+  const d = ANN.d;
+  if (!d || SHW.ti !== 0 || SHW.lt > -d.gap + 1e-6) return false;   // only from before Burr's walk
+  showSeekT(SHW.d.tracks[0].start - d.gap);
+  if (!ANN.el) {
+    const A = ANN.el = new Audio(d.url); A.preload = 'auto';
+    A.addEventListener('ended', () => { if (ANN.on) { ANN.on = false; showUI(true); } });
+    A.addEventListener('error', () => annFail(A.error));
+  }
+  ANN.el.volume = SHW.vol; ANN.el.currentTime = 0;
+  ANN.on = true;
+  return true;
+}
+function annFail(e) {
+  if (e && e.name === 'AbortError') return;                  // a pause interrupted play(): not a failure
+  if (!ANN.on) return;
+  ANN.on = false; console.warn('show: the announcement could not play — the show runs on', (e && (e.message || e.name)) || '');
+  showUI(true);
+}
+function annStop() { ANN.on = false; if (ANN.el && !ANN.el.paused) ANN.el.pause(); }
+// THE EXIT MUSIC (Jack, 2026-10-24: "make it so this starts playing whenever the actors start walking off after bowing at the
+// end"). The show file's `exit` ({ url, track, at }): from `at` in that track (2-23's open tail, 234.2 — where the line splits
+// and files off) the recording plays at the clock's position. Every tick asks whether it should be playing (the clock in its
+// span, the show playing), so Pause, Stop and any seek follow without hooks of their own; a drift over 1.5 s (a seek inside
+// the span) is re-seated. Once it has run out it stays out. The bows' look stays up under it (cue 1300's fade to black is gone).
+const EXM = { d: null, el: null };
+function exmTick() {
+  const d = EXM.d, A = EXM.el;
+  const p = d ? SHW.lt - d.at : -1, want = !!d && SHW.on && SHW.playing && !ANN.on && SHW.ti === d.ti && p >= 0;
+  if (!want) { if (A && !A.paused) A.pause(); return; }
+  const X = A || exmEl(), dur = Number.isFinite(X.duration) ? X.duration : Infinity;
+  if (p >= dur || (X.ended && p > dur - 5)) return;           // over: the house as it is
+  if (X.readyState >= 1 && Math.abs(X.currentTime - p) > (X.paused ? 0.5 : 1.5)) X.currentTime = p;
+  X.volume = SHW.vol;
+  if (X.paused) X.play().catch(e => { if (e && e.name !== 'AbortError') console.warn('show: the exit music could not play —', e.message || e.name); });
+}
+function exmEl() {                                          // made when the show loads, so its length is known before the bows
+  const E = EXM.el = new Audio(); E.preload = 'metadata'; E.src = EXM.d.url;
+  E.addEventListener('loadedmetadata', exmTick);             // a Play inside the span before it had loaded: seat it now
+  E.addEventListener('error', () => console.warn('show: the exit music could not play —', (E.error && E.error.message) || 'error'));
+  return E;
+}
+function exmStop() { if (EXM.el && !EXM.el.paused) EXM.el.pause(); }
 
 // ---- the frame's call (through lxPanelTick). → true every frame while playing (the page draws); false otherwise.
 function showTick(dt, silent = false) {
@@ -4521,6 +4579,7 @@ function showTick(dt, silent = false) {
   if (H) { H.t += dt; const k = H.dur > 0 ? Math.min(1, H.t / H.dur) : 1; LX_API.haze(H.from + (H.to - H.from) * k); if (k >= 1) SHW.haze = null; }
   const HL = SHW.house;
   if (HL) { HL.t += dt; const k = HL.dur > 0 ? Math.min(1, HL.t / HL.dur) : 1, v = HL.from + (HL.to - HL.from) * k; houseMats.forEach(m => m.color.copy(m.userData.base).multiplyScalar(v)); requestRender(); if (k >= 1) SHW.house = null; }
+  if (SHW.playing && ANN.on && !silent) { showUI(false); return true; }   // the announcement: the clock holds until it ends
   if (SHW.playing) {
     const tr = SHW.d.tracks, A = SHW.A;
     if (SHW.audioOn && !silent && A && !SHW.gap && A === SHW.stA) { showSoundTick(); if (SHW.hold || !SHW.playing) { showUI(false); return true; } }   // the interval: showHold put the clock ON the next track's start — firing to it now would take its first cue (Jack saw What'd I Miss's look at the hold)
@@ -4541,6 +4600,7 @@ function showTick(dt, silent = false) {
     }
     showFireTo(showT());
   }
+  if (!silent) exmTick();
   showUI(false);
   return SHW.playing || !!H || !!HL;
 }
@@ -4979,7 +5039,7 @@ function showBuildPanel() {
   for (const inp of [fin, din]) inp.addEventListener('change', () => { if (inp.files && inp.files.length) showMatchFiles(inp.files); inp.value = ''; });
   E.local.addEventListener('click', () => { showLocalSound(true); });
   E.lin.addEventListener('change', () => { const f = E.lin.files && E.lin.files[0]; if (f) showUseLocalFile(f, null); E.lin.value = ''; });
-  E.vol.addEventListener('input', () => { SHW.vol = +E.vol.value; showAudioEl().volume = SHW.vol; if (SHW.yt) SHW.yt.volume = SHW.vol; if (SHW.stA) SHW.stA.volume = SHW.vol; });
+  E.vol.addEventListener('input', () => { SHW.vol = +E.vol.value; showAudioEl().volume = SHW.vol; if (SHW.yt) SHW.yt.volume = SHW.vol; if (SHW.stA) SHW.stA.volume = SHW.vol; if (ANN.el) ANN.el.volume = SHW.vol; if (EXM.el) EXM.el.volume = SHW.vol; });
   q('.sh-ytin').addEventListener('change', e => { SHW.ytOn = e.target.checked; if (SHW.on) showTrackAudio(); showUI(true); });
   E.tracks.addEventListener('click', e => { const d = e.target.closest('[data-t]'); if (d) showSeek(+d.dataset.t, 0); });
   E.cues.addEventListener('click', e => { const d = e.target.closest('[data-c]'); if (d && SHW.d) showGotoCue(SHW.d.cues[+d.dataset.c]); });
@@ -5050,6 +5110,7 @@ function showUI(force) {
   }
   const tr = D.tracks[SHW.ti], c = D.cues[SHW.cue], nx = D.cues[SHW.cue + 1];
   E.now.textContent = SHW.hold ? `${D.tracks[SHW.ti + 1].hold || 'Held for the GO'} — press Play for ${D.tracks[SHW.ti + 1].title}` : c ? `Q ${c.q}${c.label ? ` · ${c.label}` : ''} · ${tr.title} ${showFmt(SHW.lt)}` : `${tr.id} ${tr.title} ${showFmt(SHW.lt)} · before the first cue`;
+  if (ANN.on) E.now.textContent = `The announcement — then Burr walks on and ${tr.title} starts`;
   E.next.textContent = nx ? `Next: ${showCueLine(nx)}${nx.ti === SHW.ti || nx.T - showT() < 600 ? ` · in ${showFmt(nx.T - showT())}` : ''}` : 'Next: — (the last cue)';
   E.clock.textContent = `${tr.id} ${showFmt(SHW.lt)} / ${showFmt(tr.len)}`;
   if (!SHW.scrubbing) { E.scrub.min = String(-tr.pre); E.scrub.max = String(showScrubMax(tr)); E.scrub.value = String(SHW.lt); }
@@ -5197,6 +5258,8 @@ buildLightsPanel = () => {
       check: opts => showCheck(opts), matchFiles: files => showMatchFiles(files), parseName: name => { const p = showParseFile({ name, webkitRelativePath: name }); return { disc: p.disc, n: p.n, rest: p.rest }; },
       get perf() { return Object.assign({}, SHW.perf); }, urls: SHW_URLS,
       beatAt: (id, t) => beatAt(id, t), beatTime: (id, b) => beatTime(id, b), get beats() { return BEAT.d; },   // FV: the beat grid
+      get announce() { return ANN.d ? { url: ANN.d.url, gap: ANN.d.gap, on: ANN.on, t: ANN.el ? ANN.el.currentTime : null, len: ANN.el ? ANN.el.duration : null, paused: ANN.el ? ANN.el.paused : null } : null; },   // THE ANNOUNCEMENT, for the console
+      get exit() { return EXM.d ? { url: EXM.d.url, track: SHW.d.tracks[EXM.d.ti].id, at: EXM.d.at, t: EXM.el ? EXM.el.currentTime : null, paused: EXM.el ? EXM.el.paused : null } : null; },   // THE EXIT MUSIC, for the console
       get sound() { return { off: SHW.soundOff, note: SND.note, err: SND.err, bins: SND.bins.length, check: SND.check, ctx: SND.ctx ? SND.ctx.state : null, env: !!SND.env, match: SND.ctx && SND.env && SND.bins.length >= SND_N ? sndMatch() : null }; },   // the sound tap, for the console
     };
   } catch (e) { console.error('show: its controls failed —', e); }
