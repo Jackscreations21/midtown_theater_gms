@@ -2222,3 +2222,25 @@ include the place a failure would show — the corridor behind the house, not on
   must still meet but nobody sees, keep the mesh visible and give it a `visible: false` MATERIAL (`VW_GLASS_BLOCK`, `underMat.block`).
 - **The Browser pane's screenshot can lag one draw behind** a camera move made in script: take it twice before trusting it.
 
+## From the four-stop lift and seating wagon round (2026-10-24, night)
+
+- **`vwCutBox` rebuilds the whole mesh it touches**, copying every triangle through JS arrays. Cutting the wagon bay's mouth
+  in 84 slices through `house_lit` (22k triangles) took 8 s at load. Cut only the triangles near the region: split them into
+  a mesh of their own, cut that, merge it back with the rest (`vwWagonBuild` step 4: under 0.1 s).
+- **A top-level `const` read by another top-level object literal is in its TDZ** when it is declared further down the file:
+  `VW_LIFT_API.wagon = { spec: VW_WAGON }` threw as the script ran and took the page down (`house2Mesh` failed after it).
+  Read it through a getter, or declare it first. Functions that only run at build time are fine.
+- **The lift's SEATING stop depends on what it carries.** With the seating wagon on, the lift's top stops 15 cm under the
+  stalls (`L.liftY`) so the wagon's deck meets the floor; anything comparing the lift's `y` with `stops.SEATING` (the stair's
+  deploy, the edge guard) must go through `liftY` / `surf()`.
+
+## From the booths' gear round (2026-10-24, night)
+
+- **The Van Wezel model's walls are ONE double-sided plane, not a slab.** The follow-spot booth's front wall is a single
+  surface at r 35.38…35.39 about (77, 13.13), its radius scattering by ~1 cm along the arc; a mauve lining 1.2 cm inside it
+  (centred, 8 mm thick) still stood 2 mm proud of it at x 65…68 and showed from the stalls as pink patches on the black
+  band. Anything dressing the inside of a model wall must clear the plane by more than its scatter (the linings sit 2.4 cm
+  in) — and look at it from the house, not only from inside.
+- **Another builder's `http.server` may already hold a port.** A helper started on 8098 failed to bind, and the page's
+  requests reached someone else's SimpleHTTP (404s, then a CORS error). Pick an unusual port and curl it first.
+

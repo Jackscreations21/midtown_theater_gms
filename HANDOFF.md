@@ -229,6 +229,44 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-24 (late night): Van Wezel from his photographs; the booths' way up; a four-stop lift with a seating wagon (PR `vw-booths`)
+
+Jack, after #24: *"i meant remove the windows frm the lobby not the tech booth. also add a way to get to the tech and spot
+booth"*; *"make the lift have four levels. stage level, seating level, orchstra level ( between seating and the current
+lowest), and bottom (current lowest). make it so at the bottom there is a seating cart you can slide onto the lift then you
+can bring it up to the sating level."*; *"make a way in at the orchestra level"*; *"also these purple things go trough some
+of the doors"*; and with thirteen photographs and a video of the real hall, *"i have all of these picturs from the van wezel
+use the to improve the model"* (his photographs are reference only, never committed).
+- **The booth window** (lead): the foyer's back facing ran through the tech booth behind its glass; it stops round the
+  booth now (`VWF.booth`).
+- **THE BOOTHS' WAY UP** (`vwBoothsBuild`, `VWB`, `MIDTOWN.vanWezel.booths`, the "VW Booth" view): a balcony along the back
+  wall at 8.56 from both side galleries' top landings to an E door in each side of the tech booth; on house right, ladder 1
+  through the booth's roof, ladder 2 into the ceiling, a grating catwalk at 16.55 over the house ceiling (unseen from the
+  seats: 0 of 10,593 rays), ladder 3 down into the follow-spot booth. Foyer sconces moved up over the balcony.
+- **THE ORCHESTRA LIFT, four stops** (`go('bottom' | 'orchestra' | 'seating' | 'stage')`, PIT/STALLS kept as aliases):
+  BOTTOM −2.747, ORCHESTRA −0.143 (2.70 under the deck), SEATING 1.490, STAGE 2.557. **THE SEATING WAGON**
+  (`MIDTOWN.vanWezel.lift.wagon`): 85 seats in 4 curved rows in a new bay under the stalls; E at the pit's panel slides it on
+  or off at BOTTOM (14 s, off `dt`); at SEATING its deck is flush with the stalls; STAGE is refused while it is on. **The
+  musicians' way:** from the basement corridor up 15 risers to an E door onto the lift at ORCHESTRA, closed by an invisible
+  edge at every other stop.
+- **The pilasters** (lead): the side walls' dark pilasters (`house_tex_34`) cut out of every doorway's width, floor up.
+- **THE HOUSE AS IT IS** (`vwHouseBuild`, `VW_LOOKS` in `vwPlace`, `MIDTOWN.vanWezel.house`): mauve walls, a pink ceiling,
+  gold diamond grilles, a black proscenium, dark seats with purple upholstery; stepped ceiling coves with 131 downlights; a
+  line array each side, the pros pipe of ellipsoidals with numbered circuit boxes, movers and pars over the header, the lip's
+  gold strip; windows and an open FOH position at the back.
+- **THE BOOTHS' GEAR** (`vwGearBuild`, `MIDTOWN.vanWezel.booths.gear`): the tech booth with a grandMA3, an ETC Ion and
+  wing, a ClearCom station, a Yamaha CL5, the rolling rack with two Rio stageboxes, two tall racks, chairs, mauve walls; the
+  follow-spot booth with three follow-spots on stands, chairs, gel frames. One canvas atlas.
+- **THE STAGE HOUSE AS IT IS** (`vwStageBuild`, `VWS`, `MIDTOWN.vanWezel.stageHouse`, the "VW Stage" view): 54 linesets
+  with taped battens and lift lines, borders, legs and electrics at their trims, shell panels and the cyc flown; the
+  stage-left fly wall (tracks, arbors, purchase lines, rope locks, the locking rail, walked to) and the fly gallery's pin
+  rail with coiled lines; the black dance floor and concrete wings; the stage-right gallery with its spiral stair (walked);
+  the wings dressed. The model's own loft contents out, its walls black. Its builder's session ended before it committed;
+  the lead committed it as found, merged it and ran its check.
+- **Checks on the merged branch:** `vanWezel`, `.sideDoors`, `.foyer`, `.patches` PASS; `.lift` 25/25; `.backstage` 5/5;
+  `.booths` 16/16; `.booths.gear` 10/10; `.house` 5/5; `.stageHouse` 6/6; `doors.check()` 76/76; `under.check()` 16/16;
+  `lx.check()` 301/313; console clean.
+
 ## DONE — 2026-10-24 (night): Van Wezel's side doors, foyer, holes, orchestra lift and backstage (PR `vw-round`); the Voices button (#23)
 
 Jack, on Van Wezel: *"the doors in the van wezel should go all the way upo to the top of the seating and add doors to all the

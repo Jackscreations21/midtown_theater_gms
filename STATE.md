@@ -1,4 +1,4 @@
-# STATE — 2026-10-24, night (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#23 merged; `main` `013e1e4`; PR `vw-round` open)
+# STATE — 2026-10-24, late night (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#24 merged; `main` `3a937c2`; PR `vw-booths` open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -12,7 +12,18 @@ delete the merged branches `film-round`, `stage-manager`, `orchestra-pit`, `van-
 (`git push origin --delete <name>`), and the agent worktrees under `.claude/worktrees/` (`git worktree list`; never
 `git add -A` while they exist).
 
-- **PR `vw-round` (OPEN; HANDOFF's newest block): Van Wezel's doors, foyer, holes, lift and backstage.** Four Opus builders,
+- **PR `vw-booths` (OPEN; HANDOFF's newest block): Van Wezel from his photographs, the booths, the four-stop lift.** Six Opus
+  builders and the lead. **His to decide:**
+  - the house's moving-head and par pipes hang on the house side of the proscenium; his photo from the stage looks like the
+    stage side: move them?
+  - the follow-spot booth's ports are 0.66 m tall in the model; his photo shows tall sliding windows: make them taller?
+  - four small slivers of the model's ceiling poke through the roof outside (old; pink now, so they show);
+  - the ladders to the spots are steep (55–60°), with 21 cm under the roof at ladder 2's top and ~5 cm over the head in the
+    spot booth; only house right climbs to the spots;
+  - the seating wagon has no centre aisle (the stalls have none);
+  - where a pilaster crossed a doorway it is cut out, so it now stops over the door frame.
+  - Tidy: the builder worktrees under `.claude/worktrees/` (locked; Windows refused some deletes while their servers ran).
+- **PR #24 (MERGED, `vw-round`): Van Wezel's doors, foyer, holes, lift and backstage.** Four Opus builders,
   merged by the lead. Jack: *"the doors in the van wezel should go all the way upo to the top of the seating and add doors to
   all the frames"* (*"i didnt mean taller door i meant more"*), *"redo the lobby for the van wezel to look mor like the one for
   the other theaters"*, *"add a backstage area to the vanwezel with dressign rooms"*, *"there are a coupla holse in the walls"*,
