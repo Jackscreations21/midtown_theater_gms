@@ -229,6 +229,15 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-25: nobody under the gallery at Places (PR `places-upstage`, one session)
+
+Jack: *"when i call placses hamilton, king george and wahignton go on stage. fix that"*. Act 1's tops park those three in the
+passage under the gallery (x −1.8…−0.7, z 9.01). PLACES OFF THE DECK (#40) counted the deck only to z 9.0, taking the passage
+for backstage, but the set's brick back wall is at z 9.35–9.66 (rays through the set's meshes) and the passage is in full view.
+`CO_PLACES.z` is 10.0 now, where the slab behind the wall starts, so those three wait in the wings with the rest (CO_ROUTE's
+passage comment corrected too). 20 / 20 off the deck at Places in act 1 and act 2; seen empty from the house in house 1 and from
+"VW Hamilton". actors.check pass; show.check's units as before (data not touched). No ruling; the trap is in TRAPS.md.
+
 ## DONE — 2026-10-25: Theatre 2's street front reads MIDTOWN THEATER (PR #38 `theatre2-sign`, merged `4db08e4`)
 
 Jack: *"change the sign that says theater 2 to say midtown theater an make its marquis say johhny tremain"*. `ST_OURS` row 2
