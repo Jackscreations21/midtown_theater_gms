@@ -14525,7 +14525,7 @@ function vwSideMeasure(F, meshes, foyer, g0) {
 function vwSideDoorsBuild(model, yIn, works) {
   const t0 = performance.now(), S = VW_SIDE, P = {}, foyer = VW.at.y + VW.terrace, fw = DOORS.frame, W = S.width, Wi = S.width - S.parapet;
   const meshes = []; model.root.traverse(o => { if (o.isMesh && /^vw: house_/.test(o.name) && !/glass$/.test(o.name)) meshes.push(o); });
-  const copies = {}, cut = {}, sides = [], holes = [];
+  const copies = {}, cut = {}, sides = [], holes = [], pilHoles = [];
   for (const side of [1, -1]) {
     const F = vwSideFrame(side), { ports, stop } = vwSideMeasure(F, meshes, foyer, side > 0 ? yIn : null);
     const box = (key, s0, s1, y0, y1, d0, d1) => {
@@ -14575,6 +14575,7 @@ function vwSideDoorsBuild(model, yIn, works) {
       // the wall inside the frame cut out: between the casings, over the floor and the landing, under the head, through the wall
       const lo = new THREE.Vector3(F.sx * s - (S.half - fw), Math.max(p.F, G) + 0.03, -0.40), hi = new THREE.Vector3(F.sx * s + (S.half - fw), p.head - 0.003, 0.40);   // (the pilasters inside stand from d −0.45)
       holes.push({ M: F.M, lo, hi });
+      pilHoles.push({ M: F.M, lo: new THREE.Vector3(F.sx * s - S.half, Math.max(p.F, G) - 0.05, -1.60), hi: new THREE.Vector3(F.sx * s + S.half, 30, -0.30) });   // the dark pilasters in front of it, the whole height (Jack: "these purple things go trough some of the doors")
       if (!p.model) { copy(frameSrc, k, G - p7.feet); copy(lightSrc, k, G - p7.feet); }
       if (!hr0) {
         // the casing on the posts' faces, the sill through the wall, STALLS over it
@@ -14636,6 +14637,7 @@ function vwSideDoorsBuild(model, yIn, works) {
   // the walls cut, every doorway's box in one pass over each of the model's house meshes
   const tc = performance.now();
   for (const m of meshes) { const n = vwSideCut(m, holes); if (n) cut[m.name] = n; }
+  { const pil = model.byName('house_tex_34'); if (pil) { const n = vwSideCut(pil, pilHoles); if (n) cut['pilasters'] = n; } }   // the side walls' dark pilasters (house_tex_34: nothing else in it) out of every doorway's way
   const msCut = performance.now() - tc;
   // one mesh per material; the copies of the model's frame with the model's own materials
   const MAT = { stone: lobbyMat.stone, brass: lobbyMat.brass, frame: backstageMat.frame, sign: lobbyMat.sign };
