@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#29 merged; `main` `c87e90b`; open: `vw-hamilton`)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#31 merged; `main` `ba250fd`; open: `vw-fixes`)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -10,7 +10,12 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 (#20). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under NEXT below); the
 worktrees and local branches are gone.
 
-- **PR `claude/broadway-street-5514f3` (2026-10-25, night; RULING GV; HANDOFF's newest DONE block): Broadway outside the three houses.**
+- **NEWEST: PR `vw-fixes` (2026-10-25, late night; HANDOFF's newest DONE block; no ruling, GW next).** The mouse re-locks after
+  refusals (it used to give up for good); the Van Wezel's proscenium closed to house 1's opening round the set; house 1's three
+  FOH positions there moved back and up under its ceiling (beams from there, the pools the same); a "Van Wezel house light"
+  slider; a "VW doors" button for all 58. **His to decide:** the follow-spot beams pass through the FOH Truss; the trusses'
+  three heights; the frame's flat finish.
+- **PR #31 (MERGED `ba250fd`) `claude/broadway-street-5514f3` (2026-10-25, night; RULING GV; HANDOFF's newest DONE block): Broadway outside the three houses.**
   A street on a slant past the Midtown front and the Van Wezel's glass, 42 empty fronts with 19 real Broadway houses and
   their shows, HAMILTON and JOHNNY TREMAIN marquees on the Midtown block's new front over two new pairs of street doors, a
   pair through the Van Wezel's glass under its own marquee. The header's Street buttons are Actual time / Day / Night

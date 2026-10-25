@@ -2303,3 +2303,15 @@ include the place a failure would show — the corridor behind the house, not on
 - **With the pane hidden, a check that waits on a timer can hang the console tool.** Start a long check (`lx.check()`,
   `actors.check()`) in a `setTimeout(…, 0)`, store its result on `window`, then read it in a second call.
 
+## From the Van Wezel fixes round (2026-10-25)
+
+- **A pointer-lock refusal counter that never resets locks the mouse out for good.** Chrome refuses `requestPointerLock` for
+  about a second after Esc; two quick clicks then made `canLock()` false forever (it reset only on a successful lock, which it
+  no longer asked for). Any give-up must expire on time.
+- **The mirror's lighting is the engine's in house 1's frame:** moving a mirrored unit moves only its body. Its beam (and glare)
+  must be redrawn from the new lens to the same landing point each frame in the Van Wezel (`vwHamBeamFrom`), and marked dirty on
+  leaving, or the shaft starts in mid-air where it used to hang.
+- **A hidden pane throttles `setTimeout` too, not only rAF** (a poll at 300 ms came back after minutes). Start long work from one
+  call and read its result from a window variable later; don't await timers in the tool call.
+- **`MIDTOWN.show.cues` are summaries** (`q`, `track`, `at`), not the engine's cues: `show.gotoCue(summary)` left the show "on"
+  with no time and the pit's MD pose threw every frame. Use `show.seek(c.track, c.at)`.
