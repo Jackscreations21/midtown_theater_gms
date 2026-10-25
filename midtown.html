@@ -67,6 +67,12 @@
   1.10 × 0.45 m opening just behind the lip at downstage centre, and nine players round him — playing on the show's beat
   (a pure function of show time), lit by their stand lamps only. Down to it: a stair through the crossover's floor (house
   right of centre), a passage under the set's house-right side, a door on E. MIDTOWN.pit.check(); the header's Pit view.
+  THE STREET (Jack: "make it so you can walk outside the theaters and it is like you are on broadway"; RULING GV; "THE STREET"
+  below): Broadway outside all three houses, on a slant so it passes the Midtown front and just clears the Van Wezel's glass;
+  42 empty fronts (19 real Broadway houses with their shows) on both sides; the Midtown block's new front with HAMILTON and
+  JOHNNY TREMAIN marquees over two new pairs of street doors, a pair through the Van Wezel's glass under its own marquee;
+  ACTUAL TIME / DAY / NIGHT (the header's Street buttons, MIDTOWN.street.mode), chaser bulbs, lit signs and lamps at night;
+  the Broadway view; MIDTOWN.street.check().
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -556,6 +562,8 @@ function colliderMeshes() {
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
   for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear|vw stage house)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR; vw stage house: THE THIRD HOUSE: THE STAGE HOUSE AS IT IS (not 'vw flies': what hangs)
+  for (const o of scene.children) if (o.name === 'street') o.traverse(m => { if (m.isMesh && m.userData.collide) list.push(m); });   // THE STREET: drawn or not (stTick hides it indoors)
+  for (const o of scene.children) if (o.name === 'street trim') o.traverse(take);   // THE STREET: the street doors' frames
   baked.traverse(take);
   if (vwHam) list.push(...vwHam.solid, ...(vwHam.desk ? vwHam.desk.solid : []));   // the set on the Van Wezel's stage, shown or not, and its prompt desk (THE THIRD HOUSE: HAMILTON ON ITS STAGE)
   return list;
@@ -10572,7 +10580,10 @@ function buildLobby(houseScene, house2) {
   }
   // the entrance wall: a 6.2 m opening for the glazed doors in the middle of the room's width, solid either side and over it
   const E = L.entrance, xm = (L.x0 + L.x1) / 2, ex = E.w / 2, zw = (zF + zFo) / 2, ea = xm - ex, eb = xm + ex;
-  bx('wall', X0, ea, F, C, zF, zFo); bx('wall', eb, X1, F, C, zF, zFo); bx('wall', ea, eb, F + E.h, C, zF, zFo);
+  // and an opening for each of the street doors (THE STREET: STREET.lobbyDoors; their frames and leaves are the street's)
+  const sdo = STREET.lobbyDoors.map(d => [d.x - d.w / 2, d.x + d.w / 2, d.head]).sort((p, q) => p[0] - q[0]);
+  const entr = (x0, x1) => { let x = x0; for (const [a, b, h] of sdo) if (a >= x0 && b <= x1) { bx('wall', x, a, F, C, zF, zFo); bx('wall', a, b, F + h, C, zF, zFo); x = b; } bx('wall', x, x1, F, C, zF, zFo); };
+  entr(X0, ea); entr(eb, X1); bx('wall', ea, eb, F + E.h, C, zF, zFo);
   bx('dark', ea, ea + 0.08, F, F + E.h, zw - 0.05, zw + 0.05); bx('dark', eb - 0.08, eb, F, F + E.h, zw - 0.05, zw + 0.05);     // jambs
   bx('dark', ea, eb, F + E.h - 0.08, F + E.h, zw - 0.05, zw + 0.05); bx('dark', ea, eb, F + E.transom, F + E.transom + 0.08, zw - 0.05, zw + 0.05);   // head, transom bar
   bx('brass', ea, eb, F, F + 0.02, zw - 0.1, zw + 0.1);                                                                        // threshold
@@ -10584,16 +10595,16 @@ function buildLobby(houseScene, house2) {
     bx('brass', a + 0.1, b - 0.1, F + 1.0, F + 1.04, zw + 0.06, zw + 0.1);
   }
   deskPut(P, 'glass', new THREE.PlaneGeometry(E.w - 0.16, E.h - 0.1), xm, F + 0.02 + (E.h - 0.1) / 2, zw);
-  // outside: a canopy over the doors with three lights under it, and a strip of pavement the building's width
+  // outside: a canopy over the doors with three lights under it (the pavement is THE STREET's)
   bx('dark', xm - 4.2, xm + 4.2, F + 3.25, F + 3.45, zFo, zFo - 2.2);
   for (const x of [-2.4, 0, 2.4]) deskPut(P, 'glow', new THREE.CircleGeometry(0.12, 16), xm + x, F + 3.247, zFo - 1.1, Math.PI / 2);
-  bx('stone', X0, X1, F - 0.22, F - 0.02, zFo, zFo - 3.6);
   // timber wainscot to 1.0 m with a brass rail, round the room (the openings left clear: each doorway and its casing,
   // the projection room, which has its own)
   const wains = (x0, x1, z0, z1) => { bx('wood', x0, x1, F, F + 1.0, z0, z1); };
   const rail = (x0, x1, z0, z1) => { bx('brass', x0, x1, F + 1.0, F + 1.04, z0, z1); };
   { let x = L.x0; for (const [a, b, d] of gaps) { const c = d ? 0.1 : 0; wains(x, a - c, zH, zH - 0.02); rail(x, a - c, zH, zH - 0.035); x = b + c; } wains(x, L.x1, zH, zH - 0.02); rail(x, L.x1, zH, zH - 0.035); }
-  for (const [x0, x1] of [[L.x0, ea], [eb, L.x1]]) { wains(x0, x1, zF, zF + 0.02); rail(x0, x1, zF, zF + 0.035); }
+  const clear = (x0, x1) => { const out = []; let x = x0; for (const [a, b] of sdo) if (a >= x0 && b <= x1) { out.push([x, a - 0.1]); x = b + 0.1; } out.push([x, x1]); return out; };   // round the street doors' casings
+  for (const [x0, x1] of [...clear(L.x0, ea), ...clear(eb, L.x1)]) { wains(x0, x1, zF, zF + 0.02); rail(x0, x1, zF, zF + 0.035); }
   for (const [z0, z1] of [[zH, HW.z1 + 0.1], [HW.z0 - 0.1, zF]]) { wains(L.x0, L.x0 + 0.02, z0, z1); bx('brass', L.x0, L.x0 + 0.035, F + 1.0, F + 1.04, z0, z1); }
   for (const [z0, z1] of [[zH, VO.z1 + 0.1], [VO.z0 - 0.1, zF]]) { wains(L.x1 - 0.02, L.x1, z0, z1); bx('brass', L.x1 - 0.035, L.x1, F + 1.0, F + 1.04, z0, z1); }   // round the Van Wezel opening
   bx('wood', L.x0, L.x0 + 0.04, F, F + HW.head + 0.1, HW.z1 + 0.1, HW.z1); bx('wood', L.x0, L.x0 + 0.04, F, F + HW.head + 0.1, HW.z0, HW.z0 - 0.1);   // the opening's casing
@@ -13960,6 +13971,7 @@ function buildHouse2(src) {
   buildVanWezel(await vwP);                                  // the Van Wezel east of Theatre 2, its foyer, the hallway to it from the lobby (THE THIRD HOUSE)
   buildUnder();                                              // Theatre 2's basement and its two lifts; splits its scan before the cuts (THE UNDERGROUND)
   buildPit();                                                // the orchestra pit under house 1's stage, its passage and stair (THE ORCHESTRA PIT)
+  try { buildStreet(); } catch (e) { console.error('street: building the street failed —', e); }   // Broadway outside the three houses, their street doors (THE STREET)
   houseRoot = house.scene;
   gradeSetBrick(root);
   registerModelTextures(root, 'set: ', ['ham_brick', 'ham_plank', 'ham_post', 'ham_rail', 'ham_iron']);
@@ -13985,6 +13997,7 @@ function buildHouse2(src) {
     player, walk: { WALK, keys, setMode, step: walkStep, groundAt, rayDown, rayUp, rayH, col, perf: walkPerf, look: (y, p) => { yaw = y; pitch = p; } } };   // a handle for measuring from the console
   MIDTOWN.vanWezel = VAN_WEZEL_API;                          // the third house: .root, .works, .built, check() (THE THIRD HOUSE)
   MIDTOWN.doors = DOORS_API;                                 // MIDTOWN.doors.state(), .check(), .toggle(name)
+  MIDTOWN.street = STREET_API;                               // the street outside: mode('actual' | 'day' | 'night'), state(), check(), view() (THE STREET)
   MIDTOWN.backstage = backstageReport();                     // the block measured as it now stands (the set at real size, the cuts made), one console line
   const [p, t] = VIEWS['v-back']; camera.position.set(...p); orbit.target.set(...t); orbit.update();
   MIDTOWN.backstageFittings = backstageFittings;             // { group, bulbs, byRoom, items, triangles, check() } (BACKSTAGE — THE FITTINGS)
@@ -21841,6 +21854,814 @@ const JTL_API = {
   },
 };
 
+/* ---------------------------------------------------------------- THE STREET
+   Jack (2026-10-25): "i want to make it so you can walk outside the theaters and it is like you are on broadway and there
+   are a bunch of theaters (just put up empty fronts plus the 3 we already have for now) with marquis and stuff." His
+   answers: one long street along the fronts of all three houses, the new fronts carrying on past both ends and lining the
+   far side; street doors on E in each house's lobby or foyer; three lights — ACTUAL TIME (his clock), DAY, NIGHT — and at
+   night the marquees' chaser bulbs, lit signs and street lamps; real Broadway shows and houses on the marquees, our three
+   with theirs (Midtown: HAMILTON, Theatre 2: JOHNNY TREMAIN, the Van Wezel its own name).
+   WHERE IT RUNS. The Midtown lobby's front stands at z −22.3, but the Van Wezel's glass bulges 21 m further out (to z −43.6
+   at its middle) and its terrace further still, so a street square to x would leave a 25 m yard in front of Midtown. It
+   runs on a slant instead, as Broadway does across the grid: its north building line (STREET.O, w = 0 in the street's own
+   frame) starts at the west corner of the Midtown block's new front and runs tangent to a circle STREET.vw.gap outside the
+   Van Wezel's glass, so it passes 2.4 m off the glass at its nearest and the Midtown front opens onto a paved wedge (0 to
+   12 m deep). The street frame: u along the line (east-ish), w north of it; the north sidewalk is w −walk…0, the road under
+   it, the south sidewalk, then the south row's fronts. The Van Wezel's terrace is clipped at the line (its south part would
+   be under the road), and where its round edge leaves the line a paved strip fills to the first front east of it.
+   THE MIDTOWN BLOCK gets a front: a skin over the lobby's entrance wall rising to 18 m (the houses behind it reach 16), and
+   skins down both sides to the backstage block's back, so no scan shows from the street; the lobby's entrance wall gets two
+   openings (STREET.lobbyDoors; buildLobby leaves them) under two marquees, HAMILTON over house 1's doors and JOHNNY TREMAIN
+   over Theatre 2's; the central glazed doors and their canopy stay. THE VAN WEZEL gets a pair of doors cut through the
+   middle of its glass wall (vwCutBox), a marquee over them with its own name. All three pairs are THE DOORS' (hangLeafAt),
+   swinging out over the pavement on E; their frames are lobbyMat, a group of their own ('street trim').
+   THE FRONTS: the north row west of Midtown, the north row east of the Van Wezel, the whole south row; theatres (a marquee
+   with a lit title panel, its name on a band over it and on its sides, a blade sign with the name down it, chaser bulbs round
+   all of them, poster cases, glass doors) between shops, hotels and towers; a tall block closing each end. Footprints are
+   prisms (no interiors); the fronts carry their pilasters, windows, cornices, shopfronts and awnings.
+   THE LOOK: unlit, four shaders of the street's own, one merged mesh each — the fronts and the ground (vertex colour × a sun
+   and a sky term, plus a night glow per vertex: windows, doors, soffits, lamp lenses), the signs (one canvas atlas), the
+   bulbs (a chase off the frame clock, discs cut in the shader), the night's pools of light (additive) — plus a sky dome that
+   follows the camera, and fog in the street's own shaders only (scene.fog would recompile every material in the page).
+   STREET.k is how far into night the light is (0 day, 1 night); ACTUAL TIME reads his clock and an approximate sunrise and
+   sunset for the date, the modes ease over 1.5 s. Indoors (the houses, the hallways, the Van Wezel's hall and stage house,
+   underground) the street and the sky are not drawn (stWhere); they stay in the walk's grid (colliderMeshes takes 'street'
+   whether drawn or not). Outdoors at night the Van Wezel's outside is dimmed (its look is baked, so it would glow like day).
+   MIDTOWN.street: mode('actual' | 'day' | 'night'), state(), check() (the walks from each door and along both pavements,
+   nothing of the street inside any building), view(); the header's Street buttons; the "Broadway" view. */
+const STREET = {
+  O: [-12.25, -22.47],                              // the north building line's west anchor: the Midtown front's west corner
+  vw: { c: [77.0, 13.5], gap: 2.4 },                // the line runs this far outside the Van Wezel's glass circle (its centre VWF.c)
+  u0: -130, u1: 250,                                // the street's ends along the line
+  walk: 5.0, road: 12.0, south: 5.0,                // the north sidewalk, the road, the south sidewalk (m)
+  top: 0.86, kerb: 0.15,                            // the sidewalks' top (the terrace's 0.865, the lobby's pavement 0.855); the kerb
+  skin: { x0: -12.25, x1: 30.40, z0: -22.47, z1: -22.32, back: 17.40, top: 18.0, t: 0.15 },   // the Midtown block's front and side skins
+  hallGap: 3.85,                                    // the east skin stops this high over the Van Wezel hallway's crossing
+  lobbyDoors: [                                     // the lobby's street doors: middle x, opening width, head over the lobby floor
+    { name: 'Midtown street doors', x: 0.0, w: 2.2, head: 2.70, house: 1 },
+    { name: 'Theatre 2 street doors', x: 20.0, w: 2.2, head: 2.70, house: 2 },
+  ],
+  vwDoor: { name: 'Van Wezel street doors', x: 77.0, w: 2.2, head: 2.60, depth: 0.20 },   // through the glass's middle, its frame this deep either side
+  chase: 5,                                         // chaser bulb steps a second
+  fade: 1.5,                                        // seconds a change of mode eases over
+  storeKey: 'midtown-street-mode',
+};
+// The shows on the fronts: [the house, its show, the blade's word]. Real Broadway houses and what plays in them.
+const ST_HOUSES = [
+  ['SHUBERT', "HELL'S KITCHEN", 'SHUBERT'], ['MINSKOFF', 'THE LION KING', 'MINSKOFF'], ['GERSHWIN', 'WICKED', 'GERSHWIN'],
+  ['AMBASSADOR', 'CHICAGO', 'AMBASSADOR'], ['NEW AMSTERDAM', 'ALADDIN', 'AMSTERDAM'], ["EUGENE O'NEILL", 'THE BOOK OF MORMON', "O'NEILL"],
+  ['NEIL SIMON', 'MJ', 'SIMON'], ['AL HIRSCHFELD', 'MOULIN ROUGE!', 'HIRSCHFELD'], ['WALTER KERR', 'HADESTOWN', 'KERR'],
+  ['LENA HORNE', 'SIX', 'HORNE'], ['STEPHEN SONDHEIM', '& JULIET', 'SONDHEIM'], ['LYRIC', 'HARRY POTTER AND THE CURSED CHILD', 'LYRIC'],
+  ['BERNARD B. JACOBS', 'THE OUTSIDERS', 'JACOBS'], ['LUNT-FONTANNE', 'DEATH BECOMES HER', 'FONTANNE'], ['BELASCO', 'MAYBE HAPPY ENDING', 'BELASCO'],
+  ['LYCEUM', 'OH, MARY!', 'LYCEUM'], ['MARQUIS', 'STRANGER THINGS: THE FIRST SHADOW', 'MARQUIS'], ['WINTER GARDEN', 'MAMMA MIA!', 'GARDEN'],
+  ['GERALD SCHOENFELD', 'BUENA VISTA SOCIAL CLUB', 'SCHOENFELD'], ['CIRCLE IN THE SQUARE', 'JUST IN TIME', 'CIRCLE'],
+];
+const ST_OURS = [['MIDTOWN', 'HAMILTON', 'MIDTOWN'], ['THEATRE 2', 'JOHNNY TREMAIN', 'THEATRE 2'], ['PERFORMING ARTS HALL', 'VAN WEZEL HALL', 'VAN WEZEL']];
+const ST_SHOPS = ['DELI', 'PIZZA', 'HOTEL', 'GIFTS', 'PHARMACY', 'BAR & GRILL', 'SHOES', 'COFFEE', 'TICKETS', 'DINER'];
+let stBuilt = null;
+
+// The street's frame: u along the north building line, w north of it. → { U, N, P(u, w) → [x, z], uw(x, z) → [u, w], phi }
+function stFrame(gapR) {
+  const [ox, oz] = STREET.O, [cx, cz] = STREET.vw.c, dx = cx - ox, dz = cz - oz, d = Math.hypot(dx, dz);
+  const phi = Math.atan2(dz, dx) - Math.asin(gapR / d);          // the line through O tangent to the circle, the circle north of it
+  const U = [Math.cos(phi), Math.sin(phi)], N = [-Math.sin(phi), Math.cos(phi)];
+  return { U, N, phi, P: (u, w) => [ox + u * U[0] + w * N[0], oz + u * U[1] + w * N[1]], uw: (x, z) => [(x - ox) * U[0] + (z - oz) * U[1], (x - ox) * N[0] + (z - oz) * N[1]] };
+}
+// sRGB hex → [r, g, b] as stored (the street's shaders work in display values: no conversion, no tone mapping)
+const stRGB = h => [(h >> 16 & 255) / 255, (h >> 8 & 255) / 255, (h & 255) / 255];
+const stMix = (a, b, t) => a.map((x, i) => x + (b[i] - x) * t);
+// a seeded random (mulberry32), so the street is the same every load
+function stRand(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+
+// ---- THE ACCUMULATORS. Everything is built straight into world-space arrays, one per shader, merged at the end.
+// The fronts and the ground: position, normal, colour, night glow; non-indexed triangles.
+function stAcc() { return { p: [], n: [], c: [], g: [], tris: 0 }; }
+const stV = new THREE.Vector3(), stV2 = new THREE.Vector3(), stV3 = new THREE.Vector3();
+// A quad a b c d (world Vector3s, in order round it) facing `want` (it is turned round if it faces away), colour, glow.
+function stQuad(A, a, b, c, d, col, glow, want) {
+  stV.subVectors(b, a); stV2.subVectors(c, a); stV3.crossVectors(stV, stV2);
+  if (stV3.lengthSq() < 1e-14) { stV2.subVectors(d, a); stV3.crossVectors(stV, stV2); }
+  if (want && stV3.dot(want) < 0) { [b, d] = [d, b]; stV3.negate(); }
+  stV3.normalize();
+  const g = glow || [0, 0, 0];
+  for (const v of [a, b, c, a, c, d]) { A.p.push(v.x, v.y, v.z); A.n.push(stV3.x, stV3.y, stV3.z); A.c.push(col[0], col[1], col[2]); A.g.push(g[0], g[1], g[2]); }
+  A.tris += 2;
+}
+function stTri(A, a, b, c, col, want) {
+  stV.subVectors(b, a); stV2.subVectors(c, a); stV3.crossVectors(stV, stV2);
+  if (want && stV3.dot(want) < 0) { [b, c] = [c, b]; stV3.negate(); }
+  stV3.normalize();
+  for (const v of [a, b, c]) { A.p.push(v.x, v.y, v.z); A.n.push(stV3.x, stV3.y, stV3.z); A.c.push(col[0], col[1], col[2]); A.g.push(0, 0, 0); }
+  A.tris++;
+}
+// A box in a frame M (local → world), x0…x1 × y0…y1 × z0…z1; skip: the faces left out ('-z' the back, '-y' the bottom by default).
+const stL = (M, x, y, z) => new THREE.Vector3(x, y, z).applyMatrix4(M);
+const stDir = (M, x, y, z) => new THREE.Vector3(x, y, z).transformDirection(M);
+function stBox(A, M, x0, x1, y0, y1, z0, z1, col, glow, skip = '-z-y', glowFaces) {
+  const f = [
+    ['+z', [[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], [0, 0, 1]], ['-z', [[x1, y0, z0], [x0, y0, z0], [x0, y1, z0], [x1, y1, z0]], [0, 0, -1]],
+    ['+x', [[x1, y0, z1], [x1, y0, z0], [x1, y1, z0], [x1, y1, z1]], [1, 0, 0]], ['-x', [[x0, y0, z0], [x0, y0, z1], [x0, y1, z1], [x0, y1, z0]], [-1, 0, 0]],
+    ['+y', [[x0, y1, z1], [x1, y1, z1], [x1, y1, z0], [x0, y1, z0]], [0, 1, 0]], ['-y', [[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]], [0, -1, 0]],
+  ];
+  for (const [k, q, n] of f) {
+    if (skip.includes(k)) continue;
+    stQuad(A, ...q.map(p => stL(M, ...p)), col, glowFaces && !glowFaces.includes(k) ? null : glow, stDir(M, ...n));
+  }
+}
+// A flat quad in a frame at local z, facing local +z (x0…x1 × y0…y1).
+function stFace(A, M, x0, x1, y0, y1, z, col, glow) { stQuad(A, stL(M, x0, y0, z), stL(M, x1, y0, z), stL(M, x1, y1, z), stL(M, x0, y1, z), col, glow, stDir(M, 0, 0, 1)); }
+// A prism: a plan polygon (world [x, z], convex) from y0 to y1, its sides and its top.
+function stPrism(A, poly, y0, y1, col) {
+  const cx = poly.reduce((s, p) => s + p[0], 0) / poly.length, cz = poly.reduce((s, p) => s + p[1], 0) / poly.length, V = (x, y, z) => new THREE.Vector3(x, y, z);
+  for (let i = 0; i < poly.length; i++) {
+    const [ax, az] = poly[i], [bx, bz] = poly[(i + 1) % poly.length];
+    stQuad(A, V(ax, y0, az), V(bx, y0, bz), V(bx, y1, bz), V(ax, y1, az), col, null, V((ax + bx) / 2 - cx, 0, (az + bz) / 2 - cz));
+  }
+  for (let i = 1; i + 1 < poly.length; i++) stTri(A, V(poly[0][0], y1, poly[0][1]), V(poly[i][0], y1, poly[i][1]), V(poly[i + 1][0], y1, poly[i + 1][1]), col, V(0, 1, 0));
+}
+// A frame for a front: origin at world (x, 0, z), local +z out of the front (ox, oz), +y up, +x to a viewer's right.
+function stFrameAt(x, z, ox, oz) {
+  return new THREE.Matrix4().makeBasis(new THREE.Vector3(oz, 0, -ox), new THREE.Vector3(0, 1, 0), new THREE.Vector3(ox, 0, oz)).setPosition(x, 0, z);
+}
+// Ground in the street's frame: from u0 to u1, w from wLo(u) to wHi(u) (straight between the cuts `at`), at height y,
+// tiled no bigger than `tile` (the walk's grid lists a triangle in every cell its box touches: big slanted ones fill it).
+function stGround(A, F, u0, u1, wLo, wHi, y, tile, colOf, at = []) {
+  const us = [u0];
+  for (const c of [...at].filter(c => c > u0 + 1e-6 && c < u1 - 1e-6).sort((a, b) => a - b)) us.push(c);
+  us.push(u1);
+  const V = (u, w) => { const [x, z] = F.P(u, w); return new THREE.Vector3(x, y, z); }, up = new THREE.Vector3(0, 1, 0);
+  for (let s = 0; s + 1 < us.length; s++) {
+    const a0 = us[s], a1 = us[s + 1], nu = Math.max(1, Math.ceil((a1 - a0) / tile));
+    for (let i = 0; i < nu; i++) {
+      const ua = a0 + (a1 - a0) * i / nu, ub = a0 + (a1 - a0) * (i + 1) / nu;
+      const la = wLo(ua), lb = wLo(ub), ha = wHi(ua), hb = wHi(ub), nw = Math.max(1, Math.ceil(Math.max(ha - la, hb - lb) / tile));
+      for (let j = 0; j < nw; j++) {
+        const t0 = j / nw, t1 = (j + 1) / nw;
+        stQuad(A, V(ua, la + (ha - la) * t0), V(ub, lb + (hb - lb) * t0), V(ub, lb + (hb - lb) * t1), V(ua, la + (ha - la) * t1), colOf(i, j, ua, la + (ha - la) * t0), null, up);
+      }
+    }
+  }
+}
+// The signs: position and uv. A sign quad in a frame at local z facing +z, the atlas rectangle r [u0, v0, u1, v1].
+function stSignQuad(S, M, x0, x1, y0, y1, z, r) {
+  const q = [[x0, y0, r[0], r[1]], [x1, y0, r[2], r[1]], [x1, y1, r[2], r[3]], [x0, y1, r[0], r[3]]].map(([x, y, u, v]) => [stL(M, x, y, z), u, v]);
+  for (const i of [0, 1, 2, 0, 2, 3]) { const [p, u, v] = q[i]; S.p.push(p.x, p.y, p.z); S.uv.push(u, v); }
+}
+// The bulbs: a disc (cut in the shader) 0.11 m across, in a frame at local (x, y, z) facing +z; ph its place in the chase.
+function stBulb(B, M, x, y, z, ph, col) {
+  const h = 0.055, q = [[x - h, y - h, 0, 0], [x + h, y - h, 1, 0], [x + h, y + h, 1, 1], [x - h, y + h, 0, 1]].map(([a, b, u, v]) => [stL(M, a, b, z), u, v]);
+  for (const i of [0, 1, 2, 0, 2, 3]) { const [p, u, v] = q[i]; B.p.push(p.x, p.y, p.z); B.uv.push(u, v); B.c.push(col[0], col[1], col[2]); B.ph.push(ph); }
+}
+// A row of bulbs from (x0, y0) to (x1, y1) at local z, about `gap` apart; reverse runs the chase the other way.
+function stBulbs(B, M, x0, y0, x1, y1, z, gap, col, reverse) {
+  const n = Math.max(1, Math.round(Math.hypot(x1 - x0, y1 - y0) / gap));
+  for (let i = 0; i <= n; i++) stBulb(B, M, x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n, z, reverse ? n - i + 3000 : i, col);
+}
+// A pool of light on the ground (night only): in a frame M, centred at local (x, z), rx × rz either way, at world height y.
+function stPool(Po, M, x, y, z, rx, rz, col) {
+  const q = [[x - rx, z - rz, 0, 0], [x + rx, z - rz, 1, 0], [x + rx, z + rz, 1, 1], [x - rx, z + rz, 0, 1]].map(([a, b, u, v]) => [stL(M, a, y, b), u, v]);
+  for (const i of [0, 1, 2, 0, 2, 3]) { const [p, u, v] = q[i]; Po.p.push(p.x, p.y, p.z); Po.uv.push(u, v); Po.c.push(col[0], col[1], col[2]); }
+}
+
+// ---- THE SIGNS' ATLAS: every title, house name and shop sign a 1024 × 96 strip (four to a row), every blade's word a
+// 96 × 672 column, on one 4096 × 2048 canvas. → { tex, rect(key) → [u0, v0, u1, v1] }
+const ST_FONTS = ['700 italic 74px Georgia, "Times New Roman", serif', '400 78px Impact, "Arial Black", sans-serif', '600 72px "IBM Plex Sans", system-ui, sans-serif',
+  '900 70px "Arial Black", Arial, sans-serif', '700 74px "Palatino Linotype", Palatino, Georgia, serif', '700 70px "Trebuchet MS", sans-serif'];
+function stAtlas(houses) {
+  const W = 4096, H = 2048, SW = 1024, SH = 96, BW = 96, BH = 672, c = document.createElement('canvas'); c.width = W; c.height = H;
+  const g = c.getContext('2d'), tex = new THREE.CanvasTexture(c), rects = {}, jobs = [];
+  tex.anisotropy = 8; tex.colorSpace = THREE.NoColorSpace;
+  let si = 0, bi = 0;
+  const strip = (key, draw) => { const x = (si % 4) * SW, y = Math.floor(si / 4) * SH; si++; rects[key] = [x / W, 1 - (y + SH) / H, (x + SW) / W, 1 - y / H]; jobs.push(() => draw(x, y)); };
+  const stripRows = Math.ceil((houses.length * 2 + ST_SHOPS.length) / 4), by0 = stripRows * SH;
+  const blade = (key, draw) => { const x = bi * BW, y = by0; bi++; rects[key] = [x / W, 1 - (y + BH) / H, (x + BW) / W, 1 - y / H]; jobs.push(() => draw(x, y)); };
+  const fit = (font, text, max) => { g.font = font; const w = g.measureText(text).width; return w > max ? max / w : 1; };
+  const say = (text, x, y, w, h, font, fill) => {
+    g.save(); g.translate(x + w / 2, y + h / 2 + 2); const k = fit(font, text, w - 60); g.scale(k, 1); g.font = font; g.fillStyle = fill; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(text, 0, 0); g.restore();
+  };
+  houses.forEach((h, i) => {
+    // the title panel: black letters on a lit cream panel (the marquee's changeable letters), framed
+    strip('title:' + i, (x, y) => { g.fillStyle = '#f3ead6'; g.fillRect(x, y, SW, SH); g.strokeStyle = '#1a1612'; g.lineWidth = 6; g.strokeRect(x + 6, y + 6, SW - 12, SH - 12); say(h.show, x, y, SW, SH, h.font, h.ink); });
+    // the house's name: gold on its trim colour
+    strip('name:' + i, (x, y) => { g.fillStyle = h.band; g.fillRect(x, y, SW, SH); g.strokeStyle = '#c9a24a'; g.lineWidth = 4; g.strokeRect(x + 8, y + 8, SW - 16, SH - 16); say(h.name, x, y, SW, SH, '600 64px "IBM Plex Sans", system-ui, sans-serif', '#f0cf78'); });
+    // the blade: the word down it, a letter to a cell
+    blade('blade:' + i, (x, y) => {
+      g.fillStyle = h.bladeBg; g.fillRect(x, y, BW, BH); g.strokeStyle = '#e8d8a8'; g.lineWidth = 4; g.strokeRect(x + 5, y + 5, BW - 10, BH - 10);
+      const L = [...h.blade], n = L.length, cell = (BH - 30) / Math.max(n, 5);
+      g.fillStyle = h.bladeInk; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `700 ${Math.round(Math.min(72, cell * 0.92))}px "IBM Plex Sans", system-ui, sans-serif`;
+      L.forEach((ch, k) => g.fillText(ch, x + BW / 2, y + 15 + (BH - 30 - n * cell) / 2 + cell * (k + 0.5) + 2));
+    });
+  });
+  const SHOP_BG = ['#1d4a2c', '#8a1e1e', '#1c2c5a', '#5a2a5a', '#1e5a5a', '#2a2a2a', '#7a4a12', '#3a2416', '#8a1e1e', '#1d3a5a'];
+  ST_SHOPS.forEach((s, i) => strip('shop:' + i, (x, y) => { g.fillStyle = SHOP_BG[i % SHOP_BG.length]; g.fillRect(x, y, SW, SH); say(s, x, y, SW, SH, '700 70px "IBM Plex Sans", system-ui, sans-serif', '#fff4e0'); }));
+  const draw = () => { g.fillStyle = '#000'; g.fillRect(0, 0, W, H); for (const j of jobs) j(); tex.needsUpdate = true; requestRender(); };
+  draw();
+  if (document.fonts) document.fonts.load('600 64px "IBM Plex Sans"').then(draw, () => {});   // redrawn once the page's face is in (a load wait, not game timing)
+  return { tex, rect: k => rects[k] };
+}
+
+// ---- THE SHADERS. One set of uniforms shared by all four (and the sky's).
+const ST_U = {
+  k: { value: 0 }, amb: { value: new THREE.Vector3(0.62, 0.63, 0.66) }, sun: { value: 0.45 }, sunDir: { value: new THREE.Vector3(-0.45, 0.78, -0.43).normalize() },
+  fogC: { value: new THREE.Vector3() }, fogN: { value: 70 }, fogF: { value: 185 }, signK: { value: 0.9 }, step: { value: 0 }, map: { value: null },
+};
+const ST_FOG_V = 'uniform float fogN; uniform float fogF; varying float vFog;';
+const ST_FOG = 'vFog = smoothstep(fogN, fogF, length(mv.xyz));';
+function stMaterials() {
+  const U = ST_U;
+  const bake = new THREE.ShaderMaterial({
+    name: 'street: fronts', uniforms: U,
+    vertexShader: `attribute vec3 aCol; attribute vec3 aGlow; uniform vec3 amb; uniform float sun; uniform vec3 sunDir; uniform float k; varying vec3 vCol; ${ST_FOG_V}
+      void main() { float l = max(dot(normalize(normal), sunDir), 0.0); vCol = aCol * (amb + sun * l) + aGlow * k;
+        vec4 mv = modelViewMatrix * vec4(position, 1.0); ${ST_FOG} gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: `uniform vec3 fogC; varying vec3 vCol; varying float vFog; void main() { gl_FragColor = vec4(mix(vCol, fogC, vFog), 1.0); }`,
+  });
+  const marks = bake.clone(); marks.uniforms = U; marks.name = 'street: markings'; marks.polygonOffset = true; marks.polygonOffsetFactor = -1; marks.polygonOffsetUnits = -4;
+  const sign = new THREE.ShaderMaterial({
+    name: 'street: signs', uniforms: U,
+    vertexShader: `varying vec2 vUv; ${ST_FOG_V} void main() { vUv = uv; vec4 mv = modelViewMatrix * vec4(position, 1.0); ${ST_FOG} gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: `uniform sampler2D map; uniform float signK; uniform vec3 fogC; varying vec2 vUv; varying float vFog;
+      void main() { gl_FragColor = vec4(mix(texture2D(map, vUv).rgb * signK, fogC, vFog), 1.0); }`,
+  });
+  const bulbs = new THREE.ShaderMaterial({
+    name: 'street: bulbs', uniforms: U,
+    vertexShader: `attribute vec3 aCol; attribute float aPh; uniform float k; uniform float step; uniform vec3 amb; varying vec3 vCol; varying vec2 vUv; ${ST_FOG_V}
+      void main() { float on = mod(aPh + step, 3.0) < 2.0 ? 1.0 : 0.16; vUv = uv;
+        vCol = mix(vec3(0.80, 0.78, 0.72) * amb, aCol * mix(0.35, 1.9, on), k);
+        vec4 mv = modelViewMatrix * vec4(position, 1.0); ${ST_FOG} gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: `uniform vec3 fogC; varying vec3 vCol; varying vec2 vUv; varying float vFog;
+      void main() { float r = length(vUv - 0.5) * 2.0; if (r > 1.0) discard; gl_FragColor = vec4(mix(vCol * (1.15 - 0.45 * r), fogC, vFog), 1.0); }`,
+  });
+  const pools = new THREE.ShaderMaterial({
+    name: 'street: pools', uniforms: U, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending,
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -8,
+    vertexShader: `attribute vec3 aCol; varying vec3 vCol; varying vec2 vUv; ${ST_FOG_V} void main() { vCol = aCol; vUv = uv; vec4 mv = modelViewMatrix * vec4(position, 1.0); ${ST_FOG} gl_Position = projectionMatrix * mv; }`,
+    fragmentShader: `uniform float k; varying vec3 vCol; varying vec2 vUv; varying float vFog;
+      void main() { float r = length(vUv - 0.5) * 2.0; float f = 1.0 - smoothstep(0.0, 1.0, r); gl_FragColor = vec4(vCol * f * f * k * (1.0 - vFog), 1.0); }`,
+  });
+  // the sky: a sphere round the camera, drawn behind everything (it fails the depth test wherever anything is nearer)
+  const sky = new THREE.ShaderMaterial({
+    name: 'street: sky', uniforms: U, side: THREE.BackSide, depthWrite: false, transparent: true, opacity: 0.5,
+    vertexShader: `varying vec3 vDir; void main() { vDir = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+    fragmentShader: `uniform float k; uniform vec3 fogC; varying vec3 vDir;
+      float h(vec3 p) { return fract(sin(dot(p, vec3(12.9898, 78.233, 37.719))) * 43758.5453); }
+      void main() { vec3 d = normalize(vDir); float t = clamp(d.y, 0.0, 1.0);
+        vec3 zen = mix(vec3(0.36, 0.56, 0.84), vec3(0.015, 0.02, 0.06), k);
+        vec3 c = mix(fogC, zen, pow(t, 0.55));
+        if (k > 0.5 && t > 0.08) { vec3 q = floor(d * 260.0); float s = h(q); c += vec3(step(0.9975, s) * (k - 0.5) * 1.6 * smoothstep(0.08, 0.3, t)); }
+        gl_FragColor = vec4(c, 1.0); }`,
+  });
+  return { bake, marks, sign, bulbs, pools, sky };
+}
+
+// ---- THE FRONTS. A front in its frame M: local x across (−W/2…W/2), y up (world heights), z out of the wall (the wall at 0).
+const ST_WALLS = [0xd6ccb4, 0xc8a77c, 0x9a4a38, 0xc9825a, 0xa9a59c, 0xe2d8c0, 0x7e4232, 0xb9b2a2, 0x8c6a4e, 0xcfc3a6];
+const ST_TRIM = [0xe8e0cc, 0x3a3532, 0xb8923e, 0xd2c8b0, 0x2c2a2a];
+const ST_MARQ = [0x2b2522, 0x7a1a1a, 0x1d2a4a, 0xa88a3e, 0x141414, 0x3a1a3a];
+const ST_GLASS_DAY = [0x2d3640, 0x3a4652, 0x46586a, 0x283038];
+const ST_WIN_NIGHT = [[1.0, 0.80, 0.52], [1.0, 0.90, 0.70], [0.78, 0.86, 1.0], [0.95, 0.96, 1.0]];
+const ST_BULB = stRGB(0xffd27a);
+// Windows over a front: rows from y0 to y1, `cols` across x0…x1, each w × h; lit at night at random.
+function stWindows(A, M, R, x0, x1, y0, y1, rowH, cols, w, h, frameCol, litShare) {
+  const rows = Math.max(1, Math.floor((y1 - y0) / rowH));
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+    const cx = x0 + (x1 - x0) * (c + 0.5) / cols, cy = y0 + rowH * (r + 0.5);
+    stBox(A, M, cx - w / 2 - 0.08, cx + w / 2 + 0.08, cy - h / 2 - 0.08, cy + h / 2 + 0.1, 0, 0.05, frameCol, null);
+    const lit = R() < litShare, glass = stMix(stRGB(ST_GLASS_DAY[Math.floor(R() * ST_GLASS_DAY.length)]), [0.55, 0.65, 0.78], R() * 0.25);
+    stFace(A, M, cx - w / 2, cx + w / 2, cy - h / 2, cy + h / 2, 0.065, glass, lit ? ST_WIN_NIGHT[Math.floor(R() * ST_WIN_NIGHT.length)].map(v => v * (0.55 + R() * 0.35)) : null);
+  }
+}
+// A marquee over a front's doors: its box, the title panel and the name band on its face, the title on its sides, the soffit
+// lit, bulbs round the panel and along every edge, and the pool it throws on the pavement (night). h: the house record.
+function stMarquee(A, S, B, Po, M, h, x0, x1, y0, y1, d, rect, groundY) {
+  const body = stRGB(h.marq), trim = stRGB(0xc9a24a), soft = [1.0, 0.86, 0.62];
+  stBox(A, M, x0, x1, y0, y1, 0, d, body, soft, '-z', ['-y']);                    // the soffit glows at night
+  stBox(A, M, x0 - 0.06, x1 + 0.06, y1, y1 + 0.12, 0, d + 0.06, trim, null);       // the top's moulding
+  stBox(A, M, x0 - 0.04, x1 + 0.04, y0 - 0.08, y0, 0, d + 0.04, trim, null, '-z');  // the bottom's
+  const ty0 = y0 + 0.22, ty1 = y0 + (y1 - y0) * 0.66, ny0 = ty1 + 0.1, ny1 = y1 - 0.12;
+  stSignQuad(S, M, x0 + 0.35, x1 - 0.35, ty0, ty1, d + 0.012, rect('title:' + h.i));
+  stSignQuad(S, M, x0 + 0.6, x1 - 0.6, ny0, ny1, d + 0.012, rect('name:' + h.i));
+  // the sides: the house's name, read from up and down the street (each face in its own frame)
+  for (const s of [-1, 1]) {
+    const Ms = M.clone().multiply(new THREE.Matrix4().makeRotationY(s * Math.PI / 2)).multiply(new THREE.Matrix4().makeTranslation(0, 0, s > 0 ? x1 : -x0));
+    // in the side's frame: local x runs along the marquee's depth (from the wall out for s −1, back for s +1)
+    const a = s > 0 ? -(d - 0.25) : 0.25, b = s > 0 ? -0.25 : d - 0.25;
+    stSignQuad(S, Ms, a, b, ty0, ny1, 0.012, rect('name:' + h.i));
+    stBulbs(B, Ms, a, y1 - 0.06, b, y1 - 0.06, 0.03, 0.2, ST_BULB, s > 0);
+    stBulbs(B, Ms, a, y0 + 0.08, b, y0 + 0.08, 0.03, 0.2, ST_BULB, s < 0);
+  }
+  // the face's bulbs: along the top and the bottom edges (chasing opposite ways), and round the title panel
+  stBulbs(B, M, x0 + 0.12, y1 - 0.06, x1 - 0.12, y1 - 0.06, d + 0.03, 0.2, ST_BULB, false);
+  stBulbs(B, M, x0 + 0.12, y0 + 0.08, x1 - 0.12, y0 + 0.08, d + 0.03, 0.2, ST_BULB, true);
+  for (const x of [x0 + 0.18, x1 - 0.18]) stBulbs(B, M, x, y0 + 0.28, x, y1 - 0.26, d + 0.03, 0.2, ST_BULB, x > 0);
+  // the pool under it, on the pavement (kept off the road: 4.8 m out at most)
+  stPool(Po, M, (x0 + x1) / 2, groundY + 0.015, 2.3, (x1 - x0) * 0.55, 2.5, [0.55, 0.45, 0.3]);
+}
+// A blade sign standing out from a front at x: a board from y0 to y1, `out` deep, its word down both faces, bulbs round them.
+function stBlade(A, S, B, M, h, x, y0, y1, out, rect) {
+  const t = 0.36, body = stRGB(h.marq), trim = stRGB(0xc9a24a);
+  stBox(A, M, x - t / 2, x + t / 2, y0, y1, 0.3, 0.3 + out, body, null, '-z');
+  for (const yb of [y0 + 0.5, y1 - 0.5]) stBox(A, M, x - 0.05, x + 0.05, yb - 0.05, yb + 0.05, 0, 0.3, trim, null, '-z');   // the brackets
+  stBox(A, M, x - t / 2 - 0.04, x + t / 2 + 0.04, y1, y1 + 0.18, 0.26, 0.34 + out, trim, null);   // the cap
+  for (const s of [-1, 1]) {
+    const Ms = M.clone().multiply(new THREE.Matrix4().makeTranslation(x + s * (t / 2), 0, 0)).multiply(new THREE.Matrix4().makeRotationY(s * Math.PI / 2));
+    // in the face's frame: local x runs along the blade's depth
+    const a = s > 0 ? -(0.3 + out) + 0.12 : 0.42, b = s > 0 ? -0.42 : 0.3 + out - 0.12;
+    stSignQuad(S, Ms, a, b, y0 + 0.3, y1 - 0.3, 0.012, rect('blade:' + h.i));
+    stBulbs(B, Ms, a - 0.06, y0 + 0.14, a - 0.06, y1 - 0.14, 0.03, 0.22, ST_BULB, false);
+    stBulbs(B, Ms, b + 0.06, y0 + 0.14, b + 0.06, y1 - 0.14, 0.03, 0.22, ST_BULB, true);
+    stBulbs(B, Ms, a, y1 - 0.12, b, y1 - 0.12, 0.03, 0.22, ST_BULB, false);
+    stBulbs(B, Ms, a, y0 + 0.12, b, y0 + 0.12, 0.03, 0.22, ST_BULB, true);
+  }
+}
+// A theatre's front (an empty house: a front and a marquee, no inside). W wide, H high, its ground at G.
+function stTheatre(A, S, B, Po, M, R, h, W, H, G, rect) {
+  const wall = stRGB(h.wall), trim = stRGB(h.trim), dark = stRGB(0x1c1a19), bronze = stRGB(0x5a4428);
+  stBox(A, M, -W / 2, W / 2, G - 0.2, G + 0.7, 0, 0.14, stMix(wall, [0, 0, 0], 0.35), null);   // the plinth
+  // the doors: a bank of glass doors in bronze under the marquee, glowing from the lobby at night
+  const dW = Math.min(9, W * 0.48), dTop = G + 3.0;
+  stBox(A, M, -dW / 2 - 0.25, dW / 2 + 0.25, G - 0.2, dTop + 0.3, 0, 0.16, bronze, null);
+  stFace(A, M, -dW / 2, dW / 2, G, dTop, 0.17, stRGB(0x161a1e), [0.85, 0.62, 0.36]);
+  for (let i = 0; i <= Math.round(dW / 1.2); i++) { const x = -dW / 2 + dW * i / Math.round(dW / 1.2); stBox(A, M, x - 0.04, x + 0.04, G, dTop, 0.16, 0.22, bronze, null); }
+  stBox(A, M, -dW / 2, dW / 2, G + 2.25, G + 2.33, 0.16, 0.22, bronze, null);   // the transom bar
+  // poster cases either side, lit at night
+  for (const s of [-1, 1]) for (const k of [0, 1]) {
+    const cx = s * (dW / 2 + 1.2 + k * 1.6); if (Math.abs(cx) + 0.7 > W / 2 - 0.3) continue;
+    stBox(A, M, cx - 0.62, cx + 0.62, G + 0.9, G + 2.75, 0, 0.12, bronze, null);
+    const pc = stRGB([0x7a1e28, 0x1e2e5a, 0x9a7a2a, 0x1e5a5a, 0x4a2450, 0x2a4a2a][Math.floor(R() * 6)]);
+    stFace(A, M, cx - 0.52, cx + 0.52, G + 1.0, G + 2.65, 0.125, pc, pc.map(v => 0.35 + v * 0.8));
+  }
+  // the marquee, then the blade at one end
+  const mW = Math.min(W - 2.2, 15), my0 = G + 3.55, my1 = G + 5.55;
+  stMarquee(A, S, B, Po, M, h, -mW / 2, mW / 2, my0, my1, 3.3, rect, G);
+  const side = R() < 0.5 ? -1 : 1, bx = side * (W / 2 - 1.3), by0 = my1 + 0.9, by1 = Math.min(H - 1.2, by0 + 8.4);
+  if (by1 - by0 > 3) stBlade(A, S, B, M, h, bx, by0, by1, 1.5, rect);
+  // the upper front: pilasters, tall windows between them, a cornice and a parapet
+  const nb = Math.max(3, Math.round(W / 4.2)), u0 = my1 + 0.8, u1 = H - 2.0;
+  for (let i = 0; i <= nb; i++) { const x = -W / 2 + 0.4 + (W - 0.8) * i / nb; stBox(A, M, x - 0.32, x + 0.32, my1 + 0.2, H - 1.3, 0, 0.26, trim, null); }
+  for (let i = 0; i < nb; i++) {
+    const x = -W / 2 + 0.4 + (W - 0.8) * (i + 0.5) / nb; if (Math.abs(x - bx) < 0.9) continue;
+    stWindows(A, M, R, x - 1.0, x + 1.0, u0, u1, Math.max(2.2, (u1 - u0) / 2), 1, 1.2, Math.min(3.2, (u1 - u0) / 2 - 0.6), dark, 0.25);
+  }
+  stBox(A, M, -W / 2, W / 2, H - 1.3, H - 0.85, 0, 0.55, trim, null, '-z');
+  stBox(A, M, -W / 2, W / 2, H - 0.2, H + 0.15, 0, 0.2, trim, null, '-z');
+}
+// A shop, a hotel or a tower (a filler): a shopfront at the bottom, floors of windows over it.
+function stFiller(A, S, B, Po, M, R, W, H, G, rect, shop) {
+  const wall = stRGB(ST_WALLS[Math.floor(R() * ST_WALLS.length)]), trim = stRGB(ST_TRIM[Math.floor(R() * ST_TRIM.length)]), dark = stRGB(0x24221f);
+  const tower = H > 30 && R() < 0.5;
+  if (tower) {                                    // a glass tower: bands of glass between thin spandrels
+    const glass = stRGB(0x4c5d6e), lit = R() * 0.5;
+    for (let y = G + 5; y < H - 1; y += 3.4) {
+      stBox(A, M, -W / 2, W / 2, y, y + 0.7, 0, 0.12, stRGB(0x9aa4ae), null);
+      for (let x = -W / 2 + 0.1; x < W / 2 - 0.5; x += 1.6) stFace(A, M, x, Math.min(W / 2 - 0.1, x + 1.5), y + 0.75, y + 3.35, 0.06, stMix(glass, [0.6, 0.72, 0.85], R() * 0.3), R() < lit ? ST_WIN_NIGHT[3].map(v => v * 0.6) : null);
+    }
+  } else {
+    stWindows(A, M, R, -W / 2 + 0.6, W / 2 - 0.6, G + 5.0, H - 1.6, 3.3, Math.max(2, Math.floor((W - 1.2) / 2.3)), 1.15, 1.8, trim, 0.4);
+    stBox(A, M, -W / 2, W / 2, H - 0.9, H - 0.45, 0, 0.45, trim, null, '-z');   // the cornice
+  }
+  // the shopfront: glass in a frame, a door, the sign over it, an awning
+  stBox(A, M, -W / 2, W / 2, G - 0.2, G + 4.6, 0, 0.1, stMix(wall, [0, 0, 0], 0.2), null);
+  stFace(A, M, -W / 2 + 0.5, W / 2 - 0.5, G + 0.45, G + 3.25, 0.11, stRGB(0x1d2328), [0.95, 0.88, 0.72].map(v => v * (0.6 + R() * 0.4)));
+  for (let x = -W / 2 + 0.5; x <= W / 2 - 0.45; x += (W - 1) / Math.max(1, Math.round((W - 1) / 2.4))) stBox(A, M, x - 0.04, x + 0.04, G + 0.45, G + 3.25, 0.1, 0.16, dark, null);
+  stBox(A, M, -W / 2 + 0.5, W / 2 - 0.5, G + 0.0, G + 0.45, 0.1, 0.18, dark, null);
+  stSignQuad(S, M, -W / 2 + 0.7, W / 2 - 0.7, G + 3.45, G + 4.35, 0.115, rect('shop:' + shop));
+  const aw = stRGB([0x7a1a1a, 0x1d4a2c, 0x1c2c5a, 0x6a5a2a, 0x3a3a3a][Math.floor(R() * 5)]);
+  if (R() < 0.7) {
+    const a = stL(M, -W / 2 + 0.4, G + 3.3, 0.12), b = stL(M, W / 2 - 0.4, G + 3.3, 0.12), c = stL(M, W / 2 - 0.4, G + 2.7, 1.4), d = stL(M, -W / 2 + 0.4, G + 2.7, 1.4);
+    stQuad(A, a, b, c, d, aw, null, stDir(M, 0, 1, 0.4)); stQuad(A, a, b, c, d, stMix(aw, [0, 0, 0], 0.3), null, stDir(M, 0, -1, -0.4));
+    stBox(A, M, -W / 2 + 0.4, W / 2 - 0.4, G + 2.4, G + 2.7, 1.36, 1.42, aw, null, '');
+  }
+}
+// A street lamp at world (x, z) on ground y, its arm toward (ax, az); the head's lens glows, a pool under it at night.
+function stLamp(A, Po, x, z, y, ax, az) {
+  const pole = stRGB(0x2a2d30), M = stFrameAt(x, z, ax, az), H = 6.6, reach = 1.7;
+  for (let i = 0; i < 8; i++) {                                   // the pole, an octagon (in the walk's grid: it stops the walker)
+    const a0 = i / 8 * Math.PI * 2, a1 = (i + 1) / 8 * Math.PI * 2, r0 = 0.09, r1 = 0.07;
+    const p = (a, r, yy) => new THREE.Vector3(x + Math.cos(a) * r, yy, z + Math.sin(a) * r);
+    stQuad(A, p(a0, r0, y), p(a1, r0, y), p(a1, r1, y + H), p(a0, r1, y + H), pole, null, new THREE.Vector3(Math.cos((a0 + a1) / 2), 0, Math.sin((a0 + a1) / 2)));
+  }
+  stBox(A, M, -0.16, 0.16, y, y + 0.9, -0.16, 0.16, pole, null, '-y');   // the base
+  stBox(A, M, -0.04, 0.04, y + H - 0.08, y + H, -0.04, reach, pole, null, '');   // the arm
+  stBox(A, M, -0.22, 0.22, y + H - 0.28, y + H - 0.06, reach - 0.3, reach + 0.25, stRGB(0x3a3d40), [1.0, 0.86, 0.6], '', ['-y']);   // the head, its lens under it
+  stPool(Po, M, 0, y - STREET.kerb + 0.012, reach, 6.5, 6.5, [0.42, 0.33, 0.2]);   // on the road under the head
+  stPool(Po, M, 0, y + 0.012, -1.2, 3.2, 2.0, [0.32, 0.25, 0.15]);                 // on the pavement round the pole
+}
+
+// ---- THE BUILD.
+function buildStreet() {
+  const t0 = performance.now(), Q = STREET, notes = [];
+  scene.updateMatrixWorld(true);
+  // 1. MEASURE the Van Wezel: its glass's radius at the middle, its terrace's round edge (both about VWF.c)
+  const [cx, cz] = Q.vw.c, vwV = new THREE.Vector3();
+  let glassR = 57.1, terraceR = 69.9, terraceX = 135.73;
+  const glass = VW.missing ? null : scene.getObjectByName('vw: exterior_glass'), terrace = VW.missing ? null : scene.getObjectByName('vw: exterior_tex_29');
+  if (glass) { const p = glass.geometry.attributes.position; let zmin = Infinity; for (let i = 0; i < p.count; i++) { vwV.fromBufferAttribute(p, i).applyMatrix4(glass.matrixWorld); if (Math.abs(vwV.x - cx) < 3 && vwV.y < 3) zmin = Math.min(zmin, vwV.z); } if (Number.isFinite(zmin)) glassR = cz - zmin; }
+  if (terrace) { const p = terrace.geometry.attributes.position; let r = 0; for (let i = 0; i < p.count; i++) { vwV.fromBufferAttribute(p, i).applyMatrix4(terrace.matrixWorld); if (vwV.z < cz - 40) r = Math.max(r, Math.hypot(vwV.x - cx, vwV.z - cz)); terraceX = i ? Math.max(terraceX, vwV.x) : vwV.x; } if (r > 0) terraceR = r; }
+  const F = stFrame(glassR + Q.vw.gap), G = Q.top, RD = G - Q.kerb, wN = -Q.walk, wS = -(Q.walk + Q.road), wB = wS - Q.south;   // the kerbs' w, the south building line's
+  const U3 = new THREE.Vector3(F.U[0], 0, F.U[1]), N3 = new THREE.Vector3(F.N[0], 0, F.N[1]);
+  const R = stRand(20261025), A = stAcc(), MK = stAcc(), S = { p: [], uv: [] }, B = { p: [], uv: [], c: [], ph: [] }, Po = { p: [], uv: [], c: [] };
+  // the houses on the fronts, each with its look; ours first
+  const houses = [...ST_OURS, ...ST_HOUSES].map(([name, show, blade], i) => ({
+    i, name, show, blade, font: ST_FONTS[i % ST_FONTS.length], ink: ['#111', '#7a0c10', '#111', '#0e1a3a'][i % 4],
+    band: ['#3a0c10', '#141414', '#0f1a36', '#2a1430', '#10261a'][i % 5], bladeBg: ['#7a0f14', '#0f1a3a', '#161616', '#3a1440', '#0e3a2a'][i % 5],
+    bladeInk: ['#fff0c4', '#ffe08a', '#ff5a4a', '#fff0c4', '#ffd27a'][i % 5],
+    marq: ST_MARQ[i % ST_MARQ.length], wall: ST_WALLS[(i * 3) % ST_WALLS.length], trim: ST_TRIM[i % ST_TRIM.length],
+  }));
+  const atlas = stAtlas(houses), rect = atlas.rect;
+  // 2. THE VAN WEZEL: its terrace clipped at the line (w ≥ 0 kept), a doorway through its glass
+  const vwOut = { terraceCut: 0, glassCut: 0 };
+  if (terrace) { const r = stClipKeep(terrace, (x, z) => F.uw(x, z)[1]); vwOut.terraceCut = r.cut + r.dropped; }
+  const VD = Q.vwDoor, vwDoorZ = cz - glassR;
+  if (glass) vwOut.glassCut = vwCutBox(glass, new THREE.Box3(new THREE.Vector3(VD.x - VD.w / 2, 0.5, vwDoorZ - 0.15), new THREE.Vector3(VD.x + VD.w / 2, 0.875 + VD.head, vwDoorZ + 0.15)));
+  // 3. THE GROUND. The sidewalks (concrete flags, a granite kerb), the road (asphalt, its markings), the wedge before Midtown,
+  // the strip between the terrace's round edge and the first front east of the Van Wezel.
+  const flag = (i, j) => stMix(stRGB(0xa9a49a), stRGB(0x8f8a80), ((i * 7 + j * 13) % 5) / 6 + R() * 0.12), asphalt = () => stMix(stRGB(0x3a3b3d), stRGB(0x2c2d2f), R());
+  const cw = () => stRGB(0xb7b2a6), cst = (u0, u1, lo, hi, col, y = G) => stGround(A, F, u0, u1, () => lo, () => hi, y, 2.5, col);
+  cst(Q.u0, Q.u1, wN + 0.3, 0, flag); cst(Q.u0, Q.u1, wN, wN + 0.3, cw);                          // the north sidewalk and its kerb stones
+  cst(Q.u0, Q.u1, wB, wS - 0.3, flag); cst(Q.u0, Q.u1, wS - 0.3, wS, cw);                          // the south's
+  cst(Q.u0, Q.u1, wS, wN, asphalt, RD);                                                            // the road
+  for (const [w, s] of [[wN, -1], [wS, 1]]) {                                                      // the kerbs' faces
+    for (let u = Q.u0; u < Q.u1 - 1e-6; u += 4) { const ub = Math.min(Q.u1, u + 4), a = F.P(u, w), b = F.P(ub, w);
+      stQuad(A, new THREE.Vector3(a[0], RD, a[1]), new THREE.Vector3(b[0], RD, b[1]), new THREE.Vector3(b[0], G, b[1]), new THREE.Vector3(a[0], G, a[1]), cw(), null, N3.clone().multiplyScalar(s)); }
+  }
+  // the wedge before the Midtown block: from the line up to the front (z skin.z0) and to x skin.x1 (the terrace's clip)
+  const K = Q.skin, wFront = u => (K.z0 - Q.O[1] - u * F.U[1]) / F.N[1], wEast = u => (K.x1 - Q.O[0] - u * F.U[0]) / F.N[0];
+  const uCorner = F.uw(K.x1, K.z0)[0], uEnd = (K.x1 - Q.O[0]) / F.U[0];
+  stGround(A, F, 0, uEnd, () => 0, u => Math.max(0, Math.min(wFront(u), wEast(u))), G, 2.5, flag, [uCorner]);
+  // the strip east of the Van Wezel: from the line up to the terrace's edge (8 mm under it, 5 cm in), to the first front
+  const D = [Q.O[0] - cx, Q.O[1] - cz], a = D[0] * F.U[0] + D[1] * F.U[1], b = D[0] * F.N[0] + D[1] * F.N[1];
+  const uArc = (w, r) => -a + Math.sqrt(Math.max(0, r * r - (b + w) * (b + w))), wArc = (u, r) => { const q = r * r - (a + u) * (a + u); return q > 0 ? -b - Math.sqrt(q) : Infinity; };
+  const neDepth = 45, uNE = (terraceX + 0.3 - Q.O[0]) / F.U[0];                                  // the north row again east of the terrace's east edge (its lots' sides run in z)
+  stGround(A, F, uArc(0, terraceR - 0.05), uNE, () => 0, u => Math.min(neDepth, Math.max(0, wArc(u, terraceR - 0.05))), G - 0.008, 2.5, flag);
+  // the markings: a double yellow centre line, white dashed lanes, zebra crossings (one before our doors, the Van Wezel's, and two more)
+  const wMid = (wN + wS) / 2, Mstrip = (u0, u1, w0, w1, col) => stGround(MK, F, u0, u1, () => w0, () => w1, RD + 0.003, 3, () => col);
+  const yel = stRGB(0xd8b23a), wht = stRGB(0xe6e4dc), uMid = F.uw(10.1, K.z0 - 1)[0], uVW = F.uw(VD.x, vwDoorZ)[0];
+  const crossings = [Q.u0 + 45, uMid, uVW, Q.u1 - 50];
+  const gaps = [...crossings.map(u => [u - 3.5, u + 3.5])], clearOf = (u0, u1) => { let s = [[u0, u1]]; for (const [a, b] of gaps) s = s.flatMap(([x, y]) => (b <= x || a >= y) ? [[x, y]] : [[x, a], [b, y]].filter(([p, q]) => q - p > 0.2)); return s; };
+  for (const [u0, u1] of clearOf(Q.u0, Q.u1)) { Mstrip(u0, u1, wMid + 0.08, wMid + 0.2, yel); Mstrip(u0, u1, wMid - 0.2, wMid - 0.08, yel); }
+  for (const wl of [wN - Q.road / 4, wS + Q.road / 4]) for (let u = Q.u0 + 2; u < Q.u1 - 3; u += 9) for (const [p, q] of clearOf(u, u + 3)) Mstrip(p, q, wl - 0.06, wl + 0.06, wht);
+  for (const u of crossings) for (let w = wS + 0.4; w < wN - 0.5; w += 1.0) Mstrip(u - 2.6, u + 2.6, w, w + 0.5, wht);
+  // 4. THE MIDTOWN BLOCK'S FRONT: the skin over the lobby's entrance wall (its openings: the central glazed doors, the two
+  // street doors), its sides back to the backstage block, the two halves' looks, marquees and blades, its name bands.
+  const Mt = stFrameAt(0, K.z0, 0, -1), mx = x => -x;              // the front's frame: local x = −world x (its out is −z)
+  const lime = stRGB(0xd8cdb4), brick = stRGB(0x8e4636), stone = stRGB(0xc9bfa6), Lf = LOBBY.floor;
+  const E = LOBBY.entrance, xm = (LOBBY.x0 + LOBBY.x1) / 2, openings = [[xm - E.w / 2, xm + E.w / 2, Lf + E.h], ...Q.lobbyDoors.map(d => [d.x - d.w / 2, d.x + d.w / 2, Lf + d.head])].sort((p, q) => p[0] - q[0]);
+  const half = x => x < xm ? lime : brick;
+  const skinPiece = (x0, x1, y0, y1) => { if (x1 - x0 < 1e-4) return; for (const [a, b, col] of [[x0, Math.min(x1, xm), lime], [Math.max(x0, xm), x1, brick]]) if (b > a + 1e-4) stBox(A, Mt, mx(b), mx(a), y0, y1, -(K.z1 - K.z0), 0, col, null, '-z-y'); };
+  { let x = K.x0; for (const [a, b, top] of openings) { skinPiece(x, a, 0.7, K.top); skinPiece(a, b, top, K.top); x = b; } skinPiece(x, K.x1, 0.7, K.top); }
+  // the sides: x0's face west, x1's east, from the front back to the backstage's back; the east one open over the hallway's crossing
+  const side = (x, s, z0, z1, y0, y1) => { const M = stFrameAt(x, (z0 + z1) / 2, s, 0); stBox(A, M, -(z1 - z0) / 2, (z1 - z0) / 2, y0, y1, -K.t, 0, stone, null, '-z-y'); };
+  side(K.x0, -1, K.z0, K.back, 0.7, K.top);
+  const hz0 = VW_HALL.z0 - VW_HALL.t - 0.05, hz1 = VW_HALL.z1 + VW_HALL.t + 0.05;
+  side(K.x1, 1, K.z0, hz0, 0.7, K.top); side(K.x1, 1, hz0, hz1, Q.hallGap, K.top); side(K.x1, 1, hz1, K.back, 0.7, K.top);
+  const I = new THREE.Matrix4();                                                                  // the coping along the three tops (world frame)
+  stBox(A, I, K.x0 - 0.05, K.x1 + 0.05, K.top, K.top + 0.25, K.z0 - 0.05, K.z1 + 0.05, stone, null, '-y');
+  stBox(A, I, K.x0 - 0.05, K.x0 + K.t + 0.05, K.top, K.top + 0.25, K.z1, K.back, stone, null, '-y'); stBox(A, I, K.x1 - K.t - 0.05, K.x1 + 0.05, K.top, K.top + 0.25, K.z1, K.back, stone, null, '-y');
+  // its looks: a plinth, pilasters, the upper windows, a cornice, the name bands; the openings' bronze surrounds
+  const darkT = stRGB(0x24201c), bronze = stRGB(0x5a4428);
+  { let x = K.x0; for (const [a, b, top] of openings) { if (a - x > 0.1) stBox(A, Mt, mx(a), mx(x), 0.7, Lf + 0.6, 0, 0.12, stMix(half((x + a) / 2), [0, 0, 0], 0.35), null); stBox(A, Mt, mx(b + 0.2), mx(a - 0.2), top, top + 0.22, 0, 0.18, bronze, null); for (const xx of [a - 0.2, b]) stBox(A, Mt, mx(xx + 0.2), mx(xx), 0.7, top, 0, 0.18, bronze, null); x = b; } stBox(A, Mt, mx(K.x1), mx(x), 0.7, Lf + 0.6, 0, 0.12, stMix(brick, [0, 0, 0], 0.35), null); }
+  const pil = [K.x0 + 0.4, -6.5, 6.4, xm, 13.8, 26.5, K.x1 - 0.4];
+  for (const x of pil) stBox(A, Mt, mx(x + 0.45), mx(x - 0.45), 6.4, 16.6, 0, 0.3, x === xm ? stone : stMix(half(x), [1, 1, 1], 0.12), null);
+  for (let i = 0; i + 1 < pil.length; i++) {
+    const x0 = pil[i] + 0.8, x1 = pil[i + 1] - 0.8, n = Math.max(1, Math.round((x1 - x0) / 2.6));
+    if ((x0 < -9.8 && x1 > -9.2) || (x0 < 28.7 && x1 > 28.2)) { const blade = x0 < 0 ? -9.5 : 28.45; for (const [p, q] of [[x0, blade - 0.6], [blade + 0.6, x1]]) if (q - p > 1.4) stWindows(A, Mt, R, mx(q), mx(p), 7.0, 12.6, 2.8, Math.max(1, Math.round((q - p) / 2.6)), 1.1, 2.0, darkT, 0.15); continue; }
+    stWindows(A, Mt, R, mx(x1), mx(x0), 7.0, 12.6, 2.8, n, 1.1, 2.0, darkT, 0.15);
+  }
+  stBox(A, Mt, mx(K.x1), mx(K.x0), 16.6, 17.2, 0, 0.6, stone, null, '-z');   // the cornice
+  stBox(A, Mt, mx(K.x1), mx(K.x0), 6.1, 6.4, 0, 0.22, stone, null, '-z');    // a string course over the marquees
+  // the marquees, the blades and the name bands: HAMILTON over house 1's doors, JOHNNY TREMAIN over Theatre 2's
+  for (const [k, d, bx] of [[0, Q.lobbyDoors[0], -9.5], [1, Q.lobbyDoors[1], 28.45]]) {
+    const h = houses[k], M = stFrameAt(d.x, K.z0, 0, -1);
+    stMarquee(A, S, B, Po, M, h, -5.4, 5.4, Lf + 3.15, Lf + 5.05, 3.2, rect, G);
+    stBlade(A, S, B, Mt, h, mx(bx), 6.6, 15.4, 1.6, rect);
+    stBox(A, M, -4.6, 4.6, 13.2, 14.9, 0, 0.12, stRGB(0x2a2420), null);
+    stSignQuad(S, M, -4.4, 4.4, 13.35, 14.75, 0.125, rect('name:' + h.i));
+    for (const y of [13.3, 14.8]) stBulbs(B, M, -4.45, y, 4.45, y, 0.15, 0.22, ST_BULB, y > 14);
+  }
+  // 5. THE VAN WEZEL'S FRONT DOOR: a bronze surround on its wall, a marquee with its own name
+  if (!VW.missing) {
+    const M = stFrameAt(VD.x, vwDoorZ - VD.depth, 0, -1), Gv = 0.875, top = Gv + VD.head;
+    stBox(A, M, -VD.w / 2 - 0.35, -VD.w / 2, 0.75, top + 0.35, 0, 0.12, bronze, null); stBox(A, M, VD.w / 2, VD.w / 2 + 0.35, 0.75, top + 0.35, 0, 0.12, bronze, null);
+    stBox(A, M, -VD.w / 2, VD.w / 2, top, top + 0.35, 0, 0.12, bronze, null);
+    stMarquee(A, S, B, Po, M, houses[2], -4.6, 4.6, top + 0.35, top + 2.25, 3.0, rect, G);
+  }
+  // 6. THE ROWS OF FRONTS. North of the line west of Midtown and east of the Van Wezel's terrace, south of the road the whole
+  // length: theatres between fillers, every footprint a prism. The one against the Midtown block runs its side up x skin.x0.
+  let hi = 3, shop = 0, nT = 3;
+  const plan = [];                                                                               // [u0, u1, side ±1, kind, house index]
+  const fill = (ua, ub, s, pat) => {
+    let u = ua, p = 0;
+    while (ub - u > 6) {
+      const kind = pat[p++ % pat.length], wdt = kind === 'T' ? 18 + R() * 5 : 8 + R() * 7;
+      let u1 = Math.min(ub, u + wdt); if (ub - u1 < 6) u1 = ub;
+      const T = kind === 'T' && nT < houses.length && u1 - u > 14; if (T) nT++;
+      plan.push({ u0: u, u1, s, kind: T ? 'T' : 'F' }); u = u1;
+    }
+  };
+  fill(Q.u0, (K.x0 - 0.05 - Q.O[0]) / F.U[0], 1, 'FTFT');
+  fill(uNE, Q.u1, 1, 'TFTF');
+  fill(Q.u0, Q.u1, -1, 'TFTF');
+  const regions = [];                                                                            // every prism: its plan and height (the check)
+  for (const b of plan) {
+    const W = b.u1 - b.u0, uc = (b.u0 + b.u1) / 2, north = b.s > 0;
+    const last = north && b.u1 < 1 && b.u1 > -2, wf = north ? 0 : wB;   // last: the one against the Midtown block
+    const H = b.kind === 'T' ? 15 + R() * 6 : (R() < 0.35 ? 30 + R() * 22 : 13 + R() * 14);
+    // the lots run along the grid (z), the fronts along the street, as on Broadway: each side straight back in z
+    const [x0, z0] = F.P(b.u0, wf), [x1, z1] = F.P(b.u1, wf), back = north ? (last ? K.back + 2 - z1 : 30) : -26;
+    const poly = north ? [[x0, z0], [x0, z0 + (last ? K.back + 2 - z0 : back)], [x1, z1 + back], [x1, z1]] : [[x0, z0], [x1, z1], [x1, z1 + back], [x0, z0 + back]];
+    const y0 = last ? G - 0.005 : G - 0.3;                                                       // the last stands over Jack's stage slab (box 21, its top 0.845, out to x −19.1): its walls start over it
+    stPrism(A, poly, y0, H, stRGB(ST_WALLS[Math.floor(R() * ST_WALLS.length)]));
+    regions.push({ poly, y0, y1: H + 0.4, name: b.kind === 'T' ? houses[hi].name : 'front at u ' + uc.toFixed(0) });
+    const Wf = b.u1 - b.u0, ucf = (b.u0 + b.u1) / 2, [fx, fz] = F.P(ucf, wf), out = north ? [-F.N[0], -F.N[1]] : F.N;
+    const M = stFrameAt(fx, fz, out[0], out[1]);
+    if (b.kind === 'T') { const h = houses[hi++]; h.u = ucf; h.side = north ? 'north' : 'south'; stTheatre(A, S, B, Po, M, R, h, Wf, H, G, rect); }
+    else stFiller(A, S, B, Po, M, R, Wf, H, G, rect, shop++ % ST_SHOPS.length);
+  }
+  // the ends: a tall block across the whole width at each end, its billboards lit at night
+  for (const [u, s] of [[Q.u0, 1], [Q.u1, -1]]) {
+    const [x, z] = F.P(u, (wB - 26 + 32) / 2), M = stFrameAt(x, z, F.U[0] * s, F.U[1] * s), Wc = 32 - (wB - 26) + 4, H = 48;
+    const p = (uu, w) => F.P(uu, w), poly = s > 0 ? [p(u - 30, wB - 28), p(u, wB - 28), p(u, 34), p(u - 30, 34)] : [p(u, wB - 28), p(u + 30, wB - 28), p(u + 30, 34), p(u, 34)];
+    stPrism(A, poly, G - 0.3, H, stRGB(0x8a8478));
+    regions.push({ poly, y0: G - 0.3, y1: H, name: s > 0 ? 'the west end' : 'the east end' });
+    stWindows(A, M, R, -Wc / 2 + 1, Wc / 2 - 1, G + 5, H - 2, 3.3, Math.round(Wc / 2.6), 1.2, 1.8, stRGB(0xd0c8b8), 0.45);
+    for (const [bx, by, bw, bh, col] of [[-10, 22, 16, 9, 0xd8282a], [9, 30, 14, 12, 0x2a7ad8], [0, 12, 22, 6, 0xf0c838]]) {
+      stBox(A, M, bx - bw / 2 - 0.3, bx + bw / 2 + 0.3, by - bh / 2 - 0.3, by + bh / 2 + 0.3, 0, 0.3, stRGB(0x1a1a1a), null);
+      stFace(A, M, bx - bw / 2, bx + bw / 2, by - bh / 2, by + bh / 2, 0.32, stRGB(col), stRGB(col).map(v => v * 1.1));
+    }
+  }
+  // 7. THE LAMPS along both kerbs, staggered, kept off the crossings and off the doors' ways out
+  const doorU = [...Q.lobbyDoors.map(d => F.uw(d.x, K.z0)[0]), uVW, uMid];
+  for (const [w, s, off] of [[wN + 0.45, -1, 0], [wS - 0.45, 1, 13]]) for (let u = Q.u0 + 8 + off; u < Q.u1 - 6; u += 26) {
+    if (crossings.some(c => Math.abs(c - u) < 5) || doorU.some(c => Math.abs(c - u) < 3)) continue;
+    const [x, z] = F.P(u, w); stLamp(A, Po, x, z, G, F.N[0] * s, F.N[1] * s);
+  }
+  // 8. ONE MESH EACH, world frame; the street's group (the walk's grid takes it drawn or not) and the trim's
+  const mats = stMaterials(); ST_U.map.value = atlas.tex;
+  const group = new THREE.Group(); group.name = 'street';
+  const mesh = (name, attrs, mat, collide) => {
+    const g = new THREE.BufferGeometry();
+    for (const [k, arr, n] of attrs) g.setAttribute(k, new THREE.Float32BufferAttribute(arr, n));
+    g.computeBoundingBox(); g.computeBoundingSphere();
+    const m = new THREE.Mesh(g, mat); m.name = 'street: ' + name; m.userData.rig = true; m.userData.collide = !!collide; m.castShadow = m.receiveShadow = false;
+    group.add(m); return m;
+  };
+  const fronts = mesh('fronts', [['position', A.p, 3], ['normal', A.n, 3], ['aCol', A.c, 3], ['aGlow', A.g, 3]], mats.bake, true);
+  mesh('markings', [['position', MK.p, 3], ['normal', MK.n, 3], ['aCol', MK.c, 3], ['aGlow', MK.g, 3]], mats.marks, false);
+  mesh('signs', [['position', S.p, 3], ['uv', S.uv, 2]], mats.sign, false);
+  mesh('bulbs', [['position', B.p, 3], ['uv', B.uv, 2], ['aCol', B.c, 3], ['aPh', B.ph, 1]], mats.bulbs, false);
+  const pools = mesh('pools', [['position', Po.p, 3], ['uv', Po.uv, 2], ['aCol', Po.c, 3]], mats.pools, false); pools.renderOrder = 5;
+  scene.add(group);
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(165, 32, 16), mats.sky); sky.name = 'street sky'; sky.frustumCulled = false; sky.renderOrder = -10; sky.userData.rig = true;
+  sky.onBeforeRender = (r, s, cam) => { sky.position.copy(cam.position); sky.updateMatrixWorld(); };
+  scene.add(sky);
+  // 9. THE DOORS: frames (lobbyMat, the lobby's own look, in 'street trim') and the leaves (THE DOORS: hangLeafAt, out over the pavement)
+  const T = {}, fw = DOORS.frame, tb = (key, x0, x1, y0, y1, z0, z1) => deskBox(T, key, Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0), (x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+  const zF = LOBBY.wallZ - LOBBY.t - LOBBY.depth, doors = [];
+  for (const d of Q.lobbyDoors) {
+    const a = d.x - d.w / 2, b = d.x + d.w / 2, top = Lf + d.head;
+    tb('reveal', a, a + fw, Lf, top, zF, K.z0); tb('reveal', b - fw, b, Lf, top, zF, K.z0); tb('reveal', a + fw, b - fw, top - DOORS.headH, top, zF, K.z0);
+    tb('brass', a, b, Lf - 0.01, Lf + DOORS.sill, K.z0, zF);
+    tb('wood', a - 0.1, a, Lf, top + 0.1, zF, zF + 0.04); tb('wood', b, b + 0.1, Lf, top + 0.1, zF, zF + 0.04); tb('wood', a - 0.1, b + 0.1, top, top + 0.1, zF, zF + 0.04);   // the lobby side's casing
+    doors.push(hangLeafAt({ name: d.name, px: d.x, pz: K.z0, th: Math.PI, x0: -d.w / 2 + fw, x1: d.w / 2 - fw, floor: Lf, head: top - DOORS.headH, zhi: 1.3, pair: true }));
+  }
+  if (!VW.missing) {
+    const a = VD.x - VD.w / 2, b = VD.x + VD.w / 2, Gv = 0.875, top = Gv + VD.head, z0 = vwDoorZ - VD.depth, z1 = vwDoorZ + VD.depth;
+    tb('dark', a, a + fw, Gv, top, z0, z1); tb('dark', b - fw, b, Gv, top, z0, z1); tb('dark', a, b, top - DOORS.headH, top, z0, z1);
+    tb('brass', a, b, Gv - 0.012, Gv + DOORS.sill, z0, z1);
+    doors.push(hangLeafAt({ name: VD.name, px: VD.x, pz: z0, th: Math.PI, x0: -VD.w / 2 + fw, x1: VD.w / 2 - fw, floor: Gv, head: top - DOORS.headH, zhi: 1.3, pair: true }));
+  }
+  const trim = new THREE.Group(); trim.name = 'street trim';
+  for (const [key, geos] of Object.entries(T)) { const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); const m = new THREE.Mesh(g, lobbyMat[key]); m.name = 'street trim: ' + key; m.userData.rig = true; trim.add(m); }
+  scene.add(trim);
+  // 10. THE HEADER: the light's three modes, and the Broadway view (on the south pavement across from our two doors)
+  const [ex, ez] = F.P(uMid - 6, wB + 2.0), [tx, tz] = F.P(uMid + 2, 8);
+  VIEWS['v-street'] = [[ex, G + 2.6, ez], [tx, G + 7.5, tz]];
+  stUI();
+  colliderStale();
+  const k0 = stModeLoad();
+  stBuilt = { F, group, sky, trim, mats, atlas, houses, regions, doors, fronts, mode: k0, k: 0, target: 0, clockT: 0, time: 0, shown: true, where: 'street', vw: null, vwF: 1,
+    glassR, terraceR, vwDoorZ, uNE, uMid, uVW, crossings, wN, wS, wB, ms: 0 };
+  stBuilt.target = stBuilt.k = stTarget(k0); stApplyK();
+  const n = (o) => o.geometry.attributes.position.count / 3;
+  stBuilt.ms = performance.now() - t0;
+  console.info(`street: a line ${(F.phi * 180 / Math.PI).toFixed(2)}° off x from (${Q.O.join(', ')}), ${glassR.toFixed(2)} + ${Q.vw.gap} m off the Van Wezel's middle (its glass measured; its terrace's edge r ${terraceR.toFixed(2)}, ${vwOut.terraceCut} triangles clipped; ${vwOut.glassCut} of the glass cut for its doors) · `
+    + `${plan.length} fronts (${houses.filter(h => h.u !== undefined).length} theatres) u ${Q.u0}…${Q.u1}, the east row from u ${uNE.toFixed(1)} · `
+    + group.children.map(m => `${m.name.replace('street: ', '')} ${n(m)}`).join(', ') + ` triangles · ${doors.length} street doors · light ${k0} · ${stBuilt.ms.toFixed(0)} ms`);
+  return stBuilt;
+}
+// Every triangle of mesh kept where keep(x, z) ≥ 0 (world), clipped along it, its attributes carried; the geometry comes back
+// non-indexed. → { cut, dropped }
+function stClipKeep(mesh, keep) {
+  mesh.updateMatrixWorld(true);
+  const g0 = mesh.geometry, g = g0.index ? g0.toNonIndexed() : g0, names = Object.keys(g.attributes), n = g.attributes.position.count, P = g.attributes.position;
+  const out = {}; for (const k of names) out[k] = [];
+  const vtx = i => names.map(k => { const A = g.attributes[k], s = A.itemSize; return Array.from(A.array.subarray(i * s, i * s + s)); });
+  const v = new THREE.Vector3();
+  let cut = 0, dropped = 0;
+  for (let t = 0; t < n; t += 3) {
+    const vs = [t, t + 1, t + 2].map(i => ({ a: vtx(i), d: (v.fromBufferAttribute(P, i).applyMatrix4(mesh.matrixWorld), keep(v.x, v.z)) }));
+    if (vs.every(q => q.d >= 0)) { for (const q of vs) q.a.forEach((x, k) => out[names[k]].push(...x)); continue; }
+    if (vs.every(q => q.d < 0)) { dropped++; continue; }
+    cut++;
+    const poly = [];
+    for (let i = 0; i < 3; i++) {
+      const p = vs[i], q = vs[(i + 1) % 3];
+      if (p.d >= 0) poly.push(p.a);
+      if ((p.d >= 0) !== (q.d >= 0)) { const s = p.d / (p.d - q.d); poly.push(p.a.map((x, k) => x.map((c, j) => c + (q.a[k][j] - c) * s))); }
+    }
+    for (let i = 1; i + 1 < poly.length; i++) for (const x of [poly[0], poly[i], poly[i + 1]]) x.forEach((c, k) => out[names[k]].push(...c));
+  }
+  if (!cut && !dropped) { if (g !== g0) g.dispose(); return { cut, dropped }; }
+  const ng = new THREE.BufferGeometry();
+  for (const k of names) { const A = g.attributes[k]; ng.setAttribute(k, new THREE.BufferAttribute(new A.array.constructor(out[k]), A.itemSize, A.normalized)); }
+  if (g !== g0) g.dispose(); g0.dispose(); mesh.geometry = ng; ng.computeBoundingBox(); ng.computeBoundingSphere();
+  return { cut, dropped };
+}
+
+// ---- THE LIGHT. ACTUAL TIME: how far into night his clock is, from an approximate sunrise and sunset for the date (New York's
+// and Sarasota's swing between about 6:45–7:20 and 17:40–20:25), an hour's twilight round each. → 0 day … 1 night
+function stNightAt(d) {
+  const doy = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5), s = Math.sin(2 * Math.PI * (doy - 80) / 365), h = d.getHours() + d.getMinutes() / 60;
+  const rise = 6.85 - 0.45 * s, set = 18.95 + 1.35 * s, sm = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+  return 1 - sm(rise - 0.5, rise + 0.5, h) * (1 - sm(set - 0.5, set + 0.5, h));
+}
+const stTarget = mode => mode === 'day' ? 0 : mode === 'night' ? 1 : stNightAt(new Date());
+// The uniforms for STREET.k now: the sky and its haze, the sun, the ambient, the signs.
+function stApplyK() {
+  const k = stBuilt.k, U = ST_U, mix3 = (a, b) => a.map((x, i) => x + (b[i] - x) * k);
+  U.k.value = k; U.sun.value = 0.45 * (1 - k);
+  U.amb.value.set(...mix3([0.62, 0.63, 0.66], [0.11, 0.12, 0.17]));
+  U.fogC.value.set(...mix3([0.78, 0.83, 0.88], [0.06, 0.065, 0.10]));
+  U.fogN.value = 70 - 20 * k; U.fogF.value = 185;
+  U.signK.value = 0.9 + 0.4 * k;
+}
+// Where the camera is, for drawing: 'street' (outdoors), 'lobby' or 'foyer' (the street through their doors), or 'in'.
+function stWhere(p) {
+  if (p.y > 32) return 'street';
+  if (p.y < 0.3) return 'in';                                    // under the ground: the pits, the basements, the underground
+  const K = STREET.skin, L = LOBBY;
+  if (p.x > K.x0 - 0.02 && p.x < K.x1 + 0.02 && p.z > K.z0 - 0.02 && p.z < K.back && p.y < K.top)
+    return p.x > L.x0 && p.x < L.x1 && p.z < L.wallZ && p.z > L.wallZ - L.t - L.depth && p.y < L.roof ? 'lobby' : 'in';
+  const H = VW_HALL;
+  if (p.x > H.x0 - 0.3 && p.x < H.x1 + 0.3 && p.z > H.z0 - H.t - 0.1 && p.z < H.z1 + H.t + 0.1 && p.y < 4.5) return 'in';
+  if (VW.missing || !stBuilt) return 'street';
+  if (!stBuilt.vwPoly) {                                         // the Van Wezel's footprint (the glass and the stage house), its foyer's plan
+    const [g0, g1] = VWF.glass, [cx, cz] = VWF.c, Rg = Math.hypot(g1[0] - cx, g1[1] - cz), t0 = Math.atan2(g1[1] - cz, g1[0] - cx), arc = [];
+    for (let i = 1; i < 32; i++) { const t = t0 + (-Math.PI - 2 * t0) * i / 32; arc.push([cx + Rg * Math.cos(t), cz + Rg * Math.sin(t)]); }
+    const m = q => [2 * cx - q[0], q[1]];
+    stBuilt.vwPoly = [[52, 50], [52, g0[1]], g0, g1, ...arc, m(g1), m(g0), [102, g0[1]], [102, 50]];
+    try { stBuilt.vwFoyer = vwfOutline().pts; } catch (e) { stBuilt.vwFoyer = []; }
+  }
+  if (p.y < 30 && stInPoly(p.x, p.z, stBuilt.vwPoly)) return stBuilt.vwFoyer.length && p.y < 11 && stInPoly(p.x, p.z, stBuilt.vwFoyer) ? 'foyer' : 'in';
+  return 'street';
+}
+function stInPoly(x, z, poly) {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const [xi, zi] = poly[i], [xj, zj] = poly[j];
+    if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) inside = !inside;
+  }
+  return inside;
+}
+// The Van Wezel's outside dimmed at night while the camera is out in the street (its look is baked in daylight): every
+// 'vw: exterior_' look but the glass, and the glass's wall finish. f 1 puts back what was there when it was first dimmed.
+function stVwDim(f) {
+  const S = stBuilt;
+  if (f === S.vwF) return false;
+  if (f < 1 && !S.vw) {
+    const seen = new Set(); S.vw = [];
+    VW.root.traverse(o => { if (o.isMesh && /^vw: exterior_/.test(o.name) && o.material && !seen.has(o.material)) { seen.add(o.material); const m = o.material; S.vw.push({ m, c: m.color ? m.color.clone() : null, e: m.emissive ? m.emissive.clone() : null }); } });
+  }
+  if (S.vw) for (const { m, c, e } of S.vw) { if (c) m.color.copy(c).multiplyScalar(f); if (e) m.emissive.copy(e).multiplyScalar(f); }
+  if (f >= 1) S.vw = null;
+  S.vwF = f;
+  return true;
+}
+// The frame loop's call: the mode's light (his clock looked at every 20 s of frame time), the ease between modes, where the
+// camera is (drawn or not), the Van Wezel's dimming, the bulbs' chase. → true when the picture changed.
+function stTick(dt) {
+  const S = stBuilt; if (!S) return false;
+  let changed = false;
+  if (S.mode === 'actual' && (S.clockT -= dt) <= 0) { S.clockT = 20; S.target = stNightAt(new Date()); }
+  if (S.k !== S.target) { const st = dt / STREET.fade; S.k = S.k < S.target ? Math.min(S.target, S.k + st) : Math.max(S.target, S.k - st); stApplyK(); changed = true; }
+  const where = stWhere(camera.position), shown = where !== 'in';
+  if (shown !== S.shown) { S.shown = shown; S.group.visible = S.sky.visible = shown; changed = true; }
+  S.where = where;
+  if (!VW.missing && stVwDim(where === 'street' ? 1 - 0.55 * S.k : 1)) changed = true;
+  if (shown && S.k > 0.02) { S.time += dt; const st = Math.floor(S.time * STREET.chase); if (st !== ST_U.step.value) { ST_U.step.value = st; changed = true; } }
+  return changed;
+}
+function stModeLoad() { try { const m = localStorage.getItem(STREET.storeKey); return ['actual', 'day', 'night'].includes(m) ? m : 'actual'; } catch (e) { return 'actual'; } }
+function stMode(m) {
+  const S = stBuilt; if (!S || !['actual', 'day', 'night'].includes(m)) return S ? S.mode : null;
+  S.mode = m; S.target = stTarget(m); S.clockT = 20;
+  try { localStorage.setItem(STREET.storeKey, m); } catch (e) { /* private window: not remembered */ }
+  for (const b of document.querySelectorAll('[data-street]')) b.setAttribute('aria-pressed', String(b.dataset.street === m));
+  requestRender();
+  return m;
+}
+// The header: a Street group (Actual time · Day · Night) after the Voices button, and the Broadway view.
+function stUI() {
+  const views = document.querySelector('header .views');
+  if (views && !document.getElementById('v-street')) {
+    const b = document.createElement('button'); b.id = 'v-street'; b.textContent = 'Broadway'; b.title = 'Out on the street, across from the Midtown and Theatre 2 marquees';
+    b.addEventListener('click', () => go('v-street')); views.appendChild(b);
+  }
+  if (document.getElementById('st-modes')) return;
+  const g = document.createElement('div'); g.className = 'mode'; g.id = 'st-modes'; g.setAttribute('role', 'group'); g.setAttribute('aria-label', 'The street\'s light');
+  g.innerHTML = '<span class="wl-label" aria-hidden="true">Street</span>';
+  for (const [m, label, title] of [['actual', 'Actual time', 'Day or night by your clock (sunrise and sunset for the date)'], ['day', 'Day', 'Daylight on the street'], ['night', 'Night', 'Night: the marquees chasing, the signs lit, the street lamps on']]) {
+    const b = document.createElement('button'); b.dataset.street = m; b.textContent = label; b.title = title; b.setAttribute('aria-pressed', 'false');
+    b.addEventListener('click', () => stMode(m)); g.appendChild(b);
+  }
+  const v = document.getElementById('sm-voices'), after = v && v.parentElement;
+  if (after) after.after(g); else document.querySelector('header').appendChild(g);
+}
+
+// ---- THE CHECK. PASS / FAIL lines; → the text.
+// A walk with the walk's own step: from where the walker stands toward (x, z), W held, re-aimed each step, until within 0.35 m
+// or no nearer for 3 s of walk time. → { ok, at, t }
+function stWalkTo(x, z, maxT = 200) {
+  const p = player.pos; let t = 0, best = Infinity, stall = 0;
+  keys.add('KeyW'); keys.add('ShiftLeft');
+  while (t < maxT) {
+    const dx = x - p.x, dz = z - p.z, d = Math.hypot(dx, dz);
+    if (d < 0.35) break;
+    yaw = Math.atan2(-dx, -dz);
+    walkStep(0.05); doorsTick(0.05); t += 0.05;
+    if (d < best - 0.02) { best = d; stall = 0; } else if ((stall += 0.05) > 3) break;
+  }
+  keys.delete('KeyW'); keys.delete('ShiftLeft');
+  return { ok: Math.hypot(x - p.x, z - p.z) < 0.35, at: [p.x, p.y, p.z], t };
+}
+function stCheck() {
+  const S = stBuilt; if (!S) return 'street: not built';
+  if (col.stale) buildCollider();
+  scene.updateMatrixWorld(true);
+  const out = [], f2 = v => v.toFixed(2), Q = STREET, F = S.F;
+  let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  // 1. NOTHING OF IT INSIDE A BUILDING: every vertex of everything else in the walk's grid against every front's prism, the
+  // street's corridor (pavements and road, 0.3…8 m up) and the wedge before Midtown (to 3 m: the lobby's canopy is over it)
+  const corridor = [F.P(Q.u0, 0), F.P(Q.u1, 0), F.P(Q.u1, S.wB), F.P(Q.u0, S.wB)];
+  const K = Q.skin, xEnd = K.x1, wedge = [F.P(0, 0), [K.x0, K.z0], [xEnd, K.z0], [xEnd, F.P(F.uw(xEnd, K.z0)[0], 0)[1]]];
+  const regs = [...S.regions, { poly: corridor, y0: 0.3, y1: 8, name: 'the street' }, { poly: wedge, y0: 0.95, y1: 3.0, name: 'the wedge before Midtown' }];
+  for (const r of regs) { r.bx0 = Math.min(...r.poly.map(p => p[0])); r.bx1 = Math.max(...r.poly.map(p => p[0])); r.bz0 = Math.min(...r.poly.map(p => p[1])); r.bz1 = Math.max(...r.poly.map(p => p[1])); }
+  const tol = 0.02, inner = (x, z, poly) => { if (!stInPoly(x, z, poly)) return false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [ax, az] = poly[j], [bx, bz] = poly[i], ex = bx - ax, ez = bz - az, L = Math.hypot(ex, ez); if (Math.abs((x - ax) * ez - (z - az) * ex) / L < tol) return false; } return true; };
+  const hits = {}, v = new THREE.Vector3();
+  let tested = 0;
+  for (const o of colliderMeshes()) {
+    if (/^street/.test(o.name)) continue;
+    const P = o.geometry.attributes.position;
+    for (let i = 0; i < P.count; i++) {
+      v.fromBufferAttribute(P, i).applyMatrix4(o.matrixWorld); tested++;
+      for (const r of regs) if (v.x > r.bx0 && v.x < r.bx1 && v.z > r.bz0 && v.z < r.bz1 && v.y > r.y0 && v.y < r.y1 && inner(v.x, v.z, r.poly)) { const k = `${o.name} in ${r.name}`; hits[k] = (hits[k] || 0) + 1; }
+    }
+  }
+  const hk = Object.keys(hits);
+  line(!hk.length, `nothing inside the street or its ${S.regions.length} fronts: ${tested} vertices of the rest tested` + (hk.length ? ` — ${hk.slice(0, 8).map(k => `${k} (${hits[k]})`).join('; ')}` : ''));
+  // the terrace: nothing left south of the line
+  const ter = scene.getObjectByName('vw: exterior_tex_29');
+  if (ter) { let worst = Infinity; const P = ter.geometry.attributes.position; for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).applyMatrix4(ter.matrixWorld); worst = Math.min(worst, F.uw(v.x, v.z)[1]); } line(worst > -0.005, `the Van Wezel's terrace clipped at the line: its southmost point w ${worst.toFixed(3)} m`); }
+  // 2. THE WALKS: from inside each house's doors, out (the pair opened), to the kerb, across the road; along both pavements
+  const save = { pos: player.pos.clone(), vel: player.vel.clone(), g: player.onGround, yaw, pitch, cam: camera.position.clone(), q: camera.quaternion.clone(), want: DOORS.list.map(e => e.want), u: DOORS.list.map(e => e.u), spawn: player.spawn.clone() };
+  const place = (x, z, y) => { const g = groundAt(x, z, y); player.pos.set(x, g === null ? y : g, z); player.vel.set(0, 0, 0); player.onGround = true; player.spawn.copy(player.pos); };
+  for (const e of S.doors) e.want = 1;
+  doorsTick(10);
+  const zF = LOBBY.wallZ - LOBBY.t - LOBBY.depth;
+  const routes = [
+    ...Q.lobbyDoors.map(d => ({ name: d.name, start: [d.x, zF + 1.6, LOBBY.floor + 0.5], legs: [[d.x, K.z0 - 2.0], F.P(F.uw(d.x, K.z0 - 2)[0], S.wN + 0.8), F.P(F.uw(d.x, K.z0 - 2)[0], S.wS - 0.8)] })),
+    ...(VW.missing ? [] : [{ name: Q.vwDoor.name, start: [Q.vwDoor.x, S.vwDoorZ + 1.2, 1.4], legs: [[Q.vwDoor.x, S.vwDoorZ - 2.2], F.P(S.uVW, S.wN + 0.8), F.P(S.uVW, S.wS - 0.8)] }]),
+    { name: 'the north pavement, end to end', start: [...F.P(Q.u0 + 3, -2.2), Q.top + 0.5], legs: [F.P(Q.u1 - 3, -2.2)] },
+    { name: 'the south pavement, end to end', start: [...F.P(Q.u1 - 3, S.wS - 2.5), Q.top + 0.5], legs: [F.P(Q.u0 + 3, S.wS - 2.5)] },
+  ];
+  for (const r of routes) {
+    place(r.start[0], r.start[1], r.start[2]);
+    let ok = true, s = '', t = 0;
+    for (const [x, z] of r.legs) { const w = stWalkTo(x, z); t += w.t; if (!w.ok) { ok = false; s = ` — stopped at (${w.at.map(f2).join(', ')}) short of (${f2(x)}, ${f2(z)})`; break; } }
+    line(ok, `walked: ${r.name} (${r.legs.length} leg${r.legs.length > 1 ? 's' : ''}, ${t.toFixed(1)} s of walk time, feet at y ${f2(player.pos.y)})${s}`);
+  }
+  DOORS.list.forEach((e, i) => { e.want = save.want[i]; e.u = save.u[i]; });
+  doorsTick(0); DOORS.list.forEach(e => { e.angle = e.u * e.u * (3 - 2 * e.u) * DOORS.swing; for (const l of e.leaves) { l.rotation.y = -l.userData.s * e.angle; l.updateMatrixWorld(true); } });
+  player.pos.copy(save.pos); player.vel.copy(save.vel); player.onGround = save.g; player.spawn.copy(save.spawn); yaw = save.yaw; pitch = save.pitch;
+  camera.position.copy(save.cam); camera.quaternion.copy(save.q); camera.updateMatrixWorld();
+  // 3. THE LIGHT: the three modes give their targets; the counts
+  const tg = ['day', 'night'].map(stTarget);
+  line(tg[0] === 0 && tg[1] === 1, `the modes: day ${tg[0]}, night ${tg[1]}, actual time now ${stNightAt(new Date()).toFixed(2)} (${S.mode}, k ${S.k.toFixed(2)})`);
+  const th = S.houses.filter(h => h.u !== undefined);
+  out.unshift(`street: ${S.regions.length} fronts, ${th.length} theatres on them (${th.map(h => h.name).join(', ')}) and our three · ` + S.group.children.map(m => `${m.name.replace('street: ', '')} ${m.geometry.attributes.position.count / 3}`).join(', ') + ' triangles');
+  const s = `street: ${fails ? fails + ' FAIL' : 'PASS'}\n` + out.join('\n');
+  console.info(s); requestRender();
+  return s;
+}
+const STREET_API = {
+  spec: STREET, houses: ST_HOUSES, tick: stTick, check: stCheck, where: () => stWhere(camera.position),
+  mode: m => m === undefined ? (stBuilt && stBuilt.mode) : stMode(m),
+  state() { const S = stBuilt; if (!S) return 'street: not built'; const s = `street: ${S.mode} (k ${S.k.toFixed(2)} → ${S.target.toFixed(2)}), the camera ${S.where}, ${S.shown ? 'drawn' : 'not drawn'}, the Van Wezel's outside × ${S.vwF.toFixed(2)}`; console.info(s); return s; },
+  view: () => go('v-street'),
+  get built() { return stBuilt; },
+};
+
 /* ---------------------------------------------------------------- BUILD MODE
    Jack: "make something where i can add geometries and use a dropdown to choose their texture and i
    can move and resize them." Pieces live in `built`; a TransformControls gizmo moves, turns and
@@ -22273,7 +23094,8 @@ renderer.setAnimationLoop(() => {
   if (ready && vwLiftTick(dt)) moving = true;                // the Van Wezel's orchestra lift and its stair wagon: off this frame's dt (THE THIRD HOUSE: THE ORCHESTRA LIFT)
   if (ready && pitTick(dt)) moving = true;                   // the orchestra pit's band on the show's time, drawn only when seen (THE ORCHESTRA PIT)
   if (ready && wlTick(dt)) moving = true;                    // the worklights coming up or going out: off this frame's dt (THE WORKLIGHTS)
-  if (ready && jtlTick(dt)) moving = true;                   // Theatre 2's Johnny Tremain rig: its crossfades, movers, water and flicker, off this frame's dt
+  if (ready && jtlTick(dt)) moving = true;
+  if (ready && stTick(dt)) moving = true;                    // the street: its light easing between modes, drawn only from outside, the bulbs' chase, off this frame's dt (THE STREET)                   // Theatre 2's Johnny Tremain rig: its crossfades, movers, water and flicker, off this frame's dt
   if (ready && lxPanelTick(dt)) moving = true;               // the lights panel: Step through's Play (off this frame's dt), the selection's outline
   drewLast = ready && (needsRender || moving);               // render on demand: an idle page draws nothing
   if (drewLast) { needsRender = false; lxDrawn(clock.elapsedTime); renderer.render(scene, camera); }

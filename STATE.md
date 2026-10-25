@@ -10,11 +10,18 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 (#20). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under NEXT below); the
 worktrees and local branches are gone.
 
+- **PR `claude/broadway-street-5514f3` (2026-10-25, night; RULING GV; HANDOFF's newest DONE block): Broadway outside the three houses.**
+  A street on a slant past the Midtown front and the Van Wezel's glass, 42 empty fronts with 19 real Broadway houses and
+  their shows, HAMILTON and JOHNNY TREMAIN marquees on the Midtown block's new front over two new pairs of street doors, a
+  pair through the Van Wezel's glass under its own marquee. The header's Street buttons are Actual time / Day / Night
+  (`MIDTOWN.street`), with chaser bulbs, lit signs and lamps at night, and a "Broadway" view. **His eye on it, then his to
+  decide:** the Van Wezel's lower wall stays light at night; the slant and the wedge before Midtown; the approximate
+  sunrise and sunset; Circle in the Square has no front; the paved strip east of the Van Wezel is open at its far north
+  corner; the houses' insides are still drawn from the street. PR #30 (`vw-hamilton`) merged first; this branch has main merged in. Rulings are at **GV** (GU is `vw-hamilton`'s), so GW is next.
 - **NEWEST: PR `vw-hamilton` (2026-10-25, evening; HANDOFF's NEXT SESSION and DONE blocks, RULING GU).** Hamilton on the Van
   Wezel's stage: the set, rig, actors and light mirrored from house 1 (every cue proven the same, 909 × 3 views), the pit down
   with its wall up, the band walking in at the Five, a prompt desk stage right, house 1's desk screens on the grandMA3, the
   Van Wezel's borders and electrics raised clear. His to decide: listed in the NEXT SESSION block. Rulings at GU (GV next).
-  The Broadway street session (`claude/broadway-street-5514f3`) stopped part-way; nothing of it is in a PR.
 - **NEXT (before it): his eye on PR #27 (`vw-answers`, MERGED `d98673c`; HANDOFF's NEXT SESSION block and its DONE block, RULING GT).** Every one
   of his Van Wezel answers and five asks is built: the model's colours back (`VW_PHOTO_COLOURS` off), the landings' lip, the
   foyer's mullions out, the follow-spot booth bigger with tall windows and its outside the ceiling's colour, the lift's pedestal
