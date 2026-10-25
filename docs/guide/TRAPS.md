@@ -2345,3 +2345,27 @@ include the place a failure would show — the corridor behind the house, not on
   a frame with no pool lit). Gate it on the quad being up (`LX_BODY_ON`).
 - **Seeking then reading an actor's pose straight away can give different numbers in two tabs**: the settle and the walk run
   off the frame. Compare clip measurements at fixed cameras with the same framing, and trust ratios, not pixel counts.
+
+## From the crew-walks round (2026-10-25)
+
+- **Ask which house before building.** Jack's "lighting booth", "spot booth", "the band", "places" in this round all meant the
+  **Van Wezel**, not house 1 (he said so after the first question, which assumed house 1). With three houses, the word alone does
+  not say which; ask once, early.
+- **The page is three.js 0.160, not r128** (the import map). A `WebGLRenderTarget` with a default texture (no colour space)
+  draws every material with a LINEAR output — a second set of shader programs: the booth monitors' first draw froze for 4.7 s.
+  Give a target that the screen shows `texture.colorSpace = THREE.SRGBColorSpace`, the screen's own output.
+- **A top-level table that names a later `const` throws at load** ("Cannot access 'VWHAM' before initialization") and kills
+  everything after it in the module. Read it at build time instead; and a default parameter takes the default only for
+  `undefined`, not for `null`.
+- **The one-file soundtrack's time a little before a track's start is a landing error, not the track before.** `showSoundTick`
+  walked back a track when `currentTime + soundOff` fell short of `tracks[ti].file`; at Act Two's GO that took the show into
+  1-23, its tail paused the music and the act break came round again. It only moves forward now, and from the act break's
+  silence the element plays on to 2-01 (no seek: `SHW_PLAY_ON`).
+- **`decodeAudioData` refuses the 140 MB album whole** ("Unable to decode audio data"). Decode it in 6 MB pieces and place each
+  on the true time by matching its loudness against `assets/hamilton-soundtrack-env.u8` (tools/rumble.html): every piece matched
+  at 0.93–0.998.
+- **Over the front half of the Van Wezel's house ceiling there is 0.3–0.6 m under the roof** (the ceiling at 19.15, the roof
+  19.4–21): nothing walks there. The crew way goes over the roof instead.
+- **A cluster offset round an offstage spot can land on the deck** (PLACES: ±0.55 m round a wing spot put two ensemble bodies
+  onstage). Test "on the deck" after the offset, not before.
+

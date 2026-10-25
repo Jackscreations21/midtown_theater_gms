@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#36 merged; `main` `cd06c55`; nothing open)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#40 merged, #38 last; nothing open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,15 +6,23 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-**2026-10-24: four PRs merged in one day** (each has a DONE block in HANDOFF.md, newest first). `main` is **`852c232`**
-(#20). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under NEXT below); the
-worktrees and local branches are gone.
+- **NEWEST: PR #40 (MERGED `7e60af6`) `crew-walks` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling,
+  GW next).** Act Two opens on What'd I Miss again (the show engine, both houses), and in the **Van Wezel** (his word: "i meant all
+  this stuff in the van wezel"): the crew way (the stage-right spiral on up to a hallway over the roof and a ladder down to the
+  spots), five crew who walk it to the booths at the Five, Places off the deck, the band up the stair and through the pit door,
+  booth light switches, seven monitors across the tech booth's window, a power button for its equipment; the header's Tags and
+  Rumble. **His eye on it, then his to decide:** the hallway's look from the street; the spot booth's switch darkens its outside
+  too; the rumble's 95 hits are found by the computer (too many or too few?); the crew take ~1.5 min to walk up; the monitors'
+  angles.
+- **PR #38 (MERGED after #40) `theatre2-sign` (2026-10-25): Theatre 2's street front renamed.** Jack: "change the sign that says theater 2 to
+  say midtown theater an make its marquis say johhny tremain". `ST_OURS` row 2's signs read MIDTOWN THEATER; the marquee's title
+  was already JOHNNY TREMAIN. Only the street's signs changed; everywhere else still says Theatre 2 (his word: "Leave the rest as
+  Theatre 2").
 
-- **NEWEST: PR `theatre2-sign` (2026-10-25): Theatre 2's street front renamed.** Jack: "change the sign that says theater 2
-  to say midtown theater an make its marquis say johhny tremain". `ST_OURS` row 2: the name band, the marquee's name row
-  and sides, and the blade now read MIDTOWN THEATER; the marquee's title was already JOHNNY TREMAIN. Only the street's
-  signs changed — the header buttons, lobby signs, monitor label and comments still say Theatre 2.
-- **Before it: PR #39 (MERGED `75b879b`) `actor-whiteout` (2026-10-25): lit actors no longer turn white.** Jack: "at some parts the lighting or the
+**Main** is **`7e60af6`** (#40). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
+NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40` and `theatre2-sign`).
+
+- **Before it: PR #39 (MERGED `75b879b`) `actor-whiteout` (2026-10-25; HANDOFF's DONE block): lit actors no longer turn white.** Jack: "at some parts the lighting or the
   spotlights light up the people too much and they just turn entirely white". The cause: the engine's pools are added onto the
   finished, tone-mapped frame at a gain fitted to the ~10 % deck, and a costume is 10–90 % and already lit by the real lights:
   a followspot put 8–13 × albedo on a body (1-02 Q92 Burr; 1-01 Q59 Hamilton drew a flat white silhouette). Now a body takes
