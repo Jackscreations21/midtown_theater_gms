@@ -2369,6 +2369,13 @@ include the place a failure would show — the corridor behind the house, not on
 - **A cluster offset round an offstage spot can land on the deck** (PLACES: ±0.55 m round a wing spot put two ensemble bodies
   onstage). Test "on the deck" after the offset, not before.
 
+## From the places-upstage round (2026-10-25)
+
+- **The passage under the gallery (z 9.0…9.3) is in front of the set's back wall, not behind it** — the brick is at z
+  9.35…9.66, and the backstage slab starts at 10.0. `CO_PLACES.z` at 9.0 let act 1's tops for Hamilton, Washington and King
+  George (−1.8…−0.7, 9.01) count as off the deck, and all three stood in full view under the gallery at Places. Measure the
+  wall (a ray along +z through the set's meshes) before drawing a line by it.
+
 ## From the booth-monitor round (2026-10-25)
 
 - **The pools' sum is screen-sized and read at `gl_FragCoord / uRes`** (the pools' quad, a body's shading). Drawn into a

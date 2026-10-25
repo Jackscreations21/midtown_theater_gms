@@ -9489,7 +9489,7 @@ const CO_ROUTE = {
   roomIn: 14.30,                           // a door's inside point, on its centre line (the leaf, open, lies along its x0 jamb)
   col: { hr: -9.15, hl: 9.30 },            // the two columns: through house 1's slots (x −9.75…−8.80 / 8.80…9.95) and down the wings
   strip: 10.30,                            // the slab behind the set's back wall (z 10.0…10.5), open across
-  passage: 9.15,                           // under the gallery, behind the set's back wall (z 9.0…9.3), open across but at x 1.75…3.0
+  passage: 9.15,                           // under the gallery, in front of the set's back wall (z 9.0…9.3), open across but at x 1.75…3.0
   upstage: 8.50,                           // a deck start upstage of this is reached along the passage
   stair: [[3.60, 9.15], [3.40, 8.90]],     // the upstage stair's foot; it climbs −x along z 8.9 to the gallery landing (y 3.54)
   gallery: 1.60,                           // a start whose floor is higher than this (world y) is on the gallery: by the stair
@@ -9497,10 +9497,11 @@ const CO_ROUTE = {
   apronHR: [[-9.15, 3.00], [-4.30, 3.00], [-4.30, 0.45]],   // house right's way to the apron: across the set's front, down through the arch
   apronZ: 0.45,                            // … then along the apron at this z to the start's x
 };
-// PLACES OFF THE DECK (coPlaces): the set's deck as seen from the house (world): between its side walls (|x| < x), downstage
-// of its back wall (z < z), and anything over the gallery's height; a body whose top is there waits in its wing, n to a line
-// from z0, step apart, a second line 0.35 m further off
-const CO_PLACES = { x: 8.45, z: 9.0, z0: 3.2, step: 0.6, n: 10 };
+// PLACES OFF THE DECK (coPlaces): the set's deck as seen from the house (world): between its side walls (|x| < x), up to the
+// slab behind its back wall (z < z: the passage under the gallery, z 9.0…9.3, is in front of the brick, 9.35…9.66, and in
+// view), and anything over the gallery's height; a body whose top is there waits in its wing, n to a line from z0, step
+// apart, a second line 0.35 m further off
+const CO_PLACES = { x: 8.45, z: 10.0, z0: 3.2, step: 0.6, n: 10 };
 const coOnDeck = W => W.y > CO_ROUTE.gallery || (Math.abs(W.x) < CO_PLACES.x && W.z < CO_PLACES.z);
 const CO_TUNE = {
   clear: 0.45,      // m: a home spot's clearance from every piece of furniture (0.40 in a crowded room)
