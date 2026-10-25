@@ -10,7 +10,11 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 (#20). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under NEXT below); the
 worktrees and local branches are gone.
 
-- **NEWEST: PR #36 (MERGED `cd06c55`) `hamilton-costumes` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling, GW next):
+- **NEWEST: PR `theatre2-sign` (2026-10-25): Theatre 2's street front renamed.** Jack: "change the sign that says theater 2
+  to say midtown theater an make its marquis say johhny tremain". `ST_OURS` row 2: the name band, the marquee's name row
+  and sides, and the blade now read MIDTOWN THEATER; the marquee's title was already JOHNNY TREMAIN. Only the street's
+  signs changed — the header buttons, lobby signs, monitor label and comments still say Theatre 2.
+- **Before it: PR #36 (MERGED `cd06c55`) `hamilton-costumes` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling, GW next):
   the Hamilton costumes.** 46 looks after Paul Tazewell's design in `assets/hamilton-costumes.json`
   (`docs/hamilton-costumes-format.md`), each body's plot of them by song, worn on the jointed body (vertex-coloured parts, coat
   skirts, gowns, capes, a crown…), changed off stage, a pure function of show time (`MIDTOWN.costumes`, the Blocking panel's
