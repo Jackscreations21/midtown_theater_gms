@@ -265,8 +265,9 @@ to make it hamitlon themed (in the van wezel"*.
   coil; two beams across at 12.95 and 16.6 with king posts and braces making five bays; a fan of red, white and blue bunting
   in each bay under the lower beam, rope swags between them. `vwKeepOut`'s sightlines now skip rays the fitted frame stops
   (it sees no stage there). `.dress` 7/7 (0 of 96 sightlines, 0 of 914 throws blocked), `.house` 5/5.
-- His to decide: the lilac oval over the proscenium (what is left of the model's front ceiling panel, house_tex_31) still
-  shows against the brick; the chandeliers hang over the middle of the stalls (13.9 m up, clear of every sightline checked); the brick
+- **The lilac oval** over the proscenium (what the cut leaves of the model's fan of panels, `house_tex_31`) hidden while the
+  dressing is on (Jack: *"remove the oval"*), shown again with "VW dress" off. `.dress` 7/7 with it in the off/on test.
+- His to decide: the chandeliers hang over the middle of the stalls (13.9 m up, clear of every sightline checked); the brick
   covers only the grille panels (the dark piers and the parapets keep the model's colours); the front panels' sills sit at
   5.0 (2.45 m over the deck) instead of on the panels' feet, clear of the lift's corners.
 

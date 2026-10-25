@@ -18113,7 +18113,8 @@ VAN_WEZEL_API.house = VW_HOUSE_API;                           // MIDTOWN.vanWeze
    or across the follow-spots' or the tech booth's sight of the stage (vwKeepOut), nor across the show's own throws here.
    THE PROSCENIUM WALL (Jack, of it from the stalls: "put more decoration on this wall"): its house face in brick round the
    fitted opening, deck to ceiling; a pilaster each side of the opening with a lantern and a coil; two beams across with king
-   posts and braces making five bays; a fan of bunting in each bay, rope swags between. Seven meshes: wood, rope, plain (iron,
+   posts and braces making five bays; a fan of bunting in each bay, rope swags between; the model's lilac oval in front of it
+   (house_tex_31, what the cut leaves of the fan of panels) hidden while the dressing is on (Jack: "remove the oval"). Seven meshes: wood, rope, plain (iron,
    blocks, sandbags, candles, the lit panes), flags, wall brick, bunting, halos.
    MIDTOWN.vanWezel.dress: .spec, .built, .on, set(on), check(), view(); the header's "VW dress" toggle. */
 const VW_HAM_DRESS = true;                                      // built at load and shown (false: not built)
@@ -18419,14 +18420,16 @@ function vwDressBuild(model) {
   const meshes = [add('wood', W, basic(vwDressWood())), add('rope', R, basic(vwDressRope())), add('plain', Pl, basic(null)), add('flags', F, basic(vwDressFlag())), add('wall brick', BR, brickMat), add('bunting', BU, fanMat),
     add('halos', G, new THREE.MeshBasicMaterial({ map: glowTex, color: 0xffc890, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }))].filter(Boolean);
   scene.add(group); group.updateMatrixWorld(true);
+  const oval = model.byName('house_tex_31');                   // what THE HOUSE AS IT IS's cut leaves of the fan of panels: one lilac oval in front of the wall
   const set = on => {
     on = !!on; const L = on ? brick : keep; group.visible = on;
     panel.geometry.setAttribute('uv', L.uv); pm.map = L.map; pm.needsUpdate = true;
     panel.geometry.attributes.color.array.set(L.colour); panel.geometry.attributes.color.needsUpdate = true;
+    if (oval) oval.visible = !on;                               // the model's lilac oval over the proscenium wall (Jack: "remove the oval")
     vwDress.on = on; const b = document.getElementById('vw-dress'); if (b) b.setAttribute('aria-pressed', String(on)); requestRender(); return on;
   };
   const tris = meshes.reduce((s, m) => s + m.geometry.attributes.position.count / 3, 0);
-  vwDress = { group, meshes, panel, panels, walls, posts, trusses, count, keep, brick, triangles: tris, on: false, set, ms: 0 };
+  vwDress = { group, meshes, panel, oval, panels, walls, posts, trusses, count, keep, brick, triangles: tris, on: false, set, ms: 0 };
   set(true);
   if (vwHam) for (const m of meshes) { m.material.userData.base = m.material.color.clone(); vwHam.dims.push(m.material); }   // down with the house (the panels' look is already among its dims)
   vwDressUI();
@@ -18461,9 +18464,9 @@ function vwDressCheck() {
     line(!blocked && vwHam.fs.length === 3, `the show's throws (${vwHam.fs.length} follow-spots, ${eyes.length - vwHam.fs.length} FOH units moved up) to the stage through the fitted opening: ${blocked} of ${rays} rays blocked by it`);
   }
   const is = L => g.attributes.uv === L.uv && m.map === L.map && g.attributes.color.array.every((c, i) => c === L.colour[i]);
-  let ok = true; for (const on of [false, true, false, true]) { b.set(on); ok = ok && is(on ? b.brick : b.keep) && b.group.visible === on; }
+  let ok = true; for (const on of [false, true, false, true]) { b.set(on); ok = ok && is(on ? b.brick : b.keep) && b.group.visible === on && (!b.oval || b.oval.visible === !on); }
   b.set(was);
-  line(ok, `off puts the panels' own UVs, map and colours back and on the brick's, twice over; left ${was ? 'on' : 'off'}`);
+  line(ok, `off puts the panels' own UVs, map and colours back (and the lilac oval) and on the brick's (the oval hidden), twice over; left ${was ? 'on' : 'off'}`);
   const fails = out.filter(s => s.startsWith('FAIL')).length, s = `van wezel dress: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
   console.info(s); return s;
 }
