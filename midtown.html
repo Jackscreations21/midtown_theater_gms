@@ -14130,6 +14130,9 @@ const VW_GLASS_BLOCK = new THREE.MeshBasicMaterial({ visible: false });   // col
 // name: color (× lift: the baked light takes a vertical wall to ~0.6 and a ceiling to ~0.73, so a colour can be lifted past 1
 // to land on the photograph's), map: false drops the model's texture, tex: a texture of our own, vertex: its vertex colours
 // changed before the light is baked into them.
+// OFF (RULING GT, 2026-10-25, Jack: "change the color of the theater to what it was befor"): the model's own colours and
+// textures again; vwHouseBuild's coves and soffits take the model's palette (VWH.col). true puts the photographs' back.
+const VW_PHOTO_COLOURS = false;
 const VW_LOOKS = {
   house_tex_30: { tex: 'grille', color: 0xffffff, lift: 1.0 },          // the side walls' tall grille bays: gold
   house_tex_31: { color: 0x9c6078, lift: 1.25, map: false },           // the soffit over the proscenium (its fan of panels is cut)
@@ -14171,6 +14174,22 @@ function vwArmrests(g) {
   }
   VWH.armrests = n;
 }
+// The glass walls' white mullions and heads (in exterior_lit with the building's other lit pieces): every triangle of it lying
+// within tol of the glass (exterior_glass, a wall to the walk only since 2026-10-24) out. Jack (2026-10-25): "the glass walls of
+// the lobby are still there get rif og them". → the triangles dropped
+function vwDropMullions(model, tol = 0.30) {
+  const lit = model.byName('exterior_lit'), glass = model.byName('exterior_glass'); if (!lit || !glass) return 0;
+  const tris = [], v = new THREE.Vector3(), q = new THREE.Vector3(), gp = glass.geometry.attributes.position, gi = glass.geometry.index;
+  const gw = i => new THREE.Vector3().fromBufferAttribute(gp, gi ? gi.getX(i) : i).applyMatrix4(glass.matrixWorld);
+  for (let t = 0; t + 2 < (gi ? gi.count : gp.count); t += 3) { const tr = new THREE.Triangle(gw(t), gw(t + 1), gw(t + 2)); tris.push({ tr, box: new THREE.Box3().setFromPoints([tr.a, tr.b, tr.c]).expandByScalar(tol) }); }
+  const near = p => tris.some(({ tr, box }) => box.containsPoint(p) && tr.closestPointToPoint(p, q).distanceTo(p) < tol);
+  const g = lit.geometry, P = g.attributes.position, idx = g.index ? Array.from(g.index.array) : [...Array(P.count).keys()], keep = [], memo = new Map();
+  const on = i => { if (!memo.has(i)) memo.set(i, near(v.fromBufferAttribute(P, i).applyMatrix4(lit.matrixWorld))); return memo.get(i); };
+  for (let t = 0; t < idx.length; t += 3) if (!(on(idx[t]) && on(idx[t + 1]) && on(idx[t + 2]))) keep.push(idx[t], idx[t + 1], idx[t + 2]);
+  const dropped = (idx.length - keep.length) / 3;
+  if (dropped) { g.setIndex(keep); g.computeBoundingBox(); g.computeBoundingSphere(); }
+  return dropped;
+}
 function vwPlace(gltf) {
   const root = gltf.scene; root.name = 'van wezel'; root.position.set(VW.at.x, VW.at.y, VW.at.z);
   const drop = [], mats = [], keep = [];
@@ -14181,7 +14200,7 @@ function vwPlace(gltf) {
     o.name = 'vw: ' + name; o.castShadow = o.receiveShadow = false; o.userData.rig = true;
     if (name === 'exterior_glass') { o.material = VW_GLASS_BLOCK; s.dispose(); continue; }   // the foyer's glass walls: gone, a wall to the walk only (Jack, 2026-10-24: "remove all the clear stuff from the lobby")
     if (/glass$/.test(name)) { o.material = lobbyMat.glass; s.dispose(); continue; }
-    const g = o.geometry, N = g.attributes.normal, n = g.attributes.position.count, unlit = /unlit$/.test(name), L = VW_LOOKS[name];   // L: the photographs' look (THE HOUSE AS IT IS)
+    const g = o.geometry, N = g.attributes.normal, n = g.attributes.position.count, unlit = /unlit$/.test(name), L = VW_PHOTO_COLOURS ? VW_LOOKS[name] : null;   // L: the photographs' look (THE HOUSE AS IT IS)
     let C = g.attributes.color;
     if (!C) { C = new THREE.BufferAttribute(new Float32Array(n * 3).fill(1), 3); g.setAttribute('color', C); }
     if (L && L.vertex) L.vertex(g);
@@ -14239,6 +14258,7 @@ function buildVanWezel(gltf) {
   let model = null, cut = {}, liftY = null, inner = null;
   if (gltf) {
     model = vwPlace(gltf);
+    cut['the glass walls\' mullions'] = vwDropMullions(model);
     const hole = new THREE.Box3(new THREE.Vector3(D.x, F - 0.3, Z0), new THREE.Vector3(X1 + 0.05, R + 0.02, Z1));
     model.root.traverse(o => { if (o.isMesh && /^vw: (exterior|house)_/.test(o.name)) { const k = vwCutBox(o, hole); if (k) cut[o.name] = k; } });
     const terr = model.byName('exterior_tex_29');                 // the terrace (the foyer's floor): nothing of it west of clipX
@@ -14435,6 +14455,8 @@ const VW_SIDE = {
   width: 1.85, parapet: 0.10, rail: 0.95, slab: 0.25,   // the gallery from the wall's line; the parapet's thickness and height over the floor; the slabs
   rise: 0.175, going: 0.28,         // the steepest riser and the shortest going
   under: 0.15,                      // a landing at most this far under the aisle behind its doors
+  lip: 0.06,                        // a landing the flight below leaves at most this short of its aisle is raised to it, that flight's
+                                    // risers a little steeper (portals 7 and 13 were 44 and 42 mm under: RULING GT, Jack "sure")
   stair: { landing: 1.464, going: 0.30 },   // the lowest portal's landing to this far out, its stair on out to the foyer (step 3's)
 };
 let vwSide = null;
@@ -14563,7 +14585,7 @@ function vwSideMeasure(F, meshes, foyer, g0) {
     let G = k === 0 && g0 !== null ? g0 : fa;
     if (prev) {                                                   // the flight below: its span takes so many goings, so many risers
       const span = s - S.land - (prev.s + (k === 1 ? S.land0 : S.land)), n = Math.floor(span / S.going + 1e-9) + 1;
-      G = Math.min(G, prev.G + n * S.rise);
+      if (fa - (prev.G + n * S.rise) > S.lip) G = Math.min(G, prev.G + n * S.rise);   // (within S.lip: the landing stays level with its aisle)
     }
     if (fa - G > S.under) { stop = `portal ${k + 1}'s landing would be ${(fa - G).toFixed(2)} m under its aisle`; break; }
     const model = k < S.feet.length, feet = model ? S.feet[k] : G;
@@ -14668,7 +14690,7 @@ function vwSideDoorsBuild(model, yIn, works) {
       // the flight up to the next landing
       const q = ports[k + 1];
       if (q) {
-        const sa = s + a, sb = q.s - S.land, R = q.G - G, n = Math.max(1, Math.ceil(R / S.rise - 1e-9)), m = n - 1;
+        const sa = s + a, sb = q.s - S.land, R = q.G - G, n = Math.min(Math.floor((sb - sa) / S.going + 1e-9) + 1, Math.max(1, Math.ceil(R / S.rise - 1e-9))), m = n - 1;   // (no more risers than the goings fit: VW_SIDE.lip)
         if (!m) box('stone', sa, sb, G - S.slab, G, 0, Wi);
         for (let i = 1; i <= m; i++) {
           const g = (sb - sa) / m, y = G + i * R / n, z0 = sa + (i - 1) * g;
@@ -17238,7 +17260,9 @@ VW_BOOTHS_API.gear = { spec: VWG, atlas: VWG_AT, get built() { return vwGear; },
    ellipsoidals under a raceway of numbered circuits.
    THE LOOKS are the model's, recoloured where vwPlace bakes them (VW_LOOKS, above it): walls, piers and parapets mauve, the
    ceiling a darker mauve, the grille bays gold (vwGrilleTex), the proscenium wall black, the seats' backs black and their
-   upholstery burgundy-purple, the seat standards' tops wood (vwArmrests).
+   upholstery burgundy-purple, the seat standards' tops wood (vwArmrests). TAKEN BACK (RULING GT, 2026-10-25, Jack: "change the
+   color of the theater to what it was befor"): VW_PHOTO_COLOURS is off, so the model keeps its own colours and maps, and this
+   section's coves, soffits, sills and ledge take the model's palette (VWH.col); the shapes below all stay.
    THE CEILING: the model's fan of tilted lilac panels under the high middle ceiling, and the lilac strips and stars that went
    with them (house_tex_31 and house_unlit inside VWH.cut), are cut away; along the arc where the high ceiling (19.2…20.4)
    drops to the outer one (16.5) three coves step up toward the stage (VWH.coves), each riser with a glowing strip at its foot
@@ -17278,6 +17302,13 @@ const VWH = {
   back: { c: [77, 13.4], R: 52.11, y0: 9.15, y1: 10.95, segs: [[63.0, 71.2], [82.8, 91.0]], panes: 3 },   // the back wall's arc (its face, y 9…14) and the window rows
   rail: { x0: 91.9, x1: 97.6, y: 10.15, deep: 0.75, n: 6, aim: [77, 3.6, 2.0] },                       // house left's open FOH position
   armrests: 0,                                          // set by vwArmrests: the vertices made wood
+  // the pieces' colours ([hex, lift] as VW_LOOKS lifts): the photographs' mauves, or (VW_PHOTO_COLOURS off, RULING GT) the
+  // model's own, measured off its maps: the soffits the lilac of the fan of panels they replace (house_tex_31), the risers the
+  // ceiling's dark purple (house_tex_39), the proscenium's face its lilac grey (house_tex_35), sills and ledge the walls' (house_tex_42)
+  get col() {
+    return VW_PHOTO_COLOURS ? { soffit: [0x9c6078, 1.25], riser: [0xc490ae, 1.6], face: [0xb07a96, 1.45], sill: [0xb07a96, 1.6], ledge: [0xb07a96, 1.45], wallTop: [0xb07a96, 1.45 * 0.62] }
+      : { soffit: 0xc1b5d5, riser: 0x3d2f48, face: 0x877996, sill: 0x3a2a45, ledge: 0x3a2a45, wallTop: null };
+  },
 };
 let vwHouse = null;
 function vwHouseBuild(model) {
@@ -17317,9 +17348,9 @@ function vwHouseBuild(model) {
   };
   // the patches' band over the walls' tops (THE PATCHES: the walls stop under the roof), mauve now the walls are: its
   // colour as a wall's comes out of the bake; the proscenium's slots and the booth window's linings under it stay dark
-  const pm = model.root.getObjectByName('vw: patches');
-  if (pm && pm.geometry.attributes.color) {
-    const p = pm.geometry.attributes.position, c = pm.geometry.attributes.color; col.set(0xb07a96).multiplyScalar(1.45 * 0.62); count.patchTops = 0;
+  const pm = model.root.getObjectByName('vw: patches'), K = H.col;
+  if (pm && pm.geometry.attributes.color && K.wallTop) {
+    const p = pm.geometry.attributes.position, c = pm.geometry.attributes.color; col.set(K.wallTop[0]).multiplyScalar(K.wallTop[1]); count.patchTops = 0;
     for (let i = 0; i < p.count; i++) if (p.getY(i) + VW.at.y > 13.5) { c.setXYZ(i, col.r, col.g, col.b); count.patchTops++; }
     c.needsUpdate = true;
   }
@@ -17330,8 +17361,8 @@ function vwHouseBuild(model) {
   H.coves.forEach(([o0, o1, y], k) => {
     const A = offset(o0), B = offset(o1), yUp = k + 1 < H.coves.length ? H.coves[k + 1][2] : H.top;
     for (let i = 0; i + 1 < A.length; i++) {
-      quad([0x9c6078, 1.25], [A[i][0], y, A[i][1]], [A[i + 1][0], y, A[i + 1][1]], [B[i + 1][0], y, B[i + 1][1]], [B[i][0], y, B[i][1]]);   // the soffit
-      quad([0xc490ae, 1.6], [B[i][0], y, B[i][1]], [B[i + 1][0], y, B[i + 1][1]], [B[i + 1][0], yUp, B[i + 1][1]], [B[i][0], yUp, B[i][1]]);   // the riser up to the next
+      quad(K.soffit, [A[i][0], y, A[i][1]], [A[i + 1][0], y, A[i + 1][1]], [B[i + 1][0], y, B[i + 1][1]], [B[i][0], y, B[i][1]]);   // the soffit
+      quad(K.riser, [B[i][0], y, B[i][1]], [B[i + 1][0], y, B[i + 1][1]], [B[i + 1][0], yUp, B[i + 1][1]], [B[i][0], yUp, B[i][1]]);   // the riser up to the next
       quad(0xf3c6cf, [B[i][0], y - 0.002, B[i][1]], [B[i + 1][0], y - 0.002, B[i + 1][1]], [B[i + 1][0], y + H.strip, B[i + 1][1]], [B[i][0], y + H.strip, B[i][1]], true);   // its lit foot
     }
     const C = offset((o0 + o1) / 2);                            // the downlights along its middle, from the centre out each way
@@ -17349,8 +17380,8 @@ function vwHouseBuild(model) {
   // 3. THE HIGH CEILING's flat soffit, from the innermost cove's riser to the proscenium wall (the model's ceiling over it is
   // slit, the scalloped roof dipping through), and the wall faced mauve under it down to the header's black
   const I = offset(H.coves[H.coves.length - 1][1] - 0.3), wf = H.hw(H.front) + 0.6;
-  for (let i = 0; i + 1 < I.length; i++) quad([0x9c6078, 1.25], [I[i][0], H.top, I[i][1]], [I[i + 1][0], H.top, I[i + 1][1]], [I[i + 1][0], H.top, H.front], [I[i][0], H.top, H.front]);
-  quad([0xb07a96, 1.45], [cx - wf, H.face, H.front + 0.02], [cx + wf, H.face, H.front + 0.02], [cx + wf, H.top, H.front + 0.02], [cx - wf, H.top, H.front + 0.02]);
+  for (let i = 0; i + 1 < I.length; i++) quad(K.soffit, [I[i][0], H.top, I[i][1]], [I[i + 1][0], H.top, I[i + 1][1]], [I[i + 1][0], H.top, H.front], [I[i][0], H.top, H.front]);
+  quad(K.face, [cx - wf, H.face, H.front + 0.02], [cx + wf, H.face, H.front + 0.02], [cx + wf, H.top, H.front + 0.02], [cx - wf, H.top, H.front + 0.02]);
   const innerZ = x => { for (let i = 0; i + 1 < I.length; i++) { const [ax, az] = I[i], [bx, bz] = I[i + 1]; if ((x - ax) * (x - bx) <= 0) return az + (bz - az) * (x - ax) / ((bx - ax) || 1); } return -Infinity; };
   // ROWS of downlights across it and across the outer ceiling
   for (const [zs, outer] of [[H.rows.high, false], [H.rows.outer, true]]) for (const z of zs) {
@@ -17425,7 +17456,7 @@ function vwHouseBuild(model) {
     count.panes++;
     for (const e of k + 1 < Bk.panes ? [pa] : [pa, pb]) { const m = at(e, 0.05), w = 0.10; box(0x2c2228, w, Bk.y1 - Bk.y0 + 0.12, 0.08, TRS(new THREE.Vector3(m[0], (Bk.y0 + Bk.y1) / 2, m[1]), ry)); }   // the mullions
     const ms = at(mid, 0.08), mh = at(mid, 0.05);
-    box([0xb07a96, 1.6], L + 0.12, 0.06, 0.16, TRS(new THREE.Vector3(ms[0], Bk.y0 - 0.06, ms[1]), ry));             // the sill
+    box(K.sill, L + 0.12, 0.06, 0.16, TRS(new THREE.Vector3(ms[0], Bk.y0 - 0.06, ms[1]), ry));             // the sill
     box(0x2c2228, L + 0.10, 0.08, 0.08, TRS(new THREE.Vector3(mh[0], Bk.y1 + 0.04, mh[1]), ry));             // the head
   }
   // house left's open FOH position: a ledge, a rail, a pipe of ellipsoidals at the stage
@@ -17433,7 +17464,7 @@ function vwHouseBuild(model) {
   for (let i = 0; i < segs; i++) {
     const pa = rp[i], pb = rp[i + 1], mid = pa.clone().add(pb).multiplyScalar(0.5), n = inward(mid), ch = pb.clone().sub(pa), L = ch.length(), ry = yRot(ch.x / L, ch.y / L);
     const c = mid.clone().addScaledVector(n, Rl.deep / 2 + 0.02);
-    box([0xb07a96, 1.45], L + 0.02, 0.16, Rl.deep, TRS(new THREE.Vector3(c.x, Rl.y - 0.08, c.y), ry));                   // the ledge
+    box(K.ledge, L + 0.02, 0.16, Rl.deep, TRS(new THREE.Vector3(c.x, Rl.y - 0.08, c.y), ry));                   // the ledge
     const ea = pa.clone().addScaledVector(inward(pa), Rl.deep), eb = pb.clone().addScaledVector(inward(pb), Rl.deep);
     for (const h of [0.55, 1.05]) rod(0x4a3038, new THREE.Vector3(ea.x, Rl.y + h, ea.y), new THREE.Vector3(eb.x, Rl.y + h, eb.y), 0.022, 6);   // the rails
     rod(0x4a3038, new THREE.Vector3(ea.x, Rl.y, ea.y), new THREE.Vector3(ea.x, Rl.y + 1.05, ea.y), 0.025, 6);
