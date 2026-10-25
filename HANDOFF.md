@@ -229,6 +229,52 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-25 (night): Broadway outside the three houses (RULING GV; PR `claude/broadway-street-5514f3`, one session)
+
+Jack: *"i want to make it so you can walk outside the theaters and it is like you are on broadway and there are a bunch of
+theaters (just put up empty fronts plus the 3 we already have for now) with marquis and stuff."*
+- **RULING GV: his four answers** (2026-10-25). (1) One long street along the fronts of all three houses, with the new fronts
+  carrying on past both ends and lining the far side. (2) Each house's lobby or foyer gets street doors on E (THE DOORS).
+  (3) Three lights: ACTUAL TIME (his clock), DAY and NIGHT. At night, chaser bulbs on the marquees, lit signs and street
+  lamps. The switch is in the header and on `MIDTOWN.street`. (4) Real Broadway shows and houses as signs; the empty fronts
+  have no interiors. Midtown plays HAMILTON, Theatre 2 plays JOHNNY TREMAIN, and the Van Wezel shows its own name.
+- **Where it runs** (new section THE STREET, before BUILD MODE): the Van Wezel's glass bulges to z −43.6 and its terrace to
+  −56.4, while the Midtown lobby's front is at −22.3. So the street runs on a slant (−16.2°, as Broadway does across the
+  grid). Its north building line starts at the Midtown front's west corner and is tangent 2.4 m outside the Van Wezel's glass
+  (the glass is measured at build). In front of Midtown and Theatre 2 it leaves a paved wedge 0–12 m deep. The lots run in z
+  and the fronts along the street. The Van Wezel's terrace is clipped at the line. A paved strip fills from its round edge to
+  the first front east of it. The street runs from u −130 to 250, with a tall block closing each end (billboards lit at night).
+- **The Midtown block's front:** a skin over the lobby's entrance wall up to 18 m, and skins down both sides to the
+  backstage's back (the east one is open over the Van Wezel hallway's crossing), so no scan shows from the street. It has
+  limestone over house 1, brick over Theatre 2, pilasters, windows, a cornice, name bands, a blade sign each, a HAMILTON
+  marquee over a new pair of doors at x 0 and JOHNNY TREMAIN over a pair at x 20. `buildLobby` leaves the two openings
+  (`STREET.lobbyDoors`). The lobby's old pavement strip is gone (the street's wedge replaces it). The central glazed doors
+  and their canopy stay.
+- **The Van Wezel's street doors:** a pair cut through the middle of its glass (`vwCutBox`, 4 triangles), with a bronze
+  surround and a marquee reading VAN WEZEL HALL / PERFORMING ARTS HALL. All three pairs use `hangLeafAt` (pair, swinging out
+  over the pavement), with frames in lobbyMat (group `street trim`).
+- **The fronts:** 42 prisms. 19 are theatres (Shubert, Minskoff, Gershwin, Ambassador, New Amsterdam, Eugene O'Neill, Neil
+  Simon, Al Hirschfeld, Walter Kerr, Lena Horne, Stephen Sondheim, Lyric, Bernard B. Jacobs, Lunt-Fontanne, Belasco, Lyceum,
+  Marquis, Winter Garden, Gerald Schoenfeld, each with its show; Circle in the Square did not fit). Each theatre has a
+  marquee (a lit title panel, a name band, its name on the sides, a lit soffit), a blade sign, poster cases, glass doors and
+  bulbs round everything. The rest are shops, hotels and towers: shopfronts, awnings, sign bands, and window grids lit at
+  random at night. The building against the Midtown block starts its walls just over Jack's stage slab (box 21 reaches
+  x −19.1 under it).
+- **The look:** all unlit, in four shaders of the street's own, one merged mesh each: fronts 26.6k triangles, signs (one
+  4096 × 2048 canvas atlas), bulbs 17.4k (the chase runs off the frame dt and only asks for a frame when it steps), and
+  night pools (additive). There is also a sky dome round the camera with stars at night. Fog lives in the street's shaders
+  only (`scene.fog` would recompile every material). Indoors the street and the sky are not drawn (`stWhere`), but they stay
+  in the walk's grid (`colliderMeshes` takes `street` drawn or not). Outdoors at night the Van Wezel's outside is dimmed
+  ×0.45 and put back on the way in. The mode is remembered in the browser.
+- **Checks on the branch:** `street.check()` PASS. Nothing of the street sits inside any building (1.49M vertices tested).
+  The terrace's southmost point is on the line. Walked: out of each of the three street doors to the kerb and across the
+  road, and both pavements end to end. Also `doors.check()` 79/79, `lx.check()` 301/313 (show stopped), `actors.check()`
+  PASS, `vanWezel` / `.sideDoors` / `.foyer` / `.patches` no FAIL, `walls.check()` no cut touched, console clean (only the
+  untracked Johnny Tremain models and the local soundtrack 404, as before).
+- **His to decide:** the Van Wezel's lower wall (the foyer-wall finish where its glass was) stays fairly light at night (it
+  is lit by the scene's hemisphere); the street's slant and the wedge before Midtown; ACTUAL TIME's sunrise and sunset are an
+  approximation for the date; Circle in the Square has no front; the paved strip east of the Van Wezel ends in open air at
+  its far north corner; the house's insides are still drawn from the street (no room culling).
 ## NEXT SESSION: **HIS EYE ON HAMILTON IN THE VAN WEZEL** (2026-10-25; PR `vw-hamilton`)
 
 Rulings at **GU** (GV next; the Broadway street session was told to start at GV). Land PR `vw-hamilton` when he says so. Then
