@@ -14198,7 +14198,7 @@ function vwPlace(gltf) {
   for (const o of keep) {
     const s = o.material, name = o.name;
     o.name = 'vw: ' + name; o.castShadow = o.receiveShadow = false; o.userData.rig = true;
-    if (name === 'exterior_glass') { o.material = VW_GLASS_BLOCK; s.dispose(); continue; }   // the foyer's glass walls: gone, a wall to the walk only (Jack, 2026-10-24: "remove all the clear stuff from the lobby")
+    if (name === 'exterior_glass') { o.material = VW_GLASS_BLOCK; s.dispose(); continue; }   // the foyer's glass walls: gone, a wall to the walk only (Jack, 2026-10-24: "remove all the clear stuff from the lobby"); buildVwFoyer draws it as a wall (2026-10-25)
     if (/glass$/.test(name)) { o.material = lobbyMat.glass; s.dispose(); continue; }
     const g = o.geometry, N = g.attributes.normal, n = g.attributes.position.count, unlit = /unlit$/.test(name), L = VW_PHOTO_COLOURS ? VW_LOOKS[name] : null;   // L: the photographs' look (THE HOUSE AS IT IS)
     let C = g.attributes.color;
@@ -15087,6 +15087,10 @@ function buildVwFoyer() {
     group.add(mesh);
   }
   scene.add(group); group.updateMatrixWorld(true);
+  // walls where the glass was (Jack, 2026-10-25: "now put walls where the galss used to be in the lobby"): the glass's own mesh,
+  // a wall to the walk already (VW_GLASS_BLOCK), drawn in the foyer's wall finish, both faces
+  const glass = scene.getObjectByName('vw: exterior_glass'), wall = group.getObjectByName('vw foyer: wall');
+  if (glass && wall) { const m = wall.material.clone(); m.side = THREE.DoubleSide; m.name = 'vw foyer: glass walls'; glass.material = m; }
   vwFoyer = { group, stands, outline: O, triangles: tris, downlights: nDown, sconces: nSconce, ms: performance.now() - t0 };
   console.info(`van wezel foyer: carpet and ceiling (y ${F} / ${CL}) over the foyer's ${O.pts.length}-point outline; the walls faced from the corners (a ${aC.toFixed(2)}) to the stage house round ${ports.length} portals a side; ${stands.length} standing pieces (box office, 2 bars, benches, planters, poster stands, bins), ${nDown} downlights, ${nSconce} sconces, 6 chandeliers · ${group.children.length} meshes, ${tris} triangles · ${vwFoyer.ms.toFixed(0)} ms`);
   requestRender();
@@ -18074,7 +18078,7 @@ function vwStageBuild(model) {
   // the hall's scalloped roof runs on through the loft (down to ~18 m over the stage): out of the loft's box, which its own
   // walls and roof close from outside
   const loft = new THREE.Box3(new THREE.Vector3(S.x0 + 0.02, S.header + 0.1, S.z0 + 0.06), new THREE.Vector3(S.x1 - 0.02, S.roof - 0.02, S.z1 - 0.02));
-  model.root.traverse(o => { if (o.isMesh && /^vw: exterior_/.test(o.name) && o.material !== VW_GLASS_BLOCK) { const k = vwCutBox(o, loft); if (k) cut['loft: ' + o.name.replace(/^vw: /, '')] = k; } });
+  model.root.traverse(o => { if (o.isMesh && /^vw: exterior_/.test(o.name) && o.name !== 'vw: exterior_glass') { const k = vwCutBox(o, loft); if (k) cut['loft: ' + o.name.replace(/^vw: /, '')] = k; } });
   // the house curtain, flown out behind the header (VW.curtainFly): its lined back is what the stage sees (his photo looking
   // out shows black there); the house never sees it while it is out
   const cur = model.byName('stage_tex_47');
