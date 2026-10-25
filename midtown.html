@@ -555,7 +555,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP
   baked.traverse(take);
   return list;
 }
@@ -14277,6 +14277,7 @@ function buildVanWezel(gltf) {
   if (model) vwSideDoorsBuild(model, yIn, group);             // every side portal a doorway, more up to the top of the seating, a gallery outside each wall (THE THIRD HOUSE: THE SIDE DOORS)
   if (!VW.missing) buildVwFoyer();                             // after the side doors: the foyer's wall facing opens round every portal they measured (THE THIRD HOUSE: THE FOYER)
   vwBackBuild(model); vwLiftBuild(model, liftY);              // under the stage, and the lift working (THE THIRD HOUSE: BACKSTAGE, THE ORCHESTRA LIFT)
+  if (model && !VW.missing) vwBoothsBuild(model);              // the balcony to the tech booth, the ladders and catwalk to the spots (THE THIRD HOUSE: THE BOOTHS' WAY UP)
   VW.root = model ? model.root : null; VW.works = group; VW.ms = performance.now() - t0;
   vwBuilt = { group, doors, model, cut, triangles: tris, battens: nb, portalFloor: yIn, liftY, frame: { fp, th, half, out } };
   const wb = model ? new THREE.Box3().setFromObject(model.root) : null;
@@ -14625,7 +14626,7 @@ function vwSideDoorsBuild(model, yIn, works) {
         prism('stone', sa, sb, Wi, W, G - S.slab, G + S.rail, q.G - S.slab, q.G + S.rail);
         rod(sa, G + S.rail + 0.025, Wi + S.parapet / 2, sb, q.G + S.rail + 0.025, Wi + S.parapet / 2);
         p.flight = { n, m, rise: R / n, going: m ? (sb - sa) / m : sb - sa };
-      } else {
+      } else if (!VWB.on) {                                                    // (with the booths' balcony the gallery runs on: THE BOOTHS' WAY UP)
         box('stone', s + S.land, s + S.land + S.parapet, G - S.slab, G + S.rail, 0, W);   // the gallery's top end
         rod(s + S.land + S.parapet / 2, G + S.rail + 0.025, 0, s + S.land + S.parapet / 2, G + S.rail + 0.025, W);
       }
@@ -14757,6 +14758,7 @@ const VWF = {
   front: -0.15,                                       // the stage house's front face, the foyer's end either side
   portals: { a0: -19.0, step: 2.437, heads: [7.40, 6.85, 6.30, 5.80, 5.30, 4.85, 4.45, 4.15], half: 0.86, tall: 2.55 },   // each frame's middle (a), its head's top; the last is VW.portal
   booth: { x0: 71.30, x1: 82.70, y0: 8.40, y1: 11.16 },   // the tech booth on the back wall (source nodes 177–182): the facing stops round it
+  sconceY: 10.50,                                     // the back wall's sconces: over the booths' balcony (its floor 8.56: THE BOOTHS' WAY UP), not in it (they were at 8.40)
   band: 3.8, route: 1.4, glassGap: 0.08,              // the clearances (the galleries' 2.5 m and a clear metre; either side of the route; off the glass)
 };
 let vwFoyer = null;
@@ -14990,7 +14992,7 @@ function buildVwFoyer() {
     for (let i = 1; i < 8; i++) {
       const t = tA + (tB - tA) * i / 8;
       if (Math.abs(ccx + R * Math.cos(t) - (VWF.booth.x0 + VWF.booth.x1) / 2) < (VWF.booth.x1 - VWF.booth.x0) / 2 + 0.4) continue;   // not inside the tech booth
-      const g1 = new THREE.BoxGeometry(0.14, 0.3, 0.02).translate(0, 8.4, R + 0.04), g2 = new THREE.BoxGeometry(0.03, 0.03, 0.17).translate(0, 8.375, R + 0.135), g3 = new THREE.CylinderGeometry(0.09, 0.06, 0.21, 12).translate(0, 8.495, R + 0.24);
+      const sy = VWF.sconceY, g1 = new THREE.BoxGeometry(0.14, 0.3, 0.02).translate(0, sy, R + 0.04), g2 = new THREE.BoxGeometry(0.03, 0.03, 0.17).translate(0, sy - 0.025, R + 0.135), g3 = new THREE.CylinderGeometry(0.09, 0.06, 0.21, 12).translate(0, sy + 0.095, R + 0.24);
       for (const [k, g] of [['brass', g1], ['brass', g2], ['glow', g3]]) { g.applyMatrix4(new THREE.Matrix4().makeRotationY(-t + Math.PI / 2)).translate(ccx, 0, ccz); file(k, nonIdx(g)); }
       nSconce++;
     }
@@ -15591,6 +15593,7 @@ const VW_SIGNS = [
     .map(t => ({ text: t, a: 7.5, s: 'room' })),
   { text: 'STAGE ↑', a: 3, s: 'way' }, { text: 'DRESSING ROOMS ↓', a: 6, s: 'way' }, { text: 'EXIT', a: 2.5, s: 'exit' },
   { text: 'QUIET PLEASE', a: 4.5, s: 'quiet' }, { text: 'ORCHESTRA LIFT', a: 5.5, s: 'warn' },
+  { text: 'TECH BOOTH', a: 5, s: 'room' }, { text: 'FOLLOW SPOTS ↑', a: 6, s: 'way' },   // THE BOOTHS' WAY UP
 ];
 const VW_SIGN = (() => {
   let y = 0;
@@ -15860,6 +15863,386 @@ const VW_BACK_API = {
   get doors() { return vwBack ? vwBack.doors.map(e => e.name) : null; },
 };
 VAN_WEZEL_API.backstage = VW_BACK_API;
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE BOOTHS' WAY UP
+   Jack (2026-10-24): "add a way to get to the tech and spot booth". Both are the model's. THE TECH BOOTH (its "Light &
+   sound booth", source nodes 177–222: house_tex_33's five slabs — floor 8.41…8.56, roof 11.00…11.15, back wall z
+   −42.44…−42.29, side walls x 71.46…71.61 and 82.39…82.54 —, two consoles at the window and two racks in its back corners,
+   house_lit's) hangs off the auditorium's back wall over the foyer, its window at the wall (z −38.7). THE FOLLOW-SPOT BOOTH
+   (node 242: house_tex_32, a crescent tray under the house ceiling, its floor 14.56 between a back wall and a windowed front,
+   walls to 16.23; the ceiling over it at 16.36; three spots, house_lit's) hangs over the middle of the house.
+   THE BALCONY, chosen over a stair tower: the side galleries' top landings (y 7.914, at each wall's 13th portal) are 0.65 m
+   under the booth's floor and 2 m short of where the side walls turn into the back wall, so one walkway at the booth's floor
+   joins both galleries to both of its side walls round the back wall, over the foyer's clear band; a tower would have stood
+   in the foyer. From each gallery's top landing, four risers up (0.1615, the gallery's 0.28 going and slabs); a landing round
+   the corner; the balcony round the back wall's arc VW_SIDE.width out from it; an end landing along the booth's side wall to
+   a door in it (vwCutBox through house_tex_33, lined, framed, a leaf on E swinging out over the landing: hangLeafAt). In the
+   galleries' stone and brass: a stone deck, a stone parapet with a brass handrail on the open side, round stone columns down
+   to the foyer floor, downlights in its soffit. Built for house right and mirrored about x VW.at.x. The foyer's ceiling
+   (10.90) leaves 2.34 m over it; the back wall's sconces (they stood in its way at 8.4) hang over it (VWF.sconceY); the
+   galleries' top end parapets are left off (vwSideDoorsBuild); the foyer's ceiling and two of its downlights, which ran
+   through the booth at 10.90, are cut out of it (its own roof is its ceiling now).
+   THE WAY UP, house right, where the scalloped roof's ridge runs (18.5 m and more over x 73.9…74.7, coming down to 16.7 at
+   x 77): (1) a ship's ladder in the booth along its back wall behind the consoles (12 risers of 0.216, going 0.15), up through
+   a hatch in its roof; (2) the roof (11.15, over the foyer's ceiling, so the foyer never sees it), railed in, and a grating
+   deck behind the booth; (3) a ship's ladder up the ridge (25 risers of 0.216, going 0.14, ~57°), through a doorway in the
+   patch band over the house's back wall (THE PATCHES: the wall stops at 14.33), onto (4) a catwalk at 16.55 over the house
+   ceiling (15.8…16.33 under it): a steel grating on channels, toe boards, a flat mid bar on the walk's 0.46 m ray, a yellow
+   top rail, caged lamps; (5) a platform over the spot booth's back and (6) a ship's ladder (9 risers of 0.221) down through
+   a hatch in the ceiling, inside the booth's walls, onto its floor behind the spots. Every ladder has side plates from below
+   its treads to 0.62 over its nosings (nothing to step off sideways) and yellow handrails. The model's ceiling stars that
+   hung inside the spot booth at head height (16.15) are cut out.
+   HIDDEN: check() casts rays from a grid of seats to points all over what is above the house ceiling, and from the foyer and
+   the balcony to what is above the foyer's ceiling. One mesh per material in the scene child 'vw booths' (in the walk's
+   grid). MIDTOWN.vanWezel.booths: .spec, .built, check(), view(); the header's "VW Booth". */
+const VWB = {
+  on: true,                                                     // read by vwSideDoorsBuild: the galleries run on into the balcony
+  floor: 8.56,                                                  // the balcony: the booth's floor (the galleries' slab, parapet and rail: VW_SIDE)
+  booth: { x0: 71.38, x1: 82.62, z0: -42.44, z1: -38.71, wall: 71.46, T: 0.15, roof: 11.15 },   // house right's side (house left mirrored)
+  end: { x: 69.50, z: -41.75 },                                 // the end landing along the booth's side: out to x, back to z
+  door: { z0: -41.29, z1: -40.39, head: 2.12 },                 // between the racks (z −42.06…−41.45) and the consoles (−40.23…−39.32)
+  cols: 4.5, lights: 3.0,                                       // a column so far apart along the balcony's outer edge; a soffit downlight
+  f1: { foot: [75.00, -41.90], u: [1, 0], w: 0.70, n: 12, g: 0.15, y0: 8.56, y1: 11.15 },   // ladders: the foot's nosing line, climbing along u
+  hatch1: [75.40, 76.65, -42.28, -41.52],                       // the booth roof's hatch (x0, x1, z0, z1)
+  roof: { x0: 73.40, x1: 77.60, z0: -43.25 },                   // railed in on the booth's roof, and a deck behind it to z0 (the glass is at −43.5)
+  f2: { foot: [74.30, -42.31], u: [0, 1], w: 0.90, n: 25, g: 0.14, y0: 11.15, y1: 16.55 },
+  wallCut: [73.70, 74.90, 16.42, 18.45, -39.20, -38.20],        // the doorway through the patch band over the back wall (x, y, z ranges)
+  cat: { y: 16.55, x0: 73.85, x1: 74.75, z0: -38.95, z1: -24.40, under: 0.12 },
+  plat: { x0: 73.85, x1: 75.60, z1: -23.05, hole: [-23.80, -23.10] },   // from the catwalk's end to z1; the ladder's hole across it (x < f3's top)
+  f3: { foot: [73.63, -23.45], u: [1, 0], w: 0.60, n: 9, g: 0.14, y0: 14.56, y1: 16.55 },
+  ceilCut: [73.00, 74.80, 15.90, 16.70, -23.80, -23.10],        // the hatch in the house ceiling over it
+  spot: [69.85, -22.95],                                        // behind house right's follow-spot (x 69.54…70.13, z −22.62…−21.52)
+  view: [[77.0, 10.2, -41.3], [77.0, 8.4, -28.0]],             // in the tech booth between its consoles, looking out through the window to the stage
+};
+let vwBooths = null;
+const vwBoothMat = { grate: null };                          // the steel grating (underStd, map and emissiveMap vwGrating()): made at build
+function vwGrating() {
+  return underCanvasTex(64, 64, g => {
+    g.fillStyle = '#6a7077'; g.fillRect(0, 0, 64, 64); g.fillStyle = '#1c1e21';
+    for (let i = 0; i < 4; i++) for (let j = 0; j < 2; j++) g.fillRect(i * 16 + 3, j * 32 + 3, 10, 26);
+  });
+}
+// The booths' way up built (buildVanWezel's last line), once the side doors, the foyer and the backstage are.
+function vwBoothsBuild(model) {
+  if (!model || !vwSide || !vwFoyer) { console.info('van wezel booths: no side doors or foyer — not built'); return null; }
+  const t0 = performance.now(), B = VWB, S = VW_SIDE, cx = VW.at.x, [ccx, ccz] = VWF.c, R = VWF.wallR, Y = B.floor, fw = DOORS.frame, PI = Math.PI;
+  const gal = vwSide.sides.find(g => g.side > 0), F = gal.F, last = gal.ports[gal.ports.length - 1], G = last.G;
+  const P = {}, Q = {}, cut = {}, hidden = [], foyerHidden = [];   // P: house right's balcony (mirrored for house left); Q: the rest, as it stands
+  const fileG = (T, key, g) => { if (g.index) { const n = g.toNonIndexed(); g.dispose(); g = n; } (T[key] = T[key] || []).push(g); return g; };
+  const flipTris = g => { for (const k of Object.keys(g.attributes)) { const A = g.attributes[k], s = A.itemSize, a = A.array; for (let t = 0; t < A.count; t += 3) for (let c = 0; c < s; c++) { const i = (t + 1) * s + c, j = (t + 2) * s + c, v = a[i]; a[i] = a[j]; a[j] = v; } } return g; };
+  const wbox = (T, key, x0, x1, y0, y1, z0, z1) => fileG(T, key, new THREE.BoxGeometry(Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0)).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2));
+  const V = (p, y) => new THREE.Vector3(p[0], y, p[1]);
+  // a box standing on the plan line a→b (world [x, z]), t thick toward the unit n, y0…y1 (ext: longer at both ends)
+  const sbox = (T, key, a, b, n, t, y0, y1, ext = 0) => {
+    const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz);
+    const g = new THREE.BoxGeometry(L + 2 * ext, y1 - y0, t).translate(0, (y0 + y1) / 2, 0).rotateY(Math.atan2(-dz, dx));
+    return fileG(T, key, g.translate((a[0] + b[0]) / 2 + n[0] * t / 2, 0, (a[1] + b[1]) / 2 + n[1] * t / 2));
+  };
+  // a box from the plan point A to B, lat0…lat1 across (l: the unit across), its bottom and top yb/yt at A and at B (a flight's
+  // parapet, a ladder's tread or side plate); faces wound outward whichever way it runs
+  const prism = (T, key, A, B2, l, lat0, lat1, yb0, yt0, yb1, yt1) => {
+    const g0 = new THREE.BoxGeometry(1, 1, 1).translate(0.5, 0.5, 0.5), p = g0.attributes.position;
+    for (let i = 0; i < p.count; i++) {
+      const a = p.getX(i), b = p.getY(i), c = p.getZ(i), yb = yb0 + (yb1 - yb0) * a, yt = yt0 + (yt1 - yt0) * a, lat = lat0 + (lat1 - lat0) * c;
+      p.setXYZ(i, A[0] + (B2[0] - A[0]) * a + l[0] * lat, yb + (yt - yb) * b, A[1] + (B2[1] - A[1]) * a + l[1] * lat);
+    }
+    const g = g0.toNonIndexed(); g0.dispose();
+    if ((B2[0] - A[0]) * l[1] * (lat1 - lat0) - (B2[1] - A[1]) * l[0] * (lat1 - lat0) < 0) flipTris(g);   // the cube's x, y, z → along, up, across: left-handed?
+    g.computeVertexNormals();
+    return fileG(T, key, g);
+  };
+  const frameM = (px, pz, th) => new THREE.Matrix4().compose(new THREE.Vector3(px, 0, pz), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), th), new THREE.Vector3(1, 1, 1));
+  const lbx = (T, key, M, x0, x1, y0, y1, z0, z1) => fileG(T, key, new THREE.BoxGeometry(x1 - x0, y1 - y0, z1 - z0).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2).applyMatrix4(M));
+  const fbox = (T, key, s0, s1, y0, y1, d0, d1) => { const x0 = Math.min(F.sx * s0, F.sx * s1), x1 = Math.max(F.sx * s0, F.sx * s1); return fileG(T, key, new THREE.BoxGeometry(x1 - x0, y1 - y0, Math.abs(d1 - d0)).translate((x0 + x1) / 2, (y0 + y1) / 2, (d0 + d1) / 2).applyMatrix4(F.M)); };
+  const fat = (s, d) => { const p = F.at(s, d); return [p.x, p.y]; };
+  const inside = (poly, [x, z]) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, zi] = poly[i], [xj, zj] = poly[j]; if ((zi > z) !== (zj > z) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) c = !c; } return c; };
+  // a guard rail on the plan line a→b at floor y, standing on its far side from the walk (n: toward the walk): a toe board, a
+  // flat mid bar on the walk's 0.46 m ray, a yellow top rail, posts at most 1.5 m apart
+  const guard = (T, a, b, y, n, ends = true) => {
+    sbox(T, 'steel', a, b, n, 0.025, y, y + 0.15); sbox(T, 'steel', a, b, n, 0.02, y + 0.42, y + 0.50);
+    const o = [n[0] * 0.02, n[1] * 0.02], L = Math.hypot(b[0] - a[0], b[1] - a[1]), k = Math.max(1, Math.ceil(L / 1.5));
+    deskRod(T, 'yellow', V([a[0] + o[0], a[1] + o[1]], y + 1.0), V([b[0] + o[0], b[1] + o[1]], y + 1.0), 0.022, 8);
+    for (let i = ends ? 0 : 1; i <= (ends ? k : k - 1); i++) { const q = [a[0] + (b[0] - a[0]) * i / k + o[0], a[1] + (b[1] - a[1]) * i / k + o[1]]; deskRod(T, 'steel', V(q, y), V(q, y + 1.0), 0.02, 6); }
+  };
+  // a ship's ladder: n risers from y0 to y1, going g, w wide, its first nosing at foot, climbing along u; grating treads with
+  // yellow nosings, steel side plates from under the treads to 0.62 over the nosings, yellow handrails 0.88 over them, run on
+  // 0.25 m over the top floor
+  const ladder = (T, L) => {
+    const [fx, fz] = L.foot, [ux, uz] = L.u, l = [-uz, ux], r = (L.y1 - L.y0) / L.n, g = L.g, top = (L.n - 1) * g, hw = L.w / 2;
+    const at = (a, lat) => [fx + ux * a + l[0] * lat, fz + uz * a + l[1] * lat], line = a => L.y0 + r + a * r / g;
+    for (let k = 1; k < L.n; k++) {
+      const a0 = (k - 1) * g, y = L.y0 + k * r;
+      prism(T, 'grate', at(a0, 0), at(a0 + g, 0), l, -hw, hw, y - 0.04, y, y - 0.04, y);
+      prism(T, 'nose', at(a0, 0), at(a0 + 0.03, 0), l, -hw, hw, y - 0.036, y + 0.002, y - 0.036, y + 0.002);
+    }
+    for (const s of [-1, 1]) {
+      prism(T, 'steel', at(-0.06, 0), at(top + 0.02, 0), l, s < 0 ? -hw - 0.03 : hw, s < 0 ? -hw : hw + 0.03, L.y0, line(-0.06) + 0.62, L.y1 - 0.30, L.y1 + 0.62);
+      const q = a => at(a, s * (hw + 0.07)), y = a => (a <= top ? line(a) : L.y1) + 0.88;
+      deskRod(T, 'yellow', V(q(0), y(0)), V(q(top), y(top)), 0.022, 8); deskRod(T, 'yellow', V(q(top), y(top)), V(q(top + 0.25), y(top)), 0.022, 8);
+      deskRod(T, 'yellow', V(q(0), line(0) + 0.62), V(q(0), y(0)), 0.02, 6); deskRod(T, 'steel', V(q(top + 0.25), L.y1), V(q(top + 0.25), y(top)), 0.02, 6);
+    }
+    return { at, top, r };
+  };
+
+  // 1. THE BALCONY, house right (P, mirrored for house left): the four risers up from the gallery's top landing, raking parapet
+  const W = S.width, Wi = W - S.parapet, sE = last.s + S.land, n0 = Math.max(1, Math.ceil((Y - G) / S.rise - 1e-9)), rs = (Y - G) / n0, sA = sE + (n0 - 1) * S.going;
+  for (let k = 1; k < n0; k++) { const s0 = sE + (k - 1) * S.going, y = G + k * rs; fbox(P, 'stone', s0, s0 + S.going, y - S.slab, y, 0, Wi); fbox(P, 'brass', s0, s0 + 0.03, y - 0.015, y + 0.002, 0, Wi); }
+  fbox(P, 'brass', sA, sA + 0.03, Y - 0.015, Y + 0.002, 0, Wi);
+  const lo = [F.o.x, F.o.y];
+  prism(P, 'stone', fat(sE, 0), fat(sA, 0), lo, Wi, W, G - S.slab, G + S.rail, Y - S.slab, Y + S.rail);
+  deskRod(P, 'brass', F.w3(sE, G + S.rail + 0.025, Wi + S.parapet / 2), F.w3(sA, Y + S.rail + 0.025, Wi + S.parapet / 2), 0.025, 8);
+  // its deck: the side wall's line to the corner (where the line meets the back wall's arc), the arc to the booth's side, the end
+  // landing, the outer arc back, the corner landing's far side
+  const Ri = R + 0.03, Ro = R + W;
+  const sC = (() => { const dx = F.c.x - ccx, dz = F.c.y - ccz, b = F.u.x * dx + F.u.y * dz; return -b + Math.sqrt(b * b - (dx * dx + dz * dz - Ri * Ri)); })();
+  const Bc = fat(sC, 0), tc = Math.atan2(Bc[1] - ccz, Bc[0] - ccx), tWi = -Math.acos((B.booth.x0 - ccx) / Ri), t4 = -Math.acos((B.end.x - ccx) / Ro);
+  const arc = (r, ta, tb) => { const n = Math.max(2, Math.ceil(Math.abs(tb - ta) * r / 0.5)), out = []; for (let i = 0; i <= n; i++) { const t = ta + (tb - ta) * i / n; out.push([ccx + r * Math.cos(t), ccz + r * Math.sin(t)]); } return out; };
+  const D1 = [ccx + Ro * Math.cos(tc), ccz + Ro * Math.sin(tc)], sD = (D1[0] - F.c.x) * F.u.x + (D1[1] - F.c.y) * F.u.y;
+  const outer = [[B.booth.x0, B.end.z], [B.end.x, B.end.z], ...arc(Ro, t4, tc), fat(sD, W), fat(sA, W)];
+  const poly = [fat(sA, 0), Bc, ...arc(Ri, tc, tWi).slice(1), ...outer];
+  { const shape = new THREE.Shape(poly.map(([x, z]) => new THREE.Vector2(x, z)));
+    fileG(P, 'stone', new THREE.ExtrudeGeometry(shape, { depth: S.slab, bevelEnabled: false, curveSegments: 1 }).rotateX(PI / 2).translate(0, Y, 0)); }
+  // the parapet and its brass rail along the outer edge (from the booth's wall face), each piece 10 cm in from the edge
+  const par = [[B.booth.wall, B.end.z], ...outer.slice(1)];
+  for (let i = 0; i + 1 < par.length; i++) {
+    const a = par[i], b = par[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]); if (L < 1e-3) continue;
+    let n = [-(b[1] - a[1]) / L, (b[0] - a[0]) / L]; const m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+    if (!inside(poly, [m[0] + n[0] * 0.3, m[1] + n[1] * 0.3])) n = [-n[0], -n[1]];
+    sbox(P, 'stone', a, b, n, S.parapet, Y - S.slab, Y + S.rail, 0.004);
+    const o = S.parapet / 2; deskRod(P, 'brass', V([a[0] + n[0] * o, a[1] + n[1] * o], Y + S.rail + 0.025), V([b[0] + n[0] * o, b[1] + n[1] * o], Y + S.rail + 0.025), 0.025, 8);
+  }
+  // round stone columns down to the foyer's floor, along the outer edge; downlights in the soffit
+  const colAt = [[B.end.x + 0.3, B.end.z + 0.3], fat(sA + 0.35, Wi - 0.25), fat(sD - 0.3, Wi - 0.25)];
+  { const tEnd = -Math.acos((B.end.x + 0.3 - ccx) / (Ro - 0.3)), n = Math.max(1, Math.round(Math.abs(tEnd - tc) * Ro / B.cols));
+    for (let i = 1; i <= n; i++) { const t = tc + (tEnd - tc) * i / n; colAt.push([ccx + (Ro - 0.3) * Math.cos(t), ccz + (Ro - 0.3) * Math.sin(t)]); } }
+  for (const [x, z] of colAt) fileG(P, 'stone', new THREE.CylinderGeometry(0.14, 0.14, Y - S.slab - VWF.floor + 0.02, 16).translate(x, (Y - S.slab + VWF.floor - 0.02) / 2, z));
+  const lights = [fat((sA + sD) / 2, Wi / 2), [(B.end.x + B.booth.x0) / 2, B.end.z + 0.9]];
+  { const rm = R + W / 2, tE = -Math.acos((B.booth.x0 - 0.6 - ccx) / rm), n = Math.max(1, Math.round(Math.abs(tE - tc) * rm / B.lights));
+    for (let i = 1; i < n; i++) { const t = tc + (tE - tc) * i / n; lights.push([ccx + rm * Math.cos(t), ccz + rm * Math.sin(t)]); } }
+  for (const [x, z] of lights) fileG(P, 'glow', new THREE.CircleGeometry(0.12, 16).rotateX(PI / 2).translate(x, Y - S.slab - 0.003, z));
+  // house left: all of it mirrored about x VW.at.x, its triangles turned back to face out
+  const MIR = new THREE.Matrix4().makeTranslation(2 * cx, 0, 0).multiply(new THREE.Matrix4().makeScale(-1, 1, 1));
+  for (const [key, geos] of Object.entries(P)) for (const g of geos) { const gn = fileG(Q, key, g); fileG(Q, key, flipTris(gn.clone().applyMatrix4(MIR))); }
+
+  // 2. THE DOORS into the booth, one in each side wall: cut, lined, framed and cased, TECH BOOTH over each
+  const tex33 = model.byName('house_tex_33'), top = Y + B.door.head, hw = (B.door.z1 - B.door.z0) / 2, pz = (B.door.z0 + B.door.z1) / 2, BT = B.booth.T, doorSpec = [];
+  for (const sd of [-1, 1]) {
+    const px = sd < 0 ? B.booth.wall : 2 * cx - B.booth.wall, th = sd * PI / 2, M = frameM(px, pz, th);   // local +z out over the landing
+    if (tex33) cut['door ' + (sd < 0 ? 'house right' : 'house left')] = vwCutBox(tex33, new THREE.Box3(new THREE.Vector3(Math.min(px + sd * 0.02, px - sd * (BT + 0.04)), Y + 0.002, pz - hw), new THREE.Vector3(Math.max(px + sd * 0.02, px - sd * (BT + 0.04)), top, pz + hw)));
+    lbx(Q, 'reveal', M, -hw - 0.02, -hw, Y, top + 0.02, -BT, 0); lbx(Q, 'reveal', M, hw, hw + 0.02, Y, top + 0.02, -BT, 0); lbx(Q, 'reveal', M, -hw, hw, top, top + 0.02, -BT, 0);
+    lbx(Q, 'frame', M, -hw, -hw + fw, Y, top, -BT, 0); lbx(Q, 'frame', M, hw - fw, hw, Y, top, -BT, 0); lbx(Q, 'frame', M, -hw + fw, hw - fw, top - DOORS.headH, top, -BT, 0);
+    for (const [z0, z1] of [[0, 0.012], [-BT - 0.012, -BT]]) { lbx(Q, 'frame', M, -hw - 0.06, -hw, Y, top + 0.06, z0, z1); lbx(Q, 'frame', M, hw, hw + 0.06, Y, top + 0.06, z0, z1); lbx(Q, 'frame', M, -hw - 0.06, hw + 0.06, top, top + 0.06, z0, z1); }
+    vwBackSign(Q, 'TECH BOOTH', 0.14, px + sd * 0.012, top + 0.13, pz, th);   // (its top 3 cm under the foyer's ceiling)
+    doorSpec.push({ sd, px, th, name: `Van Wezel tech booth, ${sd < 0 ? 'house right' : 'house left'}` });
+  }
+  vwBackSign(Q, 'FOLLOW SPOTS ↑', 0.14, B.f1.foot[0] - 0.55, Y + 1.55, B.booth.z0 + 0.15, 0);   // on the back wall, beside the ladder's foot
+
+  // 3. THE WAY UP: the ladder in the booth and the hatch in its roof; the foyer's ceiling (and two downlights) out of the booth
+  ladder(Q, B.f1);
+  const [hx0, hx1, hz0, hz1] = B.hatch1, ry = B.booth.roof;
+  if (tex33) cut['booth roof hatch'] = vwCutBox(tex33, new THREE.Box3(new THREE.Vector3(hx0, ry - 0.2, hz0), new THREE.Vector3(hx1, ry + 0.05, hz1)));
+  for (const [x0, x1, z0, z1] of [[hx0, hx1, hz0, hz0 + 0.02], [hx0, hx1, hz1 - 0.02, hz1], [hx0, hx0 + 0.02, hz0, hz1], [hx1 - 0.02, hx1, hz0, hz1]]) wbox(Q, 'steel', x0, x1, ry - 0.16, ry, z0, z1);   // the hatch's lining
+  for (const key of ['ceil', 'glow']) { const m = vwFoyer.group.getObjectByName('vw foyer: ' + key); if (m) cut['foyer ' + key + ' in the booth'] = vwCutBox(m, new THREE.Box3(new THREE.Vector3(B.booth.x0, VWF.ceil - 0.05, B.booth.z0), new THREE.Vector3(B.booth.x1, VWF.ceil + 0.05, B.booth.z1))); }
+  // the roof: the deck behind the booth, rails round the walk and the hatch
+  const RF = B.roof, wallZ = x => ccz - Math.sqrt(R * R - (x - ccx) ** 2) - 0.03;
+  wbox(Q, 'grate', RF.x0, RF.x1, ry - 0.15, ry, RF.z0, B.booth.z0);
+  for (const x of [RF.x0 + 0.1, RF.x1 - 0.1]) wbox(Q, 'steel', x - 0.04, x + 0.04, ry - 0.22, ry - 0.15, RF.z0, B.booth.z0);
+  guard(Q, [RF.x0, RF.z0], [RF.x0, wallZ(RF.x0)], ry, [1, 0]); guard(Q, [RF.x1, RF.z0], [RF.x1, wallZ(RF.x1)], ry, [-1, 0]); guard(Q, [RF.x0, RF.z0], [RF.x1, RF.z0], ry, [0, 1], false);
+  guard(Q, [hx0 - 0.07, hz0 - 0.08], [hx1, hz0 - 0.08], ry, [0, -1]); guard(Q, [hx0 - 0.07, hz1 + 0.07], [hx1, hz1 + 0.07], ry, [0, 1]); guard(Q, [hx0 - 0.07, hz0 - 0.08], [hx0 - 0.07, hz1 + 0.07], ry, [-1, 0], false);
+  for (const z of [RF.z0 + 0.3, B.booth.z0 - 0.3]) for (const x of [RF.x0 + 0.5, (RF.x0 + RF.x1) / 2, RF.x1 - 0.5]) foyerHidden.push([x, ry + 0.05, z], [x, ry + 1.0, z]);
+  // the ladder up the ridge, through the patch band, and the catwalk over the house ceiling
+  const L2 = ladder(Q, B.f2);
+  for (let a = 0; a <= L2.top; a += 0.6) for (const lat of [-0.5, 0.5]) { const [x, z] = L2.at(a, lat), y = B.f2.y0 + 0.2 + a * L2.r / B.f2.g; if (z < -38.75) foyerHidden.push([x, y, z], [x, y + 1.4, z]); else hidden.push([x, y, z], [x, y + 1.4, z]); }
+  const [wx0, wx1, wy0, wy1, wz0, wz1] = B.wallCut, wcBox = new THREE.Box3(new THREE.Vector3(wx0, wy0, wz0), new THREE.Vector3(wx1, wy1, wz1));
+  model.root.traverse(o => { if (o.isMesh && /^vw: (patches|house_tex_42)$/.test(o.name)) { const k = vwCutBox(o, wcBox); if (k) cut['back wall doorway: ' + o.name.slice(4)] = k; } });
+  { const zm = wallZ(74.3) + 0.03; for (const x of [wx0, wx1 - 0.06]) wbox(Q, 'steel', x, x + 0.06, wy0, wy1, zm - 0.12, zm + 0.12); wbox(Q, 'steel', wx0, wx1, wy1 - 0.06, wy1, zm - 0.12, zm + 0.12); hidden.push([wx0, wy0, zm], [wx1, wy0, zm], [wx0, wy1, zm], [wx1, wy1, zm]); }
+  const C = B.cat, cy = C.y, PL = B.plat, [h0, h1] = PL.hole, f3x = B.f3.foot[0] + (B.f3.n - 1) * B.f3.g;
+  wbox(Q, 'grate', C.x0, C.x1, cy - 0.04, cy, C.z0, C.z1);
+  wbox(Q, 'grate', PL.x0, PL.x1, cy - 0.04, cy, C.z1, h0); wbox(Q, 'grate', f3x, PL.x1, cy - 0.04, cy, h0, PL.z1);
+  for (const x of [C.x0, C.x1 - 0.05]) wbox(Q, 'steel', x, x + 0.05, cy - C.under, cy - 0.04, C.z0, C.z1);   // the channels under it
+  for (const z of [C.z1, h0 - 0.05, PL.z1 - 0.05]) wbox(Q, 'steel', z === C.z1 ? PL.x0 : f3x, PL.x1, cy - C.under, cy - 0.04, z, z + 0.05);
+  guard(Q, [C.x0, C.z0], [C.x0, h0], cy, [1, 0]); guard(Q, [C.x1, C.z0], [C.x1, C.z1], cy, [-1, 0]);
+  guard(Q, [C.x0, h0], [f3x, h0], cy, [0, -1], false);                                     // the hole's back edge
+  guard(Q, [C.x1, C.z1], [PL.x1, C.z1], cy, [0, 1], false); guard(Q, [PL.x1, C.z1], [PL.x1, PL.z1], cy, [-1, 0]); guard(Q, [PL.x1, PL.z1], [f3x, PL.z1], cy, [0, -1], false);
+  for (let z = C.z0 + 2.0; z < C.z1 - 1; z += 4.5) {                                         // caged lamps on the posts, house-right side
+    fileG(Q, 'glow', new THREE.SphereGeometry(0.06, 10, 8).translate(C.x0 + 0.09, cy + 1.12, z)); fileG(Q, 'steel', new THREE.CylinderGeometry(0.085, 0.085, 0.16, 8, 1, true).translate(C.x0 + 0.09, cy + 1.12, z));
+    hidden.push([C.x0 + 0.09, cy + 1.2, z]);
+  }
+  for (let z = C.z0; z <= C.z1 + 1e-6; z += 1.0) for (const x of [C.x0, C.x1]) hidden.push([x, cy - C.under, z], [x, cy + 0.5, z], [x, cy + 1.02, z]);
+  for (const [x, z] of [[PL.x0, C.z1], [PL.x1, C.z1], [PL.x1, PL.z1], [f3x, PL.z1], [f3x + 0.05, h0 - 0.05]]) hidden.push([x, cy - C.under, z], [x, cy + 1.02, z]);
+  // the ladder down into the spot booth, the hatch in the ceiling over it (lined), the stars that hung in the booth out
+  ladder(Q, B.f3);
+  const ceil = model.byName('house_tex_39'), [cx0, cx1, cy0, cy1, cz0, cz1] = B.ceilCut;
+  if (ceil) cut['ceiling hatch'] = vwCutBox(ceil, new THREE.Box3(new THREE.Vector3(cx0, cy0, cz0), new THREE.Vector3(cx1, cy1, cz1)));
+  for (const [x0, x1, z0, z1] of [[cx0, cx1, cz0, cz0 + 0.02], [cx0, cx1, cz1 - 0.02, cz1], [cx0, cx0 + 0.02, cz0, cz1]]) wbox(Q, 'dark', x0, x1, 16.33, cy - 0.04, z0, z1);
+  const unlit = model.byName('house_unlit'), tray = model.byName('house_tex_32');
+  if (unlit && tray) {                                                                       // a star over the booth's floor, under 16.3: out
+    const p = unlit.geometry.attributes.position, idx = unlit.geometry.index, N = idx ? idx.count : p.count, v = new THREE.Vector3(), ray = new THREE.Raycaster(), boxes = [];
+    for (let t = 0; t < N; t += 3) {
+      const bb = new THREE.Box3(); for (let j = 0; j < 3; j++) bb.expandByPoint(v.fromBufferAttribute(p, idx ? idx.getX(t + j) : t + j).applyMatrix4(unlit.matrixWorld));
+      if (bb.min.y < 15.95 || bb.max.y > 16.30 || bb.max.x < 64.4 || bb.min.x > 89.6 || bb.max.z < -24.5 || bb.min.z > -20.0) continue;
+      bb.getCenter(v); ray.set(v, DOWN); ray.far = 2.0;
+      if (ray.intersectObject(tray, false).length) boxes.push(bb.expandByScalar(0.01));
+    }
+    let k = 0; for (const b of boxes) k += vwCutBox(unlit, b); cut['stars in the spot booth'] = k;
+  }
+
+  // 4. one mesh per material into 'vw booths' (the walk's grid), the leaves, the view
+  if (!vwBoothMat.grate) { const t = vwGrating(); vwBoothMat.grate = underStd(0xffffff, 0.5, 0, { emissive: 0x6a6a6a, metalness: 0.2, map: t, emissiveMap: t }); }
+  if (!vwSignMat.map) { vwSignMat.map = vwBackSigns(); vwSignMat.needsUpdate = true; }
+  const MAT = { stone: lobbyMat.stone, brass: lobbyMat.brass, glow: lobbyMat.glow, reveal: backstageMat.reveal, frame: backstageMat.frame, steel: underMat.steel, yellow: underMat.yellow,
+    nose: underMat.nose, dark: bsMat.dark, sign: vwSignMat, grate: vwBoothMat.grate };
+  const group = new THREE.Group(); group.name = 'vw booths';
+  let tris = 0;
+  for (const [key, geos] of Object.entries(Q)) {
+    const geo = mergeGeometries(geos.map(g => g.index ? g.toNonIndexed() : g), false); geos.forEach(g => g.dispose());
+    if (!geo) { console.warn(`van wezel booths: the ${key} pieces did not merge — left out`); continue; }
+    if (key === 'grate') { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) + p.getY(i)) / 0.5, (p.getZ(i) + p.getY(i)) / 0.5); }
+    const mesh = new THREE.Mesh(geo, MAT[key]); mesh.name = 'vw booths: ' + key; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    tris += geo.attributes.position.count / 3; group.add(mesh);
+  }
+  scene.add(group); group.updateMatrixWorld(true);
+  const mats = { wood: backstageMat.door, glass: backstageMat.panel, brass: backstageMat.kick };
+  const doors = doorSpec.map(d => hangLeafAt({ name: d.name, px: d.px, pz, th: d.th, x0: -hw + fw, x1: hw - fw, floor: Y, head: top - DOORS.headH, zhi: 1.3, mats }));
+  vwBooths = { group, doors, cut, poly, mirror: MIR, hidden, foyerHidden, frame: { sE, sA, sC, sD, tc, n0, rise: rs }, triangles: tris, ms: performance.now() - t0 };
+  vwBoothsUI();
+  colliderStale();
+  console.info(`van wezel booths: the balcony at ${Y} from both galleries' top landings (${G.toFixed(3)}, ${n0} risers of ${(rs * 1000).toFixed(1)} mm) round the back wall to a door in each of the tech booth's side walls; `
+    + `ladders of ${B.f1.n}, ${B.f2.n} and ${B.f3.n} risers, the catwalk at ${cy} z ${C.z0}…${C.z1}; cut ${Object.entries(cut).map(([k, v]) => `${k} ${v}`).join(', ')} · ${group.children.length} meshes, ${tris} triangles · ${vwBooths.ms.toFixed(0)} ms`);
+  requestRender();
+  return vwBooths;
+}
+// The header: "VW Booth" after "VW Backstage" (or "Van Wezel"): standing in the tech booth behind the consoles
+function vwBoothsUI() {
+  const after = document.getElementById('v-vwback') || document.getElementById('v-vanwezel');
+  if (!after || document.getElementById('v-vwbooth')) return;
+  VIEWS['v-vwbooth'] = VWB.view;
+  const b = document.createElement('button'); b.id = 'v-vwbooth'; b.textContent = 'VW Booth'; b.title = "In the Van Wezel's tech booth, behind the consoles: the balcony to its doors, the ladders up to the follow-spots";
+  b.addEventListener('click', () => go('v-vwbooth')); after.after(b);
+}
+// The route, legs of world [x, z] points: the foyer → up the house-right gallery → the balcony → the booth's door → inside →
+// ladder 1 → the roof and the deck behind → ladder 2 → the catwalk → the platform → ladder 3 → behind the house-right spot
+function vwBoothsRoute() {
+  const B = VWB, S = VW_SIDE, b = vwBooths, gal = vwSide.sides.find(g => g.side > 0), F = gal.F, ports = gal.ports, last = ports[ports.length - 1], [ccx, ccz] = VWF.c, R = VWF.wallR;
+  const w = (s, d) => { const p = F.at(s, d); return [p.x, p.y]; }, p0 = ports[0], dFoyer = S.stair.landing + (p0.stairN || 1) * S.stair.going + 0.6, pz = (B.door.z0 + B.door.z1) / 2;
+  const rm = R + 0.95, arc = []; { const tA = Math.atan2(w(b.frame.sC + 0.9, 0.9)[1] - ccz, w(b.frame.sC + 0.9, 0.9)[0] - ccx), tB = -Math.acos((70.45 - ccx) / rm); for (let i = 1; i <= 12; i++) { const t = tA + (tB - tA) * i / 12; arc.push([ccx + rm * Math.cos(t), ccz + rm * Math.sin(t)]); } }
+  const [sx, sz] = B.spot, f1 = B.f1.foot, f2 = B.f2.foot, f3x = B.f3.foot[0] + (B.f3.n - 1) * B.f3.g;
+  return [
+    { name: 'foyer → gallery', head: 2.0, pts: [w(0, dFoyer), w(0, 1.2), w(S.land0 - 0.05, 1.2), w(last.s + S.land - 0.3, 1.0)] },
+    { name: 'gallery → balcony → the booth door', head: 2.0, pts: [w(b.frame.sA + 0.4, 0.9), w(b.frame.sC + 0.9, 0.9), ...arc, [70.45, pz]] },
+    { name: 'the door → the booth', head: 2.0, pts: [[72.6, pz], [f1[0] - 0.45, pz], [f1[0] - 0.45, f1[1]]] },
+    { name: 'ladder 1 → the roof', head: WALK.head, pts: [[77.2, f1[1]], [77.2, -42.85], [f2[0], -42.85]] },
+    { name: 'ladder 2 → the catwalk', head: WALK.head, pts: [[f2[0], -38.6], [f2[0], B.cat.z1 + 0.3]] },
+    { name: 'the platform → ladder 3 → behind the spot', head: WALK.head, pts: [[75.3, B.cat.z1 + 0.3], [75.3, B.f3.foot[1]], [B.f3.foot[0] - 0.33, B.f3.foot[1]], [72.0, -23.3], [70.8, -23.1], [sx, sz]] },
+  ];
+}
+// THE CHECK. → the text
+function vwBoothsCheck() {
+  const b = vwBooths; if (!b) return 'van wezel booths: not built';
+  if (col.stale) buildCollider();
+  const out = []; let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  const f3 = v => v === null || !Number.isFinite(v) ? '—' : v.toFixed(3), legs = vwBoothsRoute();
+  const hold = b.doors.map(e => ({ e, u: e.u, want: e.want, rot: e.leaves.map(l => l.rotation.y) }));
+  for (const e of b.doors) { e.u = e.want = 1; e.angle = DOORS.swing; for (const l of e.leaves) { l.rotation.y = -l.userData.s * e.angle; l.updateMatrixWorld(true); } }
+  try {
+    // house right's whole route, and house left's (its gallery, its balcony, its door, into the booth: the mirror of the first three legs)
+    const mx = ([x, z]) => [2 * VW.at.x - x, z], routes = [{ side: 'house right', legs }, { side: 'house left', legs: legs.slice(0, 3).map(L => ({ ...L, pts: L.pts.map(mx) })) }];
+    for (const { side, legs: LS } of routes) {
+      // 1. the floor along the route, 5 cm a point (the walk's own floor test, carried on from the last): the largest riser and
+      // drop, holes, the least headroom (the walk's body test: from a step over the feet)
+      const start = LS[0].pts[0];
+      let y = groundAt(start[0], start[1], VWF.floor + 0.05), prev = start;
+      for (const L of LS) {
+        let up = 0, down = 0, holes = 0, head = Infinity, hAt = null, n = 0;
+        for (const q of L.pts) {
+          const k = Math.max(1, Math.ceil(Math.hypot(q[0] - prev[0], q[1] - prev[1]) / 0.05));
+          for (let j = 1; j <= k; j++) {
+            const x = prev[0] + (q[0] - prev[0]) * j / k, z = prev[1] + (q[1] - prev[1]) * j / k, g = groundAt(x, z, y); n++;
+            if (g === null || y - g > WALK.step) { holes++; continue; }
+            up = Math.max(up, g - y); down = Math.max(down, y - g);
+            const base = Math.max(y, g), hr = rayUp(x, base + WALK.step, z, 6) + WALK.step; if (hr < head) { head = hr; hAt = [x, z]; }
+            y = g;
+          }
+          prev = q;
+        }
+        line(!holes && up <= WALK.step && head >= L.head, `${side}, ${L.name}: ${n} points, largest riser ${(up * 1000).toFixed(0)} mm, largest drop ${(down * 1000).toFixed(0)} mm, ${holes} holes, least headroom ${head.toFixed(2)} m${hAt ? ` at (${hAt[0].toFixed(2)}, ${hAt[1].toFixed(2)})` : ''} (≥ ${L.head}), ending on ${f3(y)}`);
+      }
+      // 2. WALKED: the walk's own step (walkStep: its rays, its step up, its body test), W held, turned toward each point in turn
+      const keep = { pos: player.pos.clone(), vel: player.vel.clone(), on: player.onGround, cr: player.crouched, eye: player.eyeH, spawn: player.spawn.clone(), yaw, pitch, keys: [...keys],
+        cam: camera.position.clone(), q: camera.quaternion.clone(), tgt: orbit.target.clone() };
+      player.pos.set(start[0], groundAt(start[0], start[1], VWF.floor + 0.05), start[1]); player.vel.set(0, 0, 0); player.onGround = true; player.crouched = false; player.eyeH = WALK.eye; player.spawn.copy(player.pos);
+      keys.clear(); keys.add('KeyW');
+      let steps = 0, stuck = null, reached = 0, total = 0; const res = [];
+      try {
+        for (const L of LS) {
+          for (const [tx, tz] of L.pts) {
+            total++; if (stuck) continue;
+            let best = Infinity, since = 0;
+            for (;;) {
+              const dx = tx - player.pos.x, dz = tz - player.pos.z, d = Math.hypot(dx, dz);
+              if (d < 0.1) { reached++; break; }
+              if (d < best - 0.005) { best = d; since = 0; } else if (++since > 120) { stuck = `stuck ${d.toFixed(2)} m short of (${tx.toFixed(2)}, ${tz.toFixed(2)}) at (${player.pos.x.toFixed(2)}, ${player.pos.y.toFixed(3)}, ${player.pos.z.toFixed(2)}) on "${L.name}"`; break; }
+              yaw = Math.atan2(-dx, -dz); pitch = 0; walkStep(1 / 60); steps++;
+              if (steps > 40000) { stuck = 'out of time'; break; }
+            }
+          }
+          res.push(`${L.name.split(' → ').pop()} ${player.pos.y.toFixed(2)}`);
+        }
+      } finally {
+        const end = player.pos.clone(), goal = LS[LS.length - 1].pts.slice(-1)[0], fy = LS === legs ? VWB.f3.y0 : VWB.floor, there = Math.hypot(end.x - goal[0], end.z - goal[1]) < 0.15 && Math.abs(end.y - fy) < 0.02;
+        line(!stuck && reached === total && there, `${side}, walked (walkStep, W held, 60 steps a second): ${reached} / ${total} points in ${(steps / 60).toFixed(1)} s, ${stuck || 'never stuck'}; on reaching each leg's end, y ${res.join(' · ')}; ending at (${end.x.toFixed(2)}, ${end.y.toFixed(3)}, ${end.z.toFixed(2)})${LS === legs ? `, behind the house-right spot on the booth's floor (${fy})` : `, in the tech booth (${fy})`}`);
+        keys.clear(); for (const k of keep.keys) keys.add(k);
+        player.pos.copy(keep.pos); player.vel.copy(keep.vel); player.onGround = keep.on; player.crouched = keep.cr; player.eyeH = keep.eye; player.spawn.copy(keep.spawn); yaw = keep.yaw; pitch = keep.pitch;
+        camera.position.copy(keep.cam); camera.quaternion.copy(keep.q); orbit.target.copy(keep.tgt); if (!walking) orbit.update();
+      }
+    }
+  } finally {
+    hold.forEach(({ e, u, want, rot }) => { e.u = u; e.want = want; e.angle = u * u * (3 - 2 * u) * DOORS.swing; e.leaves.forEach((l, i) => { l.rotation.y = rot[i]; l.updateMatrixWorld(true); }); });
+  }
+  // 3. the doors clean
+  const ds = DOORS_API.check(), m = /^doors: (\d+) \/ (\d+) pass/.exec(ds), mine = b.doors.filter(e => ds.includes(e.name + ' pass')).length;
+  line(m && m[1] === m[2] && mine === b.doors.length, `DOORS.check(): ${m ? m[1] + ' / ' + m[2] : '?'} pass, the booth's ${mine} / ${b.doors.length}`);
+  // 4. HIDDEN: rays from a grid of seats (1.15 m over the stalls' floor) to points all over the catwalk, its platform and the top
+  // of ladder 2; from the foyer's floor and the balcony to the roof's deck, rails and ladder 2 under the back wall's top. The
+  // model's (and the foyer's) meshes block; the glass and the big meshes (seats, roof, the house's lit fittings) are left out,
+  // which can only make more rays get through
+  const ray = new THREE.Raycaster(); ray.layers.enableAll();
+  const tri = o => { const g = o.geometry; return (g.index ? g.index.count : g.attributes.position.count) / 3; };
+  const blockers = []; VW.root.traverse(o => { if (o.isMesh && o.visible && !/glass$|basement|exterior/.test(o.name) && tri(o) < 7000) blockers.push(o); });
+  const fl = VW.root.getObjectByName('vw: house_tex_41'), seats = [];
+  for (let x = 58; x <= 96; x += 4) for (let z = -37; z <= -4; z += 3) { ray.set(new THREE.Vector3(x, 25, z), DOWN); ray.far = 30; const h = fl && ray.intersectObject(fl, false)[0]; if (h) seats.push(h.point.clone().setY(h.point.y + 1.15)); }
+  const seen = (eyes, pts, bl) => { let n = 0, vis = 0, ex = null; const t = new THREE.Vector3(), d = new THREE.Vector3();
+    for (const e of eyes) for (const p of pts) { t.set(...p); d.subVectors(t, e); const L = d.length(); ray.set(e, d.normalize()); ray.far = L - 0.02; n++; if (!ray.intersectObjects(bl, false).length) { vis++; if (!ex) ex = `(${p.map(q => q.toFixed(2)).join(', ')}) from (${e.x.toFixed(1)}, ${e.y.toFixed(1)}, ${e.z.toFixed(1)})`; } }
+    return { n, vis, ex }; };
+  const sv = seen(seats, b.hidden, blockers);
+  line(seats.length > 50 && !sv.vis, `from ${seats.length} seats to ${b.hidden.length} points on the catwalk, its platform and ladder 2 over the wall: ${sv.vis} of ${sv.n} rays get through${sv.ex ? ' — e.g. ' + sv.ex : ''}`);
+  const [ccx, ccz] = VWF.c, R = VWF.wallR, eyes = [], fb = [...blockers]; vwFoyer.group.traverse(o => { if (o.isMesh) fb.push(o); });
+  for (const e of DOORS.list) for (const h of e.hit) if (!/glass$/.test(h.name)) fb.push(h);   // the doors' leaves, shut (their vision panels let rays by)
+  const tc = b.frame.tc;
+  for (let t = tc; t <= -Math.PI - tc + 1e-6; t += 0.07) { for (const r of [54.6, 56.4]) eyes.push(new THREE.Vector3(ccx + r * Math.cos(t), VWF.floor + 1.6, ccz + r * Math.sin(t))); const bx = ccx + (R + 0.95) * Math.cos(t); if (bx < VWB.booth.x0 - 0.1 || bx > VWB.booth.x1 + 0.1) eyes.push(new THREE.Vector3(bx, VWB.floor + 1.6, ccz + (R + 0.95) * Math.sin(t))); }   // (not inside the booth: it sees up its hatch)
+  const fv = seen(eyes, b.foyerHidden, fb);
+  line(!fv.vis, `from ${eyes.length} eyes in the foyer and on the balcony to ${b.foyerHidden.length} points on the booth's roof, its deck and ladder 2: ${fv.vis} of ${fv.n} rays get through${fv.ex ? ' — e.g. ' + fv.ex : ''}`);
+  // 5. NOTHING THROUGH: every point over the house is over the ceiling and under the roof; every point over the foyer's ceiling
+  // is under the roof
+  const ceil = VW.root.getObjectByName('vw: house_tex_39'), roof = VW.root.getObjectByName('vw: exterior_tex_27');
+  let underCeil = 0, overRoof = 0, room = Infinity;
+  for (const p of [...b.hidden, ...b.foyerHidden]) {
+    const v = new THREE.Vector3(...p);
+    ray.set(v, new THREE.Vector3(0, 1, 0)); ray.far = 10; const hr = roof && ray.intersectObject(roof, false)[0]; if (!hr || hr.distance < 0.05) overRoof++; else room = Math.min(room, hr.distance);
+    if (b.hidden.includes(p) && p[2] > -38.4) { ray.set(v, DOWN); ray.far = 3; if (!(ceil && ray.intersectObject(ceil, false).length)) underCeil++; ray.set(v, new THREE.Vector3(0, 1, 0)); ray.far = 3; if (ceil && ray.intersectObject(ceil, false).length) underCeil++; }
+  }
+  line(!underCeil && !overRoof, `${b.hidden.length + b.foyerHidden.length} points: ${underCeil} not over the house ceiling, ${overRoof} not under the roof (the nearest ${room.toFixed(2)} m under it)`);
+  // 6. clear of the foyer's chandeliers (their rings 0.62 m round)
+  let near = Infinity;
+  const segD = (p, a, c) => { const dx = c[0] - a[0], dz = c[1] - a[1], t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / (dx * dx + dz * dz))); return Math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dz); };
+  const polys = [b.poly, b.poly.map(([x, z]) => [2 * VW.at.x - x, z])];
+  for (const side of [-1, 1]) { const f = vwfFrame(side); for (const [s, d] of [[-25.5, 8.3], [-16.0, 6.4], [-7.5, 4.9]]) { const c = f.toW(s, 0, d), p = [c.x, c.z]; for (const q of polys) for (let i = 0; i < q.length; i++) near = Math.min(near, segD(p, q[i], q[(i + 1) % q.length]) - 0.62); } }
+  line(near > 0.5, `the balconies clear of the foyer's six chandeliers by ${near.toFixed(2)} m (their rings)`);
+  const s = `van wezel booths: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
+  console.info(s); return s;
+}
+const VW_BOOTHS_API = { spec: VWB, get built() { return vwBooths; }, check: vwBoothsCheck, route: vwBoothsRoute, view: () => go('v-vwbooth') };
+VAN_WEZEL_API.booths = VW_BOOTHS_API;                         // MIDTOWN.vanWezel.booths
 
 /* ---------------------------------------------------------------- THEATRE 2: THE UNDERGROUND AND THE LIFTS
    RULING GI (2026-10-16), Jack: "make it so there is a stage lift that is used to bring on and off big sets like the ship.
