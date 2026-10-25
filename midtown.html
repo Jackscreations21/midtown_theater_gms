@@ -16051,7 +16051,7 @@ const VW_WAGON = {
   foot: { w: 0.26, f: 0.222, b: 0.335, y0: 0.38, y1: 1.135 },   // a chair's footprint about its middle (half width, front, back) and its height over its floor
   rows: 5, h: 0.15, plate: 0.09, inset: 0.03,        // the deck: 15 cm (a 9 cm plate on casters), 3 cm inside the lift's edge
   aisle: 70.75, front: 0.72, margin: 0.10,           // no chair west of this, nor nearer the lip than this, nor nearer the deck's edge than this
-  notch: { x0: 70.10, x1: 70.46, z0: -0.61 },        // the pedestal's slot in the deck's upstage edge
+  notch: null,                                       // the pedestal's slot in the deck's upstage edge ({ x0: 70.10, x1: 70.46, z0: -0.61 }): the pedestal is gone (RULING GT), so the deck is whole
   slide: 5.60, t: 14,                                // it rolls this far (its depth and 26 cm), in t s, eased
   bay: { x0: 66.88, x1: 87.12, z0: -11.20, head: 2.30, t: 0.15 },   // the store under the stalls: its inner faces, its height over its floor, its walls
   panel: { x: 72.45, z: 0.30 },                      // E: on the house-right jamb of the pit's door (VW_BACK.pit), facing the way through
@@ -16090,7 +16090,7 @@ function vwWagonBuild(model, L) {
   const ring = H.ring.map(([x, z]) => [H.cx + (x - H.cx) * kx, H.cz + (z - H.cz) * kz]), hull = vwHull(ring), N = Wc.notch, outline = [];
   ring.forEach((a, i) => {
     const b = ring[(i + 1) % ring.length]; outline.push(a);
-    if (a[1] > hull.z1 - 1e-3 && b[1] > hull.z1 - 1e-3 && Math.min(a[0], b[0]) < N.x0 && Math.max(a[0], b[0]) > N.x1) {
+    if (N && a[1] > hull.z1 - 1e-3 && b[1] > hull.z1 - 1e-3 && Math.min(a[0], b[0]) < N.x0 && Math.max(a[0], b[0]) > N.x1) {
       const xs = b[0] > a[0] ? [N.x0, N.x1] : [N.x1, N.x0];
       outline.push([xs[0], a[1]], [xs[0], N.z0], [xs[1], N.z0], [xs[1], a[1]]);
     }
@@ -17844,7 +17844,7 @@ function vwHouseBuild(model) {
       }
     }
   }
-  box(0xd08a2a, Pr.x1 - Pr.x0, 0.07, 0.003, TRS(new THREE.Vector3(cx, Pr.deck - 0.045, Pr.face - 0.0015)), true);  // the lip's gold strip, 3 mm proud (inside the lift's slab when it is up)
+  if (VW_PHOTO_COLOURS) box(0xd08a2a, Pr.x1 - Pr.x0, 0.07, 0.003, TRS(new THREE.Vector3(cx, Pr.deck - 0.045, Pr.face - 0.0015)), true);  // the lip's gold strip, 3 mm proud (inside the lift's slab when it is up)
   // 5. THE BACK: the window rows along the back wall's arc each side of the booth's
   const Bk = H.back, wallAt = x => new THREE.Vector2(x, Bk.c[1] - Math.sqrt(Bk.R * Bk.R - (x - Bk.c[0]) ** 2));
   const inward = p => new THREE.Vector2(Bk.c[0] - p.x, Bk.c[1] - p.y).normalize();
