@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#26 merged; `main` `67c57d5`; PR `vw-answers` open)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#27 merged; `main` `d98673c`)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -7,17 +7,18 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 ## Where things stand
 
 **2026-10-24: four PRs merged in one day** (each has a DONE block in HANDOFF.md, newest first). `main` is **`852c232`**
-(#20). Nothing is local-only. **Post-merge tidy still owed** (the sandbox refuses remote deletes, so Jack or a terminal):
-delete the merged branches `film-round`, `stage-manager`, `orchestra-pit`, `van-wezel` both sides
-(`git push origin --delete <name>`), and the agent worktrees under `.claude/worktrees/` (`git worktree list`; never
-`git add -A` while they exist).
+(#20). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under NEXT below); the
+worktrees and local branches are gone.
 
-- **NEXT: land PR `vw-answers`, then his eye on it (HANDOFF's NEXT SESSION block and its DONE block, RULING GT).** Every one
+- **NEXT: his eye on PR #27 (`vw-answers`, MERGED `d98673c`; HANDOFF's NEXT SESSION block and its DONE block, RULING GT).** Every one
   of his Van Wezel answers and five asks is built: the model's colours back (`VW_PHOTO_COLOURS` off), the landings' lip, the
   foyer's mullions out, the follow-spot booth bigger with tall windows and its outside the ceiling's colour, the lift's pedestal
   gone and its top black, manual pit guards ("VW guards"). His to decide (listed in the NEXT SESSION block): the foyer's glass
   line is still an invisible wall to the walk (a drop beyond the terrace); the guards down at load; the booth's window bays.
-  - Tidy: the builder worktrees under `.claude/worktrees/` (two more from this round); the merged remote branches.
+  - Tidy: every worktree under `.claude/worktrees/` and every local branch but `main` removed (2026-10-25). STILL OWED (the
+    sandbox refuses remote deletes, so Jack or a terminal): `git push origin --delete film-round orchestra-pit
+    preshow-announcement record-20 record-25 sm-voices stage-manager van-wezel vw-answers vw-booths vw-round record-27`
+    (all merged).
 - **PR #24 (MERGED, `vw-round`): Van Wezel's doors, foyer, holes, lift and backstage.** Four Opus builders,
   merged by the lead. Jack: *"the doors in the van wezel should go all the way upo to the top of the seating and add doors to
   all the frames"* (*"i didnt mean taller door i meant more"*), *"redo the lobby for the van wezel to look mor like the one for
