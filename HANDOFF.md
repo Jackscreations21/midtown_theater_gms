@@ -229,9 +229,9 @@ compare the *same* production across stages instead.
 
 ---
 
-## NEXT SESSION: **HIS EYE ON THE COSTUMES** (2026-10-25; PR #36 `hamilton-costumes`)
+## NEXT SESSION: **HIS EYE ON THE COSTUMES** (2026-10-25; PR #36 merged `cd06c55`)
 
-Rulings at **GV** (GW next; none made this round). Land PR #36 `hamilton-costumes` when he says so. Then his eye on it: play any
+Rulings at **GV** (GW next; none made this round). #36 merged `cd06c55` (2026-10-25). His eye on it: play any
 stretch of the show with the Blocking panel's Costumes box on and off; the doubled tracks (Lafayette into Jefferson, Peggy into
 Maria Reynolds, Laurens into Philip); Hamilton's coat in Right Hand Man. His to decide: listed in the DONE block below. Then the
 NEXT SESSION blocks under it (the Van Wezel dressed for Hamilton, #33–#35, all merged).
