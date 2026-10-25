@@ -2244,3 +2244,15 @@ include the place a failure would show — the corridor behind the house, not on
 - **Another builder's `http.server` may already hold a port.** A helper started on 8098 failed to bind, and the page's
   requests reached someone else's SimpleHTTP (404s, then a CORS error). Pick an unusual port and curl it first.
 
+
+## From the Van Wezel answers round (2026-10-25)
+
+- **A colour measured off the model follows whatever look the model has.** The booth agent's worktree still had the
+  photographs' mauve ceiling and measured mauve; on the branch with the model's colours back the same code measured the dark
+  purple. Measure at build rather than hard-code a colour that matches "the ceiling" or "the floor".
+- **An open hatch over a row of windows.** With the follow-spot booth's new full-width windows, rays from the front seats ran
+  in through the low bays and up the ladder's roof hatch to the catwalk: a black screen behind the hatch hides it.
+- **The Van Wezel lift's slanted sides border the foyer's carpet (0.875), not the stalls floor,** and the front row's cushions
+  stand only ~10 cm off its curved front: anything standing round the well measures the floor under each post.
+- **The lift's hull reaches 2 mm past the stage's front wall** (z −0.150 against −0.1524): anything on the lip's face below the
+  deck stands in the lift's path (the pit panel at x 71.75 does).

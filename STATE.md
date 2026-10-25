@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#25 merged; `main` `ca692da`)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#26 merged; `main` `67c57d5`; PR `vw-answers` open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -12,16 +12,12 @@ delete the merged branches `film-round`, `stage-manager`, `orchestra-pit`, `van-
 (`git push origin --delete <name>`), and the agent worktrees under `.claude/worktrees/` (`git worktree list`; never
 `git add -A` while they exist).
 
-- **NEXT: the Van Wezel round his answers call for (HANDOFF's NEXT SESSION block, RULING GT).** PR #25 (`vw-booths`) and
-  #24 MERGED. He answered the twelve questions both PRs left in his decisions doc (https://claude.ai/artifact/UKsnCsyJL6hwKAC7r52cTT) and asked for five more things.
-  The work owed, in short:
-  - the follow-spot booth bigger, with windows like his photo (`13.jpg`); its outside the roof's colour;
-  - the house's colours back to what they were before the photo round (`VW_LOOKS`: answer 3);
-  - the lip at the gallery landings of doorways 7 and 13 fixed;
-  - the yellow thing on the lift removed; the lift's top the stage floor's colour;
-  - guards he can raise round the orchestra pit / lift well (a control, not automatic: RULING GK stands for moving lifts);
-  - the lobby's glass walls really gone (he still sees them: find which mesh; `exterior_glass` is already a hidden collider).
-  - Tidy: the builder worktrees under `.claude/worktrees/`; the merged remote branches.
+- **NEXT: land PR `vw-answers`, then his eye on it (HANDOFF's NEXT SESSION block and its DONE block, RULING GT).** Every one
+  of his Van Wezel answers and five asks is built: the model's colours back (`VW_PHOTO_COLOURS` off), the landings' lip, the
+  foyer's mullions out, the follow-spot booth bigger with tall windows and its outside the ceiling's colour, the lift's pedestal
+  gone and its top black, manual pit guards ("VW guards"). His to decide (listed in the NEXT SESSION block): the foyer's glass
+  line is still an invisible wall to the walk (a drop beyond the terrace); the guards down at load; the booth's window bays.
+  - Tidy: the builder worktrees under `.claude/worktrees/` (two more from this round); the merged remote branches.
 - **PR #24 (MERGED, `vw-round`): Van Wezel's doors, foyer, holes, lift and backstage.** Four Opus builders,
   merged by the lead. Jack: *"the doors in the van wezel should go all the way upo to the top of the seating and add doors to
   all the frames"* (*"i didnt mean taller door i meant more"*), *"redo the lobby for the van wezel to look mor like the one for
@@ -149,7 +145,7 @@ delete the merged branches `film-round`, `stage-manager`, `orchestra-pit`, `van-
 - **Johnny Tremain on Theatre 2 — PR #8 MERGED (2026-10-16, `main` `daa9bcd`), post-merge done (branches deleted both sides, worktrees removed):** his own play, two acts, 26 scenes — the set as
   sized stand-ins with model slots, two stage lifts and an underground under Theatre 2 (RULINGS GI, GJ), a 128-unit rig
   with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's newest DONE block.
-- **Rulings are at GT (GU next).** GT (2026-10-25): his twelve Van Wezel answers (HANDOFF's NEXT SESSION block). GR–GS (2026-10-24, PR `preshow-announcement`): the announcement before 1-01, Burr's walk in its last 5 s; the exit music at the walk-off, the bows' look held. GM–GQ (2026-10-24): the stage manager spec (his answers). GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
+- **Rulings are at GT (GU next).** GT (2026-10-25): his twelve Van Wezel answers (HANDOFF's SUPERSEDED block under the newest DONE). GR–GS (2026-10-24, PR `preshow-announcement`): the announcement before 1-01, Burr's walk in its last 5 s; the exit music at the walk-off, the bows' look held. GM–GQ (2026-10-24): the stage manager spec (his answers). GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
   rails stay down in the deck, so nothing guards the hole while a lift is away (PR #13, merged). GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
   them off. GJ (2026-10-16): an underground under Theatre 2 for storage. Earlier: **GH**. The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
