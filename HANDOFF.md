@@ -229,14 +229,14 @@ compare the *same* production across stages instead.
 
 ---
 
-## NEXT SESSION: **HIS EYE ON THE COSTUMES** (2026-10-25; PR `hamilton-costumes`)
+## NEXT SESSION: **HIS EYE ON THE COSTUMES** (2026-10-25; PR #36 `hamilton-costumes`)
 
-Rulings at **GV** (GW next; none made this round). Land PR `hamilton-costumes` when he says so. Then his eye on it: play any
+Rulings at **GV** (GW next; none made this round). Land PR #36 `hamilton-costumes` when he says so. Then his eye on it: play any
 stretch of the show with the Blocking panel's Costumes box on and off; the doubled tracks (Lafayette into Jefferson, Peggy into
 Maria Reynolds, Laurens into Philip); Hamilton's coat in Right Hand Man. His to decide: listed in the DONE block below. Then the
 NEXT SESSION blocks under it (the Van Wezel dressed for Hamilton, #33–#35, all merged).
 
-## DONE — 2026-10-25 (night): the Hamilton costumes — 46 looks, each body's plot of them by song (PR `hamilton-costumes`, one session)
+## DONE — 2026-10-25 (night): the Hamilton costumes — 46 looks, each body's plot of them by song (PR #36 `hamilton-costumes`, one session)
 
 Jack: *"make a costume system for hamilton and give all the charecotrs the correct costumes at the correct times"*. No ruling.
 - **THE COSTUMES** (new section "AUTOMATIC ACTORS: THE COSTUMES", before THE FOLLOWSPOTS; `MIDTOWN.costumes`;
