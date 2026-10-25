@@ -229,9 +229,17 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-25: Theatre 2's street front reads MIDTOWN THEATER (PR #38 `theatre2-sign`, merged `4db08e4`)
+
+Jack: *"change the sign that says theater 2 to say midtown theater an make its marquis say johhny tremain"*. `ST_OURS` row 2
+(THE STREET): the name band over its doors, the marquee's name row and sides, and the blade now read MIDTOWN THEATER. The
+marquee's title was already JOHNNY TREMAIN, so it is unchanged. Only the street's signs changed: the header buttons, lobby signs,
+monitor label and comments still say Theatre 2 (his word: *"Leave the rest as Theatre 2."*). Checked from the Broadway view;
+`MIDTOWN.street.check()` PASS, console clean. No ruling; no new trap. Both fronts now carry MIDTOWN (HAMILTON's band says MIDTOWN).
+
 ## NEXT SESSION: **HIS EYE ON THE VAN WEZEL'S CREW** (2026-10-25; PR #40 merged `7e60af6`)
 
-Rulings at **GV** (GW next; none made this round). #40 merged `7e60af6`, #39 `75b879b`; #38 (`theatre2-sign`) is open. His eye
+Rulings at **GV** (GW next; none made this round). #40 merged `7e60af6`, #39 `75b879b`, #38 `4db08e4` (the sign, after it). His eye
 on it, in the Van Wezel: call House, Five and Places from the prompt desk and watch the crew go up (the "VW Crew way" view, then
 "VW Booth"), the band come through the pit door, nobody on the deck at Places; GO into Act Two after the interval; the tech
 booth's monitors, its light switch and power button; the header's Tags and Rumble. His to decide: listed in the DONE block below.
