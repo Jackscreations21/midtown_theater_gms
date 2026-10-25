@@ -12,8 +12,8 @@ worktrees and local branches are gone.
 
 - **NEWEST: PR #33 `vw-hamilton` (2026-10-25, night; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's
   auditorium dressed for Hamilton** — brick on the side walls' panels, timber posts, headers and trusses, rope swags, coils
-  and rigging, lanterns, candle rings, flags, a lintel over the proscenium, and the proscenium wall itself in brick with pilasters, timber bays and fan bunting ("VW dress"
-  toggles it). Main merged in. **Open bug from #32:** the fitted proscenium pier stands over the Van
+  and rigging, lanterns, candle rings, flags, a lintel over the proscenium, and the proscenium wall itself in brick with pilasters, timber bays and fan bunting, the lilac oval
+  over it hidden ("VW dress" toggles it; PR #34, `vw-pros-wall`). Main merged in. **Open bug from #32:** the fitted proscenium pier stands over the Van
   Wezel's house-right stage stair, so the walk from the stage down it is blocked (`.lift.guards` 8/9).
 - **Before it: PR #32 (MERGED `0340da9`) `claude/festive-liskov-2f7ffa` (2026-10-25, late night; HANDOFF's newest DONE block; no ruling, GW next).** The mouse re-locks after
   refusals (it used to give up for good); the Van Wezel's proscenium closed to house 1's opening round the set; house 1's three
