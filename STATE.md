@@ -6,7 +6,11 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR #40 (MERGED `7e60af6`) `crew-walks` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling,
+- **NEWEST: PR `places-upstage` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): nobody under the gallery at
+  Places.** Jack: "when i call placses hamilton, king george and wahignton go on stage". Their act-1 tops sit in the passage
+  under the gallery (z 9.01), in front of the back wall, and the deck line stopped at 9.0; it is at 10.0 now (`CO_PLACES.z`).
+  20 / 20 off the deck at Places in act 1 and act 2, both houses. **His eye on it:** call Places and watch the stage stay empty.
+- **Before it: PR #40 (MERGED `7e60af6`) `crew-walks` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling,
   GW next).** Act Two opens on What'd I Miss again (the show engine, both houses), and in the **Van Wezel** (his word: "i meant all
   this stuff in the van wezel"): the crew way (the stage-right spiral on up to a hallway over the roof and a ladder down to the
   spots), five crew who walk it to the booths at the Five, Places off the deck, the band up the stair and through the pit door,
