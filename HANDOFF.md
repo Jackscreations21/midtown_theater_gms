@@ -229,6 +229,52 @@ compare the *same* production across stages instead.
 
 ---
 
+## NEXT SESSION: **VAN WEZEL — HIS ANSWERS (RULING GT) AND FIVE MORE ASKS** (2026-10-25; PRs #24 and #25 merged)
+
+Rulings at **GT** (GU next). `main` is **`ca692da`**. Read his decisions doc first (https://claude.ai/artifact/UKsnCsyJL6hwKAC7r52cTT, a Claude Doc: read it with the
+docs tools, never web-fetch it); he may have changed an answer since.
+
+**RULING GT: his answers to the twelve questions (2026-10-25, in his words):**
+
+| # | Question | His answer | What it means |
+| --- | --- | --- | --- |
+| 1 | The movers and pars over the proscenium: move them to the stage side? | "they are fine" | Leave them on the house side. |
+| 2 | The follow-spot booth's windows taller, like his photo? | "make them like the picture" | Build it (`13.jpg`: tall sliding windows in silver frames). |
+| 3 | The four slivers of ceiling through the roof? | "its fine put change the color of the theater to what it was befor" | Slivers stay; the house's colours go back to before the photo round (`VW_LOOKS`, THE HOUSE AS IT IS). Ask which parts if unsure (walls, ceiling, grilles, seats). |
+| 4 | Rework the ladders to the spot booth? | "its fine but the actual spot booth isnt big enough" | Ladders stay; make the follow-spot booth bigger (it is 1.67 m tall inside; headroom was ~5 cm). |
+| 5 | A house-left route to the spots? | "its fine" | No. |
+| 6 | The galleries' look? | "its fine" | Keep. |
+| 7 | The 4–5 cm lip at the landings of doorways 7 and 13? | "sure" | Fix it. |
+| 8 | A centre aisle in the seating wagon? | "no" | Keep the rows continuous. |
+| 9 | Keep the rolling stair and the invisible edge guard? | "sure" | Keep (but see his ask for guards he can raise, below). |
+| 10a | Real lights in the foyer? | "no" | Keep the glow. |
+| 10b | A bar each side, one box office? | "yes" | Keep. |
+| 10c | Shorten the bar pendants? | "no" | Keep. |
+| 11 | Remove the doors' glass panes? | "no" | Keep. |
+| 12 | Take the cut pilasters out completely? | "fine how it is now" | Keep. |
+
+**His five asks the same day (2026-10-25):**
+1. *"the outside of the spot boothe should mathc the color of the roof"*: the follow-spot booth's outer faces (`house_tex_32` and
+   what THE BOOTHS' GEAR / THE HOUSE AS IT IS put there) in the roof's colour.
+2. *"remove the yellow thing on the lift"*: find what it is (the E pedestal riding the lift? a yellow nosing or edge strip from
+   THE ORCHESTRA LIFT or THE SEATING WAGON?) and take it off; keep a way to call the lift from on it if the pedestal goes (the
+   panels on the proscenium return and in the pit, the header buttons).
+3. *"the glass walls of the lobby are still there get rif og them"*: `exterior_glass` is already drawn invisible
+   (`VW_GLASS_BLOCK`, a collider only), so what he sees is another mesh: render the foyer from inside, find the glazed faces
+   (the "Lobby glass & fascia" nodes 330–332 in the source; maybe `exterior_tex_25` or a lit glass look) and hide them the
+   same way, keeping the walk's wall.
+4. *"make the stage lift the same color as the stage"*: the lift's top (`vw: lift_lit`, the wagon's deck when it rides at
+   STAGE) in the stage floor's colour (THE STAGE HOUSE AS IT IS's black dance floor).
+5. *"add guards i can make go up so people dont fall into the orchstra pit"*: guard rails round the lift well that HE raises
+   and lowers (an E control on the panels and a header/console call), not ones that rise by themselves: RULING GK (*"dont make
+   the railings come up when the lift moves"*) stands for the lifts moving; these are a separate, manual guard. Raised, they
+   stop the walker and the seating wagon's slide; lowered, they sit flush in the floor.
+
+**Then:** the older list in STATE.md (the film round's questions, the stage manager's, the pit's, the cue checklist, the
+headset run). Method notes: the Van Wezel sections each have a check under `MIDTOWN.vanWezel.*` (`check`, `sideDoors`,
+`foyer`, `patches`, `lift`, `backstage`, `booths`, `booths.gear`, `house`, `stageHouse`); run all of them, `doors.check()`,
+`under.check()` and `lx.check()` (301/313) after any change. TRAPS has the Van Wezel rounds' traps.
+
 ## DONE — 2026-10-24 (late night): Van Wezel from his photographs; the booths' way up; a four-stop lift with a seating wagon (PR `vw-booths`)
 
 Jack, after #24: *"i meant remove the windows frm the lobby not the tech booth. also add a way to get to the tech and spot
