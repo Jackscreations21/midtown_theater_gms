@@ -2256,3 +2256,8 @@ include the place a failure would show — the corridor behind the house, not on
   stand only ~10 cm off its curved front: anything standing round the well measures the floor under each post.
 - **The lift's hull reaches 2 mm past the stage's front wall** (z −0.150 against −0.1524): anything on the lip's face below the
   deck stands in the lift's path (the pit panel at x 71.75 does).
+- **Widening a model's room by moving its vertices drags hidden faces into view.** The stage-right wing was widened by moving
+  the shell's side-face vertices out 3 m (its look kept whole); the roof's parapet soffit (exterior_tex_27 at 28.16, under
+  the loft's roof, hidden in the old wall's void) came along and showed as a purple band over the new strip. Move, then look
+  up from inside, and cut what the void hid. Also: the loft's cut box must keep the model's x — run with the new wall's x it
+  would have cut the stretched front face (z 0.61) out of the strip.
