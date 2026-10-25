@@ -24127,6 +24127,23 @@ const STREET = {
   fade: 1.5,                                        // seconds a change of mode eases over
   storeKey: 'midtown-street-mode',
 };
+// THE VAN WEZEL'S ENTRANCES (Jack, 2026-10-25: "make there be multiple doors they can come into the van wezel. make it so they
+// have to walk throught metal detecotrs and have ther tickest scanned"): three pairs through its glass, each on the glass's
+// circle (VWF.c, radius stBuilt.glassR, 57.086) at phi degrees about that centre (0 the street doors' middle, house right
+// negative, as THE AUDIENCE's vwAudPhi), facing out along the radius. Inside each, straight in along the radius: the ticket
+// scanner (an usher at a podium beside the way; each person stops scan s at stopR) and a walk-through metal detector (an arch
+// across the way at archR), then the foyer. The centre one's door is STREET.vwDoor's (built by THE STREET); the others are
+// built the same, turned. Radii are from VWF.c; the foyer's floor is VWF.floor.
+const VW_ENTRANCES = {
+  list: [
+    { key: 'house right', name: 'Van Wezel street doors, house right', phi: -9 },
+    { key: 'centre', name: 'Van Wezel street doors', phi: 0 },
+    { key: 'house left', name: 'Van Wezel street doors, house left', phi: 9 },
+  ],
+  stopR: 55.75, scan: 1.4, podium: 0.75,    // where a person stops for the scan, for how long (s), the podium (and its usher) this far to the way's house-left side
+  archR: 54.55, archW: 0.9, archH: 2.15,    // the metal detector across the way: its middle, its clear width and height
+  laneW: 1.1,                               // the way in from the doors to past the arch: kept clear of the foyer's waiting spots
+};
 // The shows on the fronts: [the house, its show, the blade's word]. Real Broadway houses and what plays in them.
 const ST_HOUSES = [
   ['SHUBERT', "HELL'S KITCHEN", 'SHUBERT'], ['MINSKOFF', 'THE LION KING', 'MINSKOFF'], ['GERSHWIN', 'WICKED', 'GERSHWIN'],
