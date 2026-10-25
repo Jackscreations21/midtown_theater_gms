@@ -80,6 +80,11 @@
   JOHNNY TREMAIN marquees over two new pairs of street doors, a pair through the Van Wezel's glass under its own marquee;
   ACTUAL TIME / DAY / NIGHT (the header's Street buttons, MIDTOWN.street.mode), chaser bulbs, lit signs and lamps at night;
   the Broadway view; MIDTOWN.street.check().
+  THE VAN WEZEL'S CREW (Jack, 2026-10-25; "THE THIRD HOUSE: THE CREW WAY", "THE CREW", "THE BOOTH LIGHTS", "THE BOOTH'S SHOW
+  CAMERAS", "THE BOOTH'S POWER" below): the stage-right spiral on up to a hallway over the roof and a ladder down to the spots;
+  five crew who walk it to the booths at the Five; a light switch in each booth; seven monitors across the tech booth's window
+  showing the stage from seven cameras; a power button for the tech booth's equipment. The header's Tags hides the actors' name
+  tags; Rumble shakes the view a little on the album's big bass hits (assets/hamilton-rumble.json, tools/rumble.html).
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -302,6 +307,8 @@ canvas { display: block; width: 100%; height: 100%; touch-action: none; }
   </div>
   <div class="mode" role="group" aria-label="Stage manager voices">
     <button id="sm-voices" aria-pressed="true" title="The stage manager's spoken lines: the God mic, the spots, front of house and the company on the headset">Voices</button>
+    <button id="act-tags" aria-pressed="true" title="The name tags over the actors' heads (the company's answers still show)">Tags</button>
+    <button id="rumble" aria-pressed="true" title="The view shakes a little on the show's big bass hits: a gunshot, a cannon, a heartbeat">Rumble</button>
   </div>
   <label class="bright" for="bright">House light <input id="bright" type="range" min="0.4" max="3" step="0.05" value="1.4"></label>
   <label class="bright" for="vw-bright" title="The Van Wezel's auditorium and stage house: its light is baked into its colours, so the House light slider does not reach it">Van Wezel house light <input id="vw-bright" type="range" min="0" max="1.5" step="0.05" value="1"></label>
@@ -576,7 +583,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear|vw stage house)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR; vw stage house: THE THIRD HOUSE: THE STAGE HOUSE AS IT IS (not 'vw flies': what hangs)
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear|vw stage house|vw crew way)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR; vw stage house: THE THIRD HOUSE: THE STAGE HOUSE AS IT IS (not 'vw flies': what hangs); vw crew way: THE THIRD HOUSE: THE CREW WAY
   for (const o of scene.children) if (o.name === 'street') o.traverse(m => { if (m.isMesh && m.userData.collide) list.push(m); });   // THE STREET: drawn or not (stTick hides it indoors)
   for (const o of scene.children) if (o.name === 'street trim') o.traverse(take);   // THE STREET: the street doors' frames
   baked.traverse(take);
@@ -4707,7 +4714,8 @@ function showSoundSeek(P) {
 // context runs, because a tapped element plays through the context alone. No context or no envelope: the table stands.
 const SND = { ctx: null, src: null, tap: null, env: null, envWanted: false, bins: [], check: null, next: 0, note: '', err: null };
 const SND_BIN = 0.02, SND_WIN = 75, SND_N = 200, SND_LAT = 0.07, SND_EVERY = 30;   // bin, search window s, 4 s per match, the tap's latency (measured), confirmation period s
-const SND_TOL = 0.25, SND_MOVES = 3;                         // a landing within this of the skip's target is good; corrective seeks before giving up
+const SHW_PLAY_ON = 2.5;                                     // s: the element paused this little short of where the music should start plays on to it, unseeked (showTrackAudio)
+const SND_TOL = 0.25, SND_MOVES = 3;                        // a landing within this of the skip's target is good; corrective seeks before giving up
 const sndLog = v => Math.log10(Math.max(v, 1e-4)) + 4;      // the envelope's scale (u8 = 255 · log / 4)
 function sndEnv() {
   if (SND.envWanted || !SHW.sound || !SHW.sound.env) return; SND.envWanted = true;
@@ -4866,9 +4874,13 @@ function showSoundTick() {                                   // the file's time 
   sndTick(A);
   const t = A.currentTime + SHW.soundOff, cur = tr[SHW.ti];   // what is playing, not what the element reports (showSoundSeek, the sound tap)
   if (cur.post > 0 && cur.file !== null && t >= cur.file + cur.len - 1e-3) { showTail(); return; }   // into this track's tail (FQ)
+  // FORWARD ONLY (Jack, 2026-10-25: "when i start act 2 it starts playing the end of act one music"): the file running past a
+  // track's end moves the show on, but a time BEFORE the current track's start is a landing error — the seek (or the play on
+  // from the act break's silence, showTrackAudio) put the element a little short of it — not a step back: stepping back took
+  // the show into 1-23 at GO, its tail paused the music and the act break came round again. The clock waits at 0 instead,
+  // and the sound tap moves the element if it really is off.
   let i = SHW.ti;
   while (i + 1 < tr.length && tr[i + 1].file <= t + 1e-3) i++;
-  while (i > 0 && tr[i].file > t + 1e-3) i--;
   if (i !== SHW.ti) {
     if (i > SHW.ti && tr.slice(SHW.ti + 1, i + 1).some(x => showHeld(x.i))) { showHold(); return; }   // (or the desk's hold, GM)   // the interval: the file runs on, the show does not
     if (i > SHW.ti) showFireTo(tr[SHW.ti].start + tr[SHW.ti].len - 1e-6);   // the cues the last track's end left waiting
@@ -4942,7 +4954,10 @@ function showTrackAudio() {
     const A = showSoundEl(), go = SHW.on && SHW.playing, P = tr.file + SHW.lt;
     SHW.A = A; SHW.audioOn = true; SHW.audioNote = '';
     sndEnv();
-    if (A.readyState >= 1) { if (Math.abs(A.currentTime + SHW.soundOff - P) > 0.25) { const q = showSoundSeek(P); A.currentTime = q.req; SHW.soundOff = q.off; sndSeeked(P, q); } } else SHW.audioWant = P;
+    // Just short of P (the act break: the element paused at 1-23's end, 2-01 a second of silence on) it plays on from there
+    // and no seek goes out — a seek lands by the browser's index, and one landing early played the end of Non-Stop at GO.
+    const at = A.currentTime + SHW.soundOff, near = A.paused && P - at > 0 && P - at < SHW_PLAY_ON;
+    if (A.readyState >= 1) { if (!near && Math.abs(at - P) > 0.25) { const q = showSoundSeek(P); A.currentTime = q.req; SHW.soundOff = q.off; sndSeeked(P, q); } } else SHW.audioWant = P;
     if (go && A.src) { A.play().catch(showAudioFail); sndStart(A); } else A.pause();   // no src yet: the blob is still loading and plays when it lands
     return;
   }
@@ -7356,7 +7371,7 @@ function actBuildPanel() {
     ACT.group.remove(a.obj); ACT.actors.splice(ACT.sel, 1); ACT.sel = Math.min(ACT.sel, ACT.actors.length - 1); ACT.wsel = -1; actEdited(null);
   });
   E.shown.addEventListener('change', () => { ACT.shown = E.shown.checked; ACT.dirty = true; requestRender(); });
-  E.names.addEventListener('change', () => { ACT.names = E.names.checked; ACT.dirty = true; requestRender(); });
+  E.names.checked = ACT.names; E.names.addEventListener('change', () => actNames(E.names.checked));
   E.cos.checked = COS.on; E.cos.addEventListener('change', () => { COS_API.on = E.cos.checked; });
   E.name.addEventListener('change', () => { const a = ACT.actors[ACT.sel]; if (!a) return; a.name = E.name.value.trim() || a.name; actRecolour(a); actEdited(a); });
   E.color.addEventListener('input', () => { const a = ACT.actors[ACT.sel]; if (!a) return; a.color = E.color.value.toLowerCase(); actRecolour(a); ACT.helpDirty = true; requestRender(); });
@@ -8466,6 +8481,71 @@ function smMute(on = !SM.mute) {
   return SM.mute;
 }
 { const b = document.getElementById('sm-voices'); if (b) b.addEventListener('click', () => smMute()); smMute(SM.mute); }
+// THE TAGS SWITCH (Jack, 2026-10-25: "make it so there is a button to hide the tags over the actors head"). The header's "Tags"
+// hides every name tag over the actors and the props (the Blocking panel's Names box is the same switch); the company's answers
+// still rise over their heads. Remembered in this browser.
+function actNames(on = !ACT.names) {
+  ACT.names = !!on; ACT.dirty = true; requestRender();
+  try { localStorage.setItem('midtown-tags', ACT.names ? '1' : '0'); } catch (e) { /* not remembered */ }
+  const b = document.getElementById('act-tags');
+  if (b) { b.setAttribute('aria-pressed', String(ACT.names)); b.textContent = ACT.names ? 'Tags' : 'Tags off'; }
+  if (ACT.E && ACT.E.names) ACT.E.names.checked = ACT.names;
+  return ACT.names;
+}
+{ const b = document.getElementById('act-tags'); if (b) b.addEventListener('click', () => actNames()); let on = true; try { on = localStorage.getItem('midtown-tags') !== '0'; } catch (e) { /* the default */ } actNames(on); }
+
+// THE RUMBLE (Jack, 2026-10-25: "make it so whenever this is a time when ther should be a lot of base like a gunshot, heart
+// beating, etc make the screen rumble a little"). assets/hamilton-rumble.json holds the album's big low hits — a gunshot, a
+// cannon, a heartbeat's thump, a drop — found off his soundtrack's low end (under ~110 Hz) by tools/rumble.html: a bin whose
+// low level jumps well over the half-second before it, loud and mostly low. Each is [seconds into its track, strength 0…1].
+// While the show plays, a hit shakes the view a little — the camera nudged and rolled by a few millimetres and a fraction of a
+// degree, fading over RUMBLE.decay s — for the one drawn frame only (the camera is put back after it, so the walk, the orbit
+// and the pools' pass never see it). A pure function of the show's time. The header's "Rumble" turns it off (remembered).
+const RUMBLE = { url: 'assets/hamilton-rumble.json', d: null, on: true, amp: 0.035, roll: 0.006, decay: 0.45, k: 0, keep: null, perf: 0 };
+RUMBLE.on = (() => { try { return localStorage.getItem('midtown-rumble') !== '0'; } catch (e) { return true; } })();
+fetch(RUMBLE.url).then(r => r.ok ? r.json() : null).then(d => { RUMBLE.d = d; }, () => { RUMBLE.d = null; });
+function rumbleSet(on = !RUMBLE.on) {
+  RUMBLE.on = !!on;
+  try { localStorage.setItem('midtown-rumble', RUMBLE.on ? '1' : '0'); } catch (e) { /* not remembered */ }
+  const b = document.getElementById('rumble'); if (b) { b.setAttribute('aria-pressed', String(RUMBLE.on)); b.textContent = RUMBLE.on ? 'Rumble' : 'Rumble off'; }
+  return RUMBLE.on;
+}
+{ const b = document.getElementById('rumble'); if (b) b.addEventListener('click', () => rumbleSet()); rumbleSet(RUMBLE.on); }
+// The shake's size at track ti, lt s into it: the strongest hit still fading. → 0…1
+function rumbleAt(ti, lt) {
+  const D = RUMBLE.d, tr = SHW.d && SHW.d.tracks[ti]; if (!D || !tr || lt < 0) return 0;
+  const H = D.hits[tr.id]; if (!H || !H.length) return 0;
+  let lo = 0, hi = H.length; while (lo < hi) { const m = (lo + hi) >> 1; if (H[m][0] <= lt) lo = m + 1; else hi = m; }   // the first hit after lt
+  let k = 0;
+  for (let i = lo - 1; i >= 0 && lt - H[i][0] < RUMBLE.decay * 5; i--) k = Math.max(k, H[i][1] * Math.exp(-(lt - H[i][0]) / RUMBLE.decay));
+  return k;
+}
+// The frame's call (riding lxPanelTick): the size now. → true while it shakes (the page draws)
+function rumbleTick() {
+  RUMBLE.k = RUMBLE.on && SHW.on && SHW.playing && !SHW.gap ? rumbleAt(SHW.ti, SHW.lt) : 0;
+  return RUMBLE.k > 0.002;
+}
+{ const lxPanelTickR = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickR(dt); return rumbleTick() || a; }; }
+// Around the drawn frame: the camera nudged for it, then put back exactly
+function rumbleOn(time) {
+  if (RUMBLE.k <= 0.002) return;
+  const t = time || 0, k = RUMBLE.k, a = RUMBLE.amp * k;
+  RUMBLE.keep = { p: camera.position.clone(), q: camera.quaternion.clone() };
+  camera.position.x += a * (Math.sin(t * 53.0) + 0.5 * Math.sin(t * 97.0 + 1.3));
+  camera.position.y += a * (Math.sin(t * 61.0 + 2.1) + 0.5 * Math.sin(t * 89.0 + 0.4));
+  camera.position.z += a * 0.5 * Math.sin(t * 71.0 + 0.7);
+  camera.rotateZ(RUMBLE.roll * k * Math.sin(t * 47.0 + 0.9));
+  camera.updateMatrixWorld(true);
+}
+function rumbleOff() {
+  if (!RUMBLE.keep) return;
+  camera.position.copy(RUMBLE.keep.p); camera.quaternion.copy(RUMBLE.keep.q); camera.updateMatrixWorld(true); RUMBLE.keep = null;
+}
+// MIDTOWN.rumble (on, set(on), at(trackId, sec): the shake's size there, k: now, hits) and MIDTOWN.tags (on, set(on)), hung with the panels
+{ const bl = buildLightsPanel; buildLightsPanel = () => { bl(); if (!window.MIDTOWN) return;
+  window.MIDTOWN.rumble = { get on() { return RUMBLE.on; }, set: on => rumbleSet(on), get k() { return RUMBLE.k; }, get hits() { return RUMBLE.d ? RUMBLE.d.hits : null; },
+    at: (id, sec) => { const t = SHW.d && SHW.d.byTrack.get(String(id)); return t ? rumbleAt(t.i, +sec) : null; } };
+  window.MIDTOWN.tags = { get on() { return ACT.names; }, set: on => actNames(on) }; }; }
 function smMic(text, who = 'God mic') {
   SM.micT = Math.max(4, text.length / 14 + 1.5);
   if (!SM.mic) { const el = document.createElement('div'); el.id = 'sm-mic'; el.hidden = true; el.setAttribute('aria-live', 'polite'); document.getElementById('stage').append(el); SM.mic = el; }
@@ -9388,6 +9468,11 @@ const CO_ROUTE = {
   apronHR: [[-9.15, 3.00], [-4.30, 3.00], [-4.30, 0.45]],   // house right's way to the apron: across the set's front, down through the arch
   apronZ: 0.45,                            // … then along the apron at this z to the start's x
 };
+// PLACES OFF THE DECK (coPlaces): the set's deck as seen from the house (world): between its side walls (|x| < x), downstage
+// of its back wall (z < z), and anything over the gallery's height; a body whose top is there waits in its wing, n to a line
+// from z0, step apart, a second line 0.35 m further off
+const CO_PLACES = { x: 8.45, z: 9.0, z0: 3.2, step: 0.6, n: 10 };
+const coOnDeck = W => W.y > CO_ROUTE.gallery || (Math.abs(W.x) < CO_PLACES.x && W.z < CO_PLACES.z);
 const CO_TUNE = {
   clear: 0.45,      // m: a home spot's clearance from every piece of furniture (0.40 in a crowded room)
   apart: 0.95,      // m: home spots in one room at least this far apart (0.8 in a crowded room)
@@ -9642,6 +9727,7 @@ function coPlaces() {
   // a body that is off there stands in a little cluster round that spot instead of inside the others. Unseen at GO (FJ), so
   // the hand-over moves nobody anyone sees; a body seen at the top keeps its exact place.
   const taken = new Map(), RING = [[0, 0], [0.55, 0], [-0.55, 0], [0, 0.55], [0, -0.55], [0.55, 0.55], [-0.55, 0.55], [0.55, -0.55], [-0.55, -0.55], [1.1, 0], [-1.1, 0]];
+  const wing = { hr: 0, hl: 0 };
   coWalkAll(b => {
     const p = actPose(b.a, T);
     if (!p.visible) {
@@ -9650,6 +9736,16 @@ function coPlaces() {
       const [dx, dz] = RING[k % RING.length]; p.x += dx; p.z += dz;
     }
     const W = coToWorld(p);
+    // NOBODY ON THE DECK AT PLACES (Jack, 2026-10-25: "make it so people dont go onstage when you call places"): a top that is
+    // on the set (or that its cluster round an offstage spot puts there) — the deck between its side walls downstage of its
+    // back wall, the apron, the gallery — is not walked to; the body waits in its side's wing instead, in a line up the wing
+    // CO_PLACES.step apart. It is off at the top (FJ), so at GO it vanishes from the wing as it would have from there.
+    if (!p.visible && coOnDeck(W)) {
+      const side = W.x < 0 ? 'hr' : 'hl', k = wing[side]++, Q = CO_PLACES, z = Q.z0 + (k % Q.n) * Q.step, x = CO_ROUTE.col[side] + (side === 'hr' ? -1 : 1) * Math.floor(k / Q.n) * 0.35;
+      const yaw = side === 'hr' ? Math.PI / 2 : -Math.PI / 2;     // facing the stage across the wing
+      coV.set(x, BACKSTAGE.floor, z).applyMatrix4(CO.inv);
+      return { W: { x, y: BACKSTAGE.floor, z, yaw }, end: { x: coV.x, y: coV.y, z: coV.z, yaw: yaw - CO.gy }, label: p.label, kind: 'places' };
+    }
     return { W, end: { x: p.x, y: p.y, z: p.z, yaw: p.yaw }, label: p.label, kind: 'places' };
   }, b => b.answerIn + CO_TUNE.leave);
 }
@@ -14752,6 +14848,8 @@ function buildVanWezel(gltf) {
   if (model && !VW.missing) vwHouseBuild(model);               // the ceiling's coves and downlights, the proscenium's speakers and pipes, the back's windows (THE THIRD HOUSE: THE HOUSE AS IT IS)
   if (model && !VW.missing) vwGearBuild(model);                // the consoles, racks and chairs in the tech booth, the spots on their stands (THE THIRD HOUSE: THE BOOTHS' GEAR)
   if (model && !VW.missing) vwStageBuild(model);               // the fly loft, the fly wall, the floors, the wings as his photographs show them (THE THIRD HOUSE: THE STAGE HOUSE AS IT IS)
+  if (model && !VW.missing) vwCrewBuild(model);                // the spiral on up, the hallway over the roof, the ladder down to the spots (THE THIRD HOUSE: THE CREW WAY)
+  if (model && !VW.missing) vwBoothLightsBuild(model);         // a light switch in each booth (THE THIRD HOUSE: THE BOOTH LIGHTS)
   VW.root = model ? model.root : null; VW.works = group; VW.ms = performance.now() - t0;
   vwBuilt = { group, doors, model, cut, triangles: tris, battens: nb, portalFloor: yIn, liftY, frame: { fp, th, half, out } };
   const wb = model ? new THREE.Box3().setFromObject(model.root) : null;
@@ -17345,7 +17443,7 @@ function vwBoothsBuild(model) {
   for (const z of [C.z1, h0 - 0.05, PL.z1 - 0.05]) wbox(Q, 'steel', z === C.z1 ? PL.x0 : f3x, PL.x1, cy - C.under, cy - 0.04, z, z + 0.05);
   guard(Q, [C.x0, C.z0], [C.x0, h0], cy, [1, 0]); guard(Q, [C.x1, C.z0], [C.x1, C.z1], cy, [-1, 0]);
   guard(Q, [C.x0, h0], [f3x, h0], cy, [0, -1], false);                                     // the hole's back edge
-  guard(Q, [C.x1, C.z1], [PL.x1, C.z1], cy, [0, 1], false); guard(Q, [PL.x1, C.z1], [PL.x1, PL.z1], cy, [-1, 0]); guard(Q, [PL.x1, PL.z1], [f3x, PL.z1], cy, [0, -1], false);
+  guard(Q, [PL.x1, C.z1], [PL.x1, PL.z1], cy, [-1, 0]);   // (its south edge open: THE CREW WAY's grating joins it there) guard(Q, [PL.x1, PL.z1], [f3x, PL.z1], cy, [0, -1], false);
   for (let z = C.z0 + 2.0; z < C.z1 - 1; z += 4.5) {                                         // caged lamps on the posts, house-right side
     fileG(Q, 'glow', new THREE.SphereGeometry(0.06, 10, 8).translate(C.x0 + 0.09, cy + 1.12, z)); fileG(Q, 'steel', new THREE.CylinderGeometry(0.085, 0.085, 0.16, 8, 1, true).translate(C.x0 + 0.09, cy + 1.12, z));
     hidden.push([C.x0 + 0.09, cy + 1.2, z]);
@@ -19417,6 +19515,597 @@ function vwStageCheck() {
 const VW_STAGE_API = { spec: VWS, hang: VWS_HANG, views: VWS_VIEWS, get built() { return vwStage; }, check: vwStageCheck, view: () => go('v-vwstage') };
 VAN_WEZEL_API.stageHouse = VW_STAGE_API;                      // MIDTOWN.vanWezel.stageHouse
 
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE CREW WAY
+   Jack (2026-10-25): "make a way to get dirsctly from the lighting booth and from the spot booth to backstage" — in the Van
+   Wezel; asked where it should run: "can you make the spiral staircase go higher and it brings them to a halway that brings them
+   to the spot booth from above the roof". (A catwalk over the house ceiling to the flies was the first idea: over the front
+   half of the ceiling there is 0.3–0.6 m under the roof, so it could not be.)
+   THE WAY, from backstage: the dressing-room corridor → the stage-right wing's stair up through its hole in the deck (THE THIRD
+   HOUSE: BACKSTAGE) → THE SPIRAL STAIR in the wing's downstage corner, past the jump gallery and on up VWC.more treads more
+   (the same treads, rise and turn: VWS.spiral) to a landing at VWC.floor beside it → a door on E through the stage house's
+   front wall, over the house's roof → THE HALLWAY over the roof: a steel-clad box on columns along VWC.path (out from the wall,
+   one long leg diagonally over the roof, a short leg west) → a ship's ladder down inside its far end (a shaft through the
+   roof) into the space between the house ceiling and the roof → a grating beside the catwalk onto the follow-spot platform
+   (THE BOOTHS' WAY UP: its south rail is left off for it) → ladder 3 into the spot booth; or north along the catwalk and down
+   ladders 2 and 1 into the tech booth. So both booths are a ladder, a hallway and a stair from the stage.
+   One mesh per material in the scene child 'vw crew way' (in the walk's grid by that name); drawn from anywhere (the hallway is
+   seen from the street). MIDTOWN.vanWezel.crewWay: .spec, .built, check(), route(), view(); the header's "VW Crew way". */
+const VWC = {
+  more: 76,                                                     // treads over the gallery's 36: 112 in all, so the top one faces −x (onto the landing)
+  landing: { x0: 93.80, x1: 95.06, z0: 0.67, z1: 2.40 },        // beside the spiral (its treads' outer edge at x 95.05), against the wall's lining
+  door: { x0: 94.02, x1: 94.98, z0: 0.38, z1: 0.70, face: 0.61, head: 2.12 },   // through the lining and the shell (its face z 0.61)
+  path: [[74.55, -26.0], [79.70, -26.0], [94.50, -3.40], [94.50, 0.61]],          // the hallway's middle line, from the shaft's end to the door
+  w: 1.30, h: 2.35, t: 0.12, slab: 0.20,                        // its inside width and height over the floor; the walls' and the floor's thickness
+  shaft: 18.40,                                                 // the first leg's walls (the ladder's shaft) down to here, under the roof
+  ladder: { foot: [75.40, -26.0], u: [1, 0], w: 0.60, n: 27, g: 0.14, y0: 16.55 },   // up from the attic to the hallway's floor (y1: VWC.floor)
+  attic: { x0: 74.75, x1: 75.60, z0: -26.70, z1: -24.40 },     // the grating beside the catwalk, from the platform's south edge to the ladder's foot
+  roofCut: [75.30, 79.50, 17.60, 21.40, -26.75, -25.25],        // the shaft through the roof (x, y, z ranges; the model's meshes only)
+  cols: 3.5,                                                    // a column under the hallway this far apart, where the roof is under it
+  lights: 4.0,                                                  // a ceiling batten this far apart
+  view: [[94.5, 23.9, -2.0], [88.0, 23.0, -12.0]],              // in the hallway by its door, looking along it toward the spot booth's end
+};
+VWC.floor = +(VWS.deck + (VWS.spiral.n + VWC.more) * VWS.jump.y / VWS.spiral.n).toFixed(3);   // 22.468: the spiral's top tread, the landing, the hallway
+VWC.ladder.y1 = VWC.floor;
+let vwCrew = null;
+const vwCrewMat = { clad: null };
+function vwCrewBuild(model) {
+  if (!model || !vwStage || !vwBooths) { console.info('van wezel crew way: no stage house or booths — not built'); return null; }
+  const t0 = performance.now(), C = VWC, S = VWS, SP = S.spiral, F = C.floor, Y = S.deck, PI = Math.PI, P = {}, cut = {};
+  const fileG = (key, g) => { if (g.index) { const n = g.toNonIndexed(); g.dispose(); g = n; } (P[key] = P[key] || []).push(g); return g; };
+  const box = (key, x0, x1, y0, y1, z0, z1) => fileG(key, new THREE.BoxGeometry(Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0)).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2));
+  const V = (p, y) => new THREE.Vector3(p[0], y, p[1]);
+  // a box on the plan line a→b, t thick toward the unit n (THE BOOTHS' WAY UP's sbox)
+  const sbox = (key, a, b, n, t, y0, y1) => {
+    const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz);
+    return fileG(key, new THREE.BoxGeometry(L, y1 - y0, t).translate(0, (y0 + y1) / 2, 0).rotateY(Math.atan2(-dz, dx)).translate((a[0] + b[0]) / 2 + n[0] * t / 2, 0, (a[1] + b[1]) / 2 + n[1] * t / 2));
+  };
+  // an upright prism on a plan polygon (x, z), y0…y1
+  const prismXZ = (key, pts, y0, y1) => fileG(key, new THREE.ExtrudeGeometry(new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z))), { depth: y1 - y0, bevelEnabled: false, curveSegments: 1 }).rotateX(-PI / 2).translate(0, y0, 0));
+  // a guard rail on the plan line a→b at floor y (THE BOOTHS' WAY UP's): a toe board, a mid bar, a yellow top rail, posts
+  const guard = (a, b, y, n) => {
+    sbox('steel', a, b, n, 0.025, y, y + 0.15); sbox('steel', a, b, n, 0.02, y + 0.42, y + 0.50);
+    const o = [n[0] * 0.02, n[1] * 0.02], L = Math.hypot(b[0] - a[0], b[1] - a[1]), k = Math.max(1, Math.ceil(L / 1.5));
+    deskRod(P, 'yellow', V([a[0] + o[0], a[1] + o[1]], y + 1.0), V([b[0] + o[0], b[1] + o[1]], y + 1.0), 0.022, 8);
+    for (let i = 0; i <= k; i++) { const q = [a[0] + (b[0] - a[0]) * i / k + o[0], a[1] + (b[1] - a[1]) * i / k + o[1]]; deskRod(P, 'steel', V(q, y), V(q, y + 1.0), 0.02, 6); }
+  };
+
+  // 1. THE SPIRAL ON UP: the same treads past the jump gallery's (36) to VWC.floor, the skirt and rail on the outside of every
+  // one but the top two (stepped off onto the landing), its column on up
+  const rise = S.jump.y / SP.n, th = i => SP.top + (SP.n - 1 - i) * SP.step, N = SP.n + C.more;
+  deskRod(P, 'steel', new THREE.Vector3(SP.x, Y + S.jump.y + 1.1, SP.z), new THREE.Vector3(SP.x, F + 1.1, SP.z), SP.r0, 12);
+  for (let i = SP.n; i < N; i++) {
+    const a0 = th(i) - SP.step / 2 - 0.02, a1 = th(i) + SP.step / 2 + 0.02, yt = Y + (i + 1) * rise, pts = [], sk = [];
+    for (let k = 0; k <= 3; k++) { const a = a0 + (a1 - a0) * k / 3; pts.push([SP.x + SP.r1 * Math.cos(a), SP.z + SP.r1 * Math.sin(a)]); }
+    for (let k = 3; k >= 0; k--) { const a = a0 + (a1 - a0) * k / 3; pts.push([SP.x + SP.r0 * Math.cos(a), SP.z + SP.r0 * Math.sin(a)]); }
+    for (let k = 0; k <= 3; k++) sk.push(pts[k]);
+    for (let k = 3; k >= 0; k--) { const a = a0 + (a1 - a0) * k / 3; sk.push([SP.x + (SP.r1 - 0.03) * Math.cos(a), SP.z + (SP.r1 - 0.03) * Math.sin(a)]); }
+    prismXZ('grate', pts, yt - 0.03, yt);
+    if (i < N - 2) {
+      prismXZ('mesh', sk, yt - 0.20, yt + 0.95);
+      deskRod(P, 'yellow', new THREE.Vector3(SP.x + (SP.r1 - 0.015) * Math.cos(a0), yt + 0.97, SP.z + (SP.r1 - 0.015) * Math.sin(a0)), new THREE.Vector3(SP.x + (SP.r1 - 0.015) * Math.cos(a1), yt + 0.97, SP.z + (SP.r1 - 0.015) * Math.sin(a1)), 0.022, 6);
+    }
+  }
+  // 2. THE LANDING beside its top, railed on its two open sides; the door through the wall (cut, lined, framed)
+  const L = C.landing, D = C.door;
+  box('grate', L.x0, L.x1, F - 0.08, F, L.z0, L.z1);
+  box('steel', L.x0, L.x1, F - 0.25, F - 0.08, L.z1 - 0.08, L.z1);
+  guard([L.x0, L.z1], [L.x1, L.z1], F, [0, -1]); guard([L.x0, L.z0], [L.x0, L.z1], F, [1, 0]);
+  const cutB = new THREE.Box3(new THREE.Vector3(D.x0, F + 0.002, D.z0), new THREE.Vector3(D.x1, F + D.head, D.z1));
+  let nc = 0; for (const root of [model.root, vwStage.solid]) root.traverse(o => { if (o.isMesh && o.geometry) nc += vwCutBox(o, cutB); });
+  cut['the door through the stage house'] = nc;
+  for (const [x0, x1] of [[D.x0 - 0.02, D.x0], [D.x1, D.x1 + 0.02]]) box('frame', x0, x1, F, F + D.head + 0.02, D.z0, D.z1);
+  box('frame', D.x0 - 0.02, D.x1 + 0.02, F + D.head, F + D.head + 0.02, D.z0, D.z1);
+  box('frame', D.x0 - 0.08, D.x0, F, F + D.head + 0.08, D.z1, D.z1 + 0.012); box('frame', D.x1, D.x1 + 0.08, F, F + D.head + 0.08, D.z1, D.z1 + 0.012); box('frame', D.x0 - 0.08, D.x1 + 0.08, F + D.head, F + D.head + 0.08, D.z1, D.z1 + 0.012);
+  vwBackSign(P, 'FOLLOW SPOTS ↑', 0.14, SP.x - 1.45, Y + 1.55, S.wing.z0 + 0.01, 0);   // at the stair's foot, on the wing's front wall
+
+  // 3. THE HALLWAY over the roof: its two faces mitred at the turns; a floor (the first leg holed for the ladder), the walls
+  // (the first leg's down through the roof: the shaft), a roof, battens; columns down to the roof
+  const pts = C.path, hw = C.w / 2;
+  const dir = (a, b) => { const x = b[0] - a[0], z = b[1] - a[1], l = Math.hypot(x, z); return [x / l, z / l]; }, nOf = u => [u[1], -u[0]];
+  const off = (k, d) => {                                       // the point d off the middle line (+: its left going along it) at point k, mitred
+    const p = pts[k];
+    if (k === 0 || k === pts.length - 1) { const n = nOf(k === 0 ? dir(pts[0], pts[1]) : dir(pts[k - 1], p)); return [p[0] + n[0] * d, p[1] + n[1] * d]; }
+    const n1 = nOf(dir(pts[k - 1], p)), n2 = nOf(dir(p, pts[k + 1])), m = [n1[0] + n2[0], n1[1] + n2[1]], ml = Math.hypot(m[0], m[1]), c = (m[0] * n1[0] + m[1] * n1[1]) / ml;
+    return [p[0] + m[0] / ml * d / c, p[1] + m[1] / ml * d / c];
+  };
+  const band = (d0, d1) => { const a = []; for (let k = 0; k < pts.length; k++) a.push(off(k, d0)); for (let k = pts.length - 1; k >= 0; k--) a.push(off(k, d1)); return a; };
+  const LD = C.ladder, ltop = LD.foot[0] + (LD.n - 1) * LD.g, lw = LD.w / 2 + 0.10, z0 = pts[0][1];   // the ladder's top nosing (x); its well's half width
+  { const sh = new THREE.Shape(band(hw + C.t, -hw - C.t).map(([x, z]) => new THREE.Vector2(x, -z)));
+    sh.holes.push(new THREE.Path([[pts[0][0] + 0.02, z0 - lw], [ltop + 0.02, z0 - lw], [ltop + 0.02, z0 + lw], [pts[0][0] + 0.02, z0 + lw]].map(([x, z]) => new THREE.Vector2(x, -z))));
+    fileG('grate', new THREE.ExtrudeGeometry(sh, { depth: C.slab, bevelEnabled: false, curveSegments: 1 }).rotateX(-PI / 2).translate(0, F - C.slab, 0));
+    prismXZ('clad', band(hw + C.t, -hw - C.t), F + C.h, F + C.h + 0.12); }
+  for (const d of [hw, -hw]) for (let k = 0; k + 1 < pts.length; k++) {
+    const a = off(k, d), b = off(k + 1, d), u = dir(a, b), n = nOf(u).map(v => v * Math.sign(d));
+    sbox('clad', a, b, n, C.t, k === 0 ? C.shaft : F - C.slab, F + C.h);
+  }
+  sbox('clad', off(0, -hw - C.t), off(0, hw + C.t), [-1, 0], C.t, C.shaft, F + C.h + 0.12);   // the shaft's end wall
+  // the strips beside the well railed; the ladder up through it (THE BOOTHS' WAY UP's: grating treads, yellow nosings, side
+  // plates, yellow handrails)
+  guard([pts[0][0] + 0.05, z0 - lw], [ltop, z0 - lw], F, [0, -1]); guard([pts[0][0] + 0.05, z0 + lw], [ltop, z0 + lw], F, [0, 1]);
+  { const [fx, fz] = LD.foot, r = (LD.y1 - LD.y0) / LD.n, g = LD.g, top = (LD.n - 1) * g, h = LD.w / 2, line = a => LD.y0 + r + a * r / g;
+    for (let k = 1; k < LD.n; k++) { const x = fx + (k - 1) * g, y = LD.y0 + k * r; box('grate', x, x + g, y - 0.04, y, fz - h, fz + h); box('nose', x, x + 0.03, y - 0.036, y + 0.002, fz - h, fz + h); }
+    for (const s of [-1, 1]) {
+      const zs = fz + s * (h + 0.015), za = fz + s * (h + 0.07);
+      fileG('steel', new THREE.BoxGeometry(Math.hypot(top + 0.10, top * r / g) , 0.62, 0.03).rotateZ(Math.atan2(r, g)).translate(fx + top / 2, line(top / 2) + 0.25, zs));
+      deskRod(P, 'yellow', new THREE.Vector3(fx, line(0) + 0.88, za), new THREE.Vector3(fx + top, line(top) + 0.88, za), 0.022, 8);
+      deskRod(P, 'yellow', new THREE.Vector3(fx, line(0) + 0.40, za), new THREE.Vector3(fx, line(0) + 0.88, za), 0.02, 6);
+    }
+  }
+  // the shaft through the roof: the model's roof there, out
+  { const [x0, x1, y0, y1, zz0, zz1] = C.roofCut, b = new THREE.Box3(new THREE.Vector3(x0, y0, zz0), new THREE.Vector3(x1, y1, zz1)); let k = 0; model.root.traverse(o => { if (o.isMesh && o.geometry) k += vwCutBox(o, b); }); cut['the shaft through the roof'] = k; }
+  // the attic's grating from the platform to the ladder's foot, railed on its open side and end (the catwalk's own rail on its west)
+  const A = C.attic, cy = LD.y0;
+  box('grate', A.x0, A.x1, cy - 0.04, cy, A.z0, A.z1);
+  guard([A.x0, A.z0], [A.x1, A.z0], cy, [0, 1]);
+  guard([A.x1, A.z1], [A.x1, LD.foot[1] + lw], cy, [-1, 0]); guard([A.x1, LD.foot[1] - lw], [A.x1, A.z0], cy, [-1, 0]);
+  // the battens inside; the columns down to the roof (a ray to the model's roof under each)
+  const ray = new THREE.Raycaster(), roofM = []; model.root.traverse(o => { if (o.isMesh) roofM.push(o); });
+  let nb = 0, ncol = 0;
+  for (let k = 0; k + 1 < pts.length; k++) {
+    const a = pts[k], b = pts[k + 1], Lk = Math.hypot(b[0] - a[0], b[1] - a[1]), u = dir(a, b), ry = Math.atan2(u[0], u[1]), n = nOf(u);
+    for (let s = C.lights / 2; s < Lk - 0.5; s += C.lights) {
+      const p = [a[0] + u[0] * s, a[1] + u[1] * s]; if (k === 0 && p[0] < ltop + 0.3) continue;
+      fileG('glow', new THREE.PlaneGeometry(0.12, 1.1).rotateX(PI / 2).rotateY(ry).translate(p[0], F + C.h - 0.071, p[1]));
+      fileG('steel', new THREE.BoxGeometry(0.16, 0.07, 1.2).rotateY(ry).translate(p[0], F + C.h - 0.035, p[1])); nb++;
+    }
+    if (k === 0) continue;
+    for (let s = 0.6; s < Lk; s += C.cols) for (const d of [hw - 0.1, -hw + 0.1]) {
+      const p = [a[0] + u[0] * s + n[0] * d, a[1] + u[1] * s + n[1] * d];
+      ray.set(new THREE.Vector3(p[0], F - C.slab - 0.01, p[1]), new THREE.Vector3(0, -1, 0)); ray.far = 4.0;
+      const h = ray.intersectObjects(roofM, false)[0]; if (!h) continue;
+      fileG('steel', new THREE.CylinderGeometry(0.07, 0.07, F - C.slab - h.point.y + 0.05, 10).translate(p[0], (F - C.slab + h.point.y - 0.05) / 2, p[1])); ncol++;
+    }
+  }
+  // 4. one mesh per material into 'vw crew way' (the walk's grid), the door's leaf
+  if (!vwCrewMat.clad) vwCrewMat.clad = lobbyStd(0x8c9196, 0.7, 0.18);
+  const MAT = { clad: vwCrewMat.clad, grate: vwBoothMat.grate || underMat.steel, steel: underMat.steel, yellow: underMat.yellow, nose: underMat.nose, mesh: underMat.steel, frame: backstageMat.frame, glow: lobbyMat.glow, dark: bsMat.dark, sign: vwSignMat };
+  const group = new THREE.Group(); group.name = 'vw crew way';
+  let tris = 0;
+  for (const [key, geos] of Object.entries(P)) {
+    const geo = mergeGeometries(geos.map(g => g.index ? g.toNonIndexed() : g), false); geos.forEach(g => g.dispose());
+    if (!geo) { console.warn(`van wezel crew way: the ${key} pieces did not merge — left out`); continue; }
+    if (key === 'grate') { const p = geo.attributes.position, uv = geo.attributes.uv; for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) + p.getY(i)) / 0.5, (p.getZ(i) + p.getY(i)) / 0.5); }
+    const mesh = new THREE.Mesh(geo, MAT[key]); mesh.name = 'vw crew way: ' + key; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    tris += geo.attributes.position.count / 3; group.add(mesh);
+  }
+  scene.add(group); group.updateMatrixWorld(true);
+  const fw = DOORS.frame, mats = { wood: backstageMat.door, glass: backstageMat.panel, brass: backstageMat.kick }, dm = (D.x0 + D.x1) / 2, dh = (D.x1 - D.x0) / 2;
+  const doors = [hangLeafAt({ name: 'Van Wezel crew way', px: dm, pz: D.face - 0.03, th: PI, x0: -dh + fw, x1: dh - fw, floor: F, head: F + D.head - DOORS.headH, zhi: 1.1, mats })];
+  vwCrew = { group, doors, cut, floor: F, treads: N, columns: ncol, battens: nb, triangles: tris, ms: performance.now() - t0 };
+  vwCrewUI();
+  colliderStale();
+  console.info(`van wezel crew way: the spiral on up ${C.more} treads to ${F} (${N} in all), a landing and a door through the stage house's front wall, the hallway over the roof `
+    + `(${pts.map(p => `(${p[0]}, ${p[1]})`).join(' → ')}, ${ncol} columns, ${nb} battens), a ladder of ${LD.n} risers down to the attic beside the catwalk; cut ${Object.entries(cut).map(([k, v]) => `${k} ${v}`).join(', ')} · ${group.children.length} meshes, ${tris} triangles · ${vwCrew.ms.toFixed(0)} ms`);
+  requestRender();
+  return vwCrew;
+}
+// The header: "VW Crew way" after "VW Booth"
+function vwCrewUI() {
+  const after = document.getElementById('v-vwbooth') || document.getElementById('v-vanwezel');
+  if (!after || document.getElementById('v-vwcrew')) return;
+  VIEWS['v-vwcrew'] = VWC.view;
+  const b = document.createElement('button'); b.id = 'v-vwcrew'; b.textContent = 'VW Crew way'; b.title = "The Van Wezel's crew hallway over the roof: from the stage-right spiral stair to the follow-spot booth";
+  b.addEventListener('click', () => go('v-vwcrew')); after.after(b);
+}
+// The way, legs of world [x, z] points from the stage-right wing's deck to the spot platform (walked by check())
+function vwCrewRoute() {
+  const S = VWS, SP = S.spiral, C = VWC, th = i => SP.top + (SP.n - 1 - i) * SP.step, N = SP.n + C.more, tread = [];
+  for (let i = 0; i < N; i++) tread.push([SP.x + SP.walk * Math.cos(th(i)), SP.z + SP.walk * Math.sin(th(i))]);
+  const a0 = th(0) + 0.15, entry = [SP.x + 1.3 * Math.cos(a0), SP.z + 1.3 * Math.sin(a0)], dm = (C.door.x0 + C.door.x1) / 2, p = C.path, LD = C.ladder, ltop = LD.foot[0] + (LD.n - 1) * LD.g;
+  return [
+    { name: 'the wing → the spiral', pts: [entry] },
+    { name: 'up the spiral', pts: tread },
+    { name: 'the landing → the door', pts: [[C.landing.x0 + 0.55, SP.z], [dm, 1.0], [dm, 0.2]] },
+    { name: 'the hallway', pts: [[p[2][0], p[2][1]], [p[1][0], p[1][1]], [ltop + 0.35, p[0][1]]] },
+    { name: 'the ladder down', pts: [[LD.foot[0] - 0.30, LD.foot[1]], [(C.attic.x0 + C.attic.x1) / 2, LD.foot[1]]] },
+    { name: 'the attic → the platform', pts: [[(C.attic.x0 + C.attic.x1) / 2, C.attic.z1 + 0.40]] },
+  ];
+}
+// THE CHECK: the way walked (walkStep, W held) from the wing's deck to the spot platform, and back up the ladder into the hallway
+function vwCrewCheck() {
+  const b = vwCrew; if (!b) return 'van wezel crew way: not built';
+  if (col.stale) buildCollider();
+  const out = []; let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  const D = b.doors[0], was = D.want; D.want = 1; for (let k = 0; k < 120; k++) doorsTick(1 / 30);
+  const r = vwsWalk([91.6, 4.6], VWS.deck + 0.05, vwCrewRoute());
+  line(!r.stuck && r.reached === r.total && Math.abs(r.end.y - VWC.ladder.y0) < 0.05, `the wing's deck → the spiral (${b.treads} treads) → the hallway at ${b.floor} → the ladder → the spot platform: ${r.reached} / ${r.total} points in ${r.s.toFixed(1)} s, ${r.stuck || 'never stuck'}; ${r.res.join(' · ')}`);
+  const ax = (VWC.attic.x0 + VWC.attic.x1) / 2, back = vwsWalk([ax, VWC.attic.z1 + 0.40], VWC.ladder.y0 + 0.05, [{ name: 'the attic', pts: [[ax, VWC.ladder.foot[1]], [VWC.ladder.foot[0] - 0.25, VWC.ladder.foot[1]]] }, { name: 'up the ladder', pts: [[VWC.path[1][0], VWC.path[1][1]]] }]);
+  line(!back.stuck && back.reached === back.total && Math.abs(back.end.y - b.floor) < 0.05, `and back up the ladder into the hallway: ${back.reached} / ${back.total} points, ${back.stuck || 'never stuck'}, ending on ${back.end.y.toFixed(3)}`);
+  D.want = was; for (let k = 0; k < 120; k++) doorsTick(1 / 30);
+  line(b.cut['the door through the stage house'] > 0 && b.cut['the shaft through the roof'] > 0, `cut: ${Object.entries(b.cut).map(([k, v]) => `${k} ${v}`).join(', ')}`);
+  const s = `van wezel crew way: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
+  console.info(s); return s;
+}
+const VW_CREW_API = { spec: VWC, get built() { return vwCrew; }, check: vwCrewCheck, route: vwCrewRoute, view: () => go('v-vwcrew') };
+VAN_WEZEL_API.crewWay = VW_CREW_API;                          // MIDTOWN.vanWezel.crewWay
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE CREW
+   Jack (2026-10-25): "make it so when you call 5 minuets thew people walk from backastage to the lgithing booth and the spot
+   booth" — in the Van Wezel, whose booths stood empty (house 1's operators stay in house 1). Five of them: three follow-spot
+   operators, a lighting operator at the grandMA3 and a sound operator at the CL5. At the Five (with the prompt desk in use)
+   they leave the dressing-room corridor VWCF.gap s apart and walk THE CREW WAY: up the stage-right wing's stair, up the spiral,
+   along the hallway over the roof, down its ladder to the spot platform; the spot operators down ladder 3 and round the booth
+   to stand behind their spots, facing the stage, hands on the handles; the desk operators north along the catwalk, down ladders
+   2 and 1 into the tech booth and onto their chairs. They stay through the interval and the curtain; the desk's New show (its
+   'home' reset) takes them away. Without the desk a show that is on has them at their posts.
+   Bodies like the band's (the actors' jointed parts, pitSkeleton), in the booth operators' unlit matcap (opsMat) so they read in
+   the dark booths; the walk's stride (vwHamStride). Their way is polylines with y (no rays at run time); time off the frame's dt
+   (vwCrewFolkTick, riding lxPanelTick); drawn only from inside the Van Wezel (vwBack.shown). Not in the walk's grid.
+   MIDTOWN.vanWezel.crew: state(), check(), at(t) (the walk's clock set by hand), paths. */
+const VWCF = {
+  walk: 1.3, gap: 1.6,                                          // m/s; s between one leaving and the next
+  start: [91.6, 15.0],                                          // the dressing-room corridor, at the stage-right stair's door
+  inFor: ['FIVE', 'PLACES', 'ACT ONE', 'INTERVAL', 'ACT TWO', 'CURTAIN'],
+  op: 1.55,                                                     // m: a spot operator this far behind the spot's nose (on its radius)
+  seats: { lighting: [81.27, -40.20], sound: [75.00, -40.25] }, // the tech booth's chairs (THE BOOTHS' GEAR)
+  sit: 0.40,                                                    // the pelvis dropped this much on a chair
+  who: [['Spot 1', 'spot', 0], ['Spot 2', 'spot', 1], ['Spot 3', 'spot', 2], ['Lighting', 'seat', 'lighting'], ['Sound', 'seat', 'sound']],
+  colors: [0x3a3d47, 0x463c36, 0x343a44, 0x3c4350, 0x47413a],
+};
+let vwCrewFolk = null;
+// Every crew member's way: [x, y, z] points (world), and the pose at its end
+function vwCrewPaths() {
+  const B = VW_BACK, SS = B.stairs, sx = (SS.SL.x0 + SS.SL.x1) / 2, foot = SS.zt + (SS.n - 1) * SS.going, D = VWS.deck, BF = B.floor;
+  const SP = VWS.spiral, C = VWC, rise = VWS.jump.y / SP.n, R = vwCrewRoute(), LD = C.ladder, F = C.floor;
+  const common = [[VWCF.start[0], BF, VWCF.start[1]], [sx, BF, foot + 0.55], [sx, BF, foot + 0.12], [sx, D, SS.zt - 0.05], [sx, D, 4.6]];
+  common.push([...R[0].pts[0].slice(0, 1), D, R[0].pts[0][1]]);
+  R[1].pts.forEach((p, i) => common.push([p[0], D + (i + 1) * rise, p[1]]));
+  for (const leg of [R[2], R[3]]) for (const p of leg.pts) common.push([p[0], F, p[1]]);
+  for (const p of R[4].pts) common.push([p[0], LD.y0, p[1]]);
+  for (const p of R[5].pts) common.push([p[0], LD.y0, p[1]]);
+  const P = VWB, cy = P.cat.y, f3 = P.f3, f3top = f3.foot[0] + (f3.n - 1) * f3.g, S = VWG.spot, [ccx, ccz] = S.c;
+  const at = (r, f) => [ccx + r * Math.sin(f), ccz - r * Math.cos(f)], phi = (x, r = S.portR) => Math.asin((x - ccx) / r);
+  const out = [];
+  for (const [label, kind, k] of VWCF.who) {
+    const pts = common.map(p => p.slice());
+    let end;
+    if (kind === 'spot') {
+      const side = k === 2 ? -1 : 1, fn = phi(S.xs[k]) - side * S.nose / S.rF, ro = S.rF + VWCF.op, o = at(ro, fn), down = [f3.foot[0] - 0.33, f3.foot[1]];
+      pts.push([75.2, cy, f3.foot[1]], [f3top + 0.05, cy, f3.foot[1]], [f3.foot[0] - 0.05, f3.y0, f3.foot[1]], [down[0], f3.y0, down[1]]);
+      const f0 = Math.atan2(down[0] - ccx, ccz - down[1]), n = Math.max(2, Math.ceil(Math.abs(fn - f0) * ro / 0.5));
+      for (let i = 1; i <= n; i++) { const q = at(ro, f0 + (fn - f0) * i / n); pts.push([q[0], f3.y0, q[1]]); }
+      end = { x: o[0], y: f3.y0, z: o[1], yaw: Math.atan2(S.aim[0] - o[0], S.aim[1] - o[1]), pose: 'spot' };
+    } else {
+      const f2 = P.f2, f1 = P.f1, f1top = f1.foot[0] + (f1.n - 1) * f1.g, T = VWG.tech, [cx, cz] = VWCF.seats[k];
+      pts.push([P.cat.x0 + 0.45, cy, P.cat.z1 - 0.2], [P.cat.x0 + 0.45, cy, P.cat.z0 + 0.3], [f2.foot[0], f2.y1, f2.foot[1] + (f2.n - 1) * f2.g + 0.05], [f2.foot[0], f2.y0, f2.foot[1] - 0.05],
+        [f2.foot[0], f2.y0, -42.85], [77.2, f2.y0, -42.85], [77.2, f1.y1, f1.foot[1]], [f1top + 0.05, f1.y1, f1.foot[1]], [f1.foot[0] - 0.05, T.floor, f1.foot[1]], [f1.foot[0] - 0.45, T.floor, f1.foot[1]]);
+      if (k === 'lighting') pts.push([77.0, T.floor, -41.25], [cx, T.floor, -40.95]);
+      else pts.push([cx, T.floor, -40.95]);
+      pts.push([cx, T.floor, cz]);
+      end = { x: cx, y: T.floor, z: cz, yaw: 0, pose: 'seat' };
+    }
+    const V = pts.map(p => new THREE.Vector3(p[0], p[1], p[2])), cum = [0];
+    for (let i = 1; i < V.length; i++) cum.push(cum[i - 1] + V[i].distanceTo(V[i - 1]));
+    out.push({ label, kind, pts: V, cum, len: cum[cum.length - 1], end });
+  }
+  return out;
+}
+function vwCrewFolkBuild() {
+  const paths = vwCrewPaths(), group = new THREE.Group(); group.name = 'vw crew'; group.visible = false; scene.add(group);
+  const skin = opsMat(0x8a6e5c), folk = paths.map((p, i) => {
+    const root = pitSkeleton(true, { skin, cloth: opsMat(VWCF.colors[i % VWCF.colors.length]), legs: opsMat(0x1e1f23) }); root.name = `vw crew: ${p.label}`;
+    group.add(root);
+    return { ...p, root, t0: i * VWCF.gap };
+  });
+  const full = Math.max(...folk.map(f => f.t0 + f.len / VWCF.walk));
+  vwCrewFolk = { group, folk, full, t: 0, want: false, dirty: true, ms: 0 };
+  return vwCrewFolk;
+}
+// standing still: upright, the feet under him, his hands forward on a spot's handles; seated: on the chair, his hands on the desk
+function vwCrewStill(P, pose) {
+  const rest = RIG.parts[0].pos;
+  if (pose === 'seat') pitSit(P, VWCF.sit, 0.10);
+  else {
+    P.pelvis.position.set(rest.x, rest.y, rest.z); P.pelvis.rotation.set(0, 0, 0); P.spine.rotation.set(0.06, 0, 0); P.head.rotation.set(0.05, 0, 0);
+    pitLeg(P, 'L', 0, 0, 0, 0); pitLeg(P, 'R', 0, 0, 0, 0);
+  }
+  for (const [s, k] of [['L', 1], ['R', -1]]) {
+    P['upperarm_' + s].quaternion.identity(); P['upperarm_' + s].rotation.set(pose === 'seat' ? -0.75 : -0.95, 0, k * 0.12);
+    P['forearm_' + s].quaternion.identity(); P['forearm_' + s].rotation.set(pose === 'seat' ? -0.55 : -0.35, 0, 0); P['hand_' + s].rotation.set(0, 0, 0);
+  }
+}
+function vwCrewFolkPose() {
+  const K = vwCrewFolk;
+  for (const f of K.folk) {
+    const s = (K.t - f.t0) * VWCF.walk, r = f.root;
+    r.visible = s > 0;
+    if (s <= 0) continue;
+    if (s >= f.len) { const e = f.end; r.position.set(e.x, e.y, e.z); r.rotation.y = e.yaw; vwCrewStill(r.userData.parts, e.pose); }
+    else {
+      let j = 1; while (j < f.pts.length - 1 && f.cum[j] < s) j++;
+      const a = f.pts[j - 1], b = f.pts[j], k = THREE.MathUtils.clamp((s - f.cum[j - 1]) / Math.max(1e-6, f.cum[j] - f.cum[j - 1]), 0, 1);
+      r.position.set(a.x + (b.x - a.x) * k, a.y + (b.y - a.y) * k, a.z + (b.z - a.z) * k);
+      if (Math.hypot(b.x - a.x, b.z - a.z) > 1e-3) r.rotation.y = Math.atan2(b.x - a.x, b.z - a.z);
+      vwHamStride(r.userData.parts, s / VWCF.walk, f.len);
+    }
+    r.updateMatrixWorld(true);
+  }
+}
+// Wanted in the booths? With the desk in use: from the Five call (VWCF.inFor); without it: while the show is on (at their posts).
+function vwCrewFolkTick(dt) {
+  if (!vwCrewFolk) { if (vwCrew && vwBooths && RIG.parts) vwCrewFolkBuild(); return false; }
+  const K = vwCrewFolk, t0 = performance.now(), want = SM.engaged ? VWCF.inFor.includes(SM.state) : !!SHW.on;
+  if (want !== K.want) { K.want = want; K.t = want && !SM.engaged ? K.full : 0; K.dirty = true; }
+  const was = K.t; if (want) K.t = Math.min(K.full, K.t + dt);
+  const vis = want && (!vwBack || vwBack.shown);
+  if (K.group.visible !== vis) { K.group.visible = vis; K.dirty = true; }
+  if (!vis || (K.t === was && !K.dirty)) return false;
+  vwCrewFolkPose(); K.dirty = false; K.ms = performance.now() - t0;
+  return true;
+}
+{ const lxPanelTickVWC = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickVWC(dt); return vwCrewFolkTick(dt) || a; }; }
+function vwCrewFolkCheck() {
+  const K = vwCrewFolk; if (!K) return 'van wezel crew: not built';
+  const out = []; let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  const was = K.t; K.t = K.full; vwCrewFolkPose();
+  for (const f of K.folk) {
+    const e = f.end, last = f.pts[f.pts.length - 1], g = groundAt(e.x, e.z, e.y + 0.3);
+    line(f.root.position.distanceTo(new THREE.Vector3(e.x, e.y, e.z)) < 1e-6 && (e.pose === 'seat' || (g !== null && Math.abs(g - e.y) < 0.06)),
+      `${f.label}: ${f.len.toFixed(1)} m from the dressing-room corridor (${(f.len / VWCF.walk).toFixed(0)} s walking, leaving at ${f.t0.toFixed(1)} s) to (${e.x.toFixed(2)}, ${e.y.toFixed(2)}, ${e.z.toFixed(2)}) ${e.pose === 'seat' ? 'on the chair' : `behind the spot, the floor there ${g === null ? 'none' : g.toFixed(3)}`}; the way's end ${last.distanceTo(new THREE.Vector3(e.x, e.y, e.z)).toFixed(2)} m off it`);
+  }
+  // the way on the walk's floor: every point of the shared way within a step of the floor under it (the ladders' and the
+  // spiral's points are on their treads' line)
+  const f0 = K.folk[0]; let worst = 0, at = '';
+  for (let i = 0; i < f0.pts.length; i++) { const p = f0.pts[i], g = groundAt(p.x, p.z, p.y + 0.25); const d = g === null ? Infinity : Math.abs(g - p.y); if (d > worst) { worst = d; at = `(${p.x.toFixed(2)}, ${p.y.toFixed(2)}, ${p.z.toFixed(2)})`; } }
+  line(worst < 0.30, `the way's ${f0.pts.length} points (spot 1's): at most ${worst === Infinity ? 'no floor' : worst.toFixed(3) + ' m'} off the floor under them${at ? ' at ' + at : ''}`);
+  K.t = was; K.dirty = true;
+  const s = `van wezel crew: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
+  console.info(s); return s;
+}
+VAN_WEZEL_API.crew = {
+  get paths() { return vwCrewFolk ? vwCrewFolk.folk.map(f => ({ label: f.label, points: f.pts.length, len: +f.len.toFixed(2), end: f.end })) : null; },
+  state() { const K = vwCrewFolk; return K ? { want: K.want, t: +K.t.toFixed(2), full: +K.full.toFixed(2), shown: K.group.visible, ms: +K.ms.toFixed(3) } : null; },
+  at(t) { const K = vwCrewFolk; if (!K) return null; K.t = THREE.MathUtils.clamp(+t || 0, 0, K.full); vwCrewFolkPose(); requestRender(); return this.state(); },
+  check: vwCrewFolkCheck,
+};
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE BOOTH LIGHTS
+   Jack (2026-10-25): "also make lightswitches to turn off the lights in the spot and lighting booth" — the Van Wezel's (his
+   word for this round). Both booths' light is baked into their colours (THE BOOTHS' GEAR: one unlit vertex-coloured mesh a
+   booth; the tech booth's walls, floor and roof the model's house_tex_33), so a switch takes those colours down to VWL.off
+   of themselves over VWL.fade s, and up again — no light is added or taken away, the screens and the consoles' lamps (their
+   own materials) stay lit. Each booth's material is its own copy (they shared one); house_tex_33 is also on the Van Wezel's
+   house dimmer (HAMILTON ON ITS STAGE: b.dims), so there the switch scales the base the dimmer reads. A switch plate on the
+   wall by each way in — the tech booth's beside its house-right door, the spot booth's by ladder 3's foot — on E while
+   walking (VW_TARGETS). The spot booth's shell is one mesh inside and out, so its outside (the house ceiling's colour) goes
+   down with it. MIDTOWN.vanWezel.boothLights: set(booth, on), state(), check(). */
+const VWL = {
+  off: 0.12, fade: 0.6,                                         // the colours' level with the lights off; the fade's time, s
+  plate: [0.08, 0.12, 0.012], y: 1.25,                          // the switch plate (w, h, d) and its middle over the floor
+  tech: { mesh: 'vw booth gear: tech booth', shell: 'house_tex_33', at: [71.625, -40.20], ry: Math.PI / 2, floor: VWG.tech.floor },   // on the house-right side wall's inner face, by the door
+  spot: { mesh: 'vw booth gear: follow-spot booth', at: null, ry: 0, floor: VWG.spot.floor },                                         // on the back wall by ladder 3's foot (at: worked out at build)
+};
+let vwLights = null;
+function vwBoothLightsBuild(model) {
+  const gear = scene.children.find(o => o.name === 'vw booth gear');
+  if (!gear || !model) { console.info('van wezel booth lights: no booth gear — not built'); return null; }
+  const S = VWG.spot, [ccx, ccz] = S.c, fA = Math.asin((72.70 - ccx) / (S.rB - 0.006));
+  VWL.spot.at = [ccx + (S.rB - 0.006) * Math.sin(fA), ccz - (S.rB - 0.006) * Math.cos(fA)]; VWL.spot.ry = -fA;   // facing into the room (toward the stage)
+  const group = new THREE.Group(); group.name = 'vw booth switches'; scene.add(group);
+  const plateM = new THREE.MeshBasicMaterial({ color: 0xe8e4da }), rockM = new THREE.MeshBasicMaterial({ color: 0x2c2c2e });
+  const booths = {};
+  for (const key of ['tech', 'spot']) {
+    const L = VWL[key], mesh = gear.getObjectByName(L.mesh); if (!mesh) continue;
+    mesh.material = mesh.material.clone(); mesh.material.userData.lit = mesh.material.color.clone();
+    const shell = L.shell ? model.byName(L.shell) : null;   // its lit base taken when the house dimmer has made one (vwBoothLightsApply)
+    // the plate and its rocker, on the wall facing ry (local +z out of the wall)
+    const sw = new THREE.Group(); sw.position.set(L.at[0], L.floor + VWL.y, L.at[1]); sw.rotation.y = L.ry; group.add(sw);
+    const [w, h, d] = VWL.plate, plate = new THREE.Mesh(new THREE.BoxGeometry(w, h, d).translate(0, 0, d / 2), plateM), rock = new THREE.Mesh(new THREE.BoxGeometry(0.022, 0.045, 0.012).translate(0, 0, 0.006), rockM);
+    rock.position.set(0, 0, d); plate.name = `vw booth switches: ${key}`; rock.name = `vw booth switches: ${key} rocker`; sw.add(plate, rock);
+    const out = new THREE.Vector3(Math.sin(L.ry), 0, Math.cos(L.ry));
+    const B = booths[key] = { key, mesh, shell, rock, on: true, u: 1 };
+    VW_TARGETS.push({ name: `Van Wezel ${key === 'tech' ? 'tech' : 'follow-spot'} booth light switch`, kind: 'switch', cx: L.at[0] + out.x * 0.45, cz: L.at[1] + out.z * 0.45, fy: L.floor,
+      label: () => `E — turn the ${key === 'tech' ? 'tech' : 'follow-spot'} booth's lights ${B.on ? 'off' : 'on'}`, use: () => vwBoothLight(key, !B.on) });
+  }
+  vwLights = { group, booths };
+  vwBoothLightsApply();
+  return vwLights;
+}
+function vwBoothLight(key, on) {
+  const B = vwLights && vwLights.booths[key]; if (!B) return null;
+  B.on = !!on; B.rock.rotation.x = B.on ? -0.25 : 0.25; requestRender();
+  return B.on;
+}
+function vwBoothLightsApply() {
+  for (const B of Object.values(vwLights.booths)) {
+    const k = VWL.off + (1 - VWL.off) * B.u * B.u * (3 - 2 * B.u);
+    B.mesh.material.color.copy(B.mesh.material.userData.lit).multiplyScalar(k);
+    if (B.shell && B.shell.material.userData.base && !B.shell.material.userData.lit) B.shell.material.userData.lit = B.shell.material.userData.base.clone();
+    if (B.shell && B.shell.material.userData.lit) {
+      B.shell.material.userData.base.copy(B.shell.material.userData.lit).multiplyScalar(k);
+      if (vwHam) vwHam.house = -1; else B.shell.material.color.copy(B.shell.material.userData.base);   // the house dimmer writes it again from the base
+    }
+    B.rock.rotation.x = B.on ? -0.25 : 0.25;
+  }
+}
+// The frame's call (riding lxPanelTick): each booth's fade toward its switch, off the frame's dt
+function vwBoothLightsTick(dt) {
+  if (!vwLights) return false;
+  let moved = false;
+  for (const B of Object.values(vwLights.booths)) { const w = B.on ? 1 : 0; if (B.u !== w) { B.u = w > B.u ? Math.min(1, B.u + dt / VWL.fade) : Math.max(0, B.u - dt / VWL.fade); moved = true; } }
+  if (moved) vwBoothLightsApply();
+  return moved;
+}
+{ const lxPanelTickVWL = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickVWL(dt); return vwBoothLightsTick(dt) || a; }; }
+function vwBoothLightsCheck() {
+  const V = vwLights; if (!V) return 'van wezel booth lights: not built';
+  const out = []; let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  for (const B of Object.values(V.booths)) {
+    const was = B.on, t = VW_TARGETS.find(q => q.name.startsWith(`Van Wezel ${B.key === 'tech' ? 'tech' : 'follow-spot'} booth light`));
+    t.use(); for (let i = 0; i < 60; i++) vwBoothLightsTick(1 / 30);
+    const off = B.mesh.material.color.r / B.mesh.material.userData.lit.r, offS = B.shell && B.shell.material.userData.lit ? B.shell.material.userData.base.r / B.shell.material.userData.lit.r : null;
+    t.use(); for (let i = 0; i < 60; i++) vwBoothLightsTick(1 / 30);
+    const on = B.mesh.material.color.r / B.mesh.material.userData.lit.r;
+    line(Math.abs(off - VWL.off) < 1e-3 && Math.abs(on - 1) < 1e-6 && (offS === null || Math.abs(offS - VWL.off) < 1e-3) && B.on === was,
+      `the ${B.key} booth: E at its switch takes it to ${off.toFixed(3)}${offS !== null ? ` (its walls ${offS.toFixed(3)})` : ''} and back to ${on.toFixed(3)}; the switch is ${t.label().replace(/^E — /, '')} now`);
+    const g = groundAt(t.cx, t.cz, t.fy + 0.3);
+    line(g !== null && Math.abs(g - t.fy) < 0.06, `its E point (${t.cx.toFixed(2)}, ${t.cz.toFixed(2)}) on the booth's floor (${g === null ? 'none' : g.toFixed(3)})`);
+  }
+  const s = `van wezel booth lights: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
+  console.info(s); return s;
+}
+VAN_WEZEL_API.boothLights = {
+  set: (booth, on) => vwBoothLight(booth, on),
+  state: () => vwLights ? Object.fromEntries(Object.values(vwLights.booths).map(B => [B.key, { on: B.on, level: +B.u.toFixed(3) }])) : null,
+  check: vwBoothLightsCheck,
+};
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE BOOTH'S SHOW CAMERAS
+   Jack (2026-10-25): "can you also add a screen to the booth that shows a cammera of the position vw hamilton", then, seeing
+   it: "make it have monitors going all across the top like that monitor and make them show differnt angles". A row of
+   monitors hung under the tech booth's ceiling along its window (VWM.cams, house right to house left), each tilted down toward
+   the operators and showing the Van Wezel's stage from its own camera: the "VW Hamilton" view's (the stalls, row K or so), and
+   (Jack: "some from above some from beghind and some from both sides") two from above (the lower one under the rig), two
+   from behind (just inside the set's back wall), one from each side of the house by the proscenium. Each is the scene drawn
+   again into its render target; one monitor a draw, in turn, VWM.hz draws a second (so each refreshes hz / cams a second), and
+   only while the camera is in the tech booth (VWM.box). The engine's pools are screen-space (THE LIGHTING ENGINE's depth pass
+   is the main camera's), so for a draw the camera itself is stood at the monitor's camera, the pools' pass run for it, the
+   stage drawn into the target, and the camera put back: the next frame's own pass is the main view's again.
+   MIDTOWN.vanWezel.showCam: state(), draw() (every monitor now), targets. */
+const VWM = {
+  w: 480, h: 270, hz: 9,                                        // each target's size; draws a second, shared round the monitors
+  screen: [0.72, 0.405], y: 10.48, z: -39.32, tilt: 0.22,      // the picture's size; its middle's height (the ceiling 11.00) and z (over the desk); tilted down toward the operators
+  box: [71.6, 82.4, 8.4, 11.1, -42.4, -38.6],                   // the tech booth (x, y, z): drawn only with the camera in here
+  cams: [                                                       // [the monitor's x, the camera's place, what it looks at, its field (degrees)] — Jack: "make some of the angls from above some from beghind and some from both sides"
+    [72.65, [66.6, 6.4, -5.0], [78.5, 4.0, 5.0], 46],           // from the side: house right, by the proscenium (its side wall at x 65.80 there), across the stage (from the wings the legs and the set's walls are in the way)
+    [74.10, [82.0, 6.6, 9.1], [73.5, 3.6, 1.0], 66],            // from behind: upstage stage right, just inside the set's back wall (z 9.63), toward the house
+    [75.55, [77.0, 17.5, -9.0], [77.0, 3.2, 5.0], 42],          // from above: high over the stalls, down onto the stage
+    [77.00, undefined, undefined, 42],                          // the "VW Hamilton" view: the stalls (VWHAM.view, read at build: it is defined further down)
+    [78.45, [77.0, 8.1, 2.6], [77.0, 2.6, 5.8], 80],            // from above: down onto the deck from under the rig (its lowest units ~8.7 over the deck's middle)
+    [79.90, [77.0, 7.2, 9.2], [77.0, 3.4, -2.0], 66],           // from behind: upstage centre, high, just inside the set's back wall, out over the deck to the house
+    [81.35, [87.4, 6.4, -5.0], [75.5, 4.0, 5.0], 46],           // from the side: house left, by the proscenium, across the stage
+  ],
+};
+let vwMon = null;
+function vwMonBuild() {
+  const g = new THREE.Group(); g.name = 'vw booth show cameras'; scene.add(g);
+  const [w, h] = VWM.screen, dark = new THREE.MeshBasicMaterial({ color: 0x141416 });
+  const bezelG = new THREE.BoxGeometry(w + 0.05, h + 0.05, 0.05).translate(0, 0, -0.026), picG = new THREE.PlaneGeometry(w, h);
+  const rodG = new THREE.CylinderGeometry(0.015, 0.015, 11.0 - VWM.y - 0.15, 8).translate(0, (11.0 - VWM.y + 0.15) / 2, 0);
+  const mons = VWM.cams.map(([x, p = VWHAM.view[0], t = VWHAM.view[1], fov]) => {
+    const rt = new THREE.WebGLRenderTarget(VWM.w, VWM.h, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, depthBuffer: true });
+    rt.texture.colorSpace = THREE.SRGBColorSpace;                // the screen's output: every material draws here with the programs it already has (a linear target compiled a second set, 4.7 s the first time)
+    const cam = new THREE.PerspectiveCamera(fov, VWM.w / VWM.h, 0.05, 400); cam.position.set(...p); cam.lookAt(...t); cam.updateMatrixWorld(true);
+    const m = new THREE.Group(); m.position.set(x, VWM.y, VWM.z); g.add(m);
+    const face = new THREE.Group(); face.rotation.set(-VWM.tilt, Math.PI, 0); m.add(face);   // toward the operators (−z), its top tipped back
+    const bezel = new THREE.Mesh(bezelG, dark), pic = new THREE.Mesh(picG, new THREE.MeshBasicMaterial({ map: rt.texture, toneMapped: false }));
+    pic.position.z = 0.001; pic.userData.rig = bezel.userData.rig = true;
+    face.add(bezel, pic); m.add(new THREE.Mesh(rodG, dark));
+    return { rt, cam, pic, n: 0 };
+  });
+  vwMon = { group: g, mons, next: 0, t: 0, n: 0, ms: 0, due: true, inside: false, all: true };
+  return vwMon;
+}
+const vwMonIn = () => { const p = camera.position, B = VWM.box; return p.x > B[0] && p.x < B[1] && p.y > B[2] && p.y < B[3] && p.z > B[4] && p.z < B[5]; };
+// The frame's call: due a draw? → true (the page draws a frame) every 1/hz s while the camera is in the booth
+function vwMonTick(dt) {
+  if (!vwMon) { if (vwGear && LX.ready) vwMonBuild(); return false; }
+  const M = vwMon, was = M.inside; M.inside = vwMonIn();
+  if (!M.inside) return false;
+  if (!was) M.all = true;                                       // just come in: every monitor at once, none left on an old picture
+  M.t -= dt; if (M.t > 0) return false;
+  M.t = 1 / VWM.hz; M.due = true; return true;
+}
+{ const lxPanelTickVWM = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickVWM(dt); return vwMonTick(dt) || a; }; }
+// After the main view is drawn: the next monitor's picture, if due (the camera stood at its camera for it, then put back)
+function vwMonDraw(time, force = false) {
+  const M = vwMon; if (!M || !(force || (M.due && M.inside))) return;
+  const t0 = performance.now(), keep = { p: camera.position.clone(), q: camera.quaternion.clone(), fov: camera.fov, aspect: camera.aspect, near: camera.near, far: camera.far };
+  const list = (force || M.all ? M.mons : [M.mons[M.next]]).filter(m => m.pic.material.map);   // a monitor shut down (THE BOOTH'S POWER) draws nothing
+  M.group.visible = false;
+  const prev = renderer.getRenderTarget();
+  try {
+    for (const m of list) {
+      camera.position.copy(m.cam.position); camera.quaternion.copy(m.cam.quaternion); camera.fov = m.cam.fov; camera.aspect = m.cam.aspect; camera.near = m.cam.near; camera.far = m.cam.far;
+      camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
+      lxDrawn(time); renderer.setRenderTarget(m.rt); renderer.clear(); renderer.render(scene, camera); m.n++;
+    }
+  } finally {
+    renderer.setRenderTarget(prev);
+    camera.position.copy(keep.p); camera.quaternion.copy(keep.q); camera.fov = keep.fov; camera.aspect = keep.aspect; camera.near = keep.near; camera.far = keep.far;
+    camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
+    M.group.visible = true;
+  }
+  if (!(force || M.all)) M.next = (M.next + 1) % M.mons.length;
+  M.due = false; M.all = false; M.n++; M.ms = performance.now() - t0;
+}
+VAN_WEZEL_API.showCam = {
+  state: () => vwMon ? { monitors: vwMon.mons.length, draws: vwMon.mons.map(m => m.n), ms: +vwMon.ms.toFixed(1), inside: vwMon.inside, hz: VWM.hz } : null,
+  draw: () => { if (!vwMon) return null; vwMonDraw(undefined, true); requestRender(); return VAN_WEZEL_API.showCam.state(); },
+  get targets() { return vwMon ? vwMon.mons.map(m => m.rt) : null; },   // each monitor's render target (renderer.readRenderTargetPixels, for a picture of all of them)
+};
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE BOOTH'S POWER
+   Jack (2026-10-25): "also add a button to start up or shut down all of the equtment in the booth" — the tech booth's. A
+   power panel on its house-right wall beside the light switch, its button lit green (up) or red (down), on E while walking.
+   SHUT DOWN, at once: the monitors' row goes black and stops drawing (THE BOOTH'S SHOW CAMERAS), the grandMA3's two
+   touchscreens (house 1's desk screens: HAMILTON ON ITS STAGE) and the gear's own screens go black, the consoles' and racks'
+   lit keys and meters go dark (the gear's atlas, VWG_AT: those regions painted over, the rest kept to put back). START UP,
+   over VWP.boot s off the frame's dt: the consoles and racks first, then the touchscreens, then the monitors one by one.
+   The show runs on either way (the booth's equipment is the Van Wezel's dressing; house 1's desk drives the light).
+   MIDTOWN.vanWezel.boothPower: set(on), state(). */
+const VWP = {
+  at: [71.625, -40.62], y: 1.25, plate: [0.16, 0.22, 0.02],   // on the house-right wall's inner face, beside the light switch
+  boot: 3.0,                                                    // s: the start-up, start to the last monitor
+  black: ['ma3L', 'ma3R', 'monA', 'monB'],                      // the atlas's screens: black when down
+  dim: ['ma3', 'cl5', 'ion', 'wing', 'rack4', 'rack9'],         // the consoles and racks: their lit keys and meters taken down
+};
+let vwPower = null;
+function vwPowerBuild() {
+  const T = VWG.tech, g = new THREE.Group(); g.name = 'vw booth power'; g.position.set(VWP.at[0], T.floor + VWP.y, VWP.at[1]); g.rotation.y = Math.PI / 2; scene.add(g);
+  const [w, h, d] = VWP.plate;
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(w, h, d).translate(0, 0, d / 2), new THREE.MeshBasicMaterial({ color: 0x2a2b2e }));
+  const lamp = new THREE.MeshBasicMaterial({ color: 0x27e05a, toneMapped: false }), btn = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.02, 16).rotateX(Math.PI / 2).translate(0, 0.02, d + 0.01), lamp);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.042, 0.006, 6, 20).translate(0, 0.02, d + 0.002), new THREE.MeshBasicMaterial({ color: 0xb8bcc2 }));
+  const tag = new THREE.Mesh(new THREE.PlaneGeometry(0.11, 0.035).translate(0, -0.06, d + 0.001), new THREE.MeshBasicMaterial({ color: 0xd8d4c8 }));
+  g.add(plate, btn, ring, tag);
+  const P = vwPower = { group: g, lamp, on: true, u: 1, saved: null };
+  VW_TARGETS.push({ name: 'Van Wezel tech booth power', kind: 'switch', cx: VWP.at[0] + 0.45, cz: VWP.at[1], fy: T.floor,
+    label: () => `E — ${P.on ? 'shut down' : 'start up'} the tech booth's equipment${P.on && P.u < 1 ? ' (starting up)' : ''}`, use: () => vwPowerSet(!P.on) });
+  return P;
+}
+// the atlas's regions: painted over when down, put back from what was there
+function vwPowerAtlas(down) {
+  const tex = vwGear && vwGear.tex, c = tex && tex.image, P = vwPower; if (!c || !c.getContext) return;
+  const g = c.getContext('2d'), regs = [...VWP.black, ...VWP.dim].map(k => [k, VWG_AT[k]]).filter(([, r]) => r);
+  if (down) {
+    if (!P.saved) P.saved = regs.map(([k, r]) => [r, g.getImageData(r[0], r[1], r[2], r[3])]);
+    for (const [k, r] of regs) { g.fillStyle = VWP.black.includes(k) ? '#050506' : 'rgba(8,8,10,0.84)'; g.fillRect(r[0], r[1], r[2], r[3]); }
+  } else if (P.saved) { for (const [r, img] of P.saved) g.putImageData(img, r[0], r[1]); P.saved = null; }
+  tex.needsUpdate = true;
+}
+function vwPowerSet(on) {
+  const P = vwPower; if (!P) return null;
+  P.on = !!on;
+  if (!P.on) { P.u = 0; vwPowerApply(); }
+  P.lamp.color.set(P.on ? 0xffb020 : 0xe02a2a); requestRender();   // amber while it boots, green when up (vwPowerTick)
+  return P.on;
+}
+// what is up at the start-up's point u (0 down … 1 up)
+function vwPowerApply() {
+  const P = vwPower, u = P.u, M = vwMon;
+  const atlasUp = u >= 0.15; if (atlasUp === !!P.saved) vwPowerAtlas(!atlasUp);
+  if (vwHam && vwHam.screens) for (const m of vwHam.screens) m.visible = u >= 0.35;
+  if (M) M.mons.forEach((m, i) => {
+    const up = u >= 0.45 + 0.55 * (i + 1) / M.mons.length - 1e-6, mat = m.pic.material;
+    if (up && mat.map !== m.rt.texture) { mat.map = m.rt.texture; mat.color.set(0xffffff); mat.needsUpdate = true; M.all = true; }
+    else if (!up && mat.map) { mat.map = null; mat.color.set(0x050506); mat.needsUpdate = true; }
+  });
+  if (u >= 1) P.lamp.color.set(0x27e05a);
+  requestRender();
+}
+// The frame's call: the start-up, off the frame's dt
+function vwPowerTick(dt) {
+  if (!vwPower) { if (vwGear && vwMon) vwPowerBuild(); return false; }
+  const P = vwPower; if (!P.on || P.u >= 1) return false;
+  P.u = Math.min(1, P.u + dt / VWP.boot); vwPowerApply(); return true;
+}
+{ const lxPanelTickVWP = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickVWP(dt); return vwPowerTick(dt) || a; }; }
+VAN_WEZEL_API.boothPower = {
+  set: on => vwPowerSet(on),
+  state: () => vwPower ? { on: vwPower.on, up: +vwPower.u.toFixed(2), monitorsLit: vwMon ? vwMon.mons.filter(m => m.pic.material.map).length : 0 } : null,
+};
+
 /* ---------------------------------------------------------------- THE THIRD HOUSE: HAMILTON ON ITS STAGE
    Jack (2026-10-25): "put in the set and the lighting for hamilton and put the cues into the desk in the venwezel and make sure
    all teh cues still look the same" (and, before it, of the set: "raise the house borders and electrics clear of it": VWS_HANG).
@@ -19696,12 +20385,21 @@ function vwHamBand(b) {
   md.position.set(PIT.md.x, PIT.floor + V.podium, PIT.md.z);
   const baton = new THREE.Mesh(B.band.md.userData.baton.geometry, pitMats.mdBaton); md.add(baton); md.userData.baton = baton;
   group.add(md);
-  // the way in: from inside the orchestra-level door, in house 1's pit's frame
-  const O = VW_BACK.orch, door = new THREE.Vector2((O.x0 + O.x1) / 2 - VW.at.x, VWH.pros.face - 0.35 - V.dz);
+  // THE WAY IN (Jack, 2026-10-25: "make it so the band doesnt just teleport into the pit make it so they all walk out into the
+  // pit from the door"): from the trap room's floor at the orchestra-level stair's foot, up it (−x) to its landing, through the
+  // door (opened for them: vwHamBandDoor) and on into the pit to each seat — in house 1's pit's frame, y over the pit's floor
+  // (the lift's top at ORCHESTRA, which is the door's floor), so the stair's foot is under it by the stair's height
+  const O = VW_BACK.orch, dx = (O.x0 + O.x1) / 2 - VW.at.x, zl = (O.z0 + O.z1) / 2 - V.dz, foot = O.top + (O.n - 1) * O.going + 0.45 - VW.at.x, drop = O.floor - VW_BACK.floor;
+  const way = [[foot, -drop, zl], [O.top - 0.25 - VW.at.x, 0, zl], [dx, 0, zl], [dx, 0, VWH.pros.face - 0.35 - V.dz]];
+  const door = new THREE.Vector2(way[3][0], way[3][2]);
   const who = stations.map((s, i) => ({ s, i, to: new THREE.Vector2(s.x, s.z) })).concat([{ md: true, i: n, to: new THREE.Vector2(PIT.md.x, PIT.md.z) }]);
-  who.forEach((w, k) => { w.t0 = k * V.gap; w.len = door.distanceTo(w.to); w.t1 = w.t0 + w.len / V.walk; });
+  who.forEach((w, k) => {
+    w.pts = way.concat([[w.to.x, 0, w.to.y]]).map(([x, y, z]) => new THREE.Vector3(x, y, z));
+    w.cum = [0]; for (let j = 1; j < w.pts.length; j++) w.cum.push(w.cum[j - 1] + w.pts[j].distanceTo(w.pts[j - 1]));
+    w.t0 = k * V.gap; w.len = w.cum[w.cum.length - 1]; w.t1 = w.t0 + w.len / V.walk;
+  });
   const full = Math.max(...who.map(w => w.t1)) + V.sit;
-  b.band = { group, kit, VB: { stations, band: { group, parts, bows, sticks, md }, vis: { band: true, md: true } }, who, door, full, t: 0, dir: 0, want: false, lastKey: '', mdAt: md.position.clone() };
+  b.band = { group, kit, VB: { stations, band: { group, parts, bows, sticks, md }, vis: { band: true, md: true } }, who, door, full, t: 0, dir: 0, want: false, lastKey: '', mdAt: md.position.clone(), opened: null };
   vwHamBandPlace(b); vwHamBandPose(b, true);
 }
 // the band on the lift: house 1's pit floor onto its top, wherever it stands
@@ -19716,7 +20414,8 @@ function vwHamBandTick(dt) {
   if (!b.desk && SM.desk) vwHamDesk(b);
   if (!b.band) { if (pitBuilt && pitBuilt.band && RIG.parts) vwHamBand(b); return false; }
   const W = b.band, want = vwHamBandWant();
-  if (want !== W.want) { W.want = want; if (want && !SM.engaged && W.t === 0) W.t = W.full; }   // a show run without the desk: in their seats from its start
+  if (want !== W.want) { W.want = want; if (want && !SM.engaged && W.t === 0 && !(SHW.ti === 0 && SHW.lt < 0)) W.t = W.full; }   // a show run without the desk walks them in from its top; started anywhere else, in their seats at once
+  vwHamBandDoor(W);
   const was = W.t; W.t = THREE.MathUtils.clamp(W.t + (want ? dt : -dt), 0, W.full); W.dir = want ? 1 : -1;
   return W.t !== was && b.on;
 }
@@ -19735,15 +20434,15 @@ function vwHamBandPose(b, force) {
     if (u >= 1) { if (w.md) band.md.visible = true; continue; }
     if (w.md) {
       band.md.visible = u > 0;
-      if (u > 0) { vwhW.lerpVectors(W.door, w.to, u); band.md.position.set(vwhW.x, PIT.floor + (u > 0.92 ? VWHAM.band.podium : 0), vwhW.y); band.md.rotation.y = Math.atan2(w.to.x - W.door.x, w.to.y - W.door.y) + (W.dir < 0 ? Math.PI : 0); vwHamStride(band.md.userData.parts, W.t, w.len); band.md.updateMatrixWorld(true); }
+      if (u > 0) { const q = vwHamBandAt(w, u); band.md.position.set(q.x, PIT.floor + q.y + (u > 0.97 ? VWHAM.band.podium : 0), q.z); band.md.rotation.y = q.yaw + (W.dir < 0 ? Math.PI : 0); vwHamStride(band.md.userData.parts, W.t, w.len); band.md.updateMatrixWorld(true); }
       else { band.md.position.copy(W.mdAt); band.md.rotation.y = 0; }
       continue;
     }
     const s = w.s, i = w.i;
     if (u <= 0) { for (const im of Object.values(band.parts)) im.setMatrixAt(i, vwhZero); }
     else {
-      vwhW.lerpVectors(W.door, w.to, u);
-      s.root.position.set(vwhW.x, PIT.floor, vwhW.y); s.root.rotation.y = Math.atan2(w.to.x - W.door.x, w.to.y - W.door.y) + (W.dir < 0 ? Math.PI : 0);
+      const q = vwHamBandAt(w, u);
+      s.root.position.set(q.x, PIT.floor + q.y, q.z); s.root.rotation.y = q.yaw + (W.dir < 0 ? Math.PI : 0);
       vwHamStride(s.root.userData.parts, W.t, w.len); s.root.updateMatrixWorld(true);
       const P = s.root.userData.parts; for (const [name, im] of Object.entries(band.parts)) im.setMatrixAt(i, P[name].matrixWorld);
       s.root.position.set(s.x, PIT.floor, s.z); s.root.rotation.y = s.yaw;   // back to the seat for the next pitPose
@@ -19754,6 +20453,20 @@ function vwHamBandPose(b, force) {
   for (const im of Object.values(band.parts)) im.instanceMatrix.needsUpdate = true;
   band.bows.instanceMatrix.needsUpdate = true; band.sticks.instanceMatrix.needsUpdate = true;
   if (W.t >= W.full) { band.md.position.copy(W.mdAt); band.md.rotation.y = 0; band.md.visible = true; band.md.updateMatrixWorld(true); pitPose(T, true, VB); }
+}
+// a walker u of the way along her polyline (house 1's pit frame): the point, its height over the pit's floor, the leg's heading
+function vwHamBandAt(w, u) {
+  const s = u * w.len, P = w.pts; let j = 1; while (j < P.length - 1 && w.cum[j] < s) j++;
+  const a = P[j - 1], b = P[j], k = THREE.MathUtils.clamp((s - w.cum[j - 1]) / Math.max(1e-6, w.cum[j] - w.cum[j - 1]), 0, 1);
+  return { x: a.x + (b.x - a.x) * k, y: a.y + (b.y - a.y) * k, z: a.z + (b.z - a.z) * k, yaw: Math.atan2(b.x - a.x, b.z - a.z) };
+}
+// the orchestra-level door open while anyone is on the way through it (it is opened as the walker's E would), shut after —
+// only if the band opened it: found open, left open
+function vwHamBandDoor(W) {
+  const D = W.door2 || (W.door2 = DOORS.list.find(e => e.name === 'Van Wezel orchestra lift, orchestra level') || null); if (!D) return;
+  const moving = W.t > 0 && W.t < W.full - VWHAM.band.sit;
+  if (moving && !W.opened && !D.want) { D.want = 1; W.opened = D; }
+  else if (!moving && W.opened) { W.opened.want = 0; W.opened = null; }
 }
 // a stride: upright, the legs swinging (rigLeg's IK through pitLeg), the arms hanging and swinging against them
 function vwHamStride(P, t, len) {
@@ -24039,7 +24752,7 @@ renderer.setAnimationLoop(() => {
   if (ready && stTick(dt)) moving = true;                    // the street: its light easing between modes, drawn only from outside, the bulbs' chase, off this frame's dt (THE STREET)                   // Theatre 2's Johnny Tremain rig: its crossfades, movers, water and flicker, off this frame's dt
   if (ready && lxPanelTick(dt)) moving = true;               // the lights panel: Step through's Play (off this frame's dt), the selection's outline
   drewLast = ready && (needsRender || moving);               // render on demand: an idle page draws nothing
-  if (drewLast) { needsRender = false; lxDrawn(clock.elapsedTime); renderer.render(scene, camera); }
+  if (drewLast) { needsRender = false; rumbleOn(clock.elapsedTime); lxDrawn(clock.elapsedTime); renderer.render(scene, camera); rumbleOff(); vwMonDraw(clock.elapsedTime); }   // then a Van Wezel booth monitor's picture, when due (THE THIRD HOUSE: THE BOOTH'S SHOW CAMERAS)
 });
 </script>
 </body>

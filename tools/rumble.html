@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rumble Finder</title>
+<!--
+  Makes assets/hamilton-rumble.json (THE RUMBLE in midtown.html) from Jack's one-file soundtrack. Serve the repository root
+  (python -m http.server 8080) with assets/audio/hamilton-soundtrack.mp3 in place (local only, never committed) and open
+  /tools/rumble.html. The browser decodes the album in 6 MB pieces (it will not take the 140 MB file whole), places each on the
+  file's true time by matching its loudness against assets/hamilton-soundtrack-env.u8 (the stored envelope), runs the low band
+  (two one-pole low-passes at 110 Hz) in 20 ms bins, and keeps the big low hits: a bin whose low level jumps over the 0.5 s
+  before it, scored jump + 1.5 × (level + 15 dB) + 12 × the low share of the bin's energy, kept at score ≥ 40 (or a low share
+  ≥ 0.8 with a jump ≥ 20 dB), one a second at most, strength (score − 36) / 22 in 0.3…1. "Download" saves the JSON.
+-->
+<style>
+:root { --bg: #0d0c0f; --fg: #ebe7ee; --muted: #9a93a1; --accent: #d9b45a; color-scheme: dark; }
+body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg); font: 14px system-ui, sans-serif; }
+button { font: inherit; color: var(--fg); background: transparent; border: 1px solid #2c2832; border-radius: 4px; padding: 5px 10px; cursor: pointer; }
+pre { color: var(--muted); white-space: pre-wrap; }
+</style>
+</head>
+<body>
+<h1>Rumble finder</h1>
+<p><button id="go">Find the hits</button> <button id="dl" disabled>Download hamilton-rumble.json</button></p>
+<pre id="log"></pre>
+<script>
+const log = s => { document.getElementById('log').textContent += s + '\n'; };
+let OUT = null;
+async function run() {
+  const show = await (await fetch('../assets/hamilton-show.json')).json();
+  const ab = await (await fetch('../' + show.soundtrack.url)).arrayBuffer();
+  const env = new Uint8Array(await (await fetch('../' + show.soundtrack.envelope.url)).arrayBuffer());
+  const fs = 8000, BIN = 160, CH = 6e6, OVER = 20000, a = 1 - Math.exp(-2 * Math.PI * 110 / fs), chunks = [];
+  for (let off = 0; off < ab.byteLength; off += CH) {
+    const buf = await new OfflineAudioContext(1, fs, fs).decodeAudioData(ab.slice(off, Math.min(ab.byteLength, off + CH + OVER)));
+    const L = buf.getChannelData(0), nb = Math.floor(L.length / BIN), low = new Float32Array(nb), all = new Float32Array(nb), lev = new Uint8Array(nb);
+    let y1 = 0, y2 = 0;
+    for (let b = 0; b < nb; b++) {
+      let s1 = 0, s2 = 0;
+      for (let k = b * BIN; k < (b + 1) * BIN; k++) { const x = L[k]; y1 += a * (x - y1); y2 += a * (y1 - y2); s1 += y2 * y2; s2 += x * x; }
+      low[b] = s1 / BIN; all[b] = s2 / BIN; lev[b] = Math.round(255 * (Math.log10(Math.max(Math.sqrt(s2 / BIN), 1e-4)) + 4) / 4);
+    }
+    chunks.push({ nb, low, all, lev }); log(`piece ${chunks.length}: ${(nb * 0.02).toFixed(0)} s`);
+  }
+  // each piece onto the true time: its first 50 s matched against the stored envelope within ±60 s of where the last one ended
+  let est = 0;
+  for (const c of chunks) {
+    const n = Math.min(2500, c.nb - 10), seg = c.lev.subarray(5, 5 + n); let m = 0; for (const v of seg) m += v; m /= n;
+    const d = Float32Array.from(seg, v => v - m); let nd = 0; for (const v of d) nd += v * v; nd = Math.sqrt(nd) || 1;
+    const c0 = Math.round(est / 0.02); let best = -2, bk = c0;
+    for (let k = Math.max(0, c0 - 3000); k <= Math.min(env.length - n, c0 + 3000); k++) {
+      let s = 0, ss = 0; for (let j = 0; j < n; j++) { const v = env[k + j]; s += v; ss += v * v; }
+      const me = s / n, va = Math.sqrt(Math.max(ss - n * me * me, 1e-9)); let cc = 0; for (let j = 0; j < n; j++) cc += d[j] * (env[k + j] - me);
+      cc /= nd * va; if (cc > best) { best = cc; bk = k; }
+    }
+    c.start = (bk - 5) * 0.02; est = c.start + c.nb * 0.02 * CH / (CH + OVER); log(`  at ${c.start.toFixed(2)} s (match ${best.toFixed(3)})`);
+  }
+  const N = env.length, low = new Float32Array(N).fill(-1), all = new Float32Array(N);
+  for (const c of chunks) { const s0 = Math.round(c.start / 0.02); for (let b = 10; b < c.nb - 10; b++) { const i = s0 + b; if (i >= 0 && i < N && low[i] < 0) { low[i] = c.low[b]; all[i] = c.all[b]; } } }
+  const dB = Array.from(low, v => v < 0 ? -100 : 10 * Math.log10(Math.max(v, 1e-10)));
+  const where = i => { const f = i * 0.02; let k = -1; show.tracks.forEach((t, j) => { if (t.file !== null && t.file <= f + 1e-6) k = j; }); const t = show.tracks[k]; return t && f - t.file <= t.len ? { id: t.id, t: +(f - t.file).toFixed(2) } : null; };
+  const cand = [];
+  for (let i = 30; i < N; i++) {
+    if (dB[i] < -19) continue;
+    let prev = -100; for (let j = i - 25; j <= i - 3; j++) prev = Math.max(prev, dB[j]);
+    const jump = dB[i] - prev, share = Math.pow(10, dB[i] / 10) / Math.max(all[i], 1e-10);
+    if (jump < 10 || share < 0.3) continue;
+    const score = jump + 1.5 * (dB[i] + 15) + 12 * Math.min(share, 1.2);
+    if (!(score >= 40 || (share >= 0.8 && jump >= 20))) continue;
+    const w = where(i); if (w) cand.push({ ...w, st: +Math.min(1, Math.max(0.3, (Math.max(score, share >= 0.8 ? 36 + 22 * 0.45 : 0) - 36) / 22)).toFixed(2) });
+  }
+  const hits = {};
+  for (const h of cand) { const L = hits[h.id] = hits[h.id] || [], last = L[L.length - 1]; if (last && h.t - last[0] < 1.0) { if (h.st > last[1]) L[L.length - 1] = [h.t, h.st]; } else L.push([h.t, h.st]); }
+  OUT = { about: 'The album\'s big low hits for THE RUMBLE in midtown.html: per track, [seconds into the track, strength 0..1] (tools/rumble.html).', made: new Date().toISOString().slice(0, 10), hits };
+  log(`${Object.values(hits).reduce((s, l) => s + l.length, 0)} hits in ${Object.keys(hits).length} tracks`);
+  document.getElementById('dl').disabled = false;
+}
+document.getElementById('go').addEventListener('click', () => run().catch(e => log('failed: ' + (e.message || e))));
+document.getElementById('dl').addEventListener('click', () => {
+  const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(OUT, null, 1)], { type: 'application/json' })); a.download = 'hamilton-rumble.json'; a.click();
+});
+</script>
+</body>
+</html>
