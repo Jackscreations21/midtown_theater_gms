@@ -2234,3 +2234,13 @@ include the place a failure would show — the corridor behind the house, not on
   stalls (`L.liftY`) so the wagon's deck meets the floor; anything comparing the lift's `y` with `stops.SEATING` (the stair's
   deploy, the edge guard) must go through `liftY` / `surf()`.
 
+## From the booths' gear round (2026-10-24, night)
+
+- **The Van Wezel model's walls are ONE double-sided plane, not a slab.** The follow-spot booth's front wall is a single
+  surface at r 35.38…35.39 about (77, 13.13), its radius scattering by ~1 cm along the arc; a mauve lining 1.2 cm inside it
+  (centred, 8 mm thick) still stood 2 mm proud of it at x 65…68 and showed from the stalls as pink patches on the black
+  band. Anything dressing the inside of a model wall must clear the plane by more than its scatter (the linings sit 2.4 cm
+  in) — and look at it from the house, not only from inside.
+- **Another builder's `http.server` may already hold a port.** A helper started on 8098 failed to bind, and the page's
+  requests reached someone else's SimpleHTTP (404s, then a CORS error). Pick an unusual port and curl it first.
+
