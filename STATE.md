@@ -15,6 +15,9 @@ worktrees and local branches are gone.
   with its wall up, the band walking in at the Five, a prompt desk stage right, house 1's desk screens on the grandMA3, the
   Van Wezel's borders and electrics raised clear. His to decide: listed in the NEXT SESSION block. Rulings at GU (GV next).
   The Broadway street session (`claude/broadway-street-5514f3`) stopped part-way; nothing of it is in a PR.
+  **Also on it (2026-10-25, night): the Van Wezel's auditorium dressed for Hamilton** — brick on the side walls' panels,
+  timber posts, headers and trusses, rope swags, coils and rigging, lanterns, candle rings, flags, a lintel over the proscenium
+  ("VW dress" toggles it; HANDOFF's newest DONE block). The branch is pushed; no PR is open yet.
 - **NEXT (before it): his eye on PR #27 (`vw-answers`, MERGED `d98673c`; HANDOFF's NEXT SESSION block and its DONE block, RULING GT).** Every one
   of his Van Wezel answers and five asks is built: the model's colours back (`VW_PHOTO_COLOURS` off), the landings' lip, the
   foyer's mullions out, the follow-spot booth bigger with tall windows and its outside the ceiling's colour, the lift's pedestal

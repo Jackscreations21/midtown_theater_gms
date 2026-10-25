@@ -229,10 +229,11 @@ compare the *same* production across stages instead.
 
 ---
 
-## NEXT SESSION: **HIS EYE ON HAMILTON IN THE VAN WEZEL** (2026-10-25; PR `vw-hamilton`)
+## NEXT SESSION: **HIS EYE ON HAMILTON IN THE VAN WEZEL, AND THE HOUSE DRESSED FOR IT** (2026-10-25; branch `vw-hamilton`)
 
-Rulings at **GU** (GV next; the Broadway street session was told to start at GV). Land PR `vw-hamilton` when he says so. Then
-his eye on it: the "VW Hamilton" view; the stalls in a show (any cue, the Show panel); the pit (the lift down, its wall up, the
+Rulings at **GU** (GV next; the Broadway street session was told to start at GV). The branch is pushed; no PR is open yet:
+open and land it when he says so. Then his eye on it: the house dressed for Hamilton ("VW dress" turns it on and off; its
+DONE block below); the "VW Hamilton" view; the stalls in a show (any cue, the Show panel); the pit (the lift down, its wall up, the
 band walking in at the Five from the stage-right prompt desk); the grandMA3's two screens in the tech booth. His to decide:
 - house 1's three followspots shine from the Van Wezel's follow-spot booth there (their cones differ, their pools are the same);
 - house 1's Boom 1 (both box booms) falls inside the Van Wezel's proscenium wall: hidden, its light from behind the proscenium;
@@ -240,6 +241,27 @@ band walking in at the Five from the stage-right prompt desk); the grandMA3's tw
 - the prompt desk's monitor shows house 1's plan (it is the one desk's screen);
 - the Van Wezel's own borders and electrics moved up (and the pars to lineset 10) clear of the set and Hamilton's electrics;
 - the Broadway street session (branch `claude/broadway-street-5514f3`) stopped part-way: see what it left.
+
+## DONE — 2026-10-25 (night): the Van Wezel's auditorium dressed for Hamilton — brick, timber, rope (branch `vw-hamilton`; the lead)
+
+Jack: *"make the who inside of the auditorium thmed for hamilton.. put up bricks and ropes and woode beams and a bunch of stuff
+to make it hamitlon themed (in the van wezel"*.
+- **THE HAMILTON HOUSE** (`vwDressBuild`, `VWHD`; `MIDTOWN.vanWezel.dress`, the header's "VW dress" toggle): the side walls' 26
+  tall gold grille panels (`house_tex_30`) in a running-bond brick (new UVs in metres; their own UVs, map and colours kept, so
+  off puts the grille back); a dark timber post over every pier (28), a header beam along each wall at 14.55, a sill under each
+  panel, knee braces; five trusses across the house (z −5.3, −9.9, −14.6, −19.2, −28.5; none over the follow-spot booth) on
+  iron hangers to the ceiling; rope swags across every panel, rope coils and lanterns by turns on the posts; rigging lines
+  through blocks to coils and sandbags from each truss near the walls; a ring of candles over the middle of each truss;
+  two thirteen-star flags on the first truss; a timber lintel over the proscenium, braced into its corners.
+- Unlit with the light baked in, as THE HOUSE AS IT IS; goes down with the house (in vwHamBuild's dims). Not in the walk's grid
+  (nothing in reach). Five meshes, ~45 k triangles.
+- `vwKeepOut(meshes)`: the house check's "nowhere it may not be" and sightline tests made one function, used by both.
+- **Checks:** `vanWezel.dress` 6/6 (nothing on the stage's side, in the lift's travel or a booth; 0 of 120 follow-spot and
+  tech-booth sightlines blocked; off/on exact); `.house` 5/5; `.hamilton` 10/10; `vanWezel` PASS; `.lift` 26/26;
+  `.lift.guards` 9/9; `.booths` 16/16; `doors.check()` 76/76; `lx.check()` 301/313 (as before); `actors.check()` PASS.
+- His to decide: the chandeliers hang over the middle of the stalls (13.9 m up, clear of every sightline checked); the brick
+  covers only the grille panels (the dark piers and the parapets keep the model's colours); the front panels' sills sit at
+  5.0 (2.45 m over the deck) instead of on the panels' feet, clear of the lift's corners.
 
 ## DONE — 2026-10-25 (evening): Hamilton on the Van Wezel's stage — the set, the rig, the cues the same; the pit, the desk, the band (PR `vw-hamilton`, RULING GU; the lead)
 
