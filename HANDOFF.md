@@ -229,6 +229,32 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-25: the Van Wezel's audience — a line on Broadway, the foyer, their seats (PR `vw-full-house`, one session)
+
+Jack ticked five of the 25 ideas on the "Midtown Feature Picks" page (a full house, the interval crowd, the stage door, rain on
+Broadway, sound from the speakers), took the full house first, in the Van Wezel, then: *"make it so people can line up outside
+the door and start coming in when i open the door. make it so there is a button to ahev them start lining up"*; asked where:
+*"Both, one after the other"*. No ruling. New section "THE THIRD HOUSE: THE AUDIENCE" (`VWA`, `MIDTOWN.vanWezel.audience`).
+- **The seats are the model's:** every stalls cushion (`vw: house_tex_44`, one closed box each, found by joined vertices):
+  1,778 in 31 continental rows on arcs about (77.0, 13.41), no centre aisle, cross aisles after rows 14 and 26. 90 % sold.
+- **Line up** (the header, after VW doors; it becomes Clear house): people arrive from the east along the north pavement into
+  two lanes from the street doors (118 m, room for 370). **The street doors** open (E or VW doors) let the heads in, 2.6 a
+  second, into the foyer ring, where they stand on bare carpet (311 spots, each side's people on its side) while every stalls
+  door is shut; the line holds when the ring is full. **Any stalls door** open sends them in, 3 a second, in the order they
+  came: by an open door on their own side (else the other's), round the foyer to their side's gallery, up it to the open portal
+  nearest their row that reaches it, along the side aisle and their row, and they sit.
+- **The ways:** polylines with y; the lanes, the stair and gallery, each doorway (a lane clear of the pilasters, as THE SIDE
+  DOORS' check finds it) and each aisle leg sampled on the walk's floor once. Row 15 is a step too tall from portal 6's aisle
+  (the cross aisle's riser), so its people take portal 7.
+- **The bodies:** instanced (boxes and a ball, faces shaded in vertex colours × clothes, skin and hair): nine draws for the
+  house. Seated they go dark with the Van Wezel's house level. Drawn only with the camera east of the Midtown block.
+- **Checks:** audience 10 / 10 (seats and rows, every row's floor, both lanes on the pavement and clear, the foyer's spots,
+  each side's way round and up its gallery, 26 / 26 doorways, every row reached from each side); the flow run end to end
+  (line → street doors → foyer → house right 3 → 441 seated after ~4 min); crew 6 / 6, side doors PASS, street PASS, actors
+  pass, lx 301 / 313 and show.check as before (data not touched).
+- **His to decide:** the bodies' look; nobody steps round anybody; ~10 min to get everyone in; nobody leaves yet.
+- Traps (TRAPS.md "From the full-house round"): a `//` comment pasted mid-line; the cross aisle's riser; a hidden pane's doors.
+
 ## DONE — 2026-10-25: the booth's monitors show one view each (PR `booth-monitor-ghost`, one session)
 
 Jack: *"the screen in the middl is look slike it is showing two vies at once it should only show vw hamilton"*, with a
