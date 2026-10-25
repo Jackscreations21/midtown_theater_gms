@@ -2376,3 +2376,9 @@ include the place a failure would show — the corridor behind the house, not on
   George (−1.8…−0.7, 9.01) count as off the deck, and all three stood in full view under the gallery at Places. Measure the
   wall (a ray along +z through the set's meshes) before drawing a line by it.
 
+## From the booth-monitor round (2026-10-25)
+
+- **The pools' sum is screen-sized and read at `gl_FragCoord / uRes`** (the pools' quad, a body's shading). Drawn into a
+  smaller target (the Van Wezel's 480 × 270 booth monitors), the picture took the bottom-left corner of it, stretched: a second,
+  ghosted view over the stage (Jack: "it looks like it is showing two views at once"). Set `LXDEP.uRes` to the target's size
+  for that draw, and put it back.

@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#40 merged; `main` `4db08e4`; nothing open)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#44 merged; nothing open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,7 +6,11 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR `places-upstage` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): nobody under the gallery at
+- **NEWEST: PR `booth-monitor-ghost` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel booth's
+  monitors show one view.** Jack: "the screen in the middl is look slike it is showing two vies at once it should only show vw
+  hamilton". The lighting's pools were laid over each monitor's picture from a stretched corner of the screen-sized sum; now in
+  the monitor's own size (`vwMonDraw`). **His eye on it:** the middle monitor with the show lit.
+- **Before it: PR #43 (MERGED `91f3770`) `places-upstage` (2026-10-25; HANDOFF's DONE block; no ruling, GW next): nobody under the gallery at
   Places.** Jack: "when i call placses hamilton, king george and wahignton go on stage". Their act-1 tops sit in the passage
   under the gallery (z 9.01), in front of the back wall, and the deck line stopped at 9.0; it is at 10.0 now (`CO_PLACES.z`).
   20 / 20 off the deck at Places in act 1 and act 2, both houses. **His eye on it:** call Places and watch the stage stay empty.
@@ -23,8 +27,8 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   was already JOHNNY TREMAIN. Only the street's signs changed; everywhere else still says Theatre 2 (his word: "Leave the rest as
   Theatre 2").
 
-**Main** is **`7e60af6`** (#40). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
-NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40` and `theatre2-sign`).
+**Main** is #44's merge (#43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
+NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `places-upstage` and `booth-monitor-ghost`).
 
 - **Before it: PR #39 (MERGED `75b879b`) `actor-whiteout` (2026-10-25; HANDOFF's DONE block): lit actors no longer turn white.** Jack: "at some parts the lighting or the
   spotlights light up the people too much and they just turn entirely white". The cause: the engine's pools are added onto the

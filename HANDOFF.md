@@ -229,7 +229,16 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-25: nobody under the gallery at Places (PR `places-upstage`, one session)
+## DONE — 2026-10-25: the booth's monitors show one view each (PR `booth-monitor-ghost`, one session)
+
+Jack: *"the screen in the middl is look slike it is showing two vies at once it should only show vw hamilton"*, with a
+screenshot: the middle monitor's stage with a faint second stage, beams and a stair over it. The engine's pools are summed into a
+screen-sized target and laid on by a quad (and a body's shading) at `gl_FragCoord / uRes`. Drawn into a 480 × 270 monitor, that
+read the sum's bottom-left corner, stretched over the picture. `vwMonDraw` now sets `LXDEP.uRes` to the monitor's size for its
+draw and puts it back. Seen with the rig up (`lx.all(1)`): the middle monitor one view, matching the stage through the window;
+the main view lit as before. Every monitor had it (all seven draw the same way). No ruling; the trap is in TRAPS.md.
+
+## DONE — 2026-10-25: nobody under the gallery at Places (PR #43 `places-upstage`, merged `91f3770`, one session)
 
 Jack: *"when i call placses hamilton, king george and wahignton go on stage. fix that"*. Act 1's tops park those three in the
 passage under the gallery (x −1.8…−0.7, z 9.01). PLACES OFF THE DECK (#40) counted the deck only to z 9.0, taking the passage
