@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#44 merged; nothing open)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#44 merged; `vw-full-house` open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,7 +6,18 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR `booth-monitor-ghost` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel booth's
+- **NEWEST: PR #45 `vw-full-house` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's audience.**
+  From his feature picks (the "Midtown Feature Picks" page: a full house, the interval crowd, the stage door, rain on Broadway,
+  sound from the speakers; this is the first) and his ask: "make it so people can line up outside the door and start coming in
+  when i open the door … a button to ahev them start lining up", asked where: "Both, one after the other". The header's **Line
+  up** (after VW doors): 1,600 people (90 % of the model's 1,778 seats) queue on Broadway at the street doors, wait in the
+  foyer once those open, and walk in to their seats when any stalls door opens (`MIDTOWN.vanWezel.audience`, check 10 / 10).
+  Then "also add the apluase one ... only add it during bows ... just add the noise": applause (a sound only) through the bows
+  at the end of 2-23, as loud as the house is full. The first sound was static (he heard it); it is rebuilt as people clapping.
+  **His eye on it, then his to decide:** the bodies are simple blocks (no faces, no hands); nobody steps round anybody; the
+  line takes ~10 min to get everyone in; nobody leaves after the show yet; how the applause sounds now. **Next of his picks:** the interval crowd (the same
+  people up into the foyer and back at the chimes), then the stage door.
+- **Before it: PR #44 `booth-monitor-ghost` (2026-10-25; HANDOFF's DONE block; no ruling, GW next): the Van Wezel booth's
   monitors show one view.** Jack: "the screen in the middl is look slike it is showing two vies at once it should only show vw
   hamilton". The lighting's pools were laid over each monitor's picture from a stretched corner of the screen-sized sum; now in
   the monitor's own size (`vwMonDraw`). **His eye on it:** the middle monitor with the show lit.

@@ -85,6 +85,9 @@
   five crew who walk it to the booths at the Five; a light switch in each booth; seven monitors across the tech booth's window
   showing the stage from seven cameras; a power button for the tech booth's equipment. The header's Tags hides the actors' name
   tags; Rumble shakes the view a little on the album's big bass hits (assets/hamilton-rumble.json, tools/rumble.html).
+  THE VAN WEZEL'S AUDIENCE (Jack, 2026-10-25; "THE THIRD HOUSE: THE AUDIENCE" below): the header's Line up — 1,600 people
+  queue on Broadway at its street doors, wait in the foyer once those open, and walk to their seats in the model's 1,778
+  when a stalls door opens; applause (a sound) through the bows at 2-23's end; MIDTOWN.vanWezel.audience.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16117,6 +16120,7 @@ function vwLiftUI() {
     b.addEventListener('click', () => { const r = DOORS_API.all('Van Wezel '); b.setAttribute('aria-pressed', String(r.open)); b.textContent = r.open ? 'VW doors open' : 'VW doors'; });
     g.appendChild(b);
   }
+  vwAudUI();                                                   // Line up, after it (THE AUDIENCE)
   L.ui = true; vwLiftUIState();
 }
 function vwLiftUIState() {
@@ -19887,6 +19891,533 @@ VAN_WEZEL_API.crew = {
   state() { const K = vwCrewFolk; return K ? { want: K.want, t: +K.t.toFixed(2), full: +K.full.toFixed(2), shown: K.group.visible, ms: +K.ms.toFixed(3) } : null; },
   at(t) { const K = vwCrewFolk; if (!K) return null; K.t = THREE.MathUtils.clamp(+t || 0, 0, K.full); vwCrewFolkPose(); requestRender(); return this.state(); },
   check: vwCrewFolkCheck,
+};
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE AUDIENCE
+   Jack (2026-10-25), from his feature picks ("A full house"), then: "make it so people can line up outside the door and
+   start coming in when i open the door. make it so there is a button to ahev them start lining up"; asked where: "Both, one
+   after the other" — a line on Broadway at the street doors, the foyer while the stalls doors are shut, then their seats.
+   THE SEATS are the model's own: every stalls cushion (VWA.cushion, each a closed box: 1,778, the real hall's 1,736 or so)
+   found by its joined vertices, its top's middle the seat, facing the rows' centre. 31 continental rows on arcs about VWA.c
+   (no centre aisle: every row runs from side aisle to side aisle), a cross aisle after rows 14 and 26. VWA.fill of them are
+   sold, picked at random (seeded).
+   LINE UP (the header's button, after VW doors): people walk in from the east along Broadway's north pavement and stand in
+   two lanes from the street doors east along it (VWA.queue). THE STREET DOORS opened (E, or VW doors) let the lanes' heads in
+   in turn (VWA.admit a second) into the foyer, where they stand about the ring between the auditorium's back wall and the
+   glass (VWA.wait: spots on bare carpet, each side's people on its side) while every stalls door is shut; the line stops
+   when the ring is full. ANY STALLS DOOR open sends them in (VWA.enter a second, in the order they came), each by an open
+   door on its own side if there is one (else the other side's: the rows run wall to wall): round the foyer, up its side's
+   gallery to the open portal nearest its row, through it (a lane clear of the pilasters inside, found as THE SIDE DOORS'
+   check finds it), along the side aisle to its row's end, along the row to its seat, and it sits.
+   THE WAYS are polylines with y: the foyer's (the ring at VWA.route.r, the side's corridor VWA.route.d out from its wall)
+   at the foyer's floor; the lanes, the stair and gallery, each doorway and each aisle leg sampled on the walk's floor once
+   (the aisle legs per portal and row, when first wanted); a row's walkway at its one floor. Time off the frame's dt (riding
+   lxPanelTick); never setTimeout. Nobody avoids anybody, and a door shut again behind someone does not stop them.
+   THE BODIES: instanced and low (boxes and a ball), shaded by their faces (baked in vertex colours) × each one's clothes,
+   skin and hair; standing (a body, a head, hair and two legs that swing as they walk) and seated (four parts): nine draws
+   for the whole house. Seated they take the Van Wezel's house level (dark with the house); standing, the foyer's light
+   (dimmer outdoors at night). Drawn only east of the Midtown block (camera x > VWA.east). Not in the walk's grid.
+   MIDTOWN.vanWezel.audience: lineUp(), clear(), fill() (everyone in their seat now), run(s) (the clock by hand), state(),
+   check(), spec. */
+const VWA = {
+  c: [77.0, 13.41],                                   // the rows' centre (VW_WAGON's)
+  cushion: 'vw: house_tex_44',                        // the stalls' cushions, one closed box a seat
+  fill: 0.9, seed: 1736,                              // the share of seats sold; the shuffle's seed
+  walk: [1.05, 1.45],                                 // m/s, each their own
+  queue: { out: 1.0, inn: 1.4, half: 0.35, lanes: [-2.2, -3.0], u0: 2.5, len: 110, gap: 0.62 },   // the doors' outside and inside points (m), each lane off the doors' middle; the lanes' w (on the pavement, 0…−5); where they turn east (u past the doors) and how far they run; one body to the next
+  arrive: 2.4, admit: 2.6, enter: 3.0,                // a second: reaching the line, through the street doors, into the house
+  wait: { r0: 54.0, r1: 56.3, phi: 30, step: 0.7, clear: 1.6 },   // the foyer spots: radii (the back wall 52.2, the glass 57.09), ± degrees, apart, kept clear of the doors' way in
+  route: { r: 53.0, d: 3.6, sC: 31.0, gallery: 1.2, inside: -0.65, row: 0.45 },   // the ring's way; the side corridor out from the wall, from s sC down; the gallery's line; just inside a portal; a row's walkway in front of its cushions
+  east: 30.2,                                         // drawn only with the camera east of the Midtown block
+  tops: [0x1b1c20, 0x24304a, 0x5a1f2b, 0x6b6e75, 0xd9d6cf, 0x1f4a3a, 0x8a6a48, 0x3a2f4f, 0x7a2e2a, 0x2e5e7e, 0x9b8f80, 0x141518],
+  bottoms: [0x15161a, 0x1e2433, 0x3a3a40, 0x4a3b2c, 0x2a2a2e, 0x55565c, 0x1b1b1f],
+  skins: [0xf1c9a5, 0xe0ac87, 0xc68c64, 0x9c6b47, 0x7a4e32, 0x5a3825],
+  hairs: [0x1a1410, 0x2e2117, 0x4b3420, 0x7a5532, 0xb08b55, 0x8a8a88, 0xd8d4cc, 0x1a1410],
+};
+let vwAud = null;
+// A seeded random (mulberry32)
+function vwAudRng(seed) { let a = seed >>> 0; return () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+// The seats: each cushion of the model's stalls mesh, by its joined vertices → [{ x, y (its top), z, R, th, yaw, row }], rows
+function vwAudSeats() {
+  let m = null; scene.traverse(o => { if (o.isMesh && o.name === VWA.cushion) m = o; });
+  if (!m) return null;
+  m.updateMatrixWorld(true);
+  const g = m.geometry, P = g.attributes.position, idx = g.index, N = idx ? idx.count : P.count, v = new THREE.Vector3();
+  const key = new Map(), W = [], par = [];
+  const find = a => { while (par[a] !== a) { par[a] = par[par[a]]; a = par[a]; } return a; };
+  const vid = i => { v.fromBufferAttribute(P, i).applyMatrix4(m.matrixWorld); const k = `${Math.round(v.x * 500)},${Math.round(v.y * 500)},${Math.round(v.z * 500)}`; let id = key.get(k); if (id === undefined) { id = W.length; key.set(k, id); W.push([v.x, v.y, v.z]); par.push(id); } return id; };
+  for (let t = 0; t + 2 < N; t += 3) { const a = find(vid(idx ? idx.getX(t) : t)), b = find(vid(idx ? idx.getX(t + 1) : t + 1)), c = find(vid(idx ? idx.getX(t + 2) : t + 2)); par[a] = c; par[b] = c; }
+  const box = new Map();
+  W.forEach((p, i) => { const r = find(i); const b = box.get(r) || [Infinity, -Infinity, -Infinity, Infinity, -Infinity]; b[0] = Math.min(b[0], p[0]); b[1] = Math.max(b[1], p[0]); b[2] = Math.max(b[2], p[1]); b[3] = Math.min(b[3], p[2]); b[4] = Math.max(b[4], p[2]); box.set(r, b); });
+  const [cx, cz] = VWA.c, seats = [];
+  for (const b of box.values()) { const x = (b[0] + b[1]) / 2, z = (b[3] + b[4]) / 2; seats.push({ x, y: b[2], z, R: Math.hypot(x - cx, z - cz), th: Math.atan2(x - cx, cz - z), yaw: Math.atan2(cx - x, cz - z) }); }
+  seats.sort((a, b) => a.R - b.R || a.th - b.th);
+  const rows = [];
+  for (const s of seats) { const r = rows[rows.length - 1]; if (r && s.R - r.R < 0.35) r.seats.push(s); else rows.push({ R: s.R, seats: [s] }); s.row = rows.length - 1; }
+  seats.forEach((s, i) => { s.i = i; });
+  for (const r of rows) { r.th0 = Math.min(...r.seats.map(s => s.th)); r.th1 = Math.max(...r.seats.map(s => s.th)); r.y = r.seats[0].y; }
+  return { seats, rows };
+}
+// A polyline with y: pts [[x, y, z]…] → { p: Float32Array, cum, len }
+function vwAudPath(pts) {
+  const p = new Float32Array(pts.length * 3), cum = new Float32Array(pts.length);
+  pts.forEach((q, i) => { p.set(q, i * 3); if (i) cum[i] = cum[i - 1] + Math.hypot(q[0] - pts[i - 1][0], q[1] - pts[i - 1][1], q[2] - pts[i - 1][2]); });
+  return { p, cum, len: pts.length ? cum[pts.length - 1] : 0, n: pts.length };
+}
+// The point at s along a path, and the way it faces there (yaw, +z forward), into o
+function vwAudAt(P, s, o) {
+  const n = P.n, c = P.cum;
+  if (n < 2 || s <= 0) { o.x = P.p[0]; o.y = P.p[1]; o.z = P.p[2]; s = 0; }
+  let lo = 1, hi = n - 1;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (c[m] < s) lo = m + 1; else hi = m; }
+  const i = Math.min(lo, n - 1), a = (i - 1) * 3, b = i * 3, k = THREE.MathUtils.clamp((s - c[i - 1]) / Math.max(1e-6, c[i] - c[i - 1]), 0, 1);
+  o.x = P.p[a] + (P.p[b] - P.p[a]) * k; o.y = P.p[a + 1] + (P.p[b + 1] - P.p[a + 1]) * k; o.z = P.p[a + 2] + (P.p[b + 2] - P.p[a + 2]) * k;
+  const dx = P.p[b] - P.p[a], dz = P.p[b + 2] - P.p[a + 2];
+  if (Math.hypot(dx, dz) > 1e-4) o.yaw = Math.atan2(dx, dz);
+  return o;
+}
+// Along the walk's floor from (x, y, z) to (x1, z1) every `step` m, each point's floor found from the last's (a step at most
+// WALK.step): → points (without the first), or null where it finds no floor
+function vwAudFloor(x0, y0, z0, x1, z1, step = 0.1) {
+  const n = Math.max(1, Math.ceil(Math.hypot(x1 - x0, z1 - z0) / step)), out = [];
+  let y = y0;
+  for (let j = 1; j <= n; j++) {
+    const x = x0 + (x1 - x0) * j / n, z = z0 + (z1 - z0) * j / n, h = rayDown(x, y + WALK.step, z);
+    if (h === null || y - h > WALK.step + 0.05) return null;
+    y = h; out.push([x, y, z]);
+  }
+  return out;
+}
+// The foyer's ring: a point at radius r and angle phi (0 the street doors, house right negative) about VWF.c
+const vwAudRing = (r, phi, y) => [VWF.c[0] + r * Math.sin(phi), y, VWF.c[1] - r * Math.cos(phi)];
+const vwAudPhi = (x, z) => Math.atan2(x - VWF.c[0], VWF.c[1] - z);
+// An arc along the ring at r from phi0 to phi1, a point each ~0.6 m (without the first)
+function vwAudArc(r, phi0, phi1, y) { const n = Math.max(1, Math.ceil(Math.abs(phi1 - phi0) * r / 0.6)), out = []; for (let j = 1; j <= n; j++) out.push(vwAudRing(r, phi0 + (phi1 - phi0) * j / n, y)); return out; }
+// Built at the first line-up (or fill, or check): the seats, the ways, the bodies
+function vwAudBuild() {
+  if (vwAud) return vwAud;
+  if (!vwBuilt || VW.missing || !vwSide || !stBuilt) return null;
+  const t0 = performance.now();
+  if (col.stale) buildCollider();
+  const S = vwAudSeats(); if (!S) { console.warn('van wezel audience: the stalls\' cushions were not found'); return null; }
+  const R = VWA.route, Q = VWA.queue, foyer = VWF.floor, rnd = vwAudRng(VWA.seed);
+  // 1. the rows: each one's walkway floor (a ray under its middle, from under its cushions) and, each side, its end in the
+  // side aisle (between its last cushion's edge and the wall's pilasters, on the walkway's arc)
+  const [cx, cz] = VWA.c, sides = vwSide.sides.map((g, gi) => ({ gi, side: gi === 0 ? 1 : -1, F: g.F, ports: g.ports, name: g.name }));
+  for (const r of S.rows) {
+    const rw = r.R - R.row; r.walkR = rw;
+    r.floor = rayDown(cx, r.y - 0.2, cz - rw) ?? r.y - 0.45;
+    r.end = sides.map(G => {
+      const F = G.F, dOf = th => { const x = cx + rw * Math.sin(th), z = cz - rw * Math.cos(th); return (x - F.c.x) * F.o.x + (z - F.c.y) * F.o.y; };
+      const th0 = G.side > 0 ? r.th0 : r.th1, dir = G.side > 0 ? -1 : 1, last = dOf(th0), target = (last + 0.30 - 0.45) / 2;
+      let a = th0, b = th0 + dir * 0.35;
+      for (let i = 0; i < 40; i++) { const m = (a + b) / 2; if (dOf(m) < target) a = m; else b = m; }
+      const th = (a + b) / 2, x = cx + rw * Math.sin(th), z = cz - rw * Math.cos(th);
+      return { th, x, z, s: (x - F.c.x) * F.u.x + (z - F.c.y) * F.u.y };
+    });
+  }
+  // 2. the street: the doors (THE STREET), each lane from the doors' outside east along the pavement
+  const SF = stBuilt.F, dz = stBuilt.vwDoorZ, dx = STREET.vwDoor.x, sideY = (x, z) => rayDown(x, 2.0, z) ?? STREET.top;
+  const lanes = Q.lanes.map((w, i) => {
+    const hx = dx + (i ? -Q.half : Q.half), pts = [[hx, sideY(hx, dz - Q.out), dz - Q.out]];
+    const [ax, az] = SF.P(stBuilt.uVW + (i ? -Q.half : Q.half), w), [bx, bz] = SF.P(stBuilt.uVW + Q.u0, w), [ex, ez] = SF.P(stBuilt.uVW + Q.u0 + Q.len, w);
+    pts.push([ax, sideY(ax, az), az]);
+    for (let u = 0; u <= 1.0001; u += 0.05) { const x = bx + (ex - bx) * u, z = bz + (ez - bz) * u; pts.push([x, sideY(x, z), z]); }
+    const P = vwAudPath(pts); return { i, w, hx, path: P, list: [], cap: Math.floor((P.len - 4) / Q.gap) };
+  });
+  const doorIn = i => [dx + (i ? -Q.half : Q.half), foyer, dz + Q.inn];
+  // 3. the foyer's spots: on bare carpet (the floor there the carpet's), clear of the doors' way in, each side's own
+  const spots = [];
+  for (let r = VWA.wait.r0; r <= VWA.wait.r1 + 1e-6; r += VWA.wait.step) {
+    const lim = VWA.wait.phi * Math.PI / 180, dp = VWA.wait.step / r;
+    for (let ph = -lim; ph <= lim + 1e-6; ph += dp) {
+      const [x, , z] = vwAudRing(r, ph, 0);
+      if (Math.abs(x - dx) < VWA.wait.clear && r > 55.0) continue;
+      const h = rayDown(x, foyer + 2.0, z);
+      if (h === null || Math.abs(h - foyer) > 0.02) continue;
+      if (!WALK.rays.every(hh => [0, Math.PI / 2, Math.PI, -Math.PI / 2].every(a => !(rayH(x, foyer + hh, z, Math.sin(a), Math.cos(a), 0.35) < 0.35)))) continue;
+      spots.push({ x, z, phi: ph, side: ph < 0 ? 0 : 1, taken: null });
+    }
+  }
+  spots.sort((a, b) => Math.abs(a.phi) - Math.abs(b.phi));
+  // 4. each side's way from the ring up its gallery: the corridor, the stair (sampled), the gallery's line (sampled by s)
+  for (const G of sides) {
+    const F = G.F, p0 = G.ports[0], dFoyer = VW_SIDE.stair.landing + (p0.stairN || 1) * VW_SIDE.stair.going + 0.6;
+    const c0 = F.w3(R.sC, foyer, R.d), c1 = F.w3(0, foyer, R.d), c2 = F.w3(0, foyer, dFoyer);
+    G.corner = [c0.x, foyer, c0.z]; G.cornerPhi = vwAudPhi(c0.x, c0.z);
+    const stair = vwAudFloor(c2.x, foyer, c2.z, ...F.w3(0, 0, R.gallery).toArray().filter((_, j) => j !== 1), 0.1);
+    G.lead = [[c0.x, foyer, c0.z], [c1.x, foyer, c1.z], [c2.x, foyer, c2.z], ...(stair || [])];
+    // the gallery: from its foot landing up, every 0.1 m of s, its floor
+    const top = G.ports[G.ports.length - 1].s + 0.5, gal = [];
+    let y = G.lead[G.lead.length - 1][1];
+    for (let s = 0; s <= top + 1e-6; s += 0.1) { const q = F.w3(s, 0, R.gallery), h = rayDown(q.x, y + WALK.step, q.z); if (h !== null && y - h <= WALK.step + 0.05) y = h; gal.push([q.x, y, q.z]); }
+    G.gal = gal; G.ok = !!stair;
+    // each portal: its lane (clear of the pilasters inside, its leaves open), and the way through it (sampled)
+    for (const p of G.ports) {
+      const e = p.door, keep = e ? e.leaves.map(l => l.rotation.y) : [];
+      if (e) e.leaves.forEach(l => { l.rotation.y = -l.userData.s * DOORS.swing; l.updateMatrixWorld(true); });
+      const clear = off => [-0.18, 0, 0.18].every(w => { const st = F.w3(p.s + off + w, 0, R.gallery); return WALK.rays.every(hh => !(rayH(st.x, p.G + hh, st.z, -F.o.x, -F.o.y, 2.1) < 2.1)); });
+      let lane = 0; for (const off of [0, -0.1, 0.1, -0.2, 0.2, -0.3, 0.3, -0.4, 0.4, -0.45, 0.45]) if (clear(off)) { lane = off; break; }
+      if (e) e.leaves.forEach((l, i) => { l.rotation.y = keep[i]; l.updateMatrixWorld(true); });
+      const a = F.w3(p.s + lane, 0, R.gallery), b = F.w3(p.s + lane, 0, R.inside);
+      p.audLane = lane; p.audGal = Math.round((p.s + lane) / 0.1);
+      p.audIn = vwAudFloor(a.x, p.G, a.z, b.x, b.z, 0.05);
+    }
+  }
+  // 5. the bodies: instanced, standing and seated
+  const group = new THREE.Group(); group.name = 'vw audience'; group.visible = false; scene.add(group);
+  const people = [], sold = S.seats.map((s, i) => i);
+  for (let i = sold.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [sold[i], sold[j]] = [sold[j], sold[i]]; }
+  sold.length = Math.round(S.seats.length * VWA.fill);
+  for (const seat of sold) {
+    const s = S.seats[seat], pick = a => a[Math.floor(rnd() * a.length)];
+    people.push({ seat, side: s.th < 0 ? 0 : 1, speed: VWA.walk[0] + rnd() * (VWA.walk[1] - VWA.walk[0]), sc: 0.92 + rnd() * 0.15, look: rnd() * 2 - 1,
+      cols: [pick(VWA.tops), pick(VWA.bottoms), pick(VWA.skins), pick(VWA.hairs)], state: 'home', path: null, s: 0, lane: -1, spot: null, walked: 0, pos: { x: 0, y: 0, z: 0, yaw: 0 } });
+  }
+  for (let i = people.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [people[i], people[j]] = [people[j], people[i]]; }   // the order they come in
+  const meshes = vwAudMeshes(group, people.length, S.seats.length);
+  vwAud = { group, ...meshes, seats: S.seats, rows: S.rows, sides, lanes, spots, doorIn, people, on: false, acc: { arrive: 0, admit: 0, enter: 0 }, next: 0, waiting: [], aisle: new Map(), dirty: true, seatedDirty: true, ms: 0, built: performance.now() - t0, laneTurn: 0 };
+  for (const p of people) { const c = new THREE.Color(); meshes.seat.forEach((m, k) => { c.setHex(p.cols[[0, 1, 2, 3][k]]); m.setColorAt(p.seat, c); }); }
+  meshes.seat.forEach(m => { const z = new THREE.Matrix4().makeScale(0, 0, 0); for (let i = 0; i < S.seats.length; i++) m.setMatrixAt(i, z); m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; });
+  if (!APL.buf && window.OfflineAudioContext) APL.buf = vwApplauseBuffer(new OfflineAudioContext(2, 1, 44100));   // the applause made now, with the house, not at the bows (THE APPLAUSE)
+  console.info(`van wezel audience: ${S.seats.length} seats in ${S.rows.length} rows, ${people.length} sold; ${spots.length} foyer spots (${spots.filter(q => !q.side).length} house right); lanes ${lanes.map(l => `${l.path.len.toFixed(0)} m (${l.cap})`).join(', ')} · ${vwAud.built.toFixed(0)} ms`);
+  return vwAud;
+}
+// The bodies' meshes: standing [body, head, hair, leg L, leg R] (capacity n) and seated [top, legs, head, hair] (one per seat)
+function vwAudMeshes(group, n, nSeats) {
+  const L = new THREE.Vector3(0.35, 0.85, 0.4).normalize(), nrm = new THREE.Vector3();
+  const shade = (g, foot) => {                                // the faces' light baked as vertex colour (a shoe's darker)
+    g = g.index ? g.toNonIndexed() : g; g.computeVertexNormals();
+    const N = g.attributes.normal, P = g.attributes.position, col = new Float32Array(P.count * 3);
+    for (let i = 0; i < P.count; i++) { nrm.fromBufferAttribute(N, i); let k = 0.58 + 0.42 * Math.max(0, nrm.dot(L)); if (foot !== undefined && P.getY(i) < foot) k *= 0.35; col[i * 3] = col[i * 3 + 1] = col[i * 3 + 2] = Math.min(1, k); }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.deleteAttribute('uv'); return g;
+  };
+  const box = (w, h, d, x, y, z, rx = 0) => new THREE.BoxGeometry(w, h, d).rotateX(rx).translate(x, y, z);
+  const merge = list => { const g = mergeGeometries(list.map(q => (q.index ? q.toNonIndexed() : q)), false); list.forEach(q => q.dispose()); return g; };
+  const headG = () => new THREE.IcosahedronGeometry(0.105, 1), hairG = () => new THREE.SphereGeometry(0.113, 10, 5, 0, Math.PI * 2, 0, Math.PI * 0.52).translate(0, 0.01, -0.012);
+  // standing, feet at y 0, facing +z
+  const body = shade(merge([box(0.36, 0.56, 0.22, 0, 1.14, 0), box(0.09, 0.58, 0.11, 0.225, 1.12, 0), box(0.09, 0.58, 0.11, -0.225, 1.12, 0), box(0.1, 0.08, 0.1, 0, 1.45, 0)]));
+  const head = shade(headG().translate(0, 1.585, 0)), hair = shade(hairG().translate(0, 1.585, 0));
+  const leg = shade(box(0.14, 0.86, 0.16, 0, -0.43, 0.01), -0.78);
+  // seated, the cushion's top at y 0 and its middle at the origin, facing +z; the feet on the floor ~0.45 down
+  const sTop = shade(merge([box(0.36, 0.54, 0.22, 0, 0.33, -0.12, -0.12), box(0.09, 0.30, 0.10, 0.225, 0.36, -0.10), box(0.09, 0.30, 0.10, -0.225, 0.36, -0.10), box(0.08, 0.08, 0.30, 0.2, 0.17, 0.08), box(0.08, 0.08, 0.30, -0.2, 0.17, 0.08)]));
+  const sLegs = shade(merge([box(0.15, 0.14, 0.46, 0.095, 0.07, 0.10), box(0.15, 0.14, 0.46, -0.095, 0.07, 0.10), box(0.13, 0.46, 0.13, 0.095, -0.16, 0.30), box(0.13, 0.46, 0.13, -0.095, -0.16, 0.30)]), -0.33);
+  const sHead = shade(headG().translate(0, 0.74, -0.10)), sHair = shade(hairG().translate(0, 0.74, -0.10));
+  const mk = (g, count, name, matKey) => {
+    const mat = new THREE.MeshBasicMaterial({ vertexColors: true }); mat.userData.aud = matKey;
+    const m = new THREE.InstancedMesh(g, mat, count); m.name = 'vw audience: ' + name; m.frustumCulled = false; m.count = 0;
+    m.instanceMatrix.setUsage(THREE.DynamicDrawUsage); m.setColorAt(0, new THREE.Color(1, 1, 1)); m.raycast = () => {};
+    group.add(m); return m;
+  };
+  const stand = [mk(body, n, 'standing bodies', 'stand'), mk(head, n, 'standing heads', 'stand'), mk(hair, n, 'standing hair', 'stand'), mk(leg, n, 'left legs', 'stand'), mk(leg.clone(), n, 'right legs', 'stand')];
+  const seat = [mk(sTop, nSeats, 'seated tops', 'seat'), mk(sLegs, nSeats, 'seated legs', 'seat'), mk(sHead, nSeats, 'seated heads', 'seat'), mk(sHair, nSeats, 'seated hair', 'seat')];
+  seat.forEach(m => { m.count = nSeats; });
+  return { stand, seat };
+}
+// The way a person takes from the foyer (from the point a, its angle phi on the ring) to its seat, by the side G's portal p
+function vwAudToSeat(A, p, a, G, port) {
+  const R = VWA.route, foyer = VWF.floor, s = A.seats[p.seat], row = A.rows[s.row], end = row.end[G.gi], F = G.F;
+  const pts = [a];
+  const phiA = vwAudPhi(a[0], a[2]);
+  pts.push(vwAudRing(R.r, phiA, foyer), ...vwAudArc(R.r, phiA, G.cornerPhi, foyer), ...G.lead);
+  pts.push(...G.gal.slice(0, port.audGal + 1));
+  if (port.audIn) pts.push(...port.audIn);
+  const aisle = vwAudAisle(A, G, port, s.row);
+  if (aisle) pts.push(...aisle); else pts.push([end.x, row.floor, end.z]);
+  const n = Math.max(1, Math.ceil(Math.abs(s.th - end.th) * row.walkR / 0.5));
+  for (let j = 1; j <= n; j++) { const th = end.th + (s.th - end.th) * j / n; pts.push([VWA.c[0] + row.walkR * Math.sin(th), row.floor, VWA.c[1] - row.walkR * Math.cos(th)]); }
+  return vwAudPath(pts);
+}
+// The side aisle from just inside a portal to a row's end, on the floor (a riser over a step there, as from the cross aisle
+// up to row 15, finds none: null); once per portal and row
+function vwAudAisle(A, G, port, ri) {
+  const key = `${G.gi}|${port.k}|${ri}`;
+  let a = A.aisle.get(key);
+  if (a === undefined) {
+    const end = A.rows[ri].end[G.gi], inn = port.audIn && port.audIn[port.audIn.length - 1];
+    a = inn ? vwAudFloor(inn[0], inn[1], inn[2], end.x, end.z, 0.1) : null;
+    if (a && Math.abs(a[a.length - 1][1] - A.rows[ri].floor) > 0.12) a = null;
+    A.aisle.set(key, a);
+  }
+  return a;
+}
+// Of these portals, the nearest to row ri's end on side G whose aisle reaches it (else the nearest)
+function vwAudNearest(A, G, ports, ri) {
+  const sE = A.rows[ri].end[G.gi].s, by = [...ports].sort((a, b) => Math.abs(a.s - sE) - Math.abs(b.s - sE));
+  return by.find(q => vwAudAisle(A, G, q, ri)) || by[0];
+}
+const vwAudOpen = e => !!e && e.u > 0.6;
+const vwAudStreetDoor = () => DOORS.list.find(e => e.name === STREET.vwDoor.name) || null;
+// The open stalls door a person takes: its own side's if one is open, else the other's; the portal nearest its row's end
+function vwAudDoor(A, p) {
+  const s = A.seats[p.seat], row = A.rows[s.row];
+  for (const gi of [p.side, 1 - p.side]) {
+    const G = A.sides[gi], open = G.ports.filter(q => vwAudOpen(q.door));
+    if (!open.length) continue;
+    return { G, port: vwAudNearest(A, G, open, s.row) };
+  }
+  return null;
+}
+const vwAudAnyOpen = A => A.sides.some(G => G.ports.some(q => vwAudOpen(q.door)));
+function vwAudSend(A, p, from) { const d = vwAudDoor(A, p); if (!d) return false; p.path = vwAudToSeat(A, p, from, d.G, d.port); p.s = 0; p.state = 'toSeat'; if (p.spot) { p.spot.taken = null; p.spot = null; } return true; }
+function vwAudSit(A, p) {
+  p.state = 'seated'; p.path = null;
+  const s = A.seats[p.seat], m = vwAudM.compose(vwAudV.set(s.x, s.y, s.z), vwAudQ.setFromAxisAngle(vwAudY, s.yaw), vwAudS.setScalar(p.sc));
+  for (const mesh of A.seat) mesh.setMatrixAt(p.seat, m);
+  A.seatedDirty = true;
+}
+const vwAudM = new THREE.Matrix4(), vwAudM2 = new THREE.Matrix4(), vwAudV = new THREE.Vector3(), vwAudQ = new THREE.Quaternion(), vwAudS = new THREE.Vector3(), vwAudY = new THREE.Vector3(0, 1, 0), vwAudX = new THREE.Vector3(1, 0, 0), vwAudC = new THREE.Color();
+// One step of everyone: arrivals at the line, the line moving up, the street doors, the foyer, the stalls doors, the walks
+function vwAudStep(A, dt) {
+  const Q = VWA.queue;
+  let moved = false;
+  if (A.on) {
+    // arrivals: from the far end of the shorter lane, while it has room
+    A.acc.arrive += dt * VWA.arrive;
+    while (A.acc.arrive >= 1 && A.next < A.people.length) {
+      const ln = A.lanes[0].list.length <= A.lanes[1].list.length ? A.lanes[0] : A.lanes[1];
+      if (ln.list.length >= ln.cap) { A.acc.arrive = 0; break; }
+      const p = A.people[A.next++]; A.acc.arrive -= 1;
+      p.state = 'line'; p.lane = ln.i; p.s = ln.path.len; p.walked = 0; ln.list.push(p); moved = true;
+    }
+    if (A.acc.arrive > 1) A.acc.arrive = 1;
+    // the street doors: a lane's head in, the lanes in turn, while the foyer has room (or a stalls door is open)
+    const open = vwAudOpen(vwAudStreetDoor()), anyIn = vwAudAnyOpen(A);
+    A.acc.admit = open ? Math.min(A.acc.admit + dt * VWA.admit, 2) : 0;
+    while (A.acc.admit >= 1) {
+      let ln = A.lanes[A.laneTurn], h = ln.list[0];
+      if (!h || h.s > 0.2) { ln = A.lanes[1 - A.laneTurn]; h = ln.list[0]; }
+      if (!h || h.s > 0.2) break;
+      let spot = null;
+      if (!anyIn) { spot = A.spots.find(q => !q.taken && q.side === h.side) || A.spots.find(q => !q.taken); if (!spot) break; }
+      A.acc.admit -= 1; A.laneTurn = 1 - ln.i; ln.list.shift(); moved = true;
+      const at = vwAudAt(ln.path, 0, h.pos), din = A.doorIn(ln.i), pts = [[at.x, at.y, at.z], [ln.hx, VWF.floor, stBuilt.vwDoorZ - 0.2], din];
+      if (spot) {
+        spot.taken = h; h.spot = spot; const r = Math.hypot(spot.x - VWF.c[0], spot.z - VWF.c[1]), ph0 = vwAudPhi(din[0], din[2]);
+        pts.push(vwAudRing(r, ph0, VWF.floor), ...vwAudArc(r, ph0, spot.phi, VWF.floor));
+        h.path = vwAudPath(pts); h.s = 0; h.state = 'toWait';
+      } else {
+        const d = vwAudDoor(A, h); const rest = vwAudToSeat(A, h, din, d.G, d.port), full = [];
+        for (let i = 0; i < rest.n; i++) full.push([rest.p[i * 3], rest.p[i * 3 + 1], rest.p[i * 3 + 2]]);
+        h.path = vwAudPath([...pts.slice(0, 2), ...full]); h.s = 0; h.state = 'toSeat';
+      }
+    }
+    // the stalls doors: those waiting in the foyer go in, in the order they came
+    if (anyIn && A.waiting.length) {
+      A.acc.enter = Math.min(A.acc.enter + dt * VWA.enter, 2);
+      while (A.acc.enter >= 1 && A.waiting.length) { const p = A.waiting.shift(); A.acc.enter -= 1; vwAudSend(A, p, [p.pos.x, VWF.floor, p.pos.z]); moved = true; }
+    } else A.acc.enter = 0;
+  }
+  // the walks
+  for (const ln of A.lanes) ln.list.forEach((p, j) => {
+    const want = j * Q.gap;
+    if (Math.abs(p.s - want) > 1e-3) { const d = Math.min(Math.abs(p.s - want), p.speed * dt); p.s += p.s > want ? -d : d; p.walked += d; moved = true; }
+  });
+  for (const p of A.people) {
+    if (p.state !== 'toWait' && p.state !== 'toSeat') continue;
+    p.s += p.speed * dt; p.walked += p.speed * dt; moved = true;
+    if (p.s >= p.path.len) {
+      if (p.state === 'toSeat') vwAudSit(A, p);
+      else { p.state = 'wait'; vwAudAt(p.path, p.path.len, p.pos); p.pos.yaw = -vwAudPhi(p.pos.x, p.pos.z) + p.look * 1.4; p.path = null; A.waiting.push(p); }
+    }
+  }
+  if (moved) A.dirty = true;
+  return moved;
+}
+// The standing bodies' instances (everyone on their feet), and the levels
+function vwAudPose(A) {
+  const [body, head, hair, legL, legR] = A.stand, Q = VWA.queue;
+  let n = 0;
+  const put = (p, x, y, z, yaw, swing) => {
+    const bob = swing ? 0.018 * Math.abs(Math.sin(p.walked * Math.PI / 0.65)) : 0;
+    vwAudM.compose(vwAudV.set(x, y + bob, z), vwAudQ.setFromAxisAngle(vwAudY, yaw), vwAudS.setScalar(p.sc));
+    body.setMatrixAt(n, vwAudM); head.setMatrixAt(n, vwAudM); hair.setMatrixAt(n, vwAudM);
+    const a = swing ? 0.42 * Math.sin(p.walked * Math.PI / 0.65) : 0;
+    for (const [mesh, sx, k] of [[legL, 0.095, 1], [legR, -0.095, -1]]) {
+      vwAudM2.makeRotationAxis(vwAudX, k * a).setPosition(sx, 0.86, 0); mesh.setMatrixAt(n, vwAudM2.premultiply(vwAudM));
+    }
+    for (const [mesh, ci] of [[body, 0], [head, 2], [hair, 3], [legL, 1], [legR, 1]]) mesh.setColorAt(n, vwAudC.setHex(p.cols[ci]));   // the list's order changes: every time
+    n++;
+  };
+  for (const ln of A.lanes) ln.list.forEach((p, j) => {
+    vwAudAt(ln.path, p.s, p.pos);
+    const walking = Math.abs(p.s - j * Q.gap) > 0.02;
+    put(p, p.pos.x, p.pos.y, p.pos.z, p.pos.yaw + Math.PI, walking);   // facing the doors (back along the lane)
+  });
+  for (const p of A.people) {
+    if (p.state === 'wait') put(p, p.pos.x, p.pos.y, p.pos.z, p.pos.yaw, false);
+    else if (p.state === 'toWait' || p.state === 'toSeat') { vwAudAt(p.path, p.s, p.pos); put(p, p.pos.x, p.pos.y, p.pos.z, p.pos.yaw, true); }
+  }
+  for (const m of A.stand) { m.count = n; m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; }
+  A.standing = n;
+}
+// The levels: seated, the Van Wezel's house (down with it); standing, 1 (outdoors at night, dimmer)
+function vwAudLevels(A) {
+  const house = typeof vwHam !== 'undefined' && vwHam && vwHam.house >= 0 ? vwHam.house : vwHouseLevel();
+  const out = stWhere(camera.position) === 'street' ? 1 - 0.45 * (stBuilt ? stBuilt.k : 0) : 1;
+  let changed = false;
+  for (const m of A.seat) if (Math.abs(m.material.color.r - house) > 1e-3) { m.material.color.setScalar(house); changed = true; }
+  for (const m of A.stand) if (Math.abs(m.material.color.r - out) > 1e-3) { m.material.color.setScalar(out); changed = true; }
+  return changed;
+}
+function vwAudTick(dt) {
+  const A = vwAud; if (!A) return false;
+  const t0 = performance.now(), act = A.on || A.people.some(p => p.state !== 'home');
+  const vis = act && camera.position.x > VWA.east;
+  let draw = false;
+  if (A.group.visible !== vis) { A.group.visible = vis; draw = true; }
+  if (act) draw = vwAudStep(A, Math.min(dt, 0.5)) || draw;
+  if (vis) {
+    if (A.dirty) { vwAudPose(A); A.dirty = false; draw = true; }
+    if (A.seatedDirty) { for (const m of A.seat) m.instanceMatrix.needsUpdate = true; A.seatedDirty = false; draw = true; }
+    draw = vwAudLevels(A) || draw;
+  }
+  if (draw) A.ms = performance.now() - t0;
+  return draw;
+}
+{ const lxPanelTickVWA = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickVWA(dt); vwApplauseTick(dt); return vwAudTick(dt) || a; }; }
+// THE APPLAUSE (Jack, 2026-10-25: "also add the apluase one", then "only add it during bows" and "just add the noise there
+// arms are fine"): a sound only, at the bows only — from 2-23's last note (its len) through the company filing off (the exit
+// music's at: tools/blocking/gen_seg8.py EXIT_AT) and VWA.clap.tail s on, rising over rise s and dying over fade. A crowd of
+// claps made once in the page (vwApplauseBuffer: VWA.clap.hands people over a loop of VWA.clap.loop s), looped; its level a
+// pure function of the show's time (a seek lands in it, a pause
+// stops it), times the share of the house seated (an empty house is silent), the show's volume, and where the camera is
+// (full within near m of the house's middle, nothing past far, nothing west of the Midtown block).
+VWA.clap = { rise: 1.5, tail: 12, fade: 8, hands: 120, near: 14, loop: 8, close: 35, far: 75, centre: [77.0, -20.0], gain: 0.45 };   // hands: people heard, near of them loud; close…far: the camera's distance it fades over
+const APL = { ctx: null, src: null, gain: null, buf: null, want: 0, level: 0, test: 0 };
+// The crowd: VWA.clap.hands people each clapping steadily (their own rate, a little loose), each clap a short burst of
+// noise rung through a band-pass at their own pitch (the "pop" of cupped or flat hands, 0.6–2.2 kHz) — a few near and loud,
+// the rest far and soft — then the whole softened over 4.5 kHz. (The first try, 700 bursts a second of near-white noise at
+// random times, was static: Jack, "sounds like static".)
+function vwApplauseBuffer(ctx) {
+  const C = VWA.clap, sr = ctx.sampleRate, N = Math.round(C.loop * sr), buf = ctx.createBuffer(2, N, sr), L = buf.getChannelData(0), R = buf.getChannelData(1), rnd = vwAudRng(VWA.seed + 7);
+  const len = Math.round(0.022 * sr), env = new Float32Array(len);
+  for (let h = 0; h < C.hands; h++) {
+    const near = h < C.near, amp = near ? 0.35 + 0.65 * rnd() : 0.05 + 0.18 * rnd(), pan = near ? rnd() : 0.25 + 0.5 * rnd();
+    const f0 = 600 + 1600 * rnd(), Q = 1.2 + 1.6 * rnd(), tau = (0.004 + 0.005 * rnd()) * sr;
+    for (let i = 0; i < len; i++) env[i] = Math.exp(-i / tau) * Math.min(1, i / 12);   // this person's clap's shape
+    const w = 2 * Math.PI * f0 / sr, al = Math.sin(w) / (2 * Q), a0 = 1 + al, b0 = al / a0, b2 = -al / a0, a1 = -2 * Math.cos(w) / a0, a2 = (1 - al) / a0;   // RBJ band-pass, 0 dB at its peak
+    const rate = 3.0 + 2.2 * rnd(), period = sr / rate, n = Math.floor(N / period);   // claps a second; whole claps in the loop, so it loops without a seam
+    const per = N / n;
+    for (let c = 0; c < n; c++) {
+      const t0 = Math.floor((c + rnd() * 0.12) * per + h * 997) % N, ca = amp * (0.75 + 0.5 * rnd());
+      let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+      for (let i = 0; i < len; i++) {
+        const x = (Math.random() * 2 - 1) * env[i];
+        const y = b0 * x + b2 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = x; y2 = y1; y1 = y;
+        const j = (t0 + i) % N, v = y * ca * 3;
+        L[j] += v * (1 - pan); R[j] += v * pan;
+      }
+    }
+  }
+  const k = 1 - Math.exp(-2 * Math.PI * 4500 / sr);         // the whole softened over 4.5 kHz (round the loop twice so its start has settled)
+  for (const ch of [L, R]) { let lp = 0; for (let pass = 0; pass < 2; pass++) for (let i = 0; i < N; i++) { lp += k * (ch[i] - lp); if (pass) ch[i] = lp; } }
+  let peak = 0; for (let i = 0; i < N; i++) peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i]));
+  const s = 0.9 / Math.max(peak, 1e-6); for (let i = 0; i < N; i++) { L[i] *= s; R[i] *= s; }
+  return buf;
+}
+// The bows' level now, 0…1, from the show's clock
+function vwApplauseLevel() {
+  if (APL.test > 0) return 1;
+  if (!SHW.on || !SHW.d) return 0;
+  const last = SHW.d.tracks.length - 1; if (SHW.ti !== last) return 0;
+  const C = VWA.clap, B0 = SHW.d.tracks[last].len, B1 = EXM.d && EXM.d.ti === last ? EXM.d.at : B0 + 17, t = SHW.lt;
+  if (t < B0) return 0;
+  const up = Math.min(1, (t - B0) / C.rise), end = B1 + C.tail;
+  return t >= end ? 0 : up * Math.min(1, (end - t) / C.fade);
+}
+function vwApplauseTick(dt) {
+  if (APL.test > 0) APL.test = Math.max(0, APL.test - dt);
+  const C = VWA.clap, level = APL.level = vwApplauseLevel();
+  if (level === 0 && APL.want === 0) return;                  // not the bows, and silent already: nothing to do
+  const A = vwAud, seated = A ? A.people.filter(p => p.state === 'seated').length / A.people.length : 0;
+  const p = camera.position, d = Math.hypot(p.x - C.centre[0], p.z - C.centre[1]);
+  const place = p.x > VWA.east ? THREE.MathUtils.clamp((C.far - d) / (C.far - C.close), 0, 1) : 0;
+  const playing = APL.test > 0 || (SHW.on && SHW.playing);
+  const want = playing ? level * Math.sqrt(seated) * place * (SHW.vol ?? 1) * C.gain : 0;
+  if (want < 1e-3 && !APL.gain) return;
+  if (!APL.ctx) {
+    if (!window.AudioContext) return;
+    try {
+      const ctx = APL.ctx = new AudioContext(), g = APL.gain = ctx.createGain(), s = APL.src = ctx.createBufferSource();
+      g.gain.value = 0; s.buffer = APL.buf || (APL.buf = vwApplauseBuffer(ctx)); s.loop = true; s.connect(g); g.connect(ctx.destination); s.start();
+    } catch (e) { console.warn('van wezel applause: no sound —', e); APL.ctx = null; APL.gain = null; return; }
+  }
+  if (want > 1e-3 && APL.ctx.state === 'suspended') APL.ctx.resume().catch(() => {});
+  if (Math.abs(want - APL.want) > 0.005 || (want === 0 && APL.want !== 0)) { APL.want = want; APL.gain.gain.setTargetAtTime(want, APL.ctx.currentTime, 0.2); }
+}
+function vwAudClear() {
+  const A = vwAud; if (!A) return;
+  A.on = false; A.next = 0; A.waiting.length = 0; A.acc = { arrive: 0, admit: 0, enter: 0 };
+  for (const ln of A.lanes) ln.list.length = 0;
+  for (const q of A.spots) q.taken = null;
+  const z = vwAudM.makeScale(0, 0, 0);
+  for (const p of A.people) { p.state = 'home'; p.path = null; p.spot = null; for (const m of A.seat) m.setMatrixAt(p.seat, z); }
+  A.seatedDirty = A.dirty = true;
+}
+function vwAudButton() {
+  const b = document.getElementById('vw-audience'); if (!b) return;
+  const on = !!vwAud && (vwAud.on || vwAud.people.some(p => p.state !== 'home'));
+  b.setAttribute('aria-pressed', String(on)); b.textContent = on ? 'Clear house' : 'Line up';
+}
+function vwAudUI() {
+  const after = document.getElementById('vw-doors'); if (!after || document.getElementById('vw-audience')) return;
+  const b = document.createElement('button'); b.id = 'vw-audience'; b.textContent = 'Line up'; b.setAttribute('aria-pressed', 'false');
+  b.title = 'The Van Wezel\'s audience: they line up on Broadway at its street doors, wait in the foyer once those open, and go in to their seats when a stalls door opens';
+  b.addEventListener('click', () => { if (vwAud && (vwAud.on || vwAud.people.some(p => p.state !== 'home'))) VAN_WEZEL_API.audience.clear(); else VAN_WEZEL_API.audience.lineUp(); });
+  after.after(b);
+}
+function vwAudCheck() {
+  const A = vwAudBuild(); if (!A) return 'van wezel audience: not built (the Van Wezel, its side doors or the street are missing)';
+  const out = []; let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  const n = A.seats.length;
+  line(n > 1600 && A.rows.length === 31, `${n} seats in ${A.rows.length} rows, ${A.people.length} sold (${Math.round(VWA.fill * 100)} %)`);
+  const badRow = A.rows.filter(r => !(r.y - r.floor > 0.30 && r.y - r.floor < 0.60));
+  line(!badRow.length, `every row's walkway floor 0.30–0.60 m under its cushions${badRow.length ? ` (not rows ${badRow.map(r => A.rows.indexOf(r) + 1).join(', ')})` : ''}`);
+  // the lanes: on the pavement (its top) the whole way, nothing in the way at a body's heights
+  for (const ln of A.lanes) {
+    let worst = 0, block = 0; const P = ln.path;
+    for (let i = 0; i < P.n; i++) worst = Math.max(worst, Math.abs(P.p[i * 3 + 1] - STREET.top));
+    for (let i = 1; i < P.n; i++) { const a = i - 1, dxs = P.p[i * 3] - P.p[a * 3], dzs = P.p[i * 3 + 2] - P.p[a * 3 + 2], L = Math.hypot(dxs, dzs); if (L > 1e-3 && WALK.rays.some(hh => rayH(P.p[a * 3], P.p[a * 3 + 1] + hh, P.p[a * 3 + 2], dxs / L, dzs / L, L) < L)) block++; }
+    line(worst < 0.06 && !block, `lane ${ln.i + 1} (w ${ln.w}): ${P.len.toFixed(1)} m, room for ${ln.cap}; its floor at most ${(worst * 1000).toFixed(0)} mm off the pavement's top, ${block} legs blocked`);
+  }
+  line(A.spots.filter(q => !q.side).length > 100 && A.spots.filter(q => q.side).length > 100, `the foyer: ${A.spots.length} spots on bare carpet (${A.spots.filter(q => !q.side).length} house right, ${A.spots.filter(q => q.side).length} house left)`);
+  // each side: the corridor and ring clear at a body's heights; the stair found; each portal's way through
+  for (const G of A.sides) {
+    const ring = [vwAudRing(VWA.route.r, 0, VWF.floor), ...vwAudArc(VWA.route.r, 0, G.cornerPhi, VWF.floor), ...G.lead.slice(0, 3)];
+    let block = [], off = 0;
+    for (let i = 1; i < ring.length; i++) { const [ax, , az] = ring[i - 1], [bx, , bz] = ring[i], L = Math.hypot(bx - ax, bz - az); if (L > 1e-3 && WALK.rays.some(hh => rayH(ax, VWF.floor + hh, az, (bx - ax) / L, (bz - az) / L, L) < L)) block.push(`(${ax.toFixed(1)}, ${az.toFixed(1)})`); const h = rayDown(bx, VWF.floor + 0.3, bz); if (h === null || Math.abs(h - VWF.floor) > 0.03) off++; }
+    line(!block.length && !off && G.ok, `${G.name}: the foyer's way round to its gallery (${ring.length} points) ${block.length ? 'blocked at ' + block.slice(0, 4).join(' ') : 'clear'}, ${off} off the carpet; its stair ${G.ok ? 'found' : 'NOT found'}; the gallery ending on y ${G.gal[G.gal.length - 1][1].toFixed(3)} (its top landing ${G.ports[G.ports.length - 1].G.toFixed(3)})`);
+    const through = G.ports.filter(p => p.audIn && Math.abs(p.audIn[p.audIn.length - 1][1] - p.G) < 0.25).length;
+    line(through === G.ports.length, `${G.name}: ${through} / ${G.ports.length} doorways walked through to the aisle (lanes ${G.ports.map(p => p.audLane.toFixed(1)).join(' ')})`);
+  }
+  // every row from its nearest portal that reaches it, each side: the aisle leg on the floor, ending at the row's floor
+  const miss = [], other = [];
+  for (const G of A.sides) A.rows.forEach((r, ri) => {
+    const port = vwAudNearest(A, G, G.ports, ri), sE = r.end[G.gi].s, near = [...G.ports].sort((a, b) => Math.abs(a.s - sE) - Math.abs(b.s - sE))[0];
+    const P = vwAudToSeat(A, { seat: r.seats[0].i, side: G.gi }, vwAudRing(VWA.route.r, 0, VWF.floor), G, port);
+    if (!vwAudAisle(A, G, port, ri) || !(P.len > 10)) miss.push(`${G.name[6]}${ri + 1}`);
+    if (port !== near) other.push(`${G.name[6]}${ri + 1} by ${port.k + 1}`);
+  });
+  line(!miss.length, `every row reached on each side, along the aisle on its floor to the row's walkway${miss.length ? ' — not: ' + miss.join(' ') : ''}${other.length ? ` (not by the nearest portal: ${other.join(', ')})` : ''}`);
+  const s = `van wezel audience: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
+  console.info(s); return s;
+}
+VAN_WEZEL_API.audience = {
+  spec: VWA, get built() { return vwAud; },
+  lineUp() { const A = vwAudBuild(); if (!A) return null; if (!A.on && A.people.every(p => p.state === 'home')) { A.on = true; A.next = 0; } A.on = true; vwAudButton(); requestRender(); return this.state(); },
+  clear() { vwAudClear(); vwAudButton(); requestRender(); return this.state(); },
+  fill() { const A = vwAudBuild(); if (!A) return null; vwAudClear(); for (const p of A.people) vwAudSit(A, p); A.next = A.people.length; vwAudButton(); requestRender(); return this.state(); },
+  run(sec = 10, dt = 0.1) { const A = vwAud; if (!A) return null; for (let t = 0; t < sec; t += dt) vwAudStep(A, dt); A.dirty = true; requestRender(); return this.state(); },
+  state() {
+    const A = vwAud; if (!A) return null; const c = {}; for (const p of A.people) c[p.state] = (c[p.state] || 0) + 1;
+    const st = vwAudStreetDoor();
+    return { on: A.on, sold: A.people.length, ...c, line: A.lanes.map(l => l.list.length), street: st ? +st.u.toFixed(2) : null, stallsOpen: A.sides.map(G => G.ports.filter(q => vwAudOpen(q.door)).length), standing: A.standing || 0, shown: A.group.visible, ms: +A.ms.toFixed(2) };
+  },
+  check: vwAudCheck,
+  // THE APPLAUSE: its level now, what it plays at, and test(s): the full applause for s seconds wherever the show is
+  applause: { state: () => ({ level: +vwApplauseLevel().toFixed(3), gain: +APL.want.toFixed(3), sound: APL.ctx ? APL.ctx.state : 'not made', test: +APL.test.toFixed(1) }), test(s = 6) { APL.test = s; return this.state(); },
+    buffer: () => vwApplauseBuffer(new OfflineAudioContext(2, 1, 44100)) },   // the loop, made silently (to look at, not hear)
 };
 
 /* ---------------------------------------------------------------- THE THIRD HOUSE: THE BOOTH LIGHTS

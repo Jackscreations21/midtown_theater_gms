@@ -2382,3 +2382,17 @@ include the place a failure would show — the corridor behind the house, not on
   smaller target (the Van Wezel's 480 × 270 booth monitors), the picture took the bottom-left corner of it, stretched: a second,
   ghosted view over the stage (Jack: "it looks like it is showing two views at once"). Set `LXDEP.uRes` to the target's size
   for that draw, and put it back.
+
+## From the full-house round (2026-10-25)
+
+- **A `//` comment added in the middle of a one-line block comments out the rest of that line**, its closing brace with it:
+  the page died at load with only "Unexpected end of input" and no line number. There is no node here to `--check` with;
+  read each edited line to its end.
+- **The cross aisle's riser:** row 15 (the first after the cross aisle) stands ~0.5 m over the side aisle at portal 6, so a
+  walk from the nearest portal finds no floor within a step. Take the nearest portal whose aisle leg reaches the row
+  (`vwAudNearest`), not the nearest.
+- **A hidden Browser pane stops `requestAnimationFrame`, and with it every door's swing** (`MIDTOWN.doors.toggle` sets the
+  want; `doorsTick` moves it). To test something that waits on a door, step `MIDTOWN.doors.tick(dt)` by hand.
+- **Random noise bursts at random times are static, not applause.** Applause is people clapping steadily (each ~4 a second),
+  each clap a band-passed pop around 1-2 kHz. Check a made sound by its spectrum and its loudness over 10 ms windows
+  (`audience.applause.buffer()`) before playing it: Jack hears whatever a test plays.
