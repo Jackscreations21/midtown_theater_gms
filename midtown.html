@@ -15293,6 +15293,9 @@ function vwLiftBuild(model, stallsY) {
   const hull = vwHull(pts);
   // the foyer's terrace runs on under the whole hall (y 0.865), through the well: cut out of it (the slab hid it at the stalls)
   const terr = model.byName('exterior_tex_29'), terrCut = terr ? vwCutBox(terr, new THREE.Box3(new THREE.Vector3(hull.x0 + 0.02, 0.6, hull.z0 + 0.02), new THREE.Vector3(hull.x1 - 0.02, 1.2, hull.z1))) : 0;
+  // and the slab under the stage (y 0.70…0.88), whose front edge ran 0.46 m out over the well: through the lift as it passed,
+  // and at head height in front of the orchestra-level door (BACKSTAGE, VW_BACK.orch)
+  const ledge = model.byName('exterior_tex_28'), ledgeCut = ledge ? vwCutBox(ledge, new THREE.Box3(new THREE.Vector3(hull.x0 - 0.05, 0.6, -0.8), new THREE.Vector3(hull.x1 + 0.05, 1.0, VW.at.z - 0.152))) : 0;
   // 3. the pit's floor under it, measured: the stops
   const ray = new THREE.Raycaster(), floors = []; model.root.traverse(o => { if (o.isMesh && /^vw: basement_/.test(o.name)) floors.push(o); });
   ray.layers.enableAll();                                       // the basement may be drawn on another layer already (vwBackGate)
@@ -15393,7 +15396,7 @@ function vwLiftBuild(model, stallsY) {
   vwWagonBuild(model, L);                                       // the seating wagon and its bay under the stalls (THE SEATING WAGON)
   if (vwBack) { const add = []; for (const gr of [group, stair, fixed]) gr.traverse(o => { if (o.isMesh) add.push(o); }); add.forEach(m => m.layers.set(vwBack.shown ? 0 : 31)); vwBack.gated.push(...add); }   // drawn with the basement (vwBackGate)
   L.ms = performance.now() - t0;
-  console.info(`van wezel lift: stops BOTTOM ${stops.BOTTOM.toFixed(3)} (the pit's floor ${pitFloor.toFixed(3)}), ORCHESTRA ${stops.ORCHESTRA.toFixed(3)}, SEATING ${stops.SEATING.toFixed(3)}, STAGE ${stops.STAGE.toFixed(3)}; the slab ${keep.length / 3} triangles, its hull ${hull.ring.length} corners x ${hull.x0.toFixed(2)}…${hull.x1.toFixed(2)} z ${hull.z0.toFixed(2)}…${hull.z1.toFixed(2)}; the stair ${n} risers of ${(rise * 1000).toFixed(0)} mm, rolls ${S.stair.slide} m; the stage panel at x ${retX.toFixed(3)}; the terrace cut out of the well (${terrCut} triangles) · ${L.ms.toFixed(0)} ms`);
+  console.info(`van wezel lift: stops BOTTOM ${stops.BOTTOM.toFixed(3)} (the pit's floor ${pitFloor.toFixed(3)}), ORCHESTRA ${stops.ORCHESTRA.toFixed(3)}, SEATING ${stops.SEATING.toFixed(3)}, STAGE ${stops.STAGE.toFixed(3)}; the slab ${keep.length / 3} triangles, its hull ${hull.ring.length} corners x ${hull.x0.toFixed(2)}…${hull.x1.toFixed(2)} z ${hull.z0.toFixed(2)}…${hull.z1.toFixed(2)}; the stair ${n} risers of ${(rise * 1000).toFixed(0)} mm, rolls ${S.stair.slide} m; the stage panel at x ${retX.toFixed(3)}; the terrace cut out of the well (${terrCut} triangles), the under-stage slab's ledge over it (${ledgeCut}) · ${L.ms.toFixed(0)} ms`);
   return L;
 }
 function vwLiftAt(L) { L.group.position.y = L.y - L.stallsY; L.group.updateMatrixWorld(true); if (vwWagon) vwWagonAt(vwWagon); }
@@ -15407,6 +15410,7 @@ function vwStairAt(L) {
 function vwLiftBlocked(L, what) {
   if (!walking) return null;
   const p = player.pos, R = WALK.radius, st = L.st;
+  if (what === 'door') { const O = VW_BACK.orch; return p.x > O.x0 - R && p.x < O.x1 + R && p.z > L.lip - 0.05 && p.z < O.z0 && Math.abs(p.y - O.floor) < 0.5 ? 'someone in the orchestra-level door' : null; }   // leaving ORCHESTRA
   if (what === 'under') return vwInHull(L.hull, p.x, p.z, R) && p.y < L.y - VW_LIFT.depth + 0.05 && p.y > L.y - VW_LIFT.depth - WALK.head - 0.6 ? 'someone under the lift' : null;
   const on = p.x > st.x0 - R - 0.05 && p.x < st.x1 + R + 0.05 && p.z > st.z0 - R - 0.05 && p.z < st.lip + 0.05 && p.y > L.stops.SEATING - 0.3 && p.y < L.deck + 0.3;
   return on ? (what === 'deploy' ? 'someone where the stair rolls out' : 'someone on the stair') : null;
@@ -15429,7 +15433,7 @@ function vwLiftTick(dt) {
   }
   const dir = Math.sign(goal - L.y);
   if (ready && Math.abs(goal - L.y) > eps) {
-    const why = dir < 0 ? vwLiftBlocked(L, 'under') : null;
+    const why = (dir < 0 ? vwLiftBlocked(L, 'under') : null) || (Math.abs(L.y - L.liftY('ORCHESTRA')) < 1e-3 ? vwLiftBlocked(L, 'door') : null);
     if (why) { L.hold = why; L.v = 0; }
     else {
       if (L.v * dir < 0) L.v -= Math.sign(L.v) * Math.min(Math.abs(L.v), S.accel * dt);               // reversing: stop first
@@ -15454,12 +15458,14 @@ function vwLiftHit(ox, oy, oz, dx, dy, dz, far) {
   if (Math.max(ox, ex) < B[0] || Math.min(ox, ex) > B[1] || Math.max(oy, ey) < B[2] || Math.min(oy, ey) > B[3] || Math.max(oz, ez) < B[4] || Math.min(oz, ez) > B[5]) return Infinity;
   const S = VW_LIFT, st = L.st;
   let best = vwPrismHit(L.hull, L.y - S.depth, L.y, ox, oy, oz, dx, dy, dz, far);
-  if (L.surf() < L.stops.SEATING - WALK.step) best = Math.min(best, vwPrismHit(L.hull, L.stops.SEATING, L.deck + S.guard, ox, oy, oz, dx, dy, dz, far));
+  if (L.surf() < L.stops.SEATING - WALK.step) best = Math.min(best, vwPrismHit(L.hull, L.stops.SEATING + 0.30, L.deck + S.guard, ox, oy, oz, dx, dy, dz, far));   // from over the stalls' walker's knees (their lowest ray, 0.46 up), so a head on the lift at ORCHESTRA passes under it
   const sz = L.stair.position.z, sy = L.stair.position.y;
   for (let i = 1; i <= st.n; i++) { const z1 = st.lip - (st.n - i) * st.going + sz; best = Math.min(best, vwBoxHit(st.x0, st.x1, L.stallsY - 0.02 + sy, L.stallsY + i * st.rise + sy, z1 - st.going, z1, ox, oy, oz, dx, dy, dz, far)); }
   const pd = S.pedestal, py = L.y;
   best = Math.min(best, vwBoxHit(pd.x - pd.w / 2, pd.x + pd.w / 2, py, py + pd.h, pd.z - pd.d / 2, pd.z + pd.d / 2, ox, oy, oz, dx, dy, dz, far));
   if (vwWagon) best = Math.min(best, vwWagonHit(vwWagon, L, ox, oy, oz, dx, dy, dz, Math.min(far, best)));   // THE SEATING WAGON
+  const O = VW_BACK.orch;                                      // the orchestra-level door: an edge in it unless the lift stands at ORCHESTRA
+  if (L.state !== 'ORCHESTRA') best = Math.min(best, vwBoxHit(O.x0, O.x1, O.floor - 0.05, O.floor + O.head, L.lip, L.lip + 0.10, ox, oy, oz, dx, dy, dz, Math.min(far, best)));
   return best;
 }
 // The header: VW ▼ / VW ▲ in Theatre 2's Lifts row (underUI), once it is there
@@ -15496,10 +15502,10 @@ function vwLiftCheck() {
   setW(0);                                                     // the stops first with the wagon in its bay
   const put = (stop, u) => { L.state = L.target = stop; L.y = L.liftY(stop); L.stairU = u; vwLiftAt(L); vwStairAt(L); };
   const walk = (pts, y0) => {                                  // the walk's own floor test along a line, 5 cm a point
-    let y = y0, worst = 0, holes = 0;
+    let y = y0, worst = 0, holes = 0, head = Infinity;
     for (let i = 0; i + 1 < pts.length; i++) { const [a, b] = [pts[i], pts[i + 1]], k = Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 0.05);
-      for (let j = 1; j <= k; j++) { const x = a[0] + (b[0] - a[0]) * j / k, z = a[1] + (b[1] - a[1]) * j / k, g = groundAt(x, z, y); if (g === null) { holes++; continue; } worst = Math.max(worst, Math.abs(g - y)); y = g; } }
-    return { y, worst, holes };
+      for (let j = 1; j <= k; j++) { const x = a[0] + (b[0] - a[0]) * j / k, z = a[1] + (b[1] - a[1]) * j / k, g = groundAt(x, z, y); if (g === null) { holes++; continue; } worst = Math.max(worst, Math.abs(g - y)); head = Math.min(head, rayUp(x, Math.max(y, g) + WALK.step, z, 6) + WALK.step); y = g; } }
+    return { y, worst, holes, head };
   };
   const st = L.stops, dk = VW.at.y + 1.067;
   line(st.BOTTOM < st.ORCHESTRA && st.ORCHESTRA < st.SEATING && st.SEATING < st.STAGE && Math.abs(st.STAGE - dk) < 1e-6 && Math.abs(st.BOTTOM - L.pitFloor - S.pitOver) < 1e-6
@@ -15534,6 +15540,18 @@ function vwLiftCheck() {
       line(!r.holes && r.worst <= WALK.step && Math.abs(r.y - st.BOTTOM) < 0.01, `BOTTOM: trap room → the pit's door → onto the lift: largest change ${(r.worst * 1000).toFixed(0)} mm, ${r.holes} without a floor, ending on ${f3(r.y)}`);
     }
   }
+  // the orchestra-level door: the musicians' way in from the corridor with the lift at ORCHESTRA, its edge at every other stop
+  // (its leaf and the trap room's held open for the test)
+  const O = VW_BACK.orch, oh = (vwBack ? vwBack.doors : []).filter(e => /orchestra lift, orchestra level|trap room$/.test(e.name)).map(e => ({ e, u: e.u, want: e.want, rot: e.leaves.map(l => l.rotation.y) }));
+  for (const { e } of oh) { e.u = e.want = 1; e.angle = DOORS.swing; for (const l of e.leaves) { l.rotation.y = -l.userData.s * e.angle; l.updateMatrixWorld(true); } }
+  put('ORCHESTRA', 0);
+  const ro = walk([[77, 14.93], [77, 13.3], [86.5, 13.3], [86.5, 1.3], [84.3, 1.3], [79.0, 1.3], [78.9, 0.4], [78.9, -1.0]], VW_BACK.floor);
+  const ob = Math.min(...[-0.21, 0, 0.21].flatMap(o => WALK.rays.map(hh => rayH(78.9 + o, O.floor + hh, 1.3, 0, -1, 2.3))));
+  line(oh.length === 2 && !ro.holes && ro.worst <= WALK.step && ro.head >= WALK.head && Math.abs(ro.y - st.ORCHESTRA) < 0.003 && ob === Infinity,
+    `ORCHESTRA: the musicians' way — corridor → trap room → its stair (${O.n} risers) → landing → the orchestra-level door → onto the lift: largest change ${(ro.worst * 1000).toFixed(0)} mm, least headroom ${ro.head.toFixed(2)} m, ${ro.holes} without a floor, ending on ${f3(ro.y)}; through the doorway ${ob === Infinity ? 'nothing in the way' : 'blocked at ' + f3(ob) + ' m'}`);
+  const shut = S.order.filter(s => s !== 'ORCHESTRA').map(s => { put(s, s === 'SEATING' ? 1 : 0); return [s, Math.min(...WALK.rays.map(hh => rayH(78.9, O.floor + hh, 0.3, 0, -1, 1.2)))]; });
+  line(shut.every(([, d]) => d < 0.6), `the orchestra-level door's edge at every other stop stops a walker in the doorway: ${shut.map(([s, d]) => `${s} ${f3(d)} m`).join(', ')}`);
+  oh.forEach(({ e, u, want, rot }) => { e.u = u; e.want = want; e.angle = u * u * (3 - 2 * u) * DOORS.swing; e.leaves.forEach((l, i) => { l.rotation.y = rot[i]; l.updateMatrixWorld(true); }); });
   // between stops: the wagon bay's mouth, under the stalls, closed to a walker riding the lift
   put('BOTTOM', 0); L.y = st.BOTTOM + 1.0; vwLiftAt(L);
   const em = Math.min(...WALK.rays.map(hh => rayH(77, L.y + hh, -4.6, 0, -1, 3)));
@@ -15902,6 +15920,10 @@ const VW_BACK = {
   // storage and mechanical rooms (z < below) only the ceiling and up is cut
   stairs: { SR: { x0: 61.80, x1: 63.00, end: 13.945 }, SL: { x0: 91.00, x1: 92.20, end: 13.945 }, zt: 5.30, hole: 8.90, below: 7.45, ceil: 11.20, n: 30, going: 0.26 },
   pit: { x0: 72.40, x1: 73.40 },                     // the pit's door through the stage's front wall (z −0.152…0.686)
+  // the musicians' way onto the lift at ORCHESTRA (Jack, 2026-10-24: "make a way in at the orchestra level"): a door
+  // through the stage's front wall at the lift's ORCHESTRA height, a landing behind it and a stair down along the wall's
+  // back face into the trap room (rising toward −x), in a shaft walled off from the trap room
+  orch: { x0: 78.40, x1: 79.40, floor: VW.at.y + 1.067 - VW_LIFT.orchestra, head: 1.95, z0: 0.686, z1: 1.88, wall: 0.09, land: 77.80, top: 80.00, n: 15, going: 0.26, cutTo: 83.10, under: 2.244 },
   slots: [[54.216, 54.99], [99.01, 99.784]],         // the corridor's end slots, walled
   lockers: [59.20, 61.15, 13.25, 13.93],             // the two lockers the model stood across the lounge's doorway (x 59.30…61.06), out
   exits: [[59.15, 60.40], [67.55, 68.80], [74.70, 75.95]],   // the back wall's doorways onto nothing (z 29.794), fixed shut
@@ -15924,6 +15946,8 @@ VW_BACK.doors = (() => {
   d.push({ name: 'Van Wezel catering kitchen', sign: 'CATERING', px: 70.828, pz: 27.5, th: -PI / 2, w: 1.0, T: 0.152, cut: true, zhi: 1.1 });
   d.push({ name: 'Van Wezel instrument storage', sign: 'INSTRUMENTS · PIT', px: 64.732, pz: 2.1, th: -PI / 2, w: 1.0, T: 0.152, cut: true, zhi: 1.2 });
   d.push({ name: 'Van Wezel orchestra pit', sign: 'ORCHESTRA PIT', px: (VW_BACK.pit.x0 + VW_BACK.pit.x1) / 2, pz: 0.686, th: 0, w: VW_BACK.pit.x1 - VW_BACK.pit.x0, T: 0.838, cut: true, zhi: 1.3, signSide: 1 });
+  const O = VW_BACK.orch;                                // its own floor (the lift's ORCHESTRA): walked through in the lift's check, not vwBackCheck's
+  d.push({ name: 'Van Wezel orchestra lift, orchestra level', sign: 'ORCHESTRA LIFT', px: (O.x0 + O.x1) / 2, pz: O.z0, th: 0, w: O.x1 - O.x0, T: 0.838, cut: true, zhi: 1.1, signSide: 1, floor: O.floor, head: O.head });
   return d;
 })();
 const VW_SIGNS = [
@@ -16041,15 +16065,16 @@ function vwBackBuild(model) {
   // 5. THE DOORWAYS: cut, lined (the cut faces), framed (steel, a casing each face); the model's own openings framed
   const doorways = [];
   for (const d of B.doors) {
-    const M = frameM(d.px, d.pz, d.th), hw = d.w / 2, top = F + (d.head || B.head), T = d.T;
+    const Fd = d.floor ?? F, M = frameM(d.px, d.pz, d.th), hw = d.w / 2, top = Fd + (d.head || B.head), T = d.T;   // Fd: the orchestra-level door's own floor
     if (d.cut) {
       const bb = new THREE.Box3();
       for (const x of [-hw, hw]) for (const z of [-T - 0.01, 0.01]) bb.expandByPoint(new THREE.Vector3(x, 0, z).applyMatrix4(M));
-      cutBox('door: ' + d.name, bb.min.x, bb.max.x, F + 0.002, top, bb.min.z, bb.max.z);
-      lbx('reveal', M, -hw - 0.02, -hw, F, top + 0.02, -T, 0); lbx('reveal', M, hw, hw + 0.02, F, top + 0.02, -T, 0); lbx('reveal', M, -hw, hw, top, top + 0.02, -T, 0);
+      cutBox('door: ' + d.name, bb.min.x, bb.max.x, Fd + 0.002, top, bb.min.z, bb.max.z);
+      lbx('reveal', M, -hw - 0.02, -hw, Fd, top + 0.02, -T, 0); lbx('reveal', M, hw, hw + 0.02, Fd, top + 0.02, -T, 0); lbx('reveal', M, -hw, hw, top, top + 0.02, -T, 0);
+      if (d.floor !== undefined) lbx('stair', M, -hw - 0.02, hw + 0.02, Fd - 0.06, Fd, -T - 0.004, 0.004);   // a sill through the wall
     }
-    lbx('frame', M, -hw, -hw + fw, F, top, -T, 0); lbx('frame', M, hw - fw, hw, F, top, -T, 0); lbx('frame', M, -hw + fw, hw - fw, top - DOORS.headH, top, -T, 0);
-    for (const [z0, z1] of [[0, 0.012], [-T - 0.012, -T]]) { lbx('frame', M, -hw - 0.06, -hw, F, top + 0.06, z0, z1); lbx('frame', M, hw, hw + 0.06, F, top + 0.06, z0, z1); lbx('frame', M, -hw - 0.06, hw + 0.06, top, top + 0.06, z0, z1); }
+    lbx('frame', M, -hw, -hw + fw, Fd, top, -T, 0); lbx('frame', M, hw - fw, hw, Fd, top, -T, 0); lbx('frame', M, -hw + fw, hw - fw, top - DOORS.headH, top, -T, 0);
+    for (const [z0, z1] of [[0, 0.012], [-T - 0.012, -T]]) { lbx('frame', M, -hw - 0.06, -hw, Fd, top + 0.06, z0, z1); lbx('frame', M, hw, hw + 0.06, Fd, top + 0.06, z0, z1); lbx('frame', M, -hw - 0.06, hw + 0.06, top, top + 0.06, z0, z1); }
     const sz = d.signSide === 1 ? 0.013 : -T - 0.013, sp = new THREE.Vector3(0, 0, sz).applyMatrix4(M);
     vwBackSign(P, d.sign, 0.15, sp.x, top + 0.30, sp.z, d.th + (d.signSide === 1 ? 0 : PI));
     doorways.push({ d, M, top });
@@ -16099,7 +16124,22 @@ function vwBackBuild(model) {
   // next and the void under the stage), open only over the stairs' shafts; battens down both corridors; a QUIET PLEASE
   // board at each stair door
   const DC = B.dropped;
-  for (const r of underRects([C.x0, C.x1, 0.686, 29.794], [SS.SR, SS.SL].map(S => [S.x0 - 0.10, S.x1 + 0.10, SS.below, S.end]))) bx('ceil', r[0], r[1], DC, DC + 0.02, r[2], r[3]);
+  // THE ORCHESTRA-LEVEL WAY (B.orch): a stair of n risers up along the stage's front wall's back face from the trap room's floor
+  // (its foot house left, at x top + (n − 1) × going) to a landing at the lift's ORCHESTRA height, the door through the wall
+  // (B.doors) onto the lift; walled from the trap room, the ceilings over it cut away up to the stage's underside
+  const O = B.orch, orise = (O.floor - F) / O.n, ofoot = O.top + (O.n - 1) * O.going;
+  cutBox('orchestra-level way', O.land - 0.01, O.cutTo, -0.10, O.under, O.z0 + 0.012, O.z1);
+  bx('stair', O.land, O.top, F, O.floor, O.z0, O.z1);                                       // the landing
+  for (let k = 1; k < O.n; k++) {
+    const x0 = O.top + (O.n - 1 - k) * O.going, y = F + k * orise;
+    bx('stair', x0, x0 + O.going, F, y, O.z0, O.z1); bx('nose', x0, x0 + 0.03, y - 0.02, y + 0.002, O.z0, O.z1);
+  }
+  bx('wall', O.land - O.wall, ofoot + 0.06, F, O.under, O.z1, O.z1 + O.wall);               // the shaft's wall to the trap room
+  bx('wall', O.land - O.wall, O.land, F, O.under, O.z0, O.z1 + O.wall);                       // its west end
+  bx('wall', O.cutTo, O.cutTo + O.wall, DC, O.under, O.z0, O.z1);                             // over the ceiling, its east end
+  deskRod(P, 'rail', new THREE.Vector3(ofoot - 0.1, F + orise + 0.9, O.z1 - 0.06), new THREE.Vector3(O.top, O.floor + 0.9, O.z1 - 0.06), 0.022, 8);
+  bx('housing', O.land + 0.3, O.land + 1.5, O.under - 0.07, O.under, (O.z0 + O.z1) / 2 - 0.06, (O.z0 + O.z1) / 2 + 0.06); deskPut(P, 'glow', new THREE.PlaneGeometry(1.16, 0.1), O.land + 0.9, O.under - 0.071, (O.z0 + O.z1) / 2, PI / 2);
+  for (const r of underRects([C.x0, C.x1, 0.686, 29.794], [...[SS.SR, SS.SL].map(S => [S.x0 - 0.10, S.x1 + 0.10, SS.below, S.end]), [O.land - O.wall, O.cutTo, 0.686, O.z1 + O.wall]])) bx('ceil', r[0], r[1], DC, DC + 0.02, r[2], r[3]);
   let nb = 0;
   for (const zm of [(C.z0 + C.z1) / 2, (B.lower.z0 + B.lower.z1) / 2]) for (let x = 56.2; x < C.x1 - 1; x += 4.0) {
     bx('housing', x - 0.6, x + 0.6, DC - 0.07, DC, zm - 0.06, zm + 0.06); deskPut(P, 'glow', new THREE.PlaneGeometry(1.16, 0.1), x, DC - 0.071, zm, PI / 2); nb++;
@@ -16122,7 +16162,7 @@ function vwBackBuild(model) {
   const m4 = new THREE.Matrix4(); bulbs.forEach((b, i) => bm.setMatrixAt(i, m4.makeTranslation(b[0], b[1], b[2]))); bm.instanceMatrix.needsUpdate = true; bm.computeBoundingSphere(); scene.add(bm);
   // 10. THE LEAVES, on E
   const mats = { wood: backstageMat.door, glass: backstageMat.panel, brass: backstageMat.kick };
-  const doors = doorways.map(({ d, top }) => hangLeafAt({ name: d.name, px: d.px, pz: d.pz, th: d.th, x0: -d.w / 2 + fw, x1: d.w / 2 - fw, floor: F, head: top - DOORS.headH, zhi: d.zhi, mats }));
+  const doors = doorways.map(({ d, top }) => hangLeafAt({ name: d.name, px: d.px, pz: d.pz, th: d.th, x0: -d.w / 2 + fw, x1: d.w / 2 - fw, floor: d.floor ?? F, head: top - DOORS.headH, zhi: d.zhi, mats }));
   // 11. drawn only from inside the Van Wezel: the model's basement and all of this (layers: the walk's grid keeps them)
   const gated = [], leaves = doors.flatMap(e => e.leaves);
   model.root.traverse(o => { if (o.isMesh && /^vw: basement_/.test(o.name)) gated.push(o); });
@@ -16165,14 +16205,15 @@ function vwBackCheck() {
   // 1. each door's way through: 0.7 m before its wall to 1.0 m past its frame, three lines a body apart
   const blocked = [];
   for (const { d, M } of b.doorways) {
-    const A = new THREE.Vector3(0, 0, -d.T - 0.7).applyMatrix4(M), Z = new THREE.Vector3(0, 0, 1.0).applyMatrix4(M), dir = Z.clone().sub(A), len = dir.length(); dir.normalize();
+    if (d.floor !== undefined) continue;                       // the orchestra-level door: walked in the lift's check, with the lift at ORCHESTRA
+    const A =new THREE.Vector3(0, 0, -d.T - 0.7).applyMatrix4(M), Z = new THREE.Vector3(0, 0, 1.0).applyMatrix4(M), dir = Z.clone().sub(A), len = dir.length(); dir.normalize();
     const side = new THREE.Vector3(dir.z, 0, -dir.x);
     let y = groundAt(A.x, A.z, F + 0.05), bad = null;
     for (let k = 1, n = Math.ceil(len / 0.05); k <= n && !bad; k++) { const x = A.x + dir.x * len * k / n, z = A.z + dir.z * len * k / n, gy = groundAt(x, z, y); if (gy === null || Math.abs(gy - y) > WALK.step) bad = `floor at ${x.toFixed(2)}, ${z.toFixed(2)}`; else y = gy; }
     for (const o of [-R + 0.04, 0, R - 0.04]) for (const h of WALK.rays) if (!bad) { const t = rayH(A.x + side.x * o, F + h, A.z + side.z * o, dir.x, dir.z, len); if (t < len) bad = `something ${t.toFixed(2)} m in at ${h} m`; }
     if (bad) blocked.push(`${d.name} (${bad})`);
   }
-  line(!blocked.length, `${b.doorways.length} doorways walked through, leaves open: ${blocked.length ? 'blocked — ' + blocked.join('; ') : 'every one clear, floor continuous'}`);
+  line(!blocked.length, `${b.doorways.filter(q => q.d.floor === undefined).length} doorways walked through, leaves open: ${blocked.length ? 'blocked — ' + blocked.join('; ') : 'every one clear, floor continuous'}`);
   // 2. the routes, the walk's floor test 5 cm a point (and the head's room over it), the leaves still open
   const deck = VW.at.y + 1.067, SR = B.stairs.SR, xs = (SR.x0 + SR.x1) / 2, cz = (B.corridor.z0 + B.corridor.z1) / 2, lz = (B.lower.z0 + B.lower.z1) / 2;
   const walk = (pts, y0) => {
