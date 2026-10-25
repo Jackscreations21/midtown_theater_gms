@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#40 merged but #38; `main` `7e60af6`; open: #38 `theatre2-sign`)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#40 merged, #38 last; nothing open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -14,12 +14,13 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   Rumble. **His eye on it, then his to decide:** the hallway's look from the street; the spot booth's switch darkens its outside
   too; the rumble's 95 hits are found by the computer (too many or too few?); the crew take ~1.5 min to walk up; the monitors'
   angles.
-- **Open: PR #38 `theatre2-sign` (2026-10-25): Theatre 2's street front renamed.** Jack: "change the sign that says theater 2 to
+- **PR #38 (MERGED after #40) `theatre2-sign` (2026-10-25): Theatre 2's street front renamed.** Jack: "change the sign that says theater 2 to
   say midtown theater an make its marquis say johhny tremain". `ST_OURS` row 2's signs read MIDTOWN THEATER; the marquee's title
-  was already JOHNNY TREMAIN. Not merged yet.
+  was already JOHNNY TREMAIN. Only the street's signs changed; everywhere else still says Theatre 2 (his word: "Leave the rest as
+  Theatre 2").
 
 **Main** is **`7e60af6`** (#40). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
-NEXT below, plus `actor-whiteout`, `crew-walks` and `record-40`).
+NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40` and `theatre2-sign`).
 
 - **Before it: PR #39 (MERGED `75b879b`) `actor-whiteout` (2026-10-25; HANDOFF's DONE block): lit actors no longer turn white.** Jack: "at some parts the lighting or the
   spotlights light up the people too much and they just turn entirely white". The cause: the engine's pools are added onto the
