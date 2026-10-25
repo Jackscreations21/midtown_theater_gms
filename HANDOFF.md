@@ -275,6 +275,50 @@ theaters (just put up empty fronts plus the 3 we already have for now) with marq
   is lit by the scene's hemisphere); the street's slant and the wedge before Midtown; ACTUAL TIME's sunrise and sunset are an
   approximation for the date; Circle in the Square has no front; the paved strip east of the Van Wezel ends in open air at
   its far north corner; the house's insides are still drawn from the street (no room culling).
+## NEXT SESSION: **HIS EYE ON HAMILTON IN THE VAN WEZEL** (2026-10-25; PR `vw-hamilton`)
+
+Rulings at **GU** (GV next; the Broadway street session was told to start at GV). Land PR `vw-hamilton` when he says so. Then
+his eye on it: the "VW Hamilton" view; the stalls in a show (any cue, the Show panel); the pit (the lift down, its wall up, the
+band walking in at the Five from the stage-right prompt desk); the grandMA3's two screens in the tech booth. His to decide:
+- house 1's three followspots shine from the Van Wezel's follow-spot booth there (their cones differ, their pools are the same);
+- house 1's Boom 1 (both box booms) falls inside the Van Wezel's proscenium wall: hidden, its light from behind the proscenium;
+- the band walks out at the interval's calls and back at its Five; with no desk in use it is seated whenever the show is on;
+- the prompt desk's monitor shows house 1's plan (it is the one desk's screen);
+- the Van Wezel's own borders and electrics moved up (and the pars to lineset 10) clear of the set and Hamilton's electrics;
+- the Broadway street session (branch `claude/broadway-street-5514f3`) stopped part-way: see what it left.
+
+## DONE — 2026-10-25 (evening): Hamilton on the Van Wezel's stage — the set, the rig, the cues the same; the pit, the desk, the band (PR `vw-hamilton`, RULING GU; the lead)
+
+Jack: *"put in the set and the lighting for hamilton and put the cues into the desk in the venwezel and make sure all teh cues
+still look the same"*, before it *"raise the house borders and electrics clear of it"*, then *"make the stage fit on with the
+orchstra pit down"* (asked: the lift "down as a pit") and *"also add a stage manger desk to stage right and add the instuments
+to the orchestra pit and make it so the muscians go to the pit at 5 minuets"*.
+- **ONE SHOW, TWO STAGES** (THE THIRD HOUSE: HAMILTON ON ITS STAGE, `VWHAM`): house 1 keeps everything; the Van Wezel shows the
+  same production moved rigidly by (77, +1.712, +1.60) — house 1's floor (Jack's slab, box 21, 0.845) onto its deck, 1.6 m
+  upstage so the set's portal clears the 7.74 m opening's header and the Downstage lip's footlights stand on its deck with the
+  pit down. A synced clone (geometry and materials shared) of the set, the rig, the actors and props (only those on house 1's
+  stage), and Jack's three baked pieces on the set (box 4, box 22, copy 24). The lighting group (beams, pools, glare), the
+  real lights and the work spots move with the camera into the Van Wezel; the beams' and pools' shaders take their sums back
+  by `LX_OFF`, so every landing point and pool is the engine's own. Followspot cones from the Van Wezel's booth.
+- **RULING GU (2026-10-25), Jack, the pit "down as a pit":** with Hamilton on, the Van Wezel's lift goes to the orchestra level at
+  load (the seating wagon off) and the pit wall is raised round it (`VWHAM.pit`; the Van Wezel's own route check takes the lift
+  to the seats and back).
+- **The proof:** `MIDTOWN.vanWezel.hamilton.compare({ noFollow: true })` rendered all 909 cues in both houses from three paired
+  views (stalls, side, high) and compared every pixel where the production is seen in both: mean difference 0.02–0.29 of 255,
+  no cue with even 1 % of its pixels off by more than 12 (worst 0.32 %). With the followspot cones in, only they differ.
+- **The Van Wezel's hang:** borders 11.25–11.6 → 12.25–12.6, ellipsoidals 11.75 → 12.75, movers 12.4 → 12.9, electrics → 12.9,
+  the pars on lineset 10 (a row of Hamilton's electrics' lines ran through lineset 6); nothing under 12.23 (the set's walls 11.88).
+  Hamilton's electrics' lines go on up to the Van Wezel's grid, the FOH trusses' cables to its ceiling (`vwHamRigging`).
+- **The desk:** house 1's two lighting-desk screens on the tech booth's grandMA3 (`DSK.also`, a click there is a click on them);
+  house 1's prompt desk cloned stage right (x 87.95, z 2.60), E sits you there for the same calling panel (`SM.at`).
+- **The band:** house 1's pit kit cloned onto the lift, a podium and keyboard for the MD, the nine players and the MD as a band of
+  their own (`pitPose(T, force, B)`), lit by the pit's lamp shader (`PIT_U.uPitOff`); they walk in from the orchestra-level
+  door at the Five (one every 1.1 s) and out at the interval.
+- **Checks on the branch:** `vanWezel.hamilton` 10/10; `vanWezel`, `.sideDoors`, `.foyer`, `.patches` PASS; `.stageHouse` 8/8;
+  `.lift` 26/26; `.lift.guards` 9/9; `.house` 5/5; `.booths` 16/16; `.booths.gear` 10/10; `.backstage` 5/5; `doors.check()`
+  76/76; `under` 16/16; `pit` 11/11; `lx.check()` 301/313; `actors.check()` PASS; `show.check()` seek-equivalent (its pass
+  false is the 16 channels with no unit, as on `main`); console clean. Shaders changed (beam, pool, glare, pit): the first load
+  compiles them once more.
 
 ## DONE — 2026-10-25 (later): the pit's wall, the foyer's walls, the stage-right wing wider (PR `vw-pit-rail`, the lead and two Opus agents)
 

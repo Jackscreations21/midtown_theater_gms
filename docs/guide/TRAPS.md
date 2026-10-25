@@ -2262,6 +2262,27 @@ include the place a failure would show — the corridor behind the house, not on
   up from inside, and cut what the void hid. Also: the loft's cut box must keep the model's x — run with the new wall's x it
   would have cut the stretched front face (z 0.61) out of the strip.
 
+## From the Hamilton-in-the-Van-Wezel round (2026-10-25)
+
+- **The Claude Browser pane, hidden, gives NO animation frames at all** (not 1.5 fps: a 3 s count of `requestAnimationFrame`
+  came back 0). A tool loop paced on rAF never runs there. `MIDTOWN.vanWezel.hamilton.compare` steps itself on MessageChannel
+  turns (`vwHamYield`), and anything the frame loop builds late (house 1's band, the prompt desk) needs `MIDTOWN.frame()`
+  calls, or the gate's own lazy build, before a check can see it.
+- **The pane served a cached `midtown.html` after an edit.** A plain `navigate` to the same URL ran the old page (no new API on
+  `MIDTOWN`). Add a cache-buster (`?v=N`) on every reload after an edit.
+- **House 1's stage floor is NOT the scan's deck (0.80).** Jack's baked slab, box 21 (bake 3), lies over it with its top at
+  0.845: the walk, the actors and the lights' landing points are on 0.845, and the set stands 4.5 cm down in it. Anything
+  mapping house 1's stage elsewhere maps 0.845 onto the other floor (VWHAM.off), not 0.80.
+- **A picture taken into a render target must be the drawing buffer's size when pools are lit.** The pools read the depth pass
+  at `gl_FragCoord / uRes` (LXDEP, sized to the canvas); a smaller target samples the wrong pixels. The proof renders at the
+  drawing buffer's size.
+- **`lxDrawRec` writes a beam's `matrixWorld` straight from its `matrix`**, skipping the parent. With the lighting group moved
+  (LX_OFF), the beam budget's frustum test ran before the next `updateMatrixWorld` and saw every new beam at house 1. The
+  gate updates the group's matrices after the engine's tick and before the budget.
+- **Mirroring a whole subtree mirrors what is offstage too.** The company waiting in house 1's dressing rooms showed up,
+  head tags and all, in the Van Wezel's house. The mirror shows an actor or a prop only while its source stands on house
+  1's stage (VWHAM.stage).
+
 ## From the Broadway street round (2026-10-25)
 
 - **Python's text mode on Windows writes CRLF.** `open(p, 'w')` turned every `

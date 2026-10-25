@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#27 merged; `main` `d98673c`)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#29 merged; `main` `c87e90b`; open: `vw-hamilton`)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -17,9 +17,12 @@ worktrees and local branches are gone.
   (`MIDTOWN.street`), with chaser bulbs, lit signs and lamps at night, and a "Broadway" view. **His eye on it, then his to
   decide:** the Van Wezel's lower wall stays light at night; the slant and the wedge before Midtown; the approximate
   sunrise and sunset; Circle in the Square has no front; the paved strip east of the Van Wezel is open at its far north
-  corner; the houses' insides are still drawn from the street. PR #30 (`vw-hamilton`) is open beside it and touches
-  midtown.html in other sections. Rulings are at **GV** (GU is `vw-hamilton`'s), so GW is next.
-- **NEXT: his eye on PR #27 (`vw-answers`, MERGED `d98673c`; HANDOFF's NEXT SESSION block and its DONE block, RULING GT).** Every one
+  corner; the houses' insides are still drawn from the street. PR #30 (`vw-hamilton`) merged first; this branch has main merged in. Rulings are at **GV** (GU is `vw-hamilton`'s), so GW is next.
+- **NEWEST: PR `vw-hamilton` (2026-10-25, evening; HANDOFF's NEXT SESSION and DONE blocks, RULING GU).** Hamilton on the Van
+  Wezel's stage: the set, rig, actors and light mirrored from house 1 (every cue proven the same, 909 × 3 views), the pit down
+  with its wall up, the band walking in at the Five, a prompt desk stage right, house 1's desk screens on the grandMA3, the
+  Van Wezel's borders and electrics raised clear. His to decide: listed in the NEXT SESSION block. Rulings at GU (GV next).
+- **NEXT (before it): his eye on PR #27 (`vw-answers`, MERGED `d98673c`; HANDOFF's NEXT SESSION block and its DONE block, RULING GT).** Every one
   of his Van Wezel answers and five asks is built: the model's colours back (`VW_PHOTO_COLOURS` off), the landings' lip, the
   foyer's mullions out, the follow-spot booth bigger with tall windows and its outside the ceiling's colour, the lift's pedestal
   gone and its top black, manual pit guards ("VW guards"). Then PR `vw-pit-rail` (2026-10-25, later; HANDOFF's newest DONE
@@ -157,7 +160,7 @@ worktrees and local branches are gone.
 - **Johnny Tremain on Theatre 2 — PR #8 MERGED (2026-10-16, `main` `daa9bcd`), post-merge done (branches deleted both sides, worktrees removed):** his own play, two acts, 26 scenes — the set as
   sized stand-ins with model slots, two stage lifts and an underground under Theatre 2 (RULINGS GI, GJ), a 128-unit rig
   with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's newest DONE block.
-- **Rulings are at GT (GU next).** GT (2026-10-25): his twelve Van Wezel answers (HANDOFF's SUPERSEDED block under the newest DONE). GR–GS (2026-10-24, PR `preshow-announcement`): the announcement before 1-01, Burr's walk in its last 5 s; the exit music at the walk-off, the bows' look held. GM–GQ (2026-10-24): the stage manager spec (his answers). GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
+- **Rulings are at GU (GV next).** GU (2026-10-25, PR `vw-hamilton`): with Hamilton on, the Van Wezel's lift down as its pit at load, its wall up. GT (2026-10-25): his twelve Van Wezel answers (HANDOFF's SUPERSEDED block under the newest DONE). GR–GS (2026-10-24, PR `preshow-announcement`): the announcement before 1-01, Burr's walk in its last 5 s; the exit music at the walk-off, the bows' look held. GM–GQ (2026-10-24): the stage manager spec (his answers). GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
   rails stay down in the deck, so nothing guards the hole while a lift is away (PR #13, merged). GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
   them off. GJ (2026-10-16): an underground under Theatre 2 for storage. Earlier: **GH**. The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
