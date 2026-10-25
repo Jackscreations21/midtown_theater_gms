@@ -229,6 +229,40 @@ compare the *same* production across stages instead.
 
 ---
 
+## NEXT SESSION: **HIS EYE ON THE VAN WEZEL DRESSED FOR HAMILTON** (2026-10-25; PR #33 `vw-hamilton`)
+
+Rulings at **GV** (GW next). Land PR #33 when he says so (main merged in). Then his eye on it: "VW dress" on and off from the
+stalls and from the stage; with the house down in a show. His to decide: listed in the DONE block below. Then the NEXT SESSION
+blocks under it.
+
+## DONE — 2026-10-25 (night): the Van Wezel's auditorium dressed for Hamilton — brick, timber, rope (PR #33, `vw-hamilton`; the lead)
+
+Jack: *"make the who inside of the auditorium thmed for hamilton.. put up bricks and ropes and woode beams and a bunch of stuff
+to make it hamitlon themed (in the van wezel"*.
+- **THE HAMILTON HOUSE** (`vwDressBuild`, `VWHD`; `MIDTOWN.vanWezel.dress`, the header's "VW dress" toggle): the side walls' 26
+  tall gold grille panels (`house_tex_30`) in a running-bond brick (new UVs in metres; their own UVs, map and colours kept, so
+  off puts the grille back); a dark timber post over every pier (28), a header beam along each wall at 14.55, a sill under each
+  panel, knee braces; five trusses across the house (z −5.3, −9.9, −14.6, −19.2, −28.5; none over the follow-spot booth) on
+  iron hangers to the ceiling; rope swags across every panel, rope coils and lanterns by turns on the posts; rigging lines
+  through blocks to coils and sandbags from each truss near the walls; a ring of candles over the middle of each truss;
+  two thirteen-star flags on the first truss; a timber lintel over the proscenium, braced into its corners.
+- Unlit with the light baked in, as THE HOUSE AS IT IS; goes down with the house (in vwHamBuild's dims). Not in the walk's grid
+  (nothing in reach). Five meshes, ~45 k triangles.
+- `vwKeepOut(meshes)`: the house check's "nowhere it may not be" and sightline tests made one function, used by both.
+- **Checks:** `vanWezel.dress` 6/6 (nothing on the stage's side, in the lift's travel or a booth; 0 of 120 follow-spot and
+  tech-booth sightlines blocked; off/on exact); `.house` 5/5; `.hamilton` 10/10; `vanWezel` PASS; `.lift` 26/26;
+  `.lift.guards` 9/9; `.booths` 16/16; `doors.check()` 76/76; `lx.check()` 301/313 (as before); `actors.check()` PASS.
+- **After merging main (#31, #32):** built after vwHamBuild so the lintel sits over the fitted opening (0.45 m over its header,
+  braced from the wall outside it: the FOH throws pass just under the header); candle rings only on the first and last
+  trusses (the others' middles are in the moved FOH positions' throws or the middle follow-spot's); rigging drops 2.0/2.6.
+  The check traces the show's own throws (3 follow-spots, 48 FOH units moved up) through the fitted opening: 0 of 914 blocked.
+  On the merged branch: `.dress` 7/7, `.house` 5/5, `.hamilton` 12/12, `vanWezel` PASS, `.lift` 26/26, `doors` 79/79,
+  `actors` PASS. **`.lift.guards` 8/9 — not this round's:** the walk deck → house-right stair → lift is blocked 0.72 m in;
+  #32's fitted pier (x 68.55…71.38, in the walk's grid) stands over the stage stair (x 68.55…69.95).
+- His to decide: the chandeliers hang over the middle of the stalls (13.9 m up, clear of every sightline checked); the brick
+  covers only the grille panels (the dark piers and the parapets keep the model's colours); the front panels' sills sit at
+  5.0 (2.45 m over the deck) instead of on the panels' feet, clear of the lift's corners.
+
 ## DONE — 2026-10-25 (late night): the Van Wezel's opening fitted, its FOH up, its house light, all its doors; the mouse re-locks (PR `claude/festive-liskov-2f7ffa`, one agent session)
 
 Jack: *"sometimes randomly it wont lock my cursor back in and i wont be able to press anything. also fit the proscenium to the

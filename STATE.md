@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#31 merged; `main` `ba250fd`; open: `claude/festive-liskov-2f7ffa`)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#32 merged; `main` `0340da9`; open: #33 `vw-hamilton`)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -10,7 +10,11 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 (#20). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under NEXT below); the
 worktrees and local branches are gone.
 
-- **NEWEST: PR `claude/festive-liskov-2f7ffa` (2026-10-25, late night; HANDOFF's newest DONE block; no ruling, GW next).** The mouse re-locks after
+- **NEWEST: PR #33 `vw-hamilton` (2026-10-25, night; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's
+  auditorium dressed for Hamilton** — brick on the side walls' panels, timber posts, headers and trusses, rope swags, coils
+  and rigging, lanterns, candle rings, flags, a lintel over the proscenium ("VW dress" toggles it). Main merged in. **Open bug from #32:** the fitted proscenium pier stands over the Van
+  Wezel's house-right stage stair, so the walk from the stage down it is blocked (`.lift.guards` 8/9).
+- **Before it: PR #32 (MERGED `0340da9`) `claude/festive-liskov-2f7ffa` (2026-10-25, late night; HANDOFF's newest DONE block; no ruling, GW next).** The mouse re-locks after
   refusals (it used to give up for good); the Van Wezel's proscenium closed to house 1's opening round the set; house 1's three
   FOH positions there moved back and up under its ceiling (beams from there, the pools the same); a "Van Wezel house light"
   slider; a "VW doors" button for all 58. **His to decide:** the follow-spot beams pass through the FOH Truss; the trusses'

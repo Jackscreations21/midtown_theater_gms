@@ -14004,6 +14004,7 @@ function buildHouse2(src) {
   const wallChecked = wallCheck();
   try { lxInit(); } catch (e) { console.error('lx: the lighting engine failed to start —', e); }   // never stops the page
   try { vwHamBuild(); } catch (e) { console.error('van wezel hamilton: mirroring the production onto its stage failed —', e); }   // the set, rig and light on the Van Wezel's stage (THE THIRD HOUSE: HAMILTON ON ITS STAGE)
+  if (vwBuilt && vwBuilt.model && !VW.missing && VW_HAM_DRESS) try { vwDressBuild(vwBuilt.model); } catch (e) { console.error('van wezel dress: dressing the house for Hamilton failed —', e); }   // brick, timber and rope in the auditorium, after the opening is fitted (THE THIRD HOUSE: THE HAMILTON HOUSE)
   window.MIDTOWN = { scene, house: house.scene, house2: house2Root, house2Spec: HOUSE2, house2Mesh,
     house2Works: { ...house2Works, spots: boothPropGroup, cuts: HOUSE2_CUTS, cut: () => house2Cut },   // Theatre 2's booth, desk and followspot props; its cut boxes and what they took
     set: setGroup, houseMesh, camera, orbit, THREE, built, rig, renderer, requestRender, shadowsDirty, lx: LX_API,
@@ -18038,6 +18039,26 @@ function vwHouseBuild(model) {
   console.info(`van wezel house: ${count.lights} downlights, ${count.fixtures} fixtures, ${count.circuits} circuits, ${count.panes} panes, ${VWH.armrests} armrest vertices wood; cut ${Object.entries(count.cut).map(([k, v]) => `${k} ${v}`).join(', ')}; ${group.children.length} meshes, ${tris} triangles · ${ms.toFixed(0)} ms`);
   return vwHouse;
 }
+// Where nothing hung in the house may be (THE HOUSE AS IT IS, THE HAMILTON HOUSE): the stage's side of the lip's face, the
+// lift's travel, the tech and follow-spot booths; and what of the follow-spots' and the tech booth's sight of the stage
+// (1.6 m over the deck) the meshes block. → { verts, onstage, inLift, inBooth, maxZ, lift, blocked, rays }
+function vwKeepOut(meshes) {
+  const H = VWH, v = new THREE.Vector3(), lift = scene.getObjectByName('vw lift: slab');
+  const lb = lift ? new THREE.Box3().setFromObject(lift) : null; if (lb) { lb.min.y = Math.min(lb.min.y, VW.at.y - 0.5); lb.max.y = H.pros.deck + 2.4; lb.max.z -= 0.01; }   // (less the lip strip's 3 mm)
+  const tb = new THREE.Box3(new THREE.Vector3(VWB.booth.x0, VWB.floor - 0.2, VWB.booth.z0), new THREE.Vector3(VWB.booth.x1, VWB.booth.roof, VWB.booth.z1 - 0.05));
+  const S = VWG.spot, sE = Math.asin((S.ends[1] - S.c[0]) / S.portR) + 0.01;          // the follow-spot booth (THE BOOTHS' GEAR builds its shell): its walls, floor and roof, by r and φ about its arc's centre
+  const sb = p => { const r = Math.hypot(p.x - S.c[0], p.z - S.c[1]); return p.z < S.c[1] && r > S.rF - S.wall - 0.05 && r < S.rB + S.wall + 0.05 && Math.abs(Math.asin((p.x - S.c[0]) / r)) < sE && p.y > S.floor - 0.25 && p.y < S.top + S.roof + 0.03; };
+  const o = { verts: 0, onstage: 0, inLift: 0, inBooth: 0, maxZ: -Infinity, lift: !!lb, blocked: 0, rays: 0 };
+  for (const m of meshes) {
+    const P = m.geometry.attributes.position; m.updateMatrixWorld(true); o.verts += P.count;
+    for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i).applyMatrix4(m.matrixWorld); o.maxZ = Math.max(o.maxZ, v.z); if (v.z > H.pros.face + 0.001) o.onstage++; if (lb && lb.containsPoint(v)) o.inLift++; if (tb.containsPoint(v) || sb(v)) o.inBooth++; }
+  }
+  const ray = new THREE.Raycaster(), d = new THREE.Vector3();
+  const spotEye = x => { const f = Math.asin((x - S.c[0]) / S.portR) + (x < S.c[0] ? -1 : 1) * S.nose / S.rF, r = S.rF - S.wall - 0.05; return [S.c[0] + r * Math.sin(f), S.floor + 0.72, S.c[1] - r * Math.cos(f)]; };   // the house-right and house-left spots' lenses, just outside their windows
+  const eyes = [spotEye(S.xs[0]), spotEye(S.xs[2]), [77, 9.8, -38.3], [74, 9.8, -38.3], [80, 9.8, -38.3]].map(a => new THREE.Vector3(...a));
+  for (const e of eyes) for (let x = 70; x <= 84; x += 2) for (const z of [1, 4, 8]) { const t = new THREE.Vector3(x, H.pros.deck + 1.6, z); d.subVectors(t, e); const L = d.length(); ray.set(e, d.normalize()); ray.far = L; o.rays++; if (ray.intersectObjects(meshes, false).length) o.blocked++; }
+  return o;
+}
 // The checks: the fan of panels gone; nothing of it on the stage's side of the proscenium, in the lift's travel, in the
 // booths, or across a follow-spot's or the tech booth's sight of the stage; the coves close the ceiling over the seats (no ray
 // up from under them reaches the roof); three meshes.
@@ -18049,21 +18070,11 @@ function vwHouseCheck() {
   let left = 0;
   for (const n of ['house_tex_31', 'house_unlit']) { const m = VW.root.getObjectByName('vw: ' + n), p = m.geometry.attributes.position; for (let i = 0; i < p.count; i++) if (cut.containsPoint(v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld))) left++; }
   line(!left, `the ceiling's fan of panels, its strips and stars: ${left} vertices left in the cut box`);
-  // 2. where nothing of it may be: the stage's side, the lift's travel, the booths
-  const P = b.solid.geometry.attributes.position, lift = scene.getObjectByName('vw lift: slab');
-  const lb = lift ? new THREE.Box3().setFromObject(lift) : null; if (lb) { lb.min.y = Math.min(lb.min.y, VW.at.y - 0.5); lb.max.y = H.pros.deck + 2.4; lb.max.z -= 0.01; }   // (less the lip strip's 3 mm)
-  const tb = new THREE.Box3(new THREE.Vector3(VWB.booth.x0, VWB.floor - 0.2, VWB.booth.z0), new THREE.Vector3(VWB.booth.x1, VWB.booth.roof, VWB.booth.z1 - 0.05));
-  const S = VWG.spot, sE = Math.asin((S.ends[1] - S.c[0]) / S.portR) + 0.01;          // the follow-spot booth (THE BOOTHS' GEAR builds its shell): its walls, floor and roof, by r and φ about its arc's centre
-  const sb = p => { const r = Math.hypot(p.x - S.c[0], p.z - S.c[1]); return p.z < S.c[1] && r > S.rF - S.wall - 0.05 && r < S.rB + S.wall + 0.05 && Math.abs(Math.asin((p.x - S.c[0]) / r)) < sE && p.y > S.floor - 0.25 && p.y < S.top + S.roof + 0.03; };
-  let onstage = 0, inLift = 0, inBooth = 0, maxZ = -Infinity;
-  for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); maxZ = Math.max(maxZ, v.z); if (v.z > H.pros.face + 0.001) onstage++; if (lb && lb.containsPoint(v)) inLift++; if (tb.containsPoint(v) || sb(v)) inBooth++; }
-  line(!onstage && !inLift && !inBooth, `${P.count} vertices: ${onstage} on the stage's side of the lip's face (the furthest z ${maxZ.toFixed(3)}), ${inLift} in the lift's travel${lb ? '' : ' (no lift)'}, ${inBooth} in the tech or follow-spot booth`);
-  // 3. sightlines: each follow-spot and the tech booth's window to points across the stage
-  const ray = new THREE.Raycaster(), d = new THREE.Vector3(); let blocked = 0, n = 0;
-  const spotEye = x => { const f = Math.asin((x - S.c[0]) / S.portR) + (x < S.c[0] ? -1 : 1) * S.nose / S.rF, r = S.rF - S.wall - 0.05; return [S.c[0] + r * Math.sin(f), S.floor + 0.72, S.c[1] - r * Math.cos(f)]; };   // the house-right and house-left spots' lenses, just outside their windows
-  const eyes = [spotEye(S.xs[0]), spotEye(S.xs[2]), [77, 9.8, -38.3], [74, 9.8, -38.3], [80, 9.8, -38.3]].map(a => new THREE.Vector3(...a));
-  for (const e of eyes) for (let x = 70; x <= 84; x += 2) for (const z of [1, 4, 8]) { const t = new THREE.Vector3(x, H.pros.deck + 1.6, z); d.subVectors(t, e); const L = d.length(); ray.set(e, d.normalize()); ray.far = L; n++; if (ray.intersectObject(b.solid, false).length) blocked++; }
-  line(!blocked, `the follow-spots' and the tech booth's sight of the stage (1.6 m over the deck): ${blocked} of ${n} rays blocked by it`);
+  // 2. where nothing of it may be: the stage's side, the lift's travel, the booths; 3. the follow-spots' and the tech booth's sight
+  const K = vwKeepOut([b.solid]);
+  line(!K.onstage && !K.inLift && !K.inBooth, `${K.verts} vertices: ${K.onstage} on the stage's side of the lip's face (the furthest z ${K.maxZ.toFixed(3)}), ${K.inLift} in the lift's travel${K.lift ? '' : ' (no lift)'}, ${K.inBooth} in the tech or follow-spot booth`);
+  line(!K.blocked, `the follow-spots' and the tech booth's sight of the stage (1.6 m over the deck): ${K.blocked} of ${K.rays} rays blocked by it`);
+  const ray = new THREE.Raycaster();
   // 4. the ceiling closed over the coves: rays up from under them meet a cove or the model's ceiling, never the roof
   const ms = [b.solid]; VW.root.traverse(o => { if (o.isMesh && o.visible && !/glass$|basement/.test(o.name)) ms.push(o); });
   let roof = 0, k = 0;
@@ -18075,6 +18086,321 @@ function vwHouseCheck() {
 }
 const VW_HOUSE_API = { spec: VWH, get built() { return vwHouse; }, check: vwHouseCheck };
 VAN_WEZEL_API.house = VW_HOUSE_API;                           // MIDTOWN.vanWezel.house
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE HAMILTON HOUSE
+   Jack (2026-10-25): "make the who inside of the auditorium thmed for hamilton.. put up bricks and ropes and woode beams and
+   a bunch of stuff to make it hamitlon themed (in the van wezel". The Van Wezel's auditorium dressed as the set on its stage
+   is: brick, dark timber, rope. Nothing of the model is taken away; one look changes and the rest is added.
+   THE BRICK: the side walls' 26 tall panels (the model's house_tex_30: the gold grille bays, 1.85 m along the wall, 4.2…17.5
+   up at the front, 10.9…15.3 at the back) wear a running-bond brick (vwDressBrick: a weathered brown-red as the set's
+   BRICK_GRADE leaves its own, dark mortar), laid on by new UVs in metres along each face; their own UVs, map and vertex
+   colours are kept, so set(false) puts the grille back.
+   THE TIMBER, framing every panel as the set's gallery frames its brick: a post over each pier between two panels (and one at
+   each wall's ends), from the lower panel's foot up to the header or a truss's chord; a header beam along each wall; a sill
+   under each panel; knee braces from the posts to the header. TRUSSES across the house from post to post at the gaps in
+   VWHD.trusses: a chord on the headers, hung from the ceiling on iron rods, braced down to the posts; one is left out where
+   the ceiling over it is too low (rays up, at build).
+   THE ROPE: a swag across each panel under the header, from peg to peg; a coil on a peg on every other post; from each truss
+   rigging lines near the walls, each through a block, down to a coil or a sandbag.
+   THE REST: a lantern (lit panes) on a bracket on every other post; a ring of candles hung over the middle of the first and
+   last trusses (the others' middles are in the FOH positions' throws or the middle follow-spot's); on the first truss a
+   thirteen-star flag near each wall; a timber lintel over the opening as THE OPENING FITTED leaves it, braced from the wall each side (clear of
+   the FOH throws, which pass just under the header).
+   Like THE HOUSE AS IT IS: unlit, a fixed light baked into vertex colours (VW_LIGHT), the glowing parts unbaked; down with the
+   house (built after vwHamBuild, its looks added to vwHam.dims; the panels' look is there already); not in the walk's grid (the posts' feet are over the
+   side portals and the seats, out of reach). Nothing on the stage's side of the lip's face, in the lift's travel, in a booth
+   or across the follow-spots' or the tech booth's sight of the stage (vwKeepOut), nor across the show's own throws here. Five meshes: wood, rope, plain (iron,
+   blocks, sandbags, candles, the lit panes), flags, halos.
+   MIDTOWN.vanWezel.dress: .spec, .built, .on, set(on), check(), view(); the header's "VW dress" toggle. */
+const VW_HAM_DRESS = true;                                      // built at load and shown (false: not built)
+const VWHD = {
+  brick: { w: 0.90, h: 0.60 },                                  // the brick map's repeat in metres: 4 bricks × 8 courses
+  post: { w: 0.42, d: 0.30, out: 0.04 },                        // across the wall, out from it; its back this far in front of the panels' faces
+  foot: 2.45,                                                   // no post's or sill's foot under this over the deck (the front panels' feet are over the lift's corners)
+  header: { y: 14.55, h: 0.32, d: 0.30 },                       // the beam along each wall: its foot, depth, thickness
+  sill: { h: 0.22, d: 0.20 },
+  brace: { drop: 1.10, run: 0.90, s: 0.14 },                    // a knee brace: from the post this far under the header to the header this far along
+  trusses: [1, 3, 5, 7, 11],                                    // the gaps (front first) a truss spans: none in the follow-spot booth's z (−24.1…−20.2)
+  chord: { h: 0.36, w: 0.30, clear: 0.12 },                     // its height, width; the ceiling at least this far over its top all along, or it is left out
+  swag: { y: 14.25, sag: 0.65, r: 0.032 },
+  coil: { dy: 1.45, r: 0.20, tube: 0.028, turns: 5 },           // dy: over the post's foot (a lantern's too)
+  lantern: { w: 0.22, h: 0.36, arm: 0.42 },
+  rig: { from: [2.6, 4.4], drop: [2.0, 2.6], r: 0.022 },        // lines in from each wall's end of a truss, hanging this far (longer reach the FOH throws to the stage's edges)
+  chandelier: { drop: 1.0, R: 0.62, candles: 8, at: [1, 11] },   // at: the gaps whose truss has one (the others hang in the FOH positions' throws, THE FRONT OF HOUSE UP, or the middle follow-spot's)
+  flag: { w: 1.25, h: 2.05, in: 1.8 },                          // on the first truss, its middle this far in from each wall
+  lintel: { h: 0.40, d: 0.11, gap: 0.02, up: 0.45, brace: 0.85, out: 0.60 },   // over the opening as THE OPENING FITTED leaves it (VWHAM.pros), `up` over its header (the FOH throws pass just under it), its back `gap` in front of the frame's face; braced from the wall `out` beyond each side
+};
+let vwDress = null;
+// The brick: a running bond 4 bricks by 8 courses on a 512 square (0.90 × 0.60 m), the mortar dark, each brick its own shade
+// of weathered brown-red, a few burnt darker
+function vwDressBrick() {
+  return underCanvasTex(512, 512, (g, w, h) => {
+    g.fillStyle = '#3a2d27'; g.fillRect(0, 0, w, h);
+    let s = 23; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    const bw = w / 4, ch = h / 8, m = 6;
+    for (let r = 0; r < 8; r++) for (let k = -1; k < 5; k++) {
+      const x = k * bw + (r % 2 ? bw / 2 : 0), y = r * ch, burnt = rnd() < 0.12, t = 0.82 + rnd() * 0.32;
+      const R = (burnt ? 92 : 128) * t, G = (burnt ? 52 : 70) * t, B = (burnt ? 44 : 54) * t;
+      g.fillStyle = `rgb(${R | 0},${G | 0},${B | 0})`; g.fillRect(x + m / 2, y + m / 2, bw - m, ch - m);
+      for (let i = 0; i < 40; i++) { const q = 0.75 + rnd() * 0.4; g.fillStyle = `rgba(${R * q | 0},${G * q | 0},${B * q | 0},0.6)`; g.fillRect(x + m / 2 + rnd() * (bw - m - 3), y + m / 2 + rnd() * (ch - m - 3), 3, 3); }
+    }
+  });
+}
+// Dark stained timber, the grain along u (every piece is laid with its length along u)
+function vwDressWood() {
+  return underCanvasTex(256, 64, (g, w, h) => {
+    g.fillStyle = '#4a3020'; g.fillRect(0, 0, w, h);
+    let s = 7; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 70; i++) { const y = rnd() * h, v = 40 + rnd() * 50; g.strokeStyle = `rgba(${v + 20 | 0},${v | 0},${v * 0.55 | 0},0.5)`; g.lineWidth = 0.6 + rnd() * 1.6; g.beginPath(); g.moveTo(0, y); for (let x = 0; x <= w; x += 16) g.lineTo(x, y + Math.sin(x * 0.05 + i) * 1.4); g.stroke(); }
+    for (let i = 0; i < 3; i++) { const x = rnd() * w, y = rnd() * h; g.fillStyle = 'rgba(30,18,10,0.7)'; g.beginPath(); g.ellipse(x, y, 5, 2.5, 0, 0, 7); g.fill(); }
+  });
+}
+// Manila rope: twisted strands, diagonal, along u
+function vwDressRope() {
+  return underCanvasTex(64, 32, (g, w, h) => {
+    g.fillStyle = '#9c7f52'; g.fillRect(0, 0, w, h);
+    for (let k = -2; k < 6; k++) { g.strokeStyle = 'rgba(70,52,30,0.85)'; g.lineWidth = 2.2; g.beginPath(); g.moveTo(k * 16, 0); g.lineTo(k * 16 + 24, h); g.stroke(); g.strokeStyle = 'rgba(200,170,120,0.5)'; g.lineWidth = 2; g.beginPath(); g.moveTo(k * 16 + 6, 0); g.lineTo(k * 16 + 30, h); g.stroke(); }
+  });
+}
+// A thirteen-star flag hung by its hoist (the stripes down, the canton at the top)
+function vwDressFlag() {
+  return underCanvasTex(260, 420, (g, w, h) => {
+    const sw = w / 13; for (let i = 0; i < 13; i++) { g.fillStyle = i % 2 ? '#e8e0cc' : '#9e2a2b'; g.fillRect(i * sw, 0, sw + 1, h); }
+    const cw = sw * 7, chh = h * 0.40; g.fillStyle = '#22305a'; g.fillRect(0, 0, cw, chh);
+    g.fillStyle = '#e8e0cc'; const cx = cw / 2, cy = chh / 2, R = Math.min(cw, chh) * 0.34;
+    for (let k = 0; k < 13; k++) {
+      const a = k / 13 * Math.PI * 2, x = cx + R * Math.sin(a), y = cy - R * Math.cos(a); g.beginPath();
+      for (let j = 0; j < 10; j++) { const r = j % 2 ? 3.2 : 8, b = a + j * Math.PI / 5; g.lineTo(x + r * Math.sin(b), y - r * Math.cos(b)); }
+      g.fill();
+    }
+  }, false);
+}
+function vwDressBuild(model) {
+  const t0 = performance.now(), D = VWHD, cx = VW.at.x, UP = new THREE.Vector3(0, 1, 0), col = new THREE.Color();
+  const panel = model.byName('house_tex_30');
+  if (!panel || !panel.geometry.attributes.color) { console.warn('van wezel dress: no house_tex_30 (the side walls\' panels) — not built'); return null; }
+  panel.updateMatrixWorld(true);
+  const W = [], R = [], Pl = [], F = [], G = [];              // wood, rope, plain, flags, halos
+  const count = { panels: 0, posts: 0, braces: 0, trusses: 0, skipped: [], swags: 0, coils: 0, lanterns: 0, rigs: 0, candles: 0, flags: 0 };
+  // a piece's vertex colours: the fixed light baked in (VW_LIGHT, as vwPlace and THE HOUSE AS IT IS bake), or unbaked if it glows
+  const bake = (g, hex = 0xffffff, glow = false, lift = 1.25) => {
+    if (g.index) { const n = g.toNonIndexed(); g.dispose(); g = n; }
+    for (const k of Object.keys(g.attributes)) if (!/^(position|normal|uv)$/.test(k)) g.deleteAttribute(k);
+    if (!g.attributes.uv) g.setAttribute('uv', new THREE.Float32BufferAttribute(new Float32Array(g.attributes.position.count * 2), 2));
+    const N = g.attributes.normal, c = new Float32Array(N.count * 3); col.set(hex);
+    for (let i = 0; i < N.count; i++) {
+      const k = glow ? 1 : lift * (0.50 + 0.30 * Math.abs(N.getX(i) * VW_LIGHT.x + N.getY(i) * VW_LIGHT.y + N.getZ(i) * VW_LIGHT.z) + 0.20 * Math.max(0, N.getY(i)));
+      c[i * 3] = col.r * k; c[i * 3 + 1] = col.g * k; c[i * 3 + 2] = col.b * k;
+    }
+    g.setAttribute('color', new THREE.BufferAttribute(c, 3)); return g;
+  };
+  // timber from a to b, its section w (along `side`, or horizontal) × h, the grain along it (u in metres / 2)
+  const beam = (a, b, w, h, side = null) => {
+    const d = b.clone().sub(a), L = d.length(), g = new THREE.BoxGeometry(L, h, w), uv = g.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * L / 2);
+    const x = d.clone().normalize(), z = side ? side.clone().addScaledVector(x, -side.dot(x)).normalize() : x.clone().cross(UP).normalize(), y = z.clone().cross(x);
+    g.applyMatrix4(new THREE.Matrix4().makeBasis(x, y, z).setPosition(a.clone().add(b).multiplyScalar(0.5)));
+    W.push(bake(g));
+  };
+  // rope along points (a smooth curve through them), r thick
+  const rope = (pts, r = D.swag.r, seg = 24) => {
+    const c = new THREE.CatmullRomCurve3(pts), L = c.getLength(), g = new THREE.TubeGeometry(c, seg, r, 6, false), uv = g.attributes.uv;
+    for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * L / 0.12);
+    R.push(bake(g, 0xffffff, false, 1.35));
+  };
+  const coilRing = (g, turns) => { const uv = g.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * turns); R.push(bake(g, 0xffffff, false, 1.35)); };
+  const plain = (g, hex, glow) => Pl.push(bake(g, hex, glow, 1.0));
+  const rod = (a, b, r, hex = 0x1c1a1a) => { const d = b.clone().sub(a), L = d.length(); plain(new THREE.CylinderGeometry(r, r, L, 5).applyMatrix4(new THREE.Matrix4().compose(a.clone().add(b).multiplyScalar(0.5), new THREE.Quaternion().setFromUnitVectors(UP, d.normalize()), new THREE.Vector3(1, 1, 1))), hex); };
+  const halo = (p, s) => G.push(new THREE.PlaneGeometry(s, s).translate(p.x, p.y, p.z));
+  // 1. THE PANELS: found (each a thin slab along its wall), in two walls, front first; the brick laid on
+  const P = panel.geometry.attributes.position, n = P.count, v = new THREE.Vector3(), par = new Int32Array(n).map((_, i) => i);
+  const find = i => { while (par[i] !== i) i = par[i] = par[par[i]]; return i; };
+  const key = new Map(), wp = [];
+  for (let i = 0; i < n; i++) { v.fromBufferAttribute(P, i).applyMatrix4(panel.matrixWorld); wp.push(v.clone()); const k = `${Math.round(v.x * 100)},${Math.round(v.y * 100)},${Math.round(v.z * 100)}`; if (key.has(k)) par[find(i)] = find(key.get(k)); else key.set(k, i); }
+  for (let t = 0; t + 2 < n; t += 3) { par[find(t + 1)] = find(t); par[find(t + 2)] = find(t); }
+  const groups = new Map(); for (let i = 0; i < n; i++) { const r = find(i); if (!groups.has(r)) groups.set(r, []); groups.get(r).push(wp[i]); }
+  const panels = [];
+  for (const pts of groups.values()) {
+    let a = pts[0], b = pts[0], far = 0;
+    for (const p of pts) for (const q of pts) { const dd = (p.x - q.x) ** 2 + (p.z - q.z) ** 2; if (dd > far) { far = dd; a = p; b = q; } }
+    const d = new THREE.Vector3(b.x - a.x, 0, b.z - a.z).normalize(); if (d.z > 0) d.negate();          // along the wall, from the stage back
+    const side = Math.sign(a.x - cx), nn = new THREE.Vector3(-d.z, 0, d.x); if (nn.x * side > 0) nn.negate();   // inward, toward the middle
+    let s0 = Infinity, s1 = -Infinity, inner = -Infinity, y0 = Infinity, y1 = -Infinity;
+    for (const p of pts) { const s = p.x * d.x + p.z * d.z, o = p.x * nn.x + p.z * nn.z; s0 = Math.min(s0, s); s1 = Math.max(s1, s); inner = Math.max(inner, o); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); }
+    const at = s => new THREE.Vector3(d.x * s + nn.x * inner, 0, d.z * s + nn.z * inner);
+    panels.push({ side, d, n: nn, a: at(s0), b: at(s1), y0, y1 });
+  }
+  const walls = [-1, 1].map(sd => panels.filter(p => p.side === sd).sort((p, q) => q.a.z - p.a.z));
+  count.panels = panels.length;
+  // the brick's UVs, in metres along each face (the panels' own kept for set(false))
+  const uvB = new Float32Array(n * 2), e1 = new THREE.Vector3(), e2 = new THREE.Vector3(), fn = new THREE.Vector3();
+  for (let t = 0; t + 2 < n; t += 3) {
+    e1.subVectors(wp[t + 1], wp[t]); e2.subVectors(wp[t + 2], wp[t]); fn.crossVectors(e1, e2).normalize();
+    const flat = Math.abs(fn.y) > 0.7, tx = flat ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(-fn.z, 0, fn.x).normalize();
+    for (let j = t; j < t + 3; j++) { const p = wp[j]; uvB[j * 2] = (p.x * tx.x + p.z * tx.z) / D.brick.w; uvB[j * 2 + 1] = (flat ? p.z : p.y) / D.brick.h; }
+  }
+  const pm = panel.material, keep = { uv: panel.geometry.attributes.uv, map: pm.map, colour: panel.geometry.attributes.color.array.slice() };
+  const brick = { uv: new THREE.BufferAttribute(uvB, 2), map: vwDressBrick(), colour: keep.colour.map(c => Math.min(1, c * 1.45)) };   // lifted: the brick's map is darker than the grille's
+  // 2. THE TIMBER: posts at the gaps (and the walls' ends), a header and sills
+  const H = D.header, pw = D.post, posts = [[], []];
+  walls.forEach((ps, w) => {
+    const N0 = ps[0].n, out = q => q.clone().addScaledVector(N0, pw.out + pw.d / 2);
+    const st = [{ p: ps[0].a.clone().addScaledVector(ps[0].d, -pw.w / 2), y0: ps[0].y0 }];
+    for (let k = 0; k + 1 < ps.length; k++) st.push({ p: ps[k].b.clone().add(ps[k + 1].a).multiplyScalar(0.5), y0: Math.min(ps[k].y0, ps[k + 1].y0), gap: k });
+    const last = ps[ps.length - 1]; st.push({ p: last.b.clone().addScaledVector(last.d, pw.w / 2), y0: last.y0 });
+    for (const s of st) { s.c = out(s.p); s.d = ps[0].d; s.n = N0; s.top = H.y + H.h; s.y0 = Math.max(s.y0, VWH.pros.deck + D.foot); posts[w].push(s); }
+    const ha = st[0].c.clone().addScaledVector(ps[0].d, -pw.w / 2).addScaledVector(N0, pw.d / 2 + H.d / 2), hb = st[st.length - 1].c.clone().addScaledVector(ps[0].d, pw.w / 2).addScaledVector(N0, pw.d / 2 + H.d / 2);
+    beam(ha.setY(H.y + H.h / 2), hb.setY(H.y + H.h / 2), H.d, H.h);                                       // the header, in front of the posts
+    for (const p of ps) { const a = p.a.clone().addScaledVector(p.n, D.sill.d / 2), b = p.b.clone().addScaledVector(p.n, D.sill.d / 2); const y = Math.max(p.y0, VWH.pros.deck + D.foot) + D.sill.h / 2; beam(a.setY(y), b.setY(y), D.sill.d, D.sill.h); }   // the sills
+  });
+  // the trusses: their chord on the headers; left out where the ceiling comes down too near it
+  const ray = new THREE.Raycaster(); ray.layers.enableAll();
+  const ceiling = []; model.root.traverse(o => { if (o.isMesh && o.visible && /^vw: (house_|patches)/.test(o.name) && !/glass$|unlit$/.test(o.name)) ceiling.push(o); });
+  if (vwHouse) ceiling.push(vwHouse.solid);
+  const upTo = p => { ray.set(p, UP); ray.far = 8; const h = ray.intersectObjects(ceiling, false)[0]; return h ? h.point.y : Infinity; };
+  const C = D.chord, cy0 = H.y + H.h, cy1 = cy0 + C.h, trusses = [];
+  for (const k of D.trusses) {
+    const L = posts[0].find(s => s.gap === k), Rr = posts[1].find(s => s.gap === k); if (!L || !Rr) continue;
+    const a = new THREE.Vector3(L.c.x, cy1, L.c.z), b = new THREE.Vector3(Rr.c.x, cy1, Rr.c.z); let low = Infinity, lowAt = 0;
+    for (let i = 0; i <= 40; i++) for (const s of [-1, 1]) { const p = a.clone().lerp(b, i / 40); p.z += s * C.w / 2; const y = upTo(p) - cy1; if (y < low) { low = y; lowAt = p.x; } }
+    if (low < C.clear) { count.skipped.push(`gap ${k} (z ${a.z.toFixed(2)}: the ceiling ${low.toFixed(2)} over it at x ${lowAt.toFixed(2)})`); continue; }
+    trusses.push({ k, L, R: Rr, z: (a.z + b.z) / 2 }); L.top = Rr.top = cy1;
+  }
+  for (const ps of posts) for (const s of ps) {                // the posts, up to the header's top or a truss's chord; knee braces each way along the wall
+    beam(s.c.clone().setY(s.y0), s.c.clone().setY(s.top), pw.w, pw.d, s.d); count.posts++;
+    if (s.y0 > H.y - D.brace.drop - 0.2) continue;
+    for (const sg of [-1, 1]) { if (sg < 0 && s === ps[0]) continue;   // (the first post's toward the stage would cross the proscenium's line)
+      const a = s.c.clone().addScaledVector(s.d, sg * pw.w / 2), b = s.c.clone().addScaledVector(s.d, sg * (pw.w / 2 + D.brace.run)); beam(a.setY(H.y - D.brace.drop), b.setY(H.y + 0.02), D.brace.s, D.brace.s); count.braces++; }
+  }
+  for (const t of trusses) {
+    const a = new THREE.Vector3(t.L.c.x, cy0 + C.h / 2, t.L.c.z), b = new THREE.Vector3(t.R.c.x, cy0 + C.h / 2, t.R.c.z), u = b.clone().sub(a).normalize();
+    beam(a, b, C.w, C.h); count.trusses++;
+    for (const [p, s] of [[a, 1], [b, -1]]) beam(p.clone().addScaledVector(u, s * (pw.w / 2)).setY(cy0 - D.brace.drop), p.clone().addScaledVector(u, s * (pw.w / 2 + D.brace.run + 0.5)).setY(cy0 + 0.02), D.brace.s, D.brace.s);   // braced down to the posts
+    for (const f of [0.25, 0.5, 0.75]) { const p = a.clone().lerp(b, f).setY(cy1), top = upTo(p); if (top < Infinity) rod(p, p.clone().setY(top + 0.05), 0.014); }   // iron hangers to the ceiling
+    Object.assign(t, { a, b, u });
+  }
+  // 3. THE ROPE: swags across the panels; on the posts, lanterns and coils by turns
+  for (const ps of posts) {
+    for (let i = 0; i + 1 < ps.length; i++) {
+      const a = ps[i].c.clone().addScaledVector(ps[i].n, pw.d / 2 + 0.05).setY(D.swag.y), b = ps[i + 1].c.clone().addScaledVector(ps[i + 1].n, pw.d / 2 + 0.05).setY(D.swag.y), pts = [];
+      for (let j = 0; j <= 8; j++) { const f = j / 8, p = a.clone().lerp(b, f); p.y -= D.swag.sag * 4 * f * (1 - f); p.addScaledVector(ps[i].n, 0.08 * 4 * f * (1 - f)); pts.push(p); }
+      rope(pts); count.swags++;
+    }
+    ps.forEach((s, i) => {
+      const y = s.y0 + D.coil.dy, f = s.c.clone().addScaledVector(s.n, pw.d / 2);
+      rod(f.clone().setY(D.swag.y + 0.02), f.clone().addScaledVector(s.n, 0.10).setY(D.swag.y + 0.02), 0.03);   // the swags' peg
+      if (i % 2 === 0) {                                        // a lantern on a bracket
+        const L = D.lantern, arm = f.clone().addScaledVector(s.n, L.arm), top = y + L.h / 2 + 0.16;
+        rod(f.clone().setY(top), arm.clone().setY(top), 0.022); rod(arm.clone().setY(top), arm.clone().setY(y + L.h / 2 + 0.12), 0.008);
+        plain(new THREE.BoxGeometry(L.w * 0.86, L.h * 0.78, L.w * 0.86).translate(arm.x, y, arm.z), 0xffc874, true);   // the lit panes
+        for (const [dx, dz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) plain(new THREE.BoxGeometry(0.03, L.h, 0.03).translate(arm.x + dx * L.w / 2, y, arm.z + dz * L.w / 2), 0x1c1a1a);
+        plain(new THREE.ConeGeometry(L.w * 0.75, 0.14, 4).rotateY(Math.PI / 4).translate(arm.x, y + L.h / 2 + 0.07, arm.z), 0x1c1a1a);
+        plain(new THREE.BoxGeometry(L.w * 1.05, 0.04, L.w * 1.05).translate(arm.x, y - L.h / 2, arm.z), 0x1c1a1a);
+        halo(arm.clone().setY(y).addScaledVector(s.n, 0.14), 1.1); count.lanterns++;
+      } else {                                                  // a coil of rope on a peg, its tail hanging
+        const K = D.coil, at = f.clone().addScaledVector(s.n, K.tube * 2 + 0.03);
+        rod(f.clone().setY(y + K.r), at.clone().addScaledVector(s.n, K.turns * K.tube * 1.6).setY(y + K.r), 0.025);
+        for (let k = 0; k < K.turns; k++) coilRing(new THREE.TorusGeometry(K.r * (1 - k * 0.025), K.tube, 6, 20).lookAt(s.n).translate(at.x + s.n.x * k * K.tube * 1.6, y + k * 0.012, at.z + s.n.z * k * K.tube * 1.6), 9);
+        rope([at.clone().setY(y - K.r), at.clone().setY(y - K.r - 0.35).addScaledVector(s.n, 0.03), at.clone().setY(y - K.r - 0.7).addScaledVector(s.d, 0.04)], K.tube, 8);
+        count.coils++;
+      }
+    });
+  }
+  // 4. FROM THE TRUSSES: rigging near the walls, a ring of candles over the middle, the flags on the first
+  trusses.forEach((t, ti) => {
+    for (const s of [0, 1]) D.rig.from.forEach((from, j) => {
+      const p = (s ? t.b.clone().addScaledVector(t.u, -from) : t.a.clone().addScaledVector(t.u, from)).setY(cy0), drop = D.rig.drop[(j + ti + s) % 2];
+      const q = p.clone().addScaledVector(t.u, 0.12), blockY = cy0 - drop * 0.45, endY = cy0 - drop;
+      rope([p, p.clone().setY(blockY)], D.rig.r, 4); rope([q, q.clone().setY(endY + 0.2)], D.rig.r, 4);
+      plain(new THREE.BoxGeometry(0.12, 0.30, 0.16).translate(p.x + t.u.x * 0.06, blockY - 0.15, p.z + t.u.z * 0.06), 0x5a3a24);   // the block
+      plain(new THREE.CylinderGeometry(0.11, 0.11, 0.18, 10).rotateZ(Math.PI / 2).translate(p.x + t.u.x * 0.06, blockY - 0.12, p.z + t.u.z * 0.06), 0x2a2222);   // its sheave's cheeks
+      if ((j + s) % 2) plain(new THREE.CylinderGeometry(0.13, 0.15, 0.40, 8).translate(q.x, endY, q.z), 0x6e5a3e);   // a sandbag
+      else for (let k = 0; k < 4; k++) coilRing(new THREE.TorusGeometry(0.17, 0.024, 6, 16).rotateX(Math.PI / 2).translate(q.x, endY + k * 0.03, q.z), 8);   // a coil
+      count.rigs++;
+    });
+    const m = t.a.clone().lerp(t.b, 0.5), Ch = D.chandelier, ry = cy0 - Ch.drop, hub = new THREE.Vector3(m.x, ry + 0.55, m.z);   // the ring of candles
+    if (Ch.at.includes(t.k)) {
+    rope([new THREE.Vector3(m.x, cy0, m.z), hub.clone()], 0.012, 4);
+    plain(new THREE.TorusGeometry(Ch.R, 0.03, 6, 32).rotateX(Math.PI / 2).translate(m.x, ry, m.z), 0x1c1a1a);
+    for (let k = 0; k < 4; k++) { const a2 = k / 4 * Math.PI * 2; rod(hub, new THREE.Vector3(m.x + Math.cos(a2) * Ch.R, ry, m.z + Math.sin(a2) * Ch.R), 0.008); }
+    for (let k = 0; k < Ch.candles; k++) {
+      const a2 = (k + 0.5) / Ch.candles * Math.PI * 2, x = m.x + Math.cos(a2) * Ch.R, z = m.z + Math.sin(a2) * Ch.R;
+      plain(new THREE.CylinderGeometry(0.03, 0.03, 0.20, 6).translate(x, ry + 0.12, z), 0xe8dcc0);
+      plain(new THREE.ConeGeometry(0.025, 0.07, 5).translate(x, ry + 0.27, z), 0xffd27a, true);
+      halo(new THREE.Vector3(x, ry + 0.27, z - 0.03), 0.5); count.candles++;
+    }
+    }
+    if (ti === 0) for (const [p, s] of [[t.a, 1], [t.b, -1]]) {   // the flags, toward the house
+      const Fl = D.flag, c = p.clone().addScaledVector(t.u, s * Fl.in), nrm = t.u.clone().cross(UP), at = c.clone().addScaledVector(nrm, -(C.w / 2 + 0.06)).setY(cy0 - 0.06);
+      const g = new THREE.PlaneGeometry(Fl.w, Fl.h, 6, 1), pos = g.attributes.position;
+      for (let i = 0; i < pos.count; i++) pos.setZ(i, Math.sin(pos.getX(i) / Fl.w * Math.PI * 2) * 0.05);   // hung in folds
+      g.computeVertexNormals(); g.translate(0, -Fl.h / 2, 0).applyMatrix4(new THREE.Matrix4().makeBasis(t.u, UP, nrm).setPosition(at));
+      F.push(bake(g, 0xffffff, false, 1.2)); rod(at.clone().addScaledVector(t.u, -Fl.w / 2 - 0.1), at.clone().addScaledVector(t.u, Fl.w / 2 + 0.1), 0.02, 0x5a3a24);   // its pole
+      count.flags++;
+    }
+  });
+  // 5. THE PROSCENIUM: a lintel over the opening (fitted to the set's, THE OPENING FITTED), braced from the wall each side
+  const [x0, x1] = VWHAM.pros.x, Li = D.lintel, y0 = VWHAM.pros.top + Li.up, lz = VWHAM.frame.face - Li.gap - Li.d / 2;
+  beam(new THREE.Vector3(x0 - Li.out - 0.2, y0 + Li.h / 2, lz), new THREE.Vector3(x1 + Li.out + 0.2, y0 + Li.h / 2, lz), Li.d, Li.h);
+  for (const [x, s] of [[x0, -1], [x1, 1]]) beam(new THREE.Vector3(x + s * (Li.out + Li.brace), y0 - Li.brace, lz), new THREE.Vector3(x + s * Li.out, y0 + 0.02, lz), Li.d * 0.9, 0.16);   // outside the opening, on the wall
+  // 6. the meshes
+  const group = new THREE.Group(); group.name = 'vw ham dress';
+  const add = (name, geos, mat) => { if (!geos.length) return null; const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); if (!g) { console.warn(`van wezel dress: the ${name} pieces did not merge — left out`); return null; } const m = new THREE.Mesh(g, mat); m.name = 'vw ham dress: ' + name; m.castShadow = m.receiveShadow = false; m.userData.rig = true; group.add(m); return m; };
+  const glowTex = underCanvasTex(64, 64, (g, w) => { const r = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); r.addColorStop(0, '#ffffff'); r.addColorStop(0.3, '#a07a50'); r.addColorStop(1, '#000000'); g.fillStyle = r; g.fillRect(0, 0, w, w); }, false);
+  const basic = map => new THREE.MeshBasicMaterial({ vertexColors: true, map, side: THREE.DoubleSide, toneMapped: false });
+  const meshes = [add('wood', W, basic(vwDressWood())), add('rope', R, basic(vwDressRope())), add('plain', Pl, basic(null)), add('flags', F, basic(vwDressFlag())),
+    add('halos', G, new THREE.MeshBasicMaterial({ map: glowTex, color: 0xffc890, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }))].filter(Boolean);
+  scene.add(group); group.updateMatrixWorld(true);
+  const set = on => {
+    on = !!on; const L = on ? brick : keep; group.visible = on;
+    panel.geometry.setAttribute('uv', L.uv); pm.map = L.map; pm.needsUpdate = true;
+    panel.geometry.attributes.color.array.set(L.colour); panel.geometry.attributes.color.needsUpdate = true;
+    vwDress.on = on; const b = document.getElementById('vw-dress'); if (b) b.setAttribute('aria-pressed', String(on)); requestRender(); return on;
+  };
+  const tris = meshes.reduce((s, m) => s + m.geometry.attributes.position.count / 3, 0);
+  vwDress = { group, meshes, panel, panels, walls, posts, trusses, count, keep, brick, triangles: tris, on: false, set, ms: 0 };
+  set(true);
+  if (vwHam) for (const m of meshes) { m.material.userData.base = m.material.color.clone(); vwHam.dims.push(m.material); }   // down with the house (the panels' look is already among its dims)
+  vwDressUI();
+  vwDress.ms = performance.now() - t0;
+  console.info(`van wezel dress: ${count.panels} panels in brick; ${count.posts} posts, ${count.braces} braces, ${count.trusses} trusses${count.skipped.length ? ` (left out: ${count.skipped.join('; ')})` : ''}; ${count.swags} swags, ${count.coils} coils, ${count.rigs} rigging lines, ${count.lanterns} lanterns, ${count.candles} candles, ${count.flags} flags · ${meshes.length} meshes, ${tris} triangles · ${vwDress.ms.toFixed(0)} ms`);
+  return vwDress;
+}
+function vwDressUI() {
+  const after = document.getElementById('v-vwham') || document.getElementById('v-vanwezel');
+  if (!after || !vwDress || document.getElementById('vw-dress')) return;
+  const b = document.createElement('button'); b.id = 'vw-dress'; b.textContent = 'VW dress'; b.title = "The Van Wezel's auditorium dressed for Hamilton: brick, timber, rope (on or off)";
+  b.setAttribute('aria-pressed', String(vwDress.on)); b.addEventListener('click', () => vwDress.set(!vwDress.on)); after.after(b);
+}
+// THE CHECK: every panel bricked; a post at every gap; the trusses under the ceiling; nothing where nothing may be
+// (vwKeepOut) nor across the show's own throws; off puts the panels' own UVs, map and colours back, and on the brick's, every time. → the text
+function vwDressCheck() {
+  const b = vwDress; if (!b) return 'van wezel dress: not built';
+  const out = [], line = (ok, s) => { out.push((ok ? 'PASS ' : 'FAIL ') + s); return ok; };
+  const g = b.panel.geometry, m = b.panel.material, was = b.on;
+  line(b.count.panels === 26 && b.walls[0].length === 13 && b.walls[1].length === 13, `${b.count.panels} panels in brick (${b.walls[0].length} house right, ${b.walls[1].length} house left)`);
+  line(b.posts.every((p, w) => p.length === b.walls[w].length + 1), `${b.count.posts} posts, one at every gap and at each wall's ends; ${b.count.braces} braces`);
+  line(b.count.trusses >= 3, `${b.count.trusses} trusses across the house (at z ${b.trusses.map(t => t.z.toFixed(2)).join(', ')})${b.count.skipped.length ? `; left out: ${b.count.skipped.join('; ')}` : ''}`);
+  const K = vwKeepOut(b.meshes);
+  line(!K.onstage && !K.inLift && !K.inBooth, `${K.verts} vertices: ${K.onstage} on the stage's side of the lip's face (the furthest z ${K.maxZ.toFixed(3)}), ${K.inLift} in the lift's travel${K.lift ? '' : ' (no lift)'}, ${K.inBooth} in the tech or follow-spot booth`);
+  line(!K.blocked, `the follow-spots' and the tech booth's sight of the stage (1.6 m over the deck): ${K.blocked} of ${K.rays} rays blocked by it`);
+  if (vwHam) {                                                   // the show's own throws here: all three follow-spots' lenses and every FOH unit moved up (THE FRONT OF HOUSE UP)
+    const eyes = vwHam.fs.map(f => f.lens.clone()), w = new THREE.Vector3(), ray = new THREE.Raycaster(), d = new THREE.Vector3();
+    for (const { r, d: up } of vwHamLiftRecs(vwHam)) eyes.push(r.unit.getWorldPosition(w).clone().add(vwHam.off).add(up));
+    let blocked = 0, rays = 0;
+    const also = vwHam.frame ? [vwHam.frame.mesh] : [];          // a ray the fitted opening's piers or header stop is no throw of the show's
+    for (const e of eyes) for (let x = 70; x <= 84; x += 2) for (const z of [1, 4, 8]) { const t = new THREE.Vector3(x, VWH.pros.deck + 1.6, z); d.subVectors(t, e); const L = d.length(); ray.set(e, d.normalize()); ray.far = L; if (ray.intersectObjects(also, false).length) continue; rays++; if (ray.intersectObjects(b.meshes, false).length) blocked++; }
+    line(!blocked && vwHam.fs.length === 3, `the show's throws (${vwHam.fs.length} follow-spots, ${eyes.length - vwHam.fs.length} FOH units moved up) to the stage through the fitted opening: ${blocked} of ${rays} rays blocked by it`);
+  }
+  const is = L => g.attributes.uv === L.uv && m.map === L.map && g.attributes.color.array.every((c, i) => c === L.colour[i]);
+  let ok = true; for (const on of [false, true, false, true]) { b.set(on); ok = ok && is(on ? b.brick : b.keep) && b.group.visible === on; }
+  b.set(was);
+  line(ok, `off puts the panels' own UVs, map and colours back and on the brick's, twice over; left ${was ? 'on' : 'off'}`);
+  const fails = out.filter(s => s.startsWith('FAIL')).length, s = `van wezel dress: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
+  console.info(s); return s;
+}
+const VW_DRESS_API = { spec: VWHD, get built() { return vwDress; }, get on() { return !!(vwDress && vwDress.on); }, set: on => vwDress ? vwDress.set(on) : null, check: vwDressCheck, view: () => go('v-vanwezel') };
+VAN_WEZEL_API.dress = VW_DRESS_API;                           // MIDTOWN.vanWezel.dress
 
 /* ---------------------------------------------------------------- THE THIRD HOUSE: THE STAGE HOUSE AS IT IS
    Jack (2026-10-24), with his own photographs of the real hall: "i have all of these picturs from the van wezel use the to
