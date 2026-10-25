@@ -2396,3 +2396,20 @@ include the place a failure would show — the corridor behind the house, not on
 - **Random noise bursts at random times are static, not applause.** Applause is people clapping steadily (each ~4 a second),
   each clap a band-passed pop around 1-2 kHz. Check a made sound by its spectrum and its loudness over 10 ms windows
   (`audience.applause.buffer()`) before playing it: Jack hears whatever a test plays.
+
+## From the entrances round (2026-10-25)
+
+- **A top-level name already taken kills the page** ("Identifier has already been declared": `VWS` is THE STAGE HOUSE's).
+  Grep a new top-level const before using it.
+- **Two agents in one file work when the shared numbers are committed first.** The lead put `VW_ENTRANCES` on the branch
+  before either started; both built against it, and their branches merged without a conflict.
+- **A fake `DOORS.list` entry for a test needs `box` and `hit`** (`box: [1e9, -1e9, …]`, `hit: []`), or `doorsHit` throws
+  inside the frame.
+- **The foyer's carpet (0.875) and the terrace outside the glass (0.865) differ by 10 mm:** a "bare carpet" test at 0.02
+  takes spots outside the glass; it is 5 mm now.
+- **Things the single-file ways only just missed:** the balcony's columns at r ≈ 53.85 every ~5° round the ring, the hallway's
+  skin ~0.25 m off the side corridor at s 20–24, raised pieces at d 4–4.5, the stairs. A way with a width must be measured
+  per point.
+- **A JS string with `\'` written from a Python script broke the page** ("Unexpected identifier"): use double quotes there.
+- **Staff built on a frame tick are missing while the pane is hidden:** a check right after load failed 3 lines until they
+  were built; `entrances.check()` now builds them itself.
