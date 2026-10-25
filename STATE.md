@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#45 merged; nothing open)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#46 merged; `vw-entrances` open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,7 +6,17 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR #45 (MERGED `6ec85ac`) `vw-full-house` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's audience.**
+- **NEWEST: PR `vw-entrances` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): three ways in, security, a lobby
+  for everyone.** Jack: "make there be multiple doors they can come into the van wezel. make it so they have to walk throught
+  metal detecotrs and have ther tickest scanned. make a button to speed up getting th epeople in. make it so people can start
+  filling up in the lobby. make somehting to show how many people out of how many people are seated", then "have agents do it
+  and make it so people dont walk in siingle file lines". Built by two Opus agents in parallel on a shared spec
+  (`VW_ENTRANCES`), merged and checked by the lead. **His eye on it:** the three doors from Broadway; the ushers, scanners and
+  arches; the crowd's loose walking; the foyer full; the speed button (1× / 4× / 10×); the "Seated n / 1,600" counter.
+  **Open, his "not now":** the applause keeps looping while the page is hidden (its timer runs only on drawn frames, so a
+  switched-away tab during the bows, or its test, loops until he comes back). The fix: silence it when the document is hidden,
+  and time the test by the clock.
+- **Before it: PR #45 (MERGED `6ec85ac`) `vw-full-house` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's audience.**
   From his feature picks (the "Midtown Feature Picks" page: a full house, the interval crowd, the stage door, rain on Broadway,
   sound from the speakers; this is the first) and his ask: "make it so people can line up outside the door and start coming in
   when i open the door … a button to ahev them start lining up", asked where: "Both, one after the other". The header's **Line

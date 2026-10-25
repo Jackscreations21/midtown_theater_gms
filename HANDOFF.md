@@ -229,6 +229,38 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-25: the Van Wezel's three entrances, security, a lobby for the whole house, loose walking, speed, a counter (PR `vw-entrances`, the lead and two Opus agents)
+
+Jack: *"make there be multiple doors they can come into the van wezel. make it so they have to walk throught metal detecotrs and
+have ther tickest scanned. make a button to speed up getting th epeople in. make it so people can start filling up in the
+lobby. make somehting to show how many people out of how many people are seated"*, then *"have agents do it and make it so
+people dont walk in siingle file lines make it more random lik how real people walk"*. No ruling.
+- **The contract** (the lead, `b46ba11`): `VW_ENTRANCES` beside STREET: three pairs on the glass's circle at phi −9, 0, +9 (named
+  'Van Wezel street doors, house right' / 'Van Wezel street doors' / '…, house left'), the scan stop at r 55.75 (1.4 s), the
+  podium 0.75 m to house left, the arch at r 54.55 (0.9 clear, 2.15 high), a 1.1 m lane kept clear.
+- **The building** (agent A, `7a853e3`): THE STREET cuts and hangs the two new pairs turned to th = π − φ (`vwSideCut` in each
+  door's frame, turned trim, a bronze surround, no marquee; `stBuilt.vwSides`); its check walks all five street doors. New
+  section "THE THIRD HOUSE: THE ENTRANCES' SECURITY" (`VWSEC`, group 'vw entrances' solid in the walk's grid, staff not): a
+  podium with a handheld scanner and an usher, an arch with a keypad, a light and a guard, in each entrance;
+  `vwSecurityScan(key)` (the scanner green 0.5 s) and `vwSecurityPass(key)` (the arch's light green 0.4 s), off the frame's dt.
+  `MIDTOWN.vanWezel.entrances`: spec, security, built, pass, scan, state, check (21 / 21).
+- **The people** (agent B, `54263e2`): THE AUDIENCE reworked. Gates per entrance (`A.gates`): the lanes' heads fan out to the open
+  door with the shortest wait; one at a time through the scan, the next 0.65 m behind, five more queued outside; the arch's
+  light flashed as each passes. The foyer holds the house: 1,693 spots (779 about the ring, 914 in the side foyers), jittered,
+  each with its own way in checked by rays. Walking like people: path points carry a walkable width (pavement 2, ring 0.6,
+  corridor up to 1.4, gallery 0.4, doors, stairs and aisles 0), each person wanders across it (`vwAudLat`, `vwAudPlace`), paces
+  vary, releases stagger. The speed button (`#vw-aud-speed`, 1× / 4× / 10×: the audience's own clock only). The counter
+  (`#vw-count`, "Seated n / 1,600", in line · in the foyer · on their way in; shown while the audience is out).
+- **Numbers** (agent B): with everything open, all 1,600 seated in ~23 min at 1×, ~2.3 min at 10×; the line drains into the
+  foyer with the stalls doors shut (~1.4 a second through the three gates).
+- **Checks after merging both** (the lead): audience 14 / 14 with the real doors, podiums and arches (gates, the foyer's
+  spots, 8,454 offset points on the floor and clear); entrances 21 / 21; street PASS; side doors PASS; doors 82 / 82; crew
+  6 / 6; actors pass; lx 301 / 313 as before; console clean. Run end to end: Line up → the three street doors → 259 scanned in
+  4 min, the foyer filling → a stalls door each side at 10× → 853 seated.
+- **His to decide:** the walking's looseness; the gates' pace (~23 min at 1×); the staff's look; the side doors have no
+  marquee. Still open from #45: the applause loops while the page is hidden.
+- Traps (TRAPS.md "From the entrances round").
+
 ## DONE — 2026-10-25: the Van Wezel's audience — a line on Broadway, the foyer, their seats; applause at the bows (PR #45 `vw-full-house`, merged `6ec85ac`, one session)
 
 Jack ticked five of the 25 ideas on the "Midtown Feature Picks" page (a full house, the interval crowd, the stage door, rain on
