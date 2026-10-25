@@ -557,6 +557,7 @@ function colliderMeshes() {
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
   for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear|vw stage house)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR; vw stage house: THE THIRD HOUSE: THE STAGE HOUSE AS IT IS (not 'vw flies': what hangs)
   baked.traverse(take);
+  if (vwHam) list.push(...vwHam.solid, ...(vwHam.desk ? vwHam.desk.solid : []));   // the set on the Van Wezel's stage, shown or not, and its prompt desk (THE THIRD HOUSE: HAMILTON ON ITS STAGE)
   return list;
 }
 function buildCollider() {
@@ -1207,6 +1208,9 @@ const LX_BEAM_GAIN = 1.4;                                    // the far side alo
 const LX_FAR = 40;                                           // world m: a beam that meets nothing in this far ends at its type's cap
 const LX_HAZE_DEFAULT = 0.5;                                 // the room's standing haze on load: beams read clearly, not foggy
 const LX_TIME = { value: 0 }, LX_HAZE_U = { value: 0.25 + LX_HAZE_DEFAULT * 1.15 };   // shared by every beam: one write, not 313
+// where the light is drawn, off house 1's stage: 0, or the Van Wezel's stage while the camera is in that house (THE THIRD
+// HOUSE: HAMILTON ON ITS STAGE moves the lighting group there; the beams' and pools' shaders take their house-1 sums back by it)
+const LX_OFF = { value: new THREE.Vector3() };
 // The beam: p4's BEAM_VS / BEAM_FS. One shared unit cone (radius 1, z 0 → 1); each mesh's matrix scales it to (R, R, length)
 // and uK, the lens's radius over R, narrows the lens end in the vertex shader, so frustum culling still sees the true size.
 const LX_BEAM_VS = `
@@ -1236,13 +1240,15 @@ void main(){
 const LX_BEAM_FILL = { core: 0.6, rim: 0.35, far: 0.3, end: 0.85, gobo: 0.4 };
 const LX_BEAM_FS = `
 uniform vec3 uColor; uniform float uInt; uniform float uHaze; uniform float uTime;
-uniform sampler2D uGobo; uniform float uUseGobo; uniform float uGoboRot;
+uniform sampler2D uGobo; uniform float uUseGobo; uniform float uGoboRot; uniform vec3 uOff;
 varying vec3 vWpos; varying vec3 vWnorm; varying vec2 vUv;
 void main(){
   float along = vUv.y;                       // 0 = lens, 1 = far end
   // under house 1's stage floor (THE ORCHESTRA PIT): a cone that lands on the deck at a slant dips its far rim below it, which
-  // only the pit and its passage can see — no light passes the deck (the slab's top 0.845, the stage house x −9.8…10, z −1.38…11)
-  if (vWpos.y < 0.84 && vWpos.x > -9.8 && vWpos.x < 10.0 && vWpos.z > -1.38 && vWpos.z < 11.0) discard;
+  // only the pit and its passage can see — no light passes the deck (the slab's top 0.845, the stage house x −9.8…10, z −1.38…11);
+  // in house 1's frame (uOff: LX_OFF, the show drawn on the Van Wezel's stage — the same deck there)
+  vec3 h1 = vWpos - uOff;
+  if (h1.y < 0.84 && h1.x > -9.8 && h1.x < 10.0 && h1.z > -1.38 && h1.z < 11.0) discard;
   float e = 1.0 - abs(dot(normalize(vWnorm), normalize(cameraPosition - vWpos)));
   float i = uInt * uHaze * (${LX_BEAM_FILL.core.toFixed(3)} * (1.0 - e) * (1.0 - e) + ${LX_BEAM_FILL.rim.toFixed(3)} * e * e * sqrt(e))   // the shaft's body and its rim
     * mix(1.0, ${LX_BEAM_FILL.far.toFixed(3)}, along * sqrt(along))    // dimmer away from the lens
@@ -1277,7 +1283,7 @@ void main(){
 }`;
 const LX_POOL_FS = `
 uniform vec3 uColor; uniform vec3 uOrg; uniform sampler2D uGobo; uniform mat4 uProj; uniform vec2 uZ;
-uniform sampler2D uDepth; uniform sampler2D uAlbedo; uniform mat4 uInvPV; uniform vec2 uRes; uniform float uGain;
+uniform sampler2D uDepth; uniform sampler2D uAlbedo; uniform mat4 uInvPV; uniform vec2 uRes; uniform float uGain; uniform vec3 uOff;
 vec3 at(vec2 sv){ float d = texture2D(uDepth, sv).r; vec4 h = uInvPV * vec4(vec3(sv, d) * 2.0 - 1.0, 1.0); return h.xyz / h.w; }
 void main(){
   vec2 sv = gl_FragCoord.xy / uRes;
@@ -1285,7 +1291,7 @@ void main(){
   if (dep >= 1.0) discard;                   // sky
   vec4 h = uInvPV * vec4(vec3(sv, dep) * 2.0 - 1.0, 1.0);
   vec3 W = h.xyz / h.w;
-  vec4 P = uProj * vec4(W, 1.0);
+  vec4 P = uProj * vec4(W - uOff, 1.0);      // the projector is in house 1's frame (uOff: LX_OFF)
   if (P.w < uZ.x || P.w > uZ.y) discard;
   vec2 q = P.xy / P.z;
   if (dot(q, q) > 1.0) discard;
@@ -1295,7 +1301,7 @@ void main(){
   vec3 l = at(sv - vec2(px.x, 0.0)) - W, r = at(sv + vec2(px.x, 0.0)) - W, d = at(sv - vec2(0.0, px.y)) - W, u = at(sv + vec2(0.0, px.y)) - W;
   vec3 ex = dot(l, l) < dot(r, r) ? -l : r, ey = dot(d, d) < dot(u, u) ? -d : u;
   vec3 n = normalize(cross(ex, ey)); if (dot(n, cameraPosition - W) < 0.0) n = -n;
-  float c = dot(n, normalize(uOrg - W));
+  float c = dot(n, normalize(uOrg + uOff - W));
   if (c <= 0.0) discard;                     // the side of it the beam does not reach
   float R = P.z / 1.12;                      // the cone's radius at this depth
   vec3 g = texture2D(uGobo, 0.5 + 0.5 * q).rgb;
@@ -1346,7 +1352,7 @@ attribute vec3 aColor; attribute vec3 aDir;
 uniform float uScale; uniform float uSize;
 varying vec3 vC;
 void main(){
-  float k = smoothstep(-0.05, 0.5, dot(aDir, normalize(cameraPosition - position)));
+  float k = smoothstep(-0.05, 0.5, dot(aDir, normalize(cameraPosition - (modelMatrix * vec4(position, 1.0)).xyz)));   // world: the group may stand moved off (LX_OFF)
   vC = aColor * k;
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   if (max(max(vC.r, vC.g), vC.b) < 0.002) { gl_Position = vec4(2.0, 2.0, 2.0, 1.0); gl_PointSize = 1.0; return; }   // dark: off screen
@@ -1420,13 +1426,13 @@ function lxInit() {
     if (lens && lens.geometry) { lens.geometry.computeBoundingBox(); const b = lens.geometry.boundingBox; lensR = Math.max(b.max.x - b.min.x, b.max.y - b.min.y) / 2; }
     const beam = new THREE.Mesh(LX_BEAM_GEO, new THREE.ShaderMaterial({ vertexShader: LX_BEAM_VS, fragmentShader: LX_BEAM_FS,
       uniforms: { uColor: { value: new THREE.Color() }, uInt: { value: 0 }, uHaze: LX_HAZE_U, uTime: LX_TIME,
-        uGobo: { value: lxGoboTexture(0) }, uUseGobo: { value: 0 }, uK: { value: 0.1 } },
+        uGobo: { value: lxGoboTexture(0) }, uUseGobo: { value: 0 }, uK: { value: 0.1 }, uOff: LX_OFF },
       // BackSide: the cone's far half only — one layer of blending a beam instead of two (p4 drew both), and it still draws
       // with the eye inside the cone. Its strength is made up in LX_BEAM_GAIN.
       transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide }));
     const pool = new THREE.Mesh(LX_POOL_GEO, new THREE.ShaderMaterial({ vertexShader: LX_POOL_VS, fragmentShader: LX_POOL_FS,
       uniforms: { uProj: { value: new THREE.Matrix4() }, uColor: { value: new THREE.Color(0, 0, 0) }, uOrg: { value: new THREE.Vector3() }, uGobo: { value: lxGoboTexture(0) },
-        uZ: { value: new THREE.Vector2(0, 1) }, uR: { value: new THREE.Vector2(0, 0) }, uDepth: LXDEP.uDepth, uAlbedo: LXDEP.uAlbedo, uInvPV: LXDEP.uInvPV, uRes: LXDEP.uRes, uGain: LX_POOL_GAIN },
+        uZ: { value: new THREE.Vector2(0, 1) }, uR: { value: new THREE.Vector2(0, 0) }, uDepth: LXDEP.uDepth, uAlbedo: LXDEP.uAlbedo, uInvPV: LXDEP.uInvPV, uRes: LXDEP.uRes, uGain: LX_POOL_GAIN, uOff: LX_OFF },
       // the far side only and no depth test: each pixel the cone covers is lit once, from outside it or inside it
       transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, side: THREE.BackSide }));
     pool.frustumCulled = false;                              // one shared unit cone, scaled in its shader: its own bounds say nothing
@@ -1838,7 +1844,7 @@ function lxDrawn(time) {
 }
 // More cones lit than LX_BEAM_BUDGET: draw the strongest in view (level × strength, over 1 + distance / 8 m) and hold the
 // rest back this frame. Run on every drawn frame (the camera decides what is in view); a few hundred sphere tests.
-const lxFrustum = new THREE.Frustum(), lxPV = new THREE.Matrix4(), lxCand = [];
+const lxFrustum = new THREE.Frustum(), lxPV = new THREE.Matrix4(), lxCand = [], lxEye = new THREE.Vector3();
 function lxBudget() {
   let on = 0;
   for (const r of LX.recs) if (r.beamOn) on++;
@@ -1853,7 +1859,7 @@ function lxBudget() {
   for (const r of LX.recs) {
     if (!r.beamOn) continue;
     if (!lxFrustum.intersectsObject(r.beam)) { r.beam.visible = false; continue; }
-    r.score = r.st.level * (r.T.beamK || 0.5) / (1 + r.org.distanceTo(camera.position) / 8);
+    r.score = r.st.level * (r.T.beamK || 0.5) / (1 + r.org.distanceTo(lxEye.subVectors(camera.position, LX_OFF.value)) / 8);   // the eye in house 1's frame (LX_OFF)
     lxCand.push(r);
   }
   lxCand.sort((a, b) => b.score - a.score || a.i - b.i);
@@ -5282,7 +5288,7 @@ buildLightsPanel = () => {
    second, play / pause), riding on showUI, so a running show uploads one small texture a second. */
 const DSK_W = 1024, DSK_H = 614;
 const DSK_C = { bg: '#0d1520', bar: '#1b2a3c', line: '#22344a', text: '#c9d6e6', dim: '#6f8399', gold: '#e2a640', goldText: '#1a1206', real: '#7fd18a', recon: '#7f97b3', key: '#24384f', keyOn: '#3b5d82' };
-const DSK = { screens: [], ray: new THREE.Raycaster(), ndc: new THREE.Vector2(), shown: {} };
+const DSK = { screens: [], also: [], ray: new THREE.Raycaster(), ndc: new THREE.Vector2(), shown: {} };   // also: more faces showing a screen's canvas (the Van Wezel's grandMA3, THE THIRD HOUSE: HAMILTON ON ITS STAGE), each mesh's userData.deskScreen its screen
 function deskScreenMesh(side, geo) {
   const cv = document.createElement('canvas'); cv.width = DSK_W; cv.height = DSK_H;
   const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4;
@@ -5395,7 +5401,7 @@ function deskClick(e) {
   if (locked) DSK.ndc.set(0, 0);
   else { const r = canvas.getBoundingClientRect(); DSK.ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1); }
   DSK.ray.setFromCamera(DSK.ndc, camera); DSK.ray.far = 12;     // within a few steps of the desk
-  const h = DSK.ray.intersectObjects(DSK.screens.map(s => s.mesh), false)[0];
+  const h = DSK.ray.intersectObjects(DSK.screens.map(s => s.mesh).concat(DSK.also), false)[0];
   if (!h || !h.uv) return false;
   if (walking && !locked) return false;                        // walking: the first click takes the mouse, as it always has
   const s = h.object.userData.deskScreen, x = h.uv.x * DSK_W, y = (1 - h.uv.y) * DSK_H;
@@ -7978,7 +7984,7 @@ function smBuildDesk() {
   SM.lamps = { red, green, offR: new THREE.Color(0x2a0806), onR: new THREE.Color(0xff2a14), offG: new THREE.Color(0x062a0a), onG: new THREE.Color(0x24ff4a) };
   SM.mon = { cv, g: cv.getContext('2d'), tex, screen, t: 0, base: null, key: '' };
   SM.seat = new THREE.Vector3(sx, deck, zc);
-  SM.target = { name: 'prompt desk', kind: 'prompt desk', cx: xm, cz: zc, fy: deck, label: () => SM.seated ? 'At the prompt desk · S standby · Space GO · E or Esc to leave · drag to look' : 'E — sit at the prompt desk (call the show)', use: () => smSit(true) };
+  SM.target = { name: 'prompt desk', kind: 'prompt desk', cx: xm, cz: zc, fy: deck, label: () => SM.seated ? 'At the prompt desk · S standby · Space GO · E or Esc to leave · drag to look' : 'E — sit at the prompt desk (call the show)', use: () => { SM.at = null; return smSit(true); } };
   smMonDraw(true);
   colliderStale();                                            // the walk's grid takes the desk in
   console.info(`stage manager: the prompt desk in house 1's prompt corner — the wall at x ${wall.toFixed(3)}, the desk x ${x0.toFixed(2)}…${x1.toFixed(2)}, z ${z0.toFixed(2)}…${z1.toFixed(2)}; the seat at (${sx.toFixed(2)}, ${zc.toFixed(2)})`);
@@ -8283,7 +8289,7 @@ function smTick(dt) {
   }
   // the monitor, a few times a second, only while someone can see it
   if (SM.mon) {
-    const near = SM.seated || (SM.el && !SM.el.hidden) || (walking && SM.seat && Math.hypot(player.pos.x - SM.seat.x, player.pos.z - SM.seat.z) < SM_MON.near);
+    const near = SM.seated || (SM.el && !SM.el.hidden) || (walking && [SM.seat, ...(SM.seats || [])].some(s => s && Math.hypot(player.pos.x - s.x, player.pos.z - s.z) < SM_MON.near));   // seats: the Van Wezel's desk's too
     if (near && (SM.mon.t -= dt) <= 0) { SM.mon.t = 1 / SM_MON.hz; smMonDraw(); moved = true; }
   }
   if (SM.el && !SM.el.hidden && (SM.uiT -= dt) <= 0) { SM.uiT = 0.25; smUI(false); }
@@ -8296,10 +8302,11 @@ function smSit(on) {
   if (on === SM.seated) { if (on) smPanel(true); return SM.seated; }
   if (on) {
     if (!walking || !SM.seat) return false;
+    const at = SM.at || { seat: SM.seat, yaw: -Math.PI / 2 };  // which desk: house 1's, or the Van Wezel's (SM.at, HAMILTON ON ITS STAGE: THE PROMPT DESK)
     SM.back = player.pos.clone();
-    player.pos.copy(SM.seat); const g = groundAt(SM.seat.x, SM.seat.z, SM.seat.y + 0.2); if (g !== null) player.pos.y = g;
+    player.pos.copy(at.seat); const g = groundAt(at.seat.x, at.seat.z, at.seat.y + 0.2); if (g !== null) player.pos.y = g;
     player.vel.set(0, 0, 0); player.onGround = true; player.crouched = false;
-    yaw = -Math.PI / 2; pitch = SM_DESK.pitch;                 // facing the stage (+x)
+    yaw = at.yaw; pitch = SM_DESK.pitch;                       // facing the stage (house 1's: +x)
     keys.clear();
     if (document.pointerLockElement === canvas) document.exitPointerLock();   // the mouse to the panel
     SM.seated = true; smPanel(true);
@@ -13109,6 +13116,7 @@ const PIT_U = {
   uPitD: { value: Array.from({ length: PIT_LN }, () => new THREE.Vector4(0, -1, 0, -2)) },
   uPitC: { value: Array.from({ length: PIT_LN }, () => new THREE.Vector3()) },
   uPitN: { value: 0 }, uPitAmb: { value: new THREE.Color(0.05, 0.05, 0.06) },
+  uPitOff: { value: new THREE.Vector3() },                   // the band drawn in the Van Wezel's pit (HAMILTON ON ITS STAGE: THE BAND): the lamps' house-1 sums taken back by it
 };
 const PIT_GLSL = `
 #define PIT_LN ${PIT_LN}
@@ -13129,7 +13137,8 @@ vec3 pitLight(vec3 P, vec3 N) {
 function pitPatch(sh) {
   Object.assign(sh.uniforms, PIT_U);
   sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vPitP;')
-    .replace('#include <project_vertex>', '#include <project_vertex>\n\tvec4 pitW = vec4(transformed, 1.0);\n#ifdef USE_INSTANCING\n\tpitW = instanceMatrix * pitW;\n#endif\n\tvPitP = (modelMatrix * pitW).xyz;');
+    .replace('#include <common>', '#include <common>\nuniform vec3 uPitOff;')
+    .replace('#include <project_vertex>', '#include <project_vertex>\n\tvec4 pitW = vec4(transformed, 1.0);\n#ifdef USE_INSTANCING\n\tpitW = instanceMatrix * pitW;\n#endif\n\tvPitP = (modelMatrix * pitW).xyz - uPitOff;');
   sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>' + PIT_GLSL)
     .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\n#ifdef PIT_ABOVE\n\tfloat pitK = smoothstep(PIT_ABOVE - 0.12, PIT_ABOVE + 0.04, vPitP.y);\n#else\n\tfloat pitK = 0.0;\n#endif\n'
       + '\treflectedLight.directDiffuse = reflectedLight.directDiffuse * pitK + pitLight(vPitP, inverseTransformDirection(normal, viewMatrix)) * BRDF_Lambert(material.diffuseColor);\n'
@@ -13613,8 +13622,8 @@ const pitLift = u => 0.5 - 0.5 * Math.cos(2 * Math.PI * u);             // 0 at 
 const pitHit = u => Math.pow(1 - pitLift(u), 3);                          // 1 at the stroke, gone by a third of the way
 // Every player and the MD at show time T (only what is drawn: force poses all). Pure: nothing carried from frame to frame.
 const _pm = new THREE.Matrix4(), _pq = new THREE.Quaternion(), _ps = new THREE.Vector3(), _pd = new THREE.Vector3(), _pe = new THREE.Vector3();
-function pitPose(T, force = false) {
-  const B = pitBuilt; if (!B || !B.band) return null;
+function pitPose(T, force = false, B = pitBuilt) {               // B: house 1's band, or the Van Wezel's (HAMILTON ON ITS STAGE: THE BAND)
+  if (!B || !B.band) return null;
   const act = pitAct(T), a = act.a, b = act.b || { beat: 0, phase: 0, inBar: 0, meter: 4 }, beat = b.beat;
   const q = rigFrac(beat), e8 = rigFrac(beat * 2), bowU = rigFrac(beat / 2);
   const band = B.band, V = (x, y, z) => _pd.set(x, y, z);
@@ -13965,6 +13974,7 @@ function buildHouse2(src) {
   rigPlaceable = true; placeSet(1);                          // the rig trimmed and rigged for real size, against the house as cut
   const wallChecked = wallCheck();
   try { lxInit(); } catch (e) { console.error('lx: the lighting engine failed to start —', e); }   // never stops the page
+  try { vwHamBuild(); } catch (e) { console.error('van wezel hamilton: mirroring the production onto its stage failed —', e); }   // the set, rig and light on the Van Wezel's stage (THE THIRD HOUSE: HAMILTON ON ITS STAGE)
   window.MIDTOWN = { scene, house: house.scene, house2: house2Root, house2Spec: HOUSE2, house2Mesh,
     house2Works: { ...house2Works, spots: boothPropGroup, cuts: HOUSE2_CUTS, cut: () => house2Cut },   // Theatre 2's booth, desk and followspot props; its cut boxes and what they took
     set: setGroup, houseMesh, camera, orbit, THREE, built, rig, renderer, requestRender, shadowsDirty, lx: LX_API,
@@ -14399,6 +14409,10 @@ const VAN_WEZEL_API = {
     if (miss || jump > 0.02) fails.push('hallway floor');
     // 3. the route: the floor under each point 10 cm apart, never more than a step up, never more than a step down (the stair
     // down from the landing has its own treads), nowhere without a floor
+    // (the route crosses the lift at the seating level: with the lift down as Hamilton's pit and its wall up (HAMILTON ON ITS
+    // STAGE), the walk is taken with them there — the wall down, the lift up to the stalls — and both put back after)
+    const back = vwLift && vwLift.state !== 'SEATING' ? { lift: vwLift.state, wall: vwGuards ? vwGuards.want : 0 } : null;
+    if (back) { if (vwGuards && back.wall) VW_GUARDS_API.run(false); VW_LIFT_API.run('SEATING'); if (col.stale) buildCollider(); out.push(`(the lift taken from ${VW_LIFT.words[back.lift] || back.lift} to the seating level for the route${back.wall ? ', its wall down' : ''}; put back after)`); }
     if (!VW.missing && vwBuilt.frame) {
       const { fp, out: o } = vwBuilt.frame, pts = VW_ROUTE.slice();
       pts[7] = [fp.x + o.x * 3.0, fp.y + o.y * 3.0]; pts[8] = [fp.x - o.x * 0.9, fp.y - o.y * 0.9];   // out in the foyer before the stair, inside the portal
@@ -14416,6 +14430,7 @@ const VAN_WEZEL_API = {
       out.push(`the route lobby → hallway → foyer → portal → aisle → lift → stair → stage, ${n} points 10 cm apart: largest change ${(worst * 1000).toFixed(0)} mm${where ? ` at (${where[0].toFixed(2)}, ${where[1].toFixed(2)}) ${where[2].toFixed(3)} → ${where[3].toFixed(3)}` : ''}, ${holes} without a floor, ending on y ${y.toFixed(3)} (the stage ${(VW.at.y + 1.067).toFixed(3)})`);
       if (holes || worst > WALK.step || Math.abs(y - (VW.at.y + 1.067)) > 0.02) fails.push('route');
     }
+    if (back) { VW_LIFT_API.run(back.lift); if (vwGuards && back.wall) VW_GUARDS_API.run(true); }
     const s = `van wezel: ${fails.length ? 'FAIL (' + fails.join(', ') + ')' : 'PASS'} — ` + out.join(' · ');
     console.info(s); return s;
   },
@@ -17431,6 +17446,7 @@ function vwGearSurf(cx, z0, y0, w, d, hFront, hBack) {
   const rake = Math.atan2(hBack - hFront, d), nrm = new THREE.Vector3(0, Math.cos(rake), -Math.sin(rake));
   return { rake, nrm, p: (u, v, up = 0) => new THREE.Vector3(cx + w / 2 - u * w, y0 + hFront + (hBack - hFront) * (1 - v), z0 + d * (1 - v)).addScaledVector(nrm, up) };
 }
+const vwGearScreens = [];                                    // the grandMA3's two touchscreens, measured as built (vwGearBuild)
 function vwGearBuild(model) {
   if (!model || !vwBooths) { console.info('van wezel booth gear: no booths — not built'); return null; }
   const t0 = performance.now(), T = VWG.tech, S = VWG.spot, V = (x, y, z) => new THREE.Vector3(x, y, z), PI = Math.PI;
@@ -17481,6 +17497,7 @@ function vwGearBuild(model) {
         const x0 = cx + w / 2 - 0.04 - k * 0.62, x1 = x0 - 0.58, y0 = 0.04, y1 = 0.40, zf = -0.0255;
         const P = [[x0, y1], [x1, y1], [x1, y0], [x0, y0]].map(([x, y]) => V(x - cx, y, zf).applyMatrix4(M));
         K.quad(reg, ...P);
+        vwGearScreens[k] = { P, out: V(0, 0, -1).transformDirection(M) };   // its corners (top left, top right, bottom right, bottom left as the operator sees it) and its face's way out: the show's screens go on it (HAMILTON ON ITS STAGE)
       }
     }
     // ETC ION and its fader wing (navy, silver sides), the ClearCom station, the lamp, a monitor, the mouse, a script
@@ -18096,10 +18113,14 @@ const VWS = {
   spiral: { x: 95.85, z: 1.60, r0: 0.09, r1: 0.80, n: 36, step: Math.PI / 8, top: Math.PI / 2, walk: 0.46 },   // tread i's middle at top + (n − 1 − i)·step
   view: [[85.0, 3.95, 5.4], [60.0, 5.6, 5.0]],                  // his photograph across the stage to the fly wall (VWS_VIEWS)
 };
-// in at their trims: [lineset, kind, y] — a border's y is its bottom, the rest their batten's
-const VWS_HANG = [[0, 'border', 11.25], [1, 'legs', 12.3], [2, 'ellipsoidals', 11.75], [4, 'movers', 12.4], [6, 'pars', 12.8], [8, 'movers', 13.2],
-  [12, 'border', 11.4], [13, 'legs', 12.5], [15, 'electric', 12.4], [18, 'shell', 21.6], [24, 'border', 11.5], [25, 'legs', 12.7], [27, 'electric', 12.6],
-  [31, 'shell', 22.4], [36, 'border', 11.6], [37, 'legs', 12.9], [39, 'cyclights', 12.8], [44, 'shell', 23.2], [48, 'cyc', 25.0]];
+// in at their trims: [lineset, kind, y] — a border's y is its bottom, the rest their batten's. Raised clear of the Hamilton set
+// (Jack, 2026-10-25: "raise the house borders and electrics clear of it"; HAMILTON ON ITS STAGE): its brick walls stand 9.37 m,
+// to y 11.93, under every one of these — the borders were 11.25…11.6 and the lowest lamps 11.28; now nothing of them is under
+// VWHAM.clear (12.23, 0.30 m over the walls). Was: borders 11.25 / 11.4 / 11.5 / 11.6, ellipsoidals 11.75, movers 12.4, electrics 12.4 / 12.6;
+// and the pars on lineset 6, whose lamps (z 2.53 and on) a row of Hamilton's electrics' lines (z 2.70) ran through: on 10.
+const VWS_HANG = [[0, 'border', 12.25], [1, 'legs', 12.3], [2, 'ellipsoidals', 12.75], [4, 'movers', 12.9], [10, 'pars', 12.8], [8, 'movers', 13.2],
+  [12, 'border', 12.4], [13, 'legs', 12.5], [15, 'electric', 12.9], [18, 'shell', 21.6], [24, 'border', 12.5], [25, 'legs', 12.7], [27, 'electric', 12.9],
+  [31, 'shell', 22.4], [36, 'border', 12.6], [37, 'legs', 12.9], [39, 'cyclights', 12.8], [44, 'shell', 23.2], [48, 'cyc', 25.0]];
 const VWS_COL = {
   black: 0x29292d, pipe: 0x232427, steel: 0x2b2d31, grate: 0x3a3c40, mesh: 0x34373b, rail: 0x6a6e73, chain: 0x75797e, cable: 0xb9bdc2,
   rope: 0x8f9194, track: 0xa6aaae, arbor: 0x55585d, rust: 0x7a3322, wood: 0x7b4b28, card: 0xe8e6df, fixture: 0x1b1c1e, lens: 0x56616e,
@@ -18599,6 +18620,609 @@ function vwStageCheck() {
 }
 const VW_STAGE_API = { spec: VWS, hang: VWS_HANG, views: VWS_VIEWS, get built() { return vwStage; }, check: vwStageCheck, view: () => go('v-vwstage') };
 VAN_WEZEL_API.stageHouse = VW_STAGE_API;                      // MIDTOWN.vanWezel.stageHouse
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: HAMILTON ON ITS STAGE
+   Jack (2026-10-25): "put in the set and the lighting for hamilton and put the cues into the desk in the venwezel and make sure
+   all teh cues still look the same" (and, before it, of the set: "raise the house borders and electrics clear of it": VWS_HANG).
+   ONE SHOW, TWO STAGES. House 1 keeps the Hamilton set, its rig, the actors and the lighting engine exactly as they are; the Van
+   Wezel's stage shows the same production moved rigidly by VWHAM.off — house 1's centre line onto the Van Wezel's (x 77), its
+   deck onto the Van Wezel's (+1.757), 1.60 m upstage: the set's portal (8.33 m, over the 7.74 m opening) behind the proscenium's
+   header, its walls (17.3 m across, wider than the 16.84 m opening) behind the proscenium's wall, and its own lip (the Downstage
+   lip's footlights) on the Van Wezel's deck with the pit down. Nothing of the
+   light is worked out twice: every unit's level, colour, aim, gobo and zoom, every landing point and every pool's depth band is
+   the engine's, in house 1's frame, against house 1's set, so a cue looks on the Van Wezel's stage as it looks on house 1's.
+   - THE MIRROR: the set, the rig (its 313 units, the booms, trusses, grid and wing towers), the actors and their props, cloned with
+     their geometry and materials SHARED (a lens lit there is lit here, a cut in the set is cut here, a body's pose is the one
+     pose), and synced on every drawn frame the camera is in the Van Wezel: positions, turns, scales, what is shown, the
+     geometry and material each mesh wears. A part added or taken away (the rig's structures rebuilt for a scale, the actors
+     loaded, a prop moved to another parent) clones the whole again. Drawn only while the camera is in the Van Wezel.
+   - THE LIGHT: while the camera is in the Van Wezel (vwBackGate's box) the lighting group (beams, pools, glare) stands moved by
+     the same offset, the beams' and pools' shaders take their sums back into house 1's frame by it (LX_OFF), and the real lights
+     (LX.real) and the work light's four spots stand moved with it (their group, 'vw hamilton lights'), so the set here takes the
+     same light and the same shadows. In house 1 the offset is 0 and everything is as it was.
+   - THE FOLLOWSPOTS: house 1's three Lycians stand in house 1's booth, which here would hang over the Van Wezel's stalls: their
+     bodies are left out of the mirror, and their beams and glare are drawn from the Van Wezel's follow-spot booth (the middle of
+     its three bays, VWG.spot) to the same landing point; their pools are the engine's, the same pool on her.
+   - THE HOUSE: the Van Wezel's auditorium and stage house (the model's house_ and stage_ looks and its patches, THE HOUSE AS IT IS,
+     THE STAGE HOUSE AS IT IS, the lift, the seating wagon, the pit wall) go down with house 1's house lights, as a fraction of the
+     House light slider: it is not on the slider, so with the house up it stands as built. The foyer and the booths stay lit.
+   - THE DESK: house 1's lighting desk's two screens (THE DESK SCREENS: the songs; cue list 1 and its soft keys) are also on the
+     grandMA3's two touchscreens in the tech booth — the same canvases, so a click there is a click on them (DSK.also).
+   - THE WALK: the set's five meshes here are in the walk's grid (colliderMeshes): the set is walked on as in house 1.
+   House 1's three followspot operators and its stage manager stay in house 1: it is one show, seen from either house.
+   MIDTOWN.vanWezel.hamilton: .spec, .built, check(), compare(opts) → Promise (every cue rendered in both houses, compared),
+   view(); the header's "VW Hamilton". */
+const VWHAM = {
+  // house 1's stage → the Van Wezel's: x, y (the decks, 0.80 → 2.557), z: 1.60 upstage, so the set's own lip — the Downstage
+  // lip's footlights, 1.1 m in front of where the Van Wezel's lip is when the set's portal clears its header — stands on its
+  // deck with the pit down (Jack: "make the stage fit on with the orchstra pit down"; 0.50 left them over the well)
+  // y: house 1's stage floor is Jack's slab over the scan's deck (box 21 (bake 3), its top 0.845, where the walk and the light
+  // land; the set stands 4.5 cm down in it from the scan's 0.80): that floor onto the Van Wezel's, so the set sits in it as there
+  off: [77.0, VWS.deck - 0.845, 1.60],
+  deck1: 0.845,
+  onSet: { z: -0.3, up: 0.05, x: 10.5 },                        // vwHamOnSet: a piece's box from this z upstage, its top this far over the floor, its middle this near the centre line
+  clear: 12.23,                                                 // nothing the Van Wezel hangs over the stage under this (the set's walls' top 11.93 + 0.30): VWS_HANG
+  pros: { z: 0.52, x: [68.58, 85.42], top: 10.30 },             // the proscenium's opening (VWH.pros) and the wall's stage face (VWS.z0's facing, 0.464…0.504, + 2 cm)
+  spotY: 0.72,                                                  // a follow-spot's lens over its booth's floor (THE BOOTHS' GEAR)
+  view: [[77.0, 4.6, -11.0], [77.0, 5.2, 5.0]],                // the stalls, row K or so, at the stage
+  screenLift: 0.002,                                            // the show's screens this far in front of the grandMA3's
+  inWall: /^S[RL] Boom 1$/,                                     // the rig's parts (a unit by its position, a structure by its name) inside the proscenium's wall here
+  stage: { x: 10.6, z0: -1.6, z1: 9.6, y0: 0.3 },               // house 1's stage (world): an actor or a prop shown here only while its source is on it
+  desk: { at: [87.95, 2.60] },                                  // THE PROMPT DESK: its middle, stage right (+x), just off the opening, between the first and second legs
+  // THE BAND: house 1's pit onto the Van Wezel's lift (its back wall, z 3.50, 30 cm off the lip; its floor on the lift's top);
+  // the MD on a podium; the way in from the orchestra-level door (VW_BACK.orch, in the lip's wall), walked at `walk` m/s, one
+  // player every `gap` s from the Five call; the calls the band is in the pit for
+  band: { dz: -0.152 - 0.30 - 3.50, podium: 0.18, walk: 1.0, gap: 1.1, sit: 0.6, inFor: ['FIVE', 'PLACES', 'ACT ONE', 'ACT TWO', 'CURTAIN'] },
+  pit: 'ORCHESTRA',                                             // the orchestra lift at load: Hamilton's pit, its wall up (null: as THE ORCHESTRA LIFT leaves it)
+};
+let vwHam = null;
+// A clone of src's subtree, every mesh sharing its geometry and material; each clone keeps its source (userData.vwSrc) and its
+// children's pairs in the source's order (userData.vwKids), which the sync walks. map: source → clone.
+function vwHamClone(s, map) {
+  let d;
+  if (s.isLOD) d = new THREE.LOD();
+  else if (s.isSprite) d = new THREE.Sprite(s.material);
+  else if (s.isPoints) d = new THREE.Points(s.geometry, s.material);
+  else if (s.isLine) d = s.isLineSegments ? new THREE.LineSegments(s.geometry, s.material) : new THREE.Line(s.geometry, s.material);
+  else if (s.isMesh) d = new THREE.Mesh(s.geometry, s.material);
+  else d = new THREE.Group();
+  d.name = s.name; d.castShadow = s.castShadow; d.receiveShadow = s.receiveShadow; d.renderOrder = s.renderOrder; d.frustumCulled = s.frustumCulled;
+  d.layers.mask = s.layers.mask; d.matrixAutoUpdate = s.matrixAutoUpdate;
+  if (s.raycast !== THREE.Object3D.prototype.raycast && !s.isMesh) d.raycast = () => {};
+  const kids = s.children.map(c => [c, vwHamClone(c, map)]);
+  d.userData = { vwSrc: s, vwKids: kids };
+  if (s.isLOD) {
+    d.autoUpdate = s.autoUpdate;
+    const of = new Map(kids);
+    for (const L of s.levels) d.addLevel(of.get(L.object), L.distance, L.hysteresis);
+    for (const [c, k] of kids) if (!k.parent) d.add(k);
+  } else for (const [, k] of kids) d.add(k);
+  vwHamCopy(s, d);
+  map.set(s, d);
+  return d;
+}
+function vwHamCopy(s, d) {
+  d.position.copy(s.position); d.quaternion.copy(s.quaternion); d.scale.copy(s.scale); d.visible = s.visible;
+  if (!s.matrixAutoUpdate) { d.matrix.copy(s.matrix); d.matrixWorldNeedsUpdate = true; }
+  if (s.isMesh || s.isSprite || s.isPoints || s.isLine) { d.material = s.material; if (!s.isSprite) d.geometry = s.geometry; }
+}
+// The mirror's whole subtree again (the first time, and whenever the source's parts changed)
+function vwHamMirror(b) {
+  if (b.copy) { b.root.remove(b.copy); for (const [, d] of b.extra) b.root.remove(d); b.rebuilds++; }
+  const map = new Map();
+  b.copy = vwHamClone(setGroup, map);
+  b.root.add(b.copy);
+  b.map = map;
+  b.solid = []; b.spots = [];
+  const setRoot = rig ? rig.parent : null;
+  if (setRoot) for (const o of setRoot.children) if (o.isMesh && /^ham_/.test(o.name) && map.get(o)) b.solid.push(map.get(o));
+  b.setMeshes = b.solid.slice();                                // the set's own five
+  // Jack's baked pieces that stand on the set (VWHAM.onSet): the light lands on them, so they come too (in the walk's grid as there)
+  b.extra = vwHamOnSet().map(s => { const d = vwHamClone(s, map); b.root.add(d); d.traverse(o => { if (o.isMesh) b.solid.push(o); }); return [s, d]; });
+  if (rig) for (const id of FOL_IDS) { const u = rig.children.find(c => c.userData.id === id); if (u && map.get(u)) b.spots.push(map.get(u)); }
+  // house 1's two box booms (Boom 1, its pipes and their units) stand inside the Van Wezel's proscenium wall here: left out
+  b.inWall = []; if (rig) for (const c of rig.children) if (VWHAM.inWall.test(c.isLOD ? c.userData.position || '' : c.name) && map.get(c)) b.inWall.push(map.get(c));
+  for (const u of b.spots.concat(b.inWall)) u.visible = false;
+  // the actors and their props: shown here only while their sources stand on house 1's stage (the company in its dressing
+  // rooms, a prop on a backstage table, would be somewhere in or behind the Van Wezel's house)
+  const ag = setRoot && setRoot.children.find(o => o.name === 'actors');
+  b.actors = ag && map.get(ag) ? [ag, map.get(ag)] : null;
+  vwHamOffstage(b);
+  b.root.updateMatrixWorld(true);
+  b.nodes = map.size;
+  vwHamRigging(b);
+  colliderStale();                                              // the walk's grid takes the set's meshes here (and the lighting re-lands: house 1's frame, the same points)
+}
+// THE RIGGING HERE: what in house 1 ends on house 1's roof and walls ends on the Van Wezel's. The electrics' lines (house 1's
+// 'grid: hangers', up to its fly roof, 16.0 → here 17.76) carry on up to the Van Wezel's grid; the FOH trusses' cables (up to
+// house 1's ceiling, 8.05 → 9.81 here, under a ceiling 17–19 m up) carry on to the ceiling over them; the two box booms (Boom 1,
+// on house 1's side walls in front of its proscenium) fall inside the Van Wezel's proscenium wall and are left out (vwHamMirror):
+// their light comes out of the wall's stage face, from just behind the proscenium, where it comes from in house 1. Real size only (fitted, the set is a smaller thing and none of this would meet it). One mesh, under the mirror's root.
+function vwHamRigging(b) {
+  if (b.rigging) { b.root.remove(b.rigging); b.rigging.geometry.dispose(); b.rigging = null; }
+  b.rigs = { hangers: 0, cables: 0, booms: 0, missed: 0 };
+  if (!rig || rig.userData.placedFor !== 1) return;
+  const P = {}, off = b.off, ray = new THREE.Raycaster(), v = new THREE.Vector3(), V = (x, y, z) => new THREE.Vector3(x, y, z);
+  const vw = []; VW.root.traverse(o => { if (o.isMesh && o.visible && !/glass$|basement/.test(o.name)) vw.push(o); });
+  for (const n of ['vw house', 'vw stage house', 'vw lift']) { const g = scene.getObjectByName(n); if (g) g.traverse(o => { if (o.isMesh) vw.push(o); }); }
+  const cast = (o, d, far) => { ray.set(o, d); ray.far = far; const h = ray.intersectObjects(vw, false)[0]; return h ? h.point : null; };
+  rig.updateMatrixWorld(true);
+  // the electrics' lines: each line's top (its highest point) on to the grid's well beams
+  const hg = rig.children.find(o => o.name === 'grid: hangers');
+  if (hg) {
+    const p = hg.geometry.attributes.position; let top = -Infinity;
+    for (let i = 0; i < p.count; i++) top = Math.max(top, v.fromBufferAttribute(p, i).applyMatrix4(hg.matrixWorld).y);
+    const seen = new Set();
+    for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p, i).applyMatrix4(hg.matrixWorld); if (v.y < top - 0.02) continue;
+      const k = `${Math.round(v.x * 10)},${Math.round(v.z * 10)}`; if (seen.has(k)) continue; seen.add(k);
+      deskRod(P, 'steel', V(Math.round(v.x * 10) / 10 + off.x, top + off.y - 0.02, Math.round(v.z * 10) / 10 + off.z), V(Math.round(v.x * 10) / 10 + off.x, VWS.grid - 0.2, Math.round(v.z * 10) / 10 + off.z), 0.008, 5);
+      b.rigs.hangers++;
+    }
+  }
+  // the FOH trusses' cables: from where house 1's end, straight up to the ceiling
+  for (const c of rig.userData.cableTops || []) {
+    const a = V(c.world.x + off.x, c.world.y + off.y, c.world.z + off.z), h = cast(a.clone().setY(a.y + 0.02), V(0, 1, 0), 15);
+    if (h) { deskRod(P, 'steel', a, h, 0.006, 5); b.rigs.cables++; } else b.rigs.missed++;
+  }
+  if (!P.steel) return;
+  const geo = mergeGeometries(P.steel.map(g => g.index ? g.toNonIndexed() : g), false); P.steel.forEach(g => g.dispose());
+  geo.translate(-off.x, -off.y, -off.z);
+  const mesh = new THREE.Mesh(geo, vwHamRigMat); mesh.name = 'vw hamilton: rigging'; mesh.userData.rig = true; mesh.castShadow = mesh.receiveShadow = false;
+  b.root.add(mesh); b.rigging = mesh; mesh.updateMatrixWorld(true);
+}
+const vwHamRigMat = new THREE.MeshBasicMaterial({ color: 0x1f2023, toneMapped: false });
+// THE PROMPT DESK (Jack: "add a stage manger desk to stage right"): house 1's desk (THE STAGE MANAGER), cloned with its
+// materials shared — its cue lights, its monitor and its book are the one desk's — turned to face the stage from stage right
+// (VWHAM.desk.at). E there sits the walker at it and opens the same calling panel (SM.at: which desk); it calls the one show.
+function vwHamDesk(b) {
+  const T = SM.target; if (!SM.desk || !T || !SM.seat) return;
+  const c1 = new THREE.Vector3(T.cx, HOUSE.deckY, T.cz), c2 = new THREE.Vector3(VWHAM.desk.at[0], VWS.deck - (VWHAM.deck1 - HOUSE.deckY), VWHAM.desk.at[1]);
+  const g = new THREE.Group(); g.name = 'vw prompt desk'; g.rotation.y = Math.PI; g.position.set(c2.x + c1.x, c2.y - c1.y, c2.z + c1.z);
+  const desk = vwHamClone(SM.desk, new Map()), stool = vwHamClone(SM.stool, new Map());
+  g.add(desk, stool); scene.add(g); g.updateMatrixWorld(true);
+  const seat = SM.seat.clone().applyMatrix4(g.matrixWorld); seat.y = VWS.deck;
+  const target = { name: 'vw prompt desk', kind: 'prompt desk', cx: c2.x, cz: c2.z, fy: VWS.deck, label: T.label, use: () => { SM.at = { seat, yaw: Math.PI / 2 }; return smSit(true); } };   // facing the stage (−x)
+  VW_TARGETS.push(target);
+  SM.seats = [seat];
+  b.desk = { group: g, seat, target, solid: [] }; desk.traverse(o => { if (o.isMesh) b.desk.solid.push(o); });
+  colliderStale();
+}
+// THE BAND (Jack: "add the instuments to the orchestra pit and make it so the muscians go to the pit at 5 minuets"): house 1's
+// band (THE ORCHESTRA PIT) again in the Van Wezel's pit, on its lift: the players' kit (chairs, stands and clip lights, the
+// instruments) cloned, a podium and a keyboard for the MD, and the players and the MD as a band of their own (their own skeletons
+// and instanced bodies), posed by the pit's own pitPose on the show's time, in house 1's pit's frame, the whole moved onto the
+// lift (VWHAM.band; it rides the lift). Lit as house 1's pit is — the stands' lamps, in its shader, PIT_U.uPitOff taking the
+// sums back while the camera is here. THE FIVE: with the prompt desk in use the players walk in from the orchestra-level door,
+// one every VWHAM.band.gap s, at the Five call, and walk out at the interval's and the curtain's end of it (the calls in
+// VWHAM.band.inFor); a show run without the desk has them in their seats from its start. Off the frame's dt (vwHamBandTick).
+function vwHamBand(b) {
+  const B = pitBuilt; if (!B || !B.band || !vwLift) return;
+  const V = VWHAM.band, n = B.stations.length, group = new THREE.Group(); group.name = 'vw pit band'; group.visible = b.on; scene.add(group);
+  const kit = vwHamClone(B.kit, new Map()); kit.visible = true; group.add(kit);
+  // the MD's podium, his keyboard on its stand (his left hand's place: 0.985 over his feet, 0.32 ahead), his music on it
+  const K = {}, M = new THREE.Matrix4().makeTranslation(PIT.md.x, PIT.floor + V.podium, PIT.md.z), k = pitPutter(K, M);
+  k.box('riser', 0.90, V.podium, 0.80, 0, -V.podium / 2, 0.05); k.box('carpet', 0.88, 0.01, 0.78, 0, -0.004, 0.05);
+  k.box('dark', 0.82, 0.06, 0.28, 0, 0.90, 0.40); k.box('white', 0.78, 0.014, 0.13, 0, 0.935, 0.34);
+  for (let i = 0; i < 19; i++) if (i % 7 !== 2 && i % 7 !== 6) k.box('dark', 0.02, 0.012, 0.08, -0.37 + i * 0.041 + 0.02, 0.944, 0.37);
+  for (const x of [-0.32, 0.32]) { k.rod('steel', [x, 0.0, 0.24], [x, 0.87, 0.56], 0.016); k.rod('steel', [x, 0.0, 0.56], [x, 0.87, 0.24], 0.016); }
+  k.box('stand', 0.50, 0.34, 0.012, 0, 1.22, 0.62, -0.35); k.box('paper', 0.44, 0.30, 0.002, 0, 1.23, 0.612, -0.35);
+  for (const [key, geos] of Object.entries(K)) { const m = new THREE.Mesh(mergeGeometries(geos.map(q => q.index ? q.toNonIndexed() : q), false), pitMats[key]); m.name = `vw pit band: MD's ${key}`; m.userData.rig = true; group.add(m); }
+  // the players: their own skeletons and instanced bodies, as pitBandBuild makes house 1's
+  const parts = {}, col = new THREE.Color(), stations = B.stations.map(s => ({ ...s, root: pitSkeleton(false) }));
+  for (const d of RIG.parts) {
+    const im = new THREE.InstancedMesh(d.geo, pitMats.body, n); im.name = `vw pit band: ${d.name}`; im.frustumCulled = false; im.userData.rig = true;
+    stations.forEach((s, i) => im.setColorAt(i, col.set(/^(head|hand_)/.test(d.name) ? s.skin : /^foot_/.test(d.name) ? 0x0c0c0c : PIT_CLOTH[i % PIT_CLOTH.length])));
+    parts[d.name] = im; group.add(im);
+  }
+  for (const s of stations) { s.root.position.set(s.x, PIT.floor, s.z); s.root.rotation.y = s.yaw; }
+  const nb = stations.filter(s => s.bowed).length, ns = stations.filter(s => s.kind === 'drums').length * 2;
+  const bows = new THREE.InstancedMesh(B.band.bows.geometry, pitMats.wood, Math.max(1, nb)); bows.name = 'vw pit band: bows'; bows.frustumCulled = false;
+  const sticks = new THREE.InstancedMesh(B.band.sticks.geometry, pitMats.paper, Math.max(1, ns)); sticks.name = 'vw pit band: sticks'; sticks.frustumCulled = false;
+  group.add(bows, sticks);
+  // each station's bow and sticks (pitPose fills them in station order)
+  let ib = 0, is = 0; for (const s of stations) { s.bowI = s.bowed ? ib++ : -1; s.stickI = s.kind === 'drums' ? [is++, is++] : null; }
+  const md = pitSkeleton(true, { skin: pitMats.mdSkin, cloth: pitMats.mdCloth, legs: pitMats.mdLegs }); md.name = 'vw pit band: conductor';
+  md.position.set(PIT.md.x, PIT.floor + V.podium, PIT.md.z);
+  const baton = new THREE.Mesh(B.band.md.userData.baton.geometry, pitMats.mdBaton); md.add(baton); md.userData.baton = baton;
+  group.add(md);
+  // the way in: from inside the orchestra-level door, in house 1's pit's frame
+  const O = VW_BACK.orch, door = new THREE.Vector2((O.x0 + O.x1) / 2 - VW.at.x, VWH.pros.face - 0.35 - V.dz);
+  const who = stations.map((s, i) => ({ s, i, to: new THREE.Vector2(s.x, s.z) })).concat([{ md: true, i: n, to: new THREE.Vector2(PIT.md.x, PIT.md.z) }]);
+  who.forEach((w, k) => { w.t0 = k * V.gap; w.len = door.distanceTo(w.to); w.t1 = w.t0 + w.len / V.walk; });
+  const full = Math.max(...who.map(w => w.t1)) + V.sit;
+  b.band = { group, kit, VB: { stations, band: { group, parts, bows, sticks, md }, vis: { band: true, md: true } }, who, door, full, t: 0, dir: 0, want: false, lastKey: '', mdAt: md.position.clone() };
+  vwHamBandPlace(b); vwHamBandPose(b, true);
+}
+// the band on the lift: house 1's pit floor onto its top, wherever it stands
+function vwHamBandPlace(b) {
+  const g = b.band.group; g.position.set(VW.at.x, vwLift.y - PIT.floor, VWHAM.band.dz); g.updateMatrixWorld(true);
+}
+// Are the players wanted in the pit? With the desk in use: from the Five call (VWHAM.band.inFor); without it: while the show is on
+function vwHamBandWant() { return SM.engaged ? VWHAM.band.inFor.includes(SM.state) : !!SHW.on; }
+// The frame's call (riding lxPanelTick): the walk in or out on the frame's dt. → true while it moves and is seen
+function vwHamBandTick(dt) {
+  const b = vwHam; if (!b) return false;
+  if (!b.desk && SM.desk) vwHamDesk(b);
+  if (!b.band) { if (pitBuilt && pitBuilt.band && RIG.parts) vwHamBand(b); return false; }
+  const W = b.band, want = vwHamBandWant();
+  if (want !== W.want) { W.want = want; if (want && !SM.engaged && W.t === 0) W.t = W.full; }   // a show run without the desk: in their seats from its start
+  const was = W.t; W.t = THREE.MathUtils.clamp(W.t + (want ? dt : -dt), 0, W.full); W.dir = want ? 1 : -1;
+  return W.t !== was && b.on;
+}
+{ const lxPanelTickVW = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickVW(dt); return vwHamBandTick(dt) || a; }; }
+// The band at the show's time and the walk's: everyone seated posed by pitPose; then whoever is walking (a stand and a stride
+// along the way, facing it) or not in yet (out of sight); bows and sticks only in their hands
+const vwhZero = new THREE.Matrix4().makeScale(0, 0, 0), vwhW = new THREE.Vector2();
+function vwHamBandPose(b, force) {
+  const W = b.band, T = actNow(), key = `${T}|${W.t}|${vwLift.y}`;
+  if (!force && key === W.lastKey) return;
+  W.lastKey = key; vwHamBandPlace(b);
+  const VB = W.VB, band = VB.band;
+  pitPose(T, true, VB);
+  for (const w of W.who) {
+    const u = (W.t - w.t0) / Math.max(1e-6, w.t1 - w.t0);
+    if (u >= 1) { if (w.md) band.md.visible = true; continue; }
+    if (w.md) {
+      band.md.visible = u > 0;
+      if (u > 0) { vwhW.lerpVectors(W.door, w.to, u); band.md.position.set(vwhW.x, PIT.floor + (u > 0.92 ? VWHAM.band.podium : 0), vwhW.y); band.md.rotation.y = Math.atan2(w.to.x - W.door.x, w.to.y - W.door.y) + (W.dir < 0 ? Math.PI : 0); vwHamStride(band.md.userData.parts, W.t, w.len); band.md.updateMatrixWorld(true); }
+      else { band.md.position.copy(W.mdAt); band.md.rotation.y = 0; }
+      continue;
+    }
+    const s = w.s, i = w.i;
+    if (u <= 0) { for (const im of Object.values(band.parts)) im.setMatrixAt(i, vwhZero); }
+    else {
+      vwhW.lerpVectors(W.door, w.to, u);
+      s.root.position.set(vwhW.x, PIT.floor, vwhW.y); s.root.rotation.y = Math.atan2(w.to.x - W.door.x, w.to.y - W.door.y) + (W.dir < 0 ? Math.PI : 0);
+      vwHamStride(s.root.userData.parts, W.t, w.len); s.root.updateMatrixWorld(true);
+      const P = s.root.userData.parts; for (const [name, im] of Object.entries(band.parts)) im.setMatrixAt(i, P[name].matrixWorld);
+      s.root.position.set(s.x, PIT.floor, s.z); s.root.rotation.y = s.yaw;   // back to the seat for the next pitPose
+    }
+    if (s.bowI >= 0) band.bows.setMatrixAt(s.bowI, vwhZero);
+    if (s.stickI) for (const j of s.stickI) band.sticks.setMatrixAt(j, vwhZero);
+  }
+  for (const im of Object.values(band.parts)) im.instanceMatrix.needsUpdate = true;
+  band.bows.instanceMatrix.needsUpdate = true; band.sticks.instanceMatrix.needsUpdate = true;
+  if (W.t >= W.full) { band.md.position.copy(W.mdAt); band.md.rotation.y = 0; band.md.visible = true; band.md.updateMatrixWorld(true); pitPose(T, true, VB); }
+}
+// a stride: upright, the legs swinging (rigLeg's IK through pitLeg), the arms hanging and swinging against them
+function vwHamStride(P, t, len) {
+  const ph = t * 2 * Math.PI * 0.9, s = Math.sin(ph), rest = RIG.parts[0].pos;
+  P.pelvis.position.set(rest.x, rest.y + 0.02 * Math.abs(Math.cos(ph)), rest.z); P.pelvis.rotation.set(0, 0.06 * s, 0);
+  P.spine.rotation.set(0.04, -0.05 * s, 0); P.head.rotation.set(0, 0, 0);
+  pitLeg(P, 'L', 0, 0.22 * s, Math.max(0, 0.07 * Math.cos(ph)), 0); pitLeg(P, 'R', 0, -0.22 * s, Math.max(0, -0.07 * Math.cos(ph)), 0);
+  for (const [side, k] of [['L', -1], ['R', 1]]) { P['upperarm_' + side].quaternion.identity(); P['upperarm_' + side].rotation.x = 0.25 * k * s; P['forearm_' + side].quaternion.identity(); P['forearm_' + side].rotation.x = -0.15; P['hand_' + side].rotation.set(0, 0, 0); }
+}
+function vwHamOffstage(b) {
+  if (!b.actors) return;
+  const [sa, da] = b.actors, S = VWHAM.stage;
+  for (let k = 0; k < sa.children.length; k++) {
+    const s = sa.children[k], d = da.children[k]; if (!d) continue;
+    const e = s.matrixWorld.elements, x = e[12], y = e[13], z = e[14];
+    d.visible = s.visible && Math.abs(x) < S.x && z > S.z0 && z < S.z1 && y > S.y0;
+  }
+}
+// Jack's baked and built pieces standing on house 1's set: upstage of its proscenium line and up off its floor (not the floor
+// slab, box 21; not the proscenium's pillars and header he built for house 1, which start downstage of it — Midtown's, not the show's)
+const vwhBox = new THREE.Box3();
+function vwHamOnSet() {
+  const out = [];
+  for (const g of [baked, built]) for (const o of g.children) {
+    vwhBox.setFromObject(o);
+    if (!vwhBox.isEmpty() && vwhBox.min.z >= VWHAM.onSet.z && vwhBox.max.y > VWHAM.deck1 + VWHAM.onSet.up && Math.abs(vwhBox.min.x + vwhBox.max.x) / 2 < VWHAM.onSet.x) out.push(o);
+  }
+  return out;
+}
+// Every node's transform, visibility, geometry and material from its source; false if the source's parts changed
+function vwHamSync(b) {
+  let same = true;
+  const walk = (s, d) => {
+    vwHamCopy(s, d);
+    const K = d.userData.vwKids, C = s.children;
+    if (K.length !== C.length) return (same = false);
+    for (let k = 0; k < K.length; k++) if (K[k][0] !== C[k]) return (same = false);
+    for (let k = 0; k < K.length && same; k++) walk(K[k][0], K[k][1]);
+    return same;
+  };
+  walk(setGroup, b.copy);
+  const on = vwHamOnSet();
+  if (on.length !== b.extra.length || on.some((s, k) => b.extra[k][0] !== s)) same = false;
+  else for (const [s, d] of b.extra) { if (!same) break; walk(s, d); }
+  for (const u of b.spots) u.visible = false;
+  for (const u of b.inWall) u.visible = false;
+  if (same) vwHamOffstage(b);
+  return same;
+}
+function vwHamBuild() {
+  if (!vwStage || !VW.root) { console.info('van wezel hamilton: no stage house — not built'); return null; }
+  const t0 = performance.now(), off = new THREE.Vector3(...VWHAM.off);
+  const root = new THREE.Group(); root.name = 'vw hamilton'; root.position.copy(off); root.visible = false; scene.add(root);
+  // the real lights and the work light's spots: a group of their own, moved with the light while the camera is in the Van Wezel
+  const lights = new THREE.Group(); lights.name = 'vw hamilton lights'; scene.add(lights);
+  const moved = [...LX.real, ...lxWorkLights.filter(l => l.isSpotLight)];
+  for (const l of moved) { lights.add(l); lights.add(l.target); }
+  const b = vwHam = { root, lights, off, on: false, copy: null, map: null, solid: [], setMeshes: [], extra: [], spots: [], inWall: [], nodes: 0, rebuilds: 0, syncMs: 0, house: 1, dims: [], fs: [], screens: [], ms: 0 };
+  vwHamMirror(b);
+  // the followspots: house 1's three (by their x in house 1), each to the Van Wezel's spot in the same place across its booth
+  const S = VWG.spot, eye = x => { const f = Math.asin((x - S.c[0]) / S.portR) + (x < S.c[0] ? -1 : x > S.c[0] ? 1 : 0) * S.nose / S.rF; return new THREE.Vector3(S.c[0] + S.rF * Math.sin(f), S.floor + VWHAM.spotY, S.c[1] - S.rF * Math.cos(f)); };
+  const recs = FOL_IDS.map(id => LX.recs.find(r => r.unit.userData.id === id)).filter(Boolean);
+  recs.sort((p, q) => p.unit.getWorldPosition(new THREE.Vector3()).x - q.unit.getWorldPosition(new THREE.Vector3()).x);
+  const xs = S.xs.slice().sort((p, q) => p - q);
+  b.fs = recs.map((r, i) => ({ r, lens: eye(xs[Math.min(i, xs.length - 1)]) }));
+  // the house that goes down with house 1's: the unlit looks of the auditorium and the stage house, none the foyer or a booth wears
+  const inHouse = new Set(), elsewhere = new Set();
+  const groups = /^(vw house|vw stage house|vw flies|vw lift|vw seating wagon|vw lift guards)$/;
+  scene.traverse(o => {
+    if (!o.isMesh || !o.material) return;
+    const ms = Array.isArray(o.material) ? o.material : [o.material];
+    let top = o; while (top.parent && top.parent !== scene) top = top.parent;
+    const here = (top === VW.root && /^vw: (house_(?!glass)|stage_|patches)/.test(o.name)) || groups.test(top.name);
+    for (const m of ms) (here ? inHouse : elsewhere).add(m);
+  });
+  for (const m of inHouse) if (!elsewhere.has(m) && m.isMeshBasicMaterial && !houseMats.includes(m) && m.color) { if (!m.userData.base) m.userData.base = m.color.clone(); b.dims.push(m); }
+  b.houseRef = houseMats.find(m => m.userData.base && m.userData.base.r > 0.02) || null;
+  // the desk: house 1's screens on the grandMA3's two touchscreens (left: the songs, right: cue list 1)
+  const sides = ['songs', 'cues'];
+  vwGearScreens.forEach((q, k) => {
+    const s = DSK.screens.find(x => x.side === sides[k]) || DSK.screens[k]; if (!s || !q) return;
+    const P = q.P.map(p => p.clone().addScaledVector(q.out, VWHAM.screenLift));
+    const g = new THREE.BufferGeometry();
+    g.setAttribute('position', new THREE.Float32BufferAttribute([...P[0].toArray(), ...P[1].toArray(), ...P[2].toArray(), ...P[3].toArray()], 3));
+    g.setAttribute('uv', new THREE.Float32BufferAttribute([0, 1, 1, 1, 1, 0, 0, 0], 2));
+    const n = new THREE.Vector3().subVectors(P[1], P[0]).cross(new THREE.Vector3().subVectors(P[3], P[0]));
+    g.setIndex(n.dot(q.out) > 0 ? [0, 1, 3, 1, 2, 3] : [0, 3, 1, 1, 3, 2]);   // its front (the screens' material is one-sided) toward the operator
+    g.computeVertexNormals();
+    const m = new THREE.Mesh(g, s.mesh.material); m.name = 'vw desk: screen ' + s.side; m.castShadow = m.receiveShadow = false; m.userData = { rig: true, deskScreen: s };
+    scene.add(m); DSK.also.push(m); b.screens.push(m);
+  });
+  // THE PIT (Jack, 2026-10-25: "make the stage fit on with the orchstra pit down", the pit "down as a pit"): at load the
+  // orchestra lift goes down as Hamilton's pit — to the bottom, the seating wagon off, up to the orchestra level — and the pit
+  // wall is raised round it, so nobody walks off the stalls into it (stepped on the lift's own time, before the first frame)
+  if (vwLift && VWHAM.pit) {
+    b.pit = [VW_LIFT_API.run('BOTTOM'), vwWagon && vwWagon.u > 0 ? VW_LIFT_API.wagon.run(false) : 'no wagon on', VW_LIFT_API.run(VWHAM.pit), vwGuards ? VW_GUARDS_API.run(true) : 'no pit wall'];
+  }
+  vwHamUI();
+  b.ms = performance.now() - t0;
+  console.info(`van wezel hamilton: the production mirrored onto the Van Wezel's stage, moved (${VWHAM.off.map(v => v.toFixed(3)).join(', ')}) — ${b.nodes} parts (the set's ${b.solid.length} meshes in the walk's grid; ${b.spots.length} followspot bodies left in house 1's booth, their beams from the Van Wezel's spots), ${moved.length} lights moved with the light, ${b.dims.length} of its looks go down with the house, ${b.screens.length} desk screens on the grandMA3 · ${b.ms.toFixed(0)} ms`);
+  return b;
+}
+// Before every drawn frame (lxDrawn): the camera in the Van Wezel or not; there, the mirror synced, the followspots' beams from
+// its booth, its house at house 1's level
+const VWHAM_ZERO = new THREE.Vector3(), vwhQ = new THREE.Quaternion(), vwhS = new THREE.Vector3(), vwhT = new THREE.Vector3(), vwhD = new THREE.Vector3();
+function vwHamGate() {
+  const b = vwHam; if (!b) return;
+  if (!b.desk && SM.desk) vwHamDesk(b);                         // house 1's desk and band come in after the load: theirs then
+  if (!b.band && pitBuilt && pitBuilt.band && RIG.parts) vwHamBand(b);
+  const p = camera.position, inside = p.x > 50.5 && p.x < 104.0 && p.z > -52 && p.z < 34;   // vwBackGate's box
+  if (inside !== b.on) {
+    b.on = inside; b.root.visible = inside;
+    const o = inside ? b.off : VWHAM_ZERO;
+    LX_OFF.value.copy(o); if (LX.group) LX.group.position.copy(o); b.lights.position.copy(o); b.lights.updateMatrixWorld(true);
+    if (!inside) for (const f of b.fs) LX.dirty.add(f.r);       // house 1's followspot beams and glare drawn again from its booth (lxTick)
+    if (b.band) b.band.group.visible = inside;
+    if (!inside) PIT_U.uPitOff.value.set(0, 0, 0);
+    shadowsDirty();
+  }
+  if (!inside) return;
+  if (b.band) { vwHamBandPose(b); PIT_U.uPitOff.value.copy(b.band.group.position); }   // the band here, lit by house 1's pit's lamps taken back by it
+  const t0 = performance.now();
+  if (!vwHamSync(b)) vwHamMirror(b);
+  b.root.updateMatrixWorld(true);
+  // the followspots: the cone from the Van Wezel's spot to where house 1's lands, as wide there as it is
+  for (const f of b.fs) {
+    const r = f.r; if (!r.beam.visible && !r.beamOn) continue;
+    const st = r.st, dist = r.hit ? r.hit.dist : (r.T.cap || 20), r0 = r.lensR * r.scale, R = r0 + Math.tan(st.zoom / 2 * LX_DEG) * dist;
+    vwhT.copy(r.org).addScaledVector(r.dir, dist).add(b.off);
+    vwhD.subVectors(vwhT, f.lens); const L = vwhD.length(); vwhD.divideScalar(L || 1);
+    vwhQ.setFromUnitVectors(LX_Z, vwhD);
+    r.beam.matrix.compose(vwhS.copy(f.lens).sub(b.off), vwhQ, new THREE.Vector3(R, R, L)); r.beam.matrixWorldNeedsUpdate = true;
+    const g = LX.halo.geometry, k = r.i * 3, P = g.attributes.position.array, D = g.attributes.aDir.array;
+    P[k] = f.lens.x - b.off.x + vwhD.x * 0.04; P[k + 1] = f.lens.y - b.off.y + vwhD.y * 0.04; P[k + 2] = f.lens.z - b.off.z + vwhD.z * 0.04;
+    D[k] = vwhD.x; D[k + 1] = vwhD.y; D[k + 2] = vwhD.z;
+    g.attributes.position.needsUpdate = g.attributes.aDir.needsUpdate = true;
+  }
+  if (LX.group) LX.group.updateMatrixWorld(true);              // the beams lxDrawRec wrote this tick (matrixWorld = matrix) take the group's move before the budget's frustum test
+  // the house: at house 1's house lights over the slider's
+  if (b.houseRef) {
+    const k = Math.min(1, (b.houseRef.color.r / b.houseRef.userData.base.r) / Math.max(1e-6, parseFloat(bright.value)));
+    if (Math.abs(k - b.house) > 1e-4) { b.house = k; for (const m of b.dims) m.color.copy(m.userData.base).multiplyScalar(k); }
+  }
+  b.syncMs = performance.now() - t0;
+}
+{ const lxDrawnH1 = lxDrawn; lxDrawn = time => { vwHamGate(); lxDrawnH1(time); }; }
+// The header: "VW Hamilton" after "VW Stage"
+function vwHamUI() {
+  const after = document.getElementById('v-vwstage') || document.getElementById('v-vanwezel');
+  if (!after || document.getElementById('v-vwham')) return;
+  VIEWS['v-vwham'] = VWHAM.view;
+  const b = document.createElement('button'); b.id = 'v-vwham'; b.textContent = 'VW Hamilton'; b.title = "The Hamilton set and rig on the Van Wezel's stage, from its stalls";
+  b.addEventListener('click', () => go('v-vwham')); after.after(b);
+}
+// THE CHECK. → the text
+function vwHamCheck() {
+  const b = vwHam; if (!b) return 'van wezel hamilton: not built';
+  const out = []; let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  const keep = { p: camera.position.clone() };
+  camera.position.set(77, 5, -10); vwHamGate();                 // stand in the Van Wezel: synced, moved
+  scene.updateMatrixWorld(true);
+  const v = new THREE.Vector3(), w = new THREE.Vector3(), Y = VWS.deck, P = VWHAM.pros;
+  // 1. the mirror: every part, the same place relative to its source (house 1's world + the offset)
+  let n = 0, worst = 0; b.map.forEach((d, s) => { n++; s.getWorldPosition(v).add(b.off); d.getWorldPosition(w); worst = Math.max(worst, v.distanceTo(w)); });
+  let srcN = 0; setGroup.traverse(() => srcN++); for (const [s] of b.extra) s.traverse(() => srcN++);
+  line(n === srcN && worst < 1e-4, `the mirror: ${n} parts of the source's ${srcN} (with Jack's ${b.extra.length} pieces on the set: ${b.extra.map(([s]) => s.name).join(', ') || 'none'}), each at its source + (${b.off.toArray().map(q => +q.toFixed(3)).join(', ')}), the worst ${(worst * 1000).toFixed(3)} mm off; ${b.rebuilds} rebuilt since load; ${b.spots.length} followspot bodies left out`);
+  // 2. the set where it stands: on the deck, behind the proscenium where it is wider or taller than the opening, inside the stage house
+  let under = 0, inWall = 0, outHouse = 0, lo = Infinity, hi = -Infinity, front = Infinity, back = -Infinity, cnt = 0;
+  for (const m of b.setMeshes) {
+    const p = m.geometry.attributes.position, idx = m.geometry.index;
+    const seen = idx ? new Set(idx.array) : null;
+    for (let i = 0; i < p.count; i++) {
+      if (seen && !seen.has(i)) continue;
+      v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld); cnt++;
+      lo = Math.min(lo, v.y); hi = Math.max(hi, v.y); front = Math.min(front, v.z); back = Math.max(back, v.z);
+      if (v.y < Y - (VWHAM.deck1 - HOUSE.deckY) - 0.005) under++;   // (it stands 4.5 cm down in the floor, as in house 1's slab)
+      if (v.z < P.z && (v.x < P.x[0] + 0.02 || v.x > P.x[1] - 0.02 || v.y > P.top - 0.02)) inWall++;
+      if (v.x < VWS.x0 || v.x > VWS.x1 || v.z > VWS.z1) outHouse++;
+    }
+  }
+  line(!under && !inWall && !outHouse, `the set's ${cnt} vertices: y ${lo.toFixed(3)}…${hi.toFixed(3)} (the deck ${Y}), z ${front.toFixed(2)}…${back.toFixed(2)}; ${under} under the deck, ${inWall} in the proscenium (downstage of ${P.z} and outside its opening x ${P.x.join('…')} or over its header ${P.top}), ${outHouse} outside the stage house`);
+  // 3. nothing the Van Wezel hangs over the set comes down to it: every hung piece over the set's footprint
+  const sb = new THREE.Box3(); for (const m of b.setMeshes) sb.expandByObject(m);
+  const low = vwStage.hung.filter(h => h.kind !== 'legs' && h.x1 > sb.min.x && h.x0 < sb.max.x && vwsZ(h.i) > sb.min.z - 0.3 && vwsZ(h.i) < sb.max.z + 0.3);
+  const lowest = low.reduce((m, h) => Math.min(m, h.y0), Infinity);
+  line(lowest >= VWHAM.clear && lowest > sb.max.y + 0.25, `the Van Wezel's ${low.length} borders and electrics over the set: the lowest ${lowest.toFixed(2)} (over the set's top ${sb.max.y.toFixed(2)} by ${(lowest - sb.max.y).toFixed(2)}; VWHAM.clear ${VWHAM.clear})`);
+  // 4. the rig clear of what the Van Wezel has there: its units (each its box) and its structures and the rigging here (each
+  // triangle) against the legs, the borders' cloths and the electrics (their boxes) and the fly wall, galleries, stair and wings
+  const tri = new THREE.Triangle(), A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), clash = new Map();
+  const vwBoxes = [], hangTop = new Map(VWS_HANG.map(([i, , y]) => [i, y]));
+  for (const h of vwStage.hung) {
+    const z = vwsZ(h.i), top = hangTop.get(h.i) ?? h.y0;
+    if (h.kind === 'legs') vwBoxes.push([`legs ${h.i}`, new THREE.Box3(V3w(h.x0, h.y0, z - 0.05), V3w(h.x1, top, z + 0.15))]);
+    else if (h.kind === 'border') vwBoxes.push([`border ${h.i}`, new THREE.Box3(V3w(h.x0, h.y0, z - 0.03), V3w(h.x1, h.y0 + 3.6, z + 0.13))]);
+    else vwBoxes.push([`${h.kind} ${h.i}`, new THREE.Box3(V3w(h.x0, h.y0, z - 0.15), V3w(h.x1, top + 0.12, z + 0.45))]);
+  }
+  const units = [], structs = [];
+  if (rig) { const rc = b.map.get(rig); for (const c of rc.children) { if (!c.visible || b.spots.includes(c) || b.inWall.includes(c)) continue; if (c.isLOD) { const bb = new THREE.Box3().setFromObject(c); if (!bb.isEmpty()) units.push([c.name, bb]); } else if (c.isMesh) structs.push(c); } }
+  if (b.rigging) structs.push(b.rigging);
+  for (const [nm, bb] of units) for (const [vn, vb] of vwBoxes) if (bb.intersectsBox(vb)) clash.set(`${nm} × ${vn}`, 1);
+  for (const m of structs) {
+    const p = m.geometry.attributes.position, idx = m.geometry.index, n = idx ? idx.count : p.count, at = k => idx ? idx.getX(k) : k;
+    for (let t = 0; t + 2 < n; t += 3) {
+      A.fromBufferAttribute(p, at(t)).applyMatrix4(m.matrixWorld); B.fromBufferAttribute(p, at(t + 1)).applyMatrix4(m.matrixWorld); C.fromBufferAttribute(p, at(t + 2)).applyMatrix4(m.matrixWorld); tri.set(A, B, C);
+      for (const [vn, vb] of vwBoxes) if (vb.intersectsTriangle(tri)) clash.set(`${m.name} × ${vn}`, 1);
+    }
+  }
+  const solidVW = vwStage.meshes.find(m => /fly wall/.test(m.name)), sp = solidVW.geometry.attributes.position;
+  for (let t = 0; t < sp.count; t += 3) {
+    A.fromBufferAttribute(sp, t); B.fromBufferAttribute(sp, t + 1); C.fromBufferAttribute(sp, t + 2); tri.set(A, B, C);
+    for (const [nm, bb] of units) if (bb.intersectsTriangle(tri)) clash.set(`${nm} × the fly wall, galleries, wings`, 1);
+  }
+  // and nothing shown inside the proscenium's wall (beside the opening or over its header, between its house face and its stage face)
+  const wallBoxes = [new THREE.Box3(V3w(VWS.x0, Y, VWH.pros.face - 0.05), V3w(P.x[0], VWS.roof, P.z - 0.02)), new THREE.Box3(V3w(P.x[1], Y, VWH.pros.face - 0.05), V3w(VWS.x1, VWS.roof, P.z - 0.02)), new THREE.Box3(V3w(P.x[0], P.top, VWH.pros.face - 0.05), V3w(P.x[1], VWS.roof, P.z - 0.02))];
+  for (const [nm, bb] of units) if (wallBoxes.some(q => q.intersectsBox(bb))) clash.set(`${nm} × the proscenium's wall`, 1);
+  line(!clash.size, `the rig's ${units.length} units and ${structs.length} structures shown (${b.inWall.length} of Boom 1 left in the proscenium's wall; the rigging here: ${b.rigs.hangers} electrics' lines to the grid, ${b.rigs.cables} truss cables to the ceiling, ${b.rigs.missed} that met nothing) against the Van Wezel's ${vwBoxes.length} hung pieces, its fly wall, galleries, stair and wings, and its proscenium's wall: ${clash.size ? [...clash.keys()].slice(0, 8).join(', ') + (clash.size > 8 ? ` … (${clash.size})` : '') : 'none'}`);
+  // 5. the light moved with the camera: the offset, the lighting group, and every real light and work spot where it stands plus it
+  let realOk = 0, realN = 0; for (const l of b.lights.children) { if (!l.isLight) continue; realN++; l.getWorldPosition(v); if (v.distanceTo(w.copy(l.position).add(b.off)) < 1e-4) realOk++; }
+  line(LX_OFF.value.equals(b.off) && LX.group.position.equals(b.off) && realN === LX.real.length + 4 && realOk === realN, `in the Van Wezel the light stands moved (${LX_OFF.value.toArray().map(x => x.toFixed(3)).join(', ')}); ${realOk} / ${realN} real lights and work spots moved with it`);
+  // 6. the walk: wherever the set has a floor of its own (over house 1's deck), it is house 1's here, the decks' difference higher
+  let fl = 0, fn = 0, fw = 0, fx = null;
+  const setMeshes = rig ? rig.parent.children.filter(o => o.isMesh && /^ham_/.test(o.name)) : [], rd = new THREE.Raycaster();
+  for (let x = -8; x <= 8; x += 0.5) for (let z = 0; z <= 9.5; z += 0.5) {
+    rd.set(V3w(x, HOUSE.deckY + 9.5, z), DOWN); rd.far = 10; const h = rd.intersectObjects(setMeshes, false).find(q => q.face && q.face.normal.clone().transformDirection(q.object.matrixWorld).y > 0.7);
+    if (!h || h.point.y < HOUSE.deckY + 0.12) continue;
+    const g1 = h.point.y, g2 = groundAt(x + b.off.x, z + b.off.z, g1 + b.off.y + 0.05); fn++;
+    const d = g2 === null ? Infinity : Math.abs(g2 - g1 - b.off.y); if (d > fw) { fw = d; fx = [x, z, g1, g2]; } if (d < 0.005) fl++;
+  }
+  line(fn >= 20 && fl === fn, `the walk's floor on the set's own floors at ${fn} points (a 0.5 m grid over it): ${fl} at house 1's + ${b.off.y.toFixed(3)}${fx && fw > 0.005 ? ` (worst ${Number.isFinite(fw) ? (fw * 1000).toFixed(1) + ' mm' : 'no floor'} at (${fx[0]}, ${fx[1]}))` : ''}`);
+  // 7. the pit: the lift down as Hamilton's pit, its wall up, and nothing of the set or the rig out over its well (downstage of the lip)
+  const lip = VWH.pros.face; let over = 0, ex = null;
+  for (const m of b.setMeshes) { const p = m.geometry.attributes.position; for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld); if (v.z < lip - 0.005 && v.x > P.x[0] && v.x < P.x[1]) { over++; ex = ex || v.clone(); } } }
+  for (const [nm, bb] of units) if (bb.max.z < lip && bb.min.y < Y + 2.0 && bb.min.x < P.x[1] && bb.max.x > P.x[0]) { over++; ex = ex || nm; }
+  const ls = vwLift ? vwLift.state : null, gu = vwGuards ? vwGuards.u : null;
+  line((!VWHAM.pit || (ls === VWHAM.pit && gu === 1)) && !over, `the pit: the lift ${ls ? VW_LIFT.words[ls] || ls : '—'}${b.pit ? ' (at load: ' + b.pit.join('; ') + ')' : ''}, its wall ${gu === 1 ? 'up' : gu === 0 ? 'down' : gu}; ${over} of the set's vertices and the rig's low units downstage of the lip (${lip})${ex ? ' — e.g. ' + (ex.isVector3 ? ex.toArray().map(q => q.toFixed(2)).join(', ') : ex) : ''}`);
+  // 7. the desk: the grandMA3's two faces show house 1's two screens, and a click on one reaches its keys
+  const sOk = b.screens.filter(m => m.material === m.userData.deskScreen.mesh.material).length;
+  let clicked = null;
+  if (b.screens[1]) {
+    const m = b.screens[1], c = new THREE.Box3().setFromObject(m).getCenter(new THREE.Vector3()), o = c.clone().add(new THREE.Vector3(0, 0.25, -0.6));
+    const ray = new THREE.Raycaster(o, c.clone().sub(o).normalize(), 0, 2); const h = ray.intersectObjects(DSK.screens.map(s => s.mesh).concat(DSK.also), false)[0];
+    clicked = h ? (h.object === m ? `the cue list's face, uv ${h.uv.x.toFixed(2)} ${h.uv.y.toFixed(2)}` : h.object.name) : null;
+  }
+  line(b.screens.length === 2 && sOk === 2 && /cue list/.test(clicked || ''), `the tech booth's grandMA3: ${b.screens.length} faces on house 1's ${DSK.screens.length} screens (${sOk} sharing their canvas); a ray from the operator's chair meets ${clicked || 'nothing'}`);
+  // 9. the prompt desk stage right: on the deck, the seat's floor the deck's, clear of the legs, the rig and the set; E reaches it
+  if (b.desk) {
+    const db = new THREE.Box3().setFromObject(b.desk.group), gs = groundAt(b.desk.seat.x, b.desk.seat.z, VWS.deck + 0.3);
+    let hits = []; for (const [vn, vb] of vwBoxes) if (vb.intersectsBox(db)) hits.push(vn);
+    for (const [nm, bb] of units) if (bb.intersectsBox(db)) hits.push(nm);
+    for (const m of b.setMeshes) if (new THREE.Box3().setFromObject(m).intersectsBox(db)) { const p = m.geometry.attributes.position; let k = 0; for (let i = 0; i < p.count; i++) if (db.containsPoint(v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld))) k++; if (k) hits.push(`${m.name} ${k}`); }
+    line(!hits.length && gs !== null && Math.abs(gs - VWS.deck) < 0.06 && VW_TARGETS.includes(b.desk.target), `the prompt desk stage right: x ${db.min.x.toFixed(2)}…${db.max.x.toFixed(2)}, z ${db.min.z.toFixed(2)}…${db.max.z.toFixed(2)}; the seat (${b.desk.seat.x.toFixed(2)}, ${b.desk.seat.z.toFixed(2)}) on y ${gs === null ? '—' : gs.toFixed(3)}; in its way: ${hits.join(', ') || 'nothing'}`);
+  } else line(false, 'the prompt desk stage right: not built (house 1\'s desk is not in yet)');
+  // 10. the band: on the lift, inside its well; the players out of the pit before the Five, in their seats after it
+  if (b.band) {
+    const W = b.band, hull = vwLift.hull, kb = new THREE.Box3().setFromObject(W.kit), inside = q => hull.edges.every(e => e.nx * q.x + e.nz * q.z <= e.c + 0.02);
+    let outN = 0, nV = 0; W.kit.traverse(o => { if (!o.isMesh || (o.material && o.material.visible === false)) return; const p = o.geometry.attributes.position; for (let i = 0; i < p.count; i += 7) { nV++; if (!inside(v.fromBufferAttribute(p, i).applyMatrix4(o.matrixWorld))) outN++; } });
+    const want = vwHamBandWant(), seated = W.t >= W.full, gone = W.t <= 0;
+    line(!outN && Math.abs(kb.min.y - vwLift.y) < 0.05 && (want ? seated || W.t > 0 : gone || W.t < W.full), `the band: ${W.VB.stations.length} players and the MD, the kit (${nV} points) on the lift's top (y ${kb.min.y.toFixed(3)}, the lift ${vwLift.y.toFixed(3)}) and ${outN} of it outside the well; ${SM.engaged ? `the desk in use, ${SM.state}` : `the desk not in use, the show ${SHW.on ? 'on' : 'off'}`}: ${want ? (seated ? 'in their seats' : 'walking in') : (gone ? 'not in the pit' : 'walking out')} (${W.t.toFixed(1)} of ${W.full.toFixed(1)} s)`);
+  } else line(false, 'the band: not built (house 1\'s band is not in yet)');
+  camera.position.copy(keep.p); vwHamGate(); scene.updateMatrixWorld(true);
+  const s = `van wezel hamilton: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
+  console.info(s); return s;
+}
+// THE PROOF: every cue's look, rendered in both houses from the same place on each stage, compared where the production is seen
+// in both (a mask pass: the set, the rig, the actors and props white, all else black). opts: { from, to, step, views, size }.
+// → Promise of { n, views, worst: [...], mean, over, perCue: [...] } (also MIDTOWN.vanWezel.hamilton.last). Runs on frame time
+// in slices (a cue a step) so the page stays alive; the show is left stopped where it was.
+// a turn of the event loop (a tool's pacing, not the show's time: a hidden pane gives no animation frames at all)
+function vwHamYield(f) { const ch = new MessageChannel(); ch.port1.onmessage = () => { ch.port1.close(); f(); }; ch.port2.postMessage(0); }
+const VWHAM_VIEWS = { stalls: [[0, 2.6, -9.0], [0, 3.6, 5.0]], side: [[-5.5, 3.2, -4.5], [1.0, 3.0, 5.0]], high: [[0, 7.6, -12.0], [0, 2.0, 4.5]] };
+function vwHamCompare(opts = {}) {
+  const b = vwHam; if (!b || !SHW.d) return Promise.resolve({ error: !b ? 'not built' : 'the show is not loaded' });
+  const cues = SHW.d.cues, from = opts.from || 0, to = Math.min(cues.length, opts.to ?? cues.length), step = opts.step || 1;
+  // the drawing buffer's size: the pools read the depth pass at the canvas's pixels (LXDEP), so the pictures are taken at it
+  const views = (opts.views || Object.keys(VWHAM_VIEWS)).map(k => [k, VWHAM_VIEWS[k]]), DB = renderer.getDrawingBufferSize(new THREE.Vector2()), W = DB.x, H = DB.y;
+  const rt = new THREE.WebGLRenderTarget(W, H, { samples: 0 }), mrt = new THREE.WebGLRenderTarget(W, H, { samples: 0 });
+  rt.texture.colorSpace = THREE.SRGBColorSpace;
+  const white = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide }), black = new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide });
+  const keepCam = { p: camera.position.clone(), q: camera.quaternion.clone(), aspect: camera.aspect, t: orbit.target.clone() };
+  const px = new Uint8Array(W * H * 4), pm = new Uint8Array(W * H * 4);
+  const prod = o => { for (let q = o; q; q = q.parent) if (q === setGroup || q === b.root) return true; return false; };
+  const shoot = (p, t, mask) => {
+    camera.position.set(...p); camera.up.set(0, 1, 0); camera.lookAt(new THREE.Vector3(...t)); camera.updateMatrixWorld();
+    if (!mask) { lxDrawn(clock.elapsedTime); if (opts.noFollow) for (const f of b.fs) f.r.beam.visible = false;   // (the followspots' cones, drawn from each house's own booth, left out)
+      renderer.setRenderTarget(rt); renderer.render(scene, camera); renderer.readRenderTargetPixels(rt, 0, 0, W, H, px); renderer.setRenderTarget(null); if (opts.noFollow) for (const f of b.fs) f.r.beam.visible = !!f.r.beamOn; return px.slice(); }
+    vwHamGate();
+    const sw = []; scene.traverseVisible(o => { if (!o.isMesh && !o.isSprite) return; sw.push([o, o.material]); o.material = o.isSprite ? o.material : (prod(o) ? white : black); });
+    const lg = LX.group ? LX.group.visible : false; if (LX.group) LX.group.visible = false;
+    const bg = scene.background; scene.background = new THREE.Color(0);
+    renderer.setRenderTarget(mrt); renderer.render(scene, camera); renderer.readRenderTargetPixels(mrt, 0, 0, W, H, pm); renderer.setRenderTarget(null);
+    for (const [o, m] of sw) o.material = m; if (LX.group) LX.group.visible = lg; scene.background = bg;
+    return pm.slice();
+  };
+  const res = { n: 0, views: views.map(v => v[0]), perCue: [], worst: [], size: [W, H] };
+  const wasOn = SHW.on, wasT = wasOn ? showState() : null;
+  return new Promise(done => {
+    let k = from, sumMean = 0, nOver = 0;
+    const one = () => {
+      if (k >= to) {
+        rt.dispose(); mrt.dispose(); white.dispose(); black.dispose();
+        camera.position.copy(keepCam.p); camera.quaternion.copy(keepCam.q); orbit.target.copy(keepCam.t);
+        vwHamGate(); requestRender();
+        res.mean = res.n ? sumMean / res.n : 0; res.over = nOver;
+        res.worst = res.perCue.slice().sort((p, q) => q.d - p.d).slice(0, 12);
+        VW_HAM_API.last = res; done(res); return;
+      }
+      const c = cues[k];
+      try {
+        showGotoCue(c); if (SHW.playing) showPause(true); vwHamSettle();
+        const row = { k, q: c.q, track: SHW.d.tracks[c.ti].id, d: 0, views: {} };
+        for (const [name, [p, t]] of views) {
+          const pv = [p[0] + b.off.x, p[1] + b.off.y, p[2] + b.off.z], tv = [t[0] + b.off.x, t[1] + b.off.y, t[2] + b.off.z];
+          const m1 = shoot(p, t, true), a = shoot(p, t, false), m2 = shoot(pv, tv, true), z = shoot(pv, tv, false);
+          let n = 0, s = 0, big = 0;
+          for (let i = 0; i < W * H; i++) {
+            const j = i * 4; if (m1[j] < 128 || m2[j] < 128) continue;
+            const d = (Math.abs(a[j] - z[j]) + Math.abs(a[j + 1] - z[j + 1]) + Math.abs(a[j + 2] - z[j + 2])) / 3;
+            n++; s += d; if (d > 12) big++;
+          }
+          const mean = n ? s / n : 0, frac = n ? big / n : 0;
+          row.views[name] = { px: n, mean: +mean.toFixed(2), over12: +(frac * 100).toFixed(2) };
+          row.d = Math.max(row.d, mean); sumMean += mean / views.length;
+          if (frac > 0.02) nOver++;
+        }
+        res.perCue.push(row); res.n++;
+      } catch (e) { res.perCue.push({ k, q: c.q, error: String(e.message || e) }); }
+      k += step;
+      if ((k - from) / step % (opts.batch || 4)) one(); else vwHamYield(one);   // a few cues a turn: the page breathes between
+    };
+    vwHamYield(one);
+  }).finally(() => { if (!wasOn) showStop(false); else if (wasT) showSeek(wasT.track, wasT.t); });
+}
+// the state a cue leaves, settled: the show's own tick (paused: the actors and the followspots posed at its time, nothing
+// fired) and every fade and journey run out (the engine's own advance, a long tick at once)
+function vwHamSettle() { for (let i = 0; i < 3; i++) { lxPanelTick(1 / 30); lxTick(30); } }
+const VW_HAM_API = { spec: VWHAM, get built() { return vwHam; }, check: vwHamCheck, compare: vwHamCompare, views: VWHAM_VIEWS, last: null, view: () => go('v-vwham'),
+  tick: dt => vwHamBandTick(dt),                                // the band's walk, dt at a time (a hidden pane has no frames)
+  get band() { const W = vwHam && vwHam.band; return W ? { want: W.want, t: W.t, full: W.full, players: W.VB.stations.length } : null; } };
+VAN_WEZEL_API.hamilton = VW_HAM_API;                          // MIDTOWN.vanWezel.hamilton
 
 /* ---------------------------------------------------------------- THEATRE 2: THE UNDERGROUND AND THE LIFTS
    RULING GI (2026-10-16), Jack: "make it so there is a stage lift that is used to bring on and off big sets like the ship.
