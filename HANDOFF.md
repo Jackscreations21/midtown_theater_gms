@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-25: the Van Wezel's audience — a line on Broadway, the foyer, their seats (PR `vw-full-house`, one session)
+## DONE — 2026-10-25: the Van Wezel's audience — a line on Broadway, the foyer, their seats; applause at the bows (PR #45 `vw-full-house`, one session)
 
 Jack ticked five of the 25 ideas on the "Midtown Feature Picks" page (a full house, the interval crowd, the stage door, rain on
 Broadway, sound from the speakers), took the full house first, in the Van Wezel, then: *"make it so people can line up outside
@@ -252,7 +252,18 @@ the door and start coming in when i open the door. make it so there is a button 
   each side's way round and up its gallery, 26 / 26 doorways, every row reached from each side); the flow run end to end
   (line → street doors → foyer → house right 3 → 441 seated after ~4 min); crew 6 / 6, side doors PASS, street PASS, actors
   pass, lx 301 / 313 and show.check as before (data not touched).
-- **His to decide:** the bodies' look; nobody steps round anybody; ~10 min to get everyone in; nobody leaves yet.
+- **The applause** (Jack: *"also add the apluase one"*, then *"only add it during bows"* and *"just add the noise there arms
+  are fine"*): a sound only, at the bows only, from 2-23's last note (217 s) through the company filing off (the exit music,
+  234.2 s) and 12 s on, up over 1.5 s and down over 8. Made once in the page with the house (no file): 120 people each clapping
+  steadily (3-5.2 a second, a little loose), each clap a short burst of noise rung through a band-pass at their own pitch
+  (0.6-2.2 kHz), 14 near and loud, the rest soft, the whole softened over 4.5 kHz: 79 % of its energy in 0.7-2.5 kHz, 1.8 %
+  over 5 kHz, its loudness jumping clap to clap. The first try (700 bursts a second of near-white noise) was static; Jack heard
+  it: *"whatever you are doing sounds like static"*. Its level is a pure function of the show's clock (seeks land in it, a
+  pause stops it) x the share seated (an empty house is silent) x the show's volume x where the camera is (full in the Van
+  Wezel's house, nothing 75 m off or west of the Midtown block): 0 at 216.9, 0.5 at 217.75, 1 from 219 to 238.2, 0.53 at 242,
+  0 from 246.3, 0 in 2-22. `MIDTOWN.vanWezel.audience.applause`: state(), test(s), buffer().
+- **His to decide:** the bodies' look; nobody steps round anybody; ~10 min to get everyone in; nobody leaves yet; how the
+  applause sounds now, and how loud (VWA.clap.gain).
 - Traps (TRAPS.md "From the full-house round"): a `//` comment pasted mid-line; the cross aisle's riser; a hidden pane's doors.
 
 ## DONE — 2026-10-25: the booth's monitors show one view each (PR `booth-monitor-ghost`, one session)

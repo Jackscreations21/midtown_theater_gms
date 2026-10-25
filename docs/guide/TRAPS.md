@@ -2393,3 +2393,6 @@ include the place a failure would show — the corridor behind the house, not on
   (`vwAudNearest`), not the nearest.
 - **A hidden Browser pane stops `requestAnimationFrame`, and with it every door's swing** (`MIDTOWN.doors.toggle` sets the
   want; `doorsTick` moves it). To test something that waits on a door, step `MIDTOWN.doors.tick(dt)` by hand.
+- **Random noise bursts at random times are static, not applause.** Applause is people clapping steadily (each ~4 a second),
+  each clap a band-passed pop around 1-2 kHz. Check a made sound by its spectrum and its loudness over 10 ms windows
+  (`audience.applause.buffer()`) before playing it: Jack hears whatever a test plays.

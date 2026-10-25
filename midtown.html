@@ -87,7 +87,7 @@
   tags; Rumble shakes the view a little on the album's big bass hits (assets/hamilton-rumble.json, tools/rumble.html).
   THE VAN WEZEL'S AUDIENCE (Jack, 2026-10-25; "THE THIRD HOUSE: THE AUDIENCE" below): the header's Line up — 1,600 people
   queue on Broadway at its street doors, wait in the foyer once those open, and walk to their seats in the model's 1,778
-  when a stalls door opens; MIDTOWN.vanWezel.audience.
+  when a stalls door opens; applause (a sound) through the bows at 2-23's end; MIDTOWN.vanWezel.audience.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20079,6 +20079,7 @@ function vwAudBuild() {
   vwAud = { group, ...meshes, seats: S.seats, rows: S.rows, sides, lanes, spots, doorIn, people, on: false, acc: { arrive: 0, admit: 0, enter: 0 }, next: 0, waiting: [], aisle: new Map(), dirty: true, seatedDirty: true, ms: 0, built: performance.now() - t0, laneTurn: 0 };
   for (const p of people) { const c = new THREE.Color(); meshes.seat.forEach((m, k) => { c.setHex(p.cols[[0, 1, 2, 3][k]]); m.setColorAt(p.seat, c); }); }
   meshes.seat.forEach(m => { const z = new THREE.Matrix4().makeScale(0, 0, 0); for (let i = 0; i < S.seats.length; i++) m.setMatrixAt(i, z); m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; });
+  if (!APL.buf && window.OfflineAudioContext) APL.buf = vwApplauseBuffer(new OfflineAudioContext(2, 1, 44100));   // the applause made now, with the house, not at the bows (THE APPLAUSE)
   console.info(`van wezel audience: ${S.seats.length} seats in ${S.rows.length} rows, ${people.length} sold; ${spots.length} foyer spots (${spots.filter(q => !q.side).length} house right); lanes ${lanes.map(l => `${l.path.len.toFixed(0)} m (${l.cap})`).join(', ')} · ${vwAud.built.toFixed(0)} ms`);
   return vwAud;
 }
@@ -20274,7 +20275,77 @@ function vwAudTick(dt) {
   if (draw) A.ms = performance.now() - t0;
   return draw;
 }
-{ const lxPanelTickVWA = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickVWA(dt); return vwAudTick(dt) || a; }; }
+{ const lxPanelTickVWA = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickVWA(dt); vwApplauseTick(dt); return vwAudTick(dt) || a; }; }
+// THE APPLAUSE (Jack, 2026-10-25: "also add the apluase one", then "only add it during bows" and "just add the noise there
+// arms are fine"): a sound only, at the bows only — from 2-23's last note (its len) through the company filing off (the exit
+// music's at: tools/blocking/gen_seg8.py EXIT_AT) and VWA.clap.tail s on, rising over rise s and dying over fade. A crowd of
+// claps made once in the page (vwApplauseBuffer: VWA.clap.hands people over a loop of VWA.clap.loop s), looped; its level a
+// pure function of the show's time (a seek lands in it, a pause
+// stops it), times the share of the house seated (an empty house is silent), the show's volume, and where the camera is
+// (full within near m of the house's middle, nothing past far, nothing west of the Midtown block).
+VWA.clap = { rise: 1.5, tail: 12, fade: 8, hands: 120, near: 14, loop: 8, close: 35, far: 75, centre: [77.0, -20.0], gain: 0.45 };   // hands: people heard, near of them loud; close…far: the camera's distance it fades over
+const APL = { ctx: null, src: null, gain: null, buf: null, want: 0, level: 0, test: 0 };
+// The crowd: VWA.clap.hands people each clapping steadily (their own rate, a little loose), each clap a short burst of
+// noise rung through a band-pass at their own pitch (the "pop" of cupped or flat hands, 0.6–2.2 kHz) — a few near and loud,
+// the rest far and soft — then the whole softened over 4.5 kHz. (The first try, 700 bursts a second of near-white noise at
+// random times, was static: Jack, "sounds like static".)
+function vwApplauseBuffer(ctx) {
+  const C = VWA.clap, sr = ctx.sampleRate, N = Math.round(C.loop * sr), buf = ctx.createBuffer(2, N, sr), L = buf.getChannelData(0), R = buf.getChannelData(1), rnd = vwAudRng(VWA.seed + 7);
+  const len = Math.round(0.022 * sr), env = new Float32Array(len);
+  for (let h = 0; h < C.hands; h++) {
+    const near = h < C.near, amp = near ? 0.35 + 0.65 * rnd() : 0.05 + 0.18 * rnd(), pan = near ? rnd() : 0.25 + 0.5 * rnd();
+    const f0 = 600 + 1600 * rnd(), Q = 1.2 + 1.6 * rnd(), tau = (0.004 + 0.005 * rnd()) * sr;
+    for (let i = 0; i < len; i++) env[i] = Math.exp(-i / tau) * Math.min(1, i / 12);   // this person's clap's shape
+    const w = 2 * Math.PI * f0 / sr, al = Math.sin(w) / (2 * Q), a0 = 1 + al, b0 = al / a0, b2 = -al / a0, a1 = -2 * Math.cos(w) / a0, a2 = (1 - al) / a0;   // RBJ band-pass, 0 dB at its peak
+    const rate = 3.0 + 2.2 * rnd(), period = sr / rate, n = Math.floor(N / period);   // claps a second; whole claps in the loop, so it loops without a seam
+    const per = N / n;
+    for (let c = 0; c < n; c++) {
+      const t0 = Math.floor((c + rnd() * 0.12) * per + h * 997) % N, ca = amp * (0.75 + 0.5 * rnd());
+      let x1 = 0, x2 = 0, y1 = 0, y2 = 0;
+      for (let i = 0; i < len; i++) {
+        const x = (Math.random() * 2 - 1) * env[i];
+        const y = b0 * x + b2 * x2 - a1 * y1 - a2 * y2; x2 = x1; x1 = x; y2 = y1; y1 = y;
+        const j = (t0 + i) % N, v = y * ca * 3;
+        L[j] += v * (1 - pan); R[j] += v * pan;
+      }
+    }
+  }
+  const k = 1 - Math.exp(-2 * Math.PI * 4500 / sr);         // the whole softened over 4.5 kHz (round the loop twice so its start has settled)
+  for (const ch of [L, R]) { let lp = 0; for (let pass = 0; pass < 2; pass++) for (let i = 0; i < N; i++) { lp += k * (ch[i] - lp); if (pass) ch[i] = lp; } }
+  let peak = 0; for (let i = 0; i < N; i++) peak = Math.max(peak, Math.abs(L[i]), Math.abs(R[i]));
+  const s = 0.9 / Math.max(peak, 1e-6); for (let i = 0; i < N; i++) { L[i] *= s; R[i] *= s; }
+  return buf;
+}
+// The bows' level now, 0…1, from the show's clock
+function vwApplauseLevel() {
+  if (APL.test > 0) return 1;
+  if (!SHW.on || !SHW.d) return 0;
+  const last = SHW.d.tracks.length - 1; if (SHW.ti !== last) return 0;
+  const C = VWA.clap, B0 = SHW.d.tracks[last].len, B1 = EXM.d && EXM.d.ti === last ? EXM.d.at : B0 + 17, t = SHW.lt;
+  if (t < B0) return 0;
+  const up = Math.min(1, (t - B0) / C.rise), end = B1 + C.tail;
+  return t >= end ? 0 : up * Math.min(1, (end - t) / C.fade);
+}
+function vwApplauseTick(dt) {
+  if (APL.test > 0) APL.test = Math.max(0, APL.test - dt);
+  const C = VWA.clap, level = APL.level = vwApplauseLevel();
+  if (level === 0 && APL.want === 0) return;                  // not the bows, and silent already: nothing to do
+  const A = vwAud, seated = A ? A.people.filter(p => p.state === 'seated').length / A.people.length : 0;
+  const p = camera.position, d = Math.hypot(p.x - C.centre[0], p.z - C.centre[1]);
+  const place = p.x > VWA.east ? THREE.MathUtils.clamp((C.far - d) / (C.far - C.close), 0, 1) : 0;
+  const playing = APL.test > 0 || (SHW.on && SHW.playing);
+  const want = playing ? level * Math.sqrt(seated) * place * (SHW.vol ?? 1) * C.gain : 0;
+  if (want < 1e-3 && !APL.gain) return;
+  if (!APL.ctx) {
+    if (!window.AudioContext) return;
+    try {
+      const ctx = APL.ctx = new AudioContext(), g = APL.gain = ctx.createGain(), s = APL.src = ctx.createBufferSource();
+      g.gain.value = 0; s.buffer = APL.buf || (APL.buf = vwApplauseBuffer(ctx)); s.loop = true; s.connect(g); g.connect(ctx.destination); s.start();
+    } catch (e) { console.warn('van wezel applause: no sound —', e); APL.ctx = null; APL.gain = null; return; }
+  }
+  if (want > 1e-3 && APL.ctx.state === 'suspended') APL.ctx.resume().catch(() => {});
+  if (Math.abs(want - APL.want) > 0.005 || (want === 0 && APL.want !== 0)) { APL.want = want; APL.gain.gain.setTargetAtTime(want, APL.ctx.currentTime, 0.2); }
+}
 function vwAudClear() {
   const A = vwAud; if (!A) return;
   A.on = false; A.next = 0; A.waiting.length = 0; A.acc = { arrive: 0, admit: 0, enter: 0 };
@@ -20344,6 +20415,9 @@ VAN_WEZEL_API.audience = {
     return { on: A.on, sold: A.people.length, ...c, line: A.lanes.map(l => l.list.length), street: st ? +st.u.toFixed(2) : null, stallsOpen: A.sides.map(G => G.ports.filter(q => vwAudOpen(q.door)).length), standing: A.standing || 0, shown: A.group.visible, ms: +A.ms.toFixed(2) };
   },
   check: vwAudCheck,
+  // THE APPLAUSE: its level now, what it plays at, and test(s): the full applause for s seconds wherever the show is
+  applause: { state: () => ({ level: +vwApplauseLevel().toFixed(3), gain: +APL.want.toFixed(3), sound: APL.ctx ? APL.ctx.state : 'not made', test: +APL.test.toFixed(1) }), test(s = 6) { APL.test = s; return this.state(); },
+    buffer: () => vwApplauseBuffer(new OfflineAudioContext(2, 1, 44100)) },   // the loop, made silently (to look at, not hear)
 };
 
 /* ---------------------------------------------------------------- THE THIRD HOUSE: THE BOOTH LIGHTS
