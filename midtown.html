@@ -15481,7 +15481,7 @@ function vwLiftBuild(model, stallsY) {
     { name: 'Van Wezel seating wagon panel', kind: 'switch', cx: VW_WAGON.panel.x + 0.30, cz: VW_WAGON.panel.z, fy: VW_BACK.floor,
       label: () => vwWagonLabel(), use: () => vwWagonUse() });
   vwWagonBuild(model, L);                                       // the seating wagon and its bay under the stalls (THE SEATING WAGON)
-  const guards = vwGuardBuild(L, model);                               // the rails round the well, raised and lowered by hand (THE PIT GUARDS)
+  const guards = vwGuardBuild(L, model);                               // the panelled wall round the well, raised and lowered by hand (THE PIT GUARDS)
   if (vwBack) { const add = []; for (const gr of [group, stair, fixed, ...(guards ? [guards.group] : [])]) gr.traverse(o => { if (o.isMesh) add.push(o); }); add.forEach(m => m.layers.set(vwBack.shown ? 0 : 31)); vwBack.gated.push(...add); }   // drawn with the basement (vwBackGate)
   L.ms = performance.now() - t0;
   console.info(`van wezel lift: stops BOTTOM ${stops.BOTTOM.toFixed(3)} (the pit's floor ${pitFloor.toFixed(3)}), ORCHESTRA ${stops.ORCHESTRA.toFixed(3)}, SEATING ${stops.SEATING.toFixed(3)}, STAGE ${stops.STAGE.toFixed(3)}; the slab ${keep.length / 3} triangles, its hull ${hull.ring.length} corners x ${hull.x0.toFixed(2)}…${hull.x1.toFixed(2)} z ${hull.z0.toFixed(2)}…${hull.z1.toFixed(2)}; the stair ${n} risers of ${(rise * 1000).toFixed(0)} mm, rolls ${S.stair.slide} m; the stage panel at x ${retX.toFixed(3)}; the terrace cut out of the well (${terrCut} triangles), the under-stage slab's ledge over it (${ledgeCut}) · ${L.ms.toFixed(0)} ms`);
@@ -15733,114 +15733,179 @@ const VW_LIFT_API = {
 VAN_WEZEL_API.lift = VW_LIFT_API;
 
 /* ---------------------------------------------------------------- THE THIRD HOUSE: THE PIT GUARDS
-   Jack (2026-10-25, under RULING GT): "add guards i can make go up so people dont fall into the orchstra pit". Guard rails
-   round the orchestra lift's well that he raises and lowers BY HAND. RULING GK (Jack, for Theatre 2: "dont make the railings
-   come up when the lift moves") STANDS: they never move with the lift, only when he works them. DOWN at load (a default: his call to change, VW_GUARDS.atLoad).
-   THE RAILS, two runs: round the well, 6 cm outside every edge of the lift's hull that is open to the house (both slanted
-   sides and the curved front — not the edge along the stage's front wall at the lip), from the wall round to the wall, each
-   post on the floor measured under it: the stalls (1.49) round the front, just clear of the front row's cushions (10 cm out),
-   and beside the slanted sides the foyer's carpet (0.875) in the narrow gap to the hall's walls, the run climbing between
-   them at the corners; and on the deck along the lip, 6 cm upstage of it, from 10 cm house left of the stair wagon (the gap
-   where the stair meets the lip, VW.stageStair) to the hull's house-left corner. Posts at most 1.5 m apart, a top rail whose
-   top stands 1.07 m over the floor, a mid rail; underMat.steel and underMat.dark (not yellow). They sink straight down:
-   lowered, the top rail's top lies 3 mm over the floor (a steel strip) and the posts and mid rail, under the floor, are not
-   drawn. Up or down in 2 s, eased, off the frame's dt (vwGuardTick, from vwLiftTick; never setTimeout).
-   THE WALK: raised past half-way they stop a walker — each run's segments a thin prism from the floor to the top rail, ray-
-   tested by vwGuardHit (from vwLiftHit, inside builtHit), and the two switch posts always; nothing in the walk's grid.
-   Rising, they wait while a walker stands where a rail would come up (the hint and the switches say so).
-   CONTROLS: E at a switch on a post on the stalls floor 0.65 m outside the guard line at the well's house-right front corner (by the stalls' portal there),
-   and at one on a post on the deck, upstage of the lift's stage panel (the proscenium's house-right return it hangs on is
-   only ~0.6 m deep, too shallow for two: the guards' post stands 0.55 m upstage of its end, so E picks one or the other);
-   the header's Lifts row (VW guards, beside VW ▼ / VW ▲); the console:
+   Jack (2026-10-25, under RULING GT): "add guards i can make go up so people dont fall into the orchstra pit". A guard round
+   the orchestra lift's well that he raises and lowers BY HAND. RULING GK (Jack, for Theatre 2: "dont make the railings come
+   up when the lift moves") STANDS: it never moves with the lift, only when he works it. DOWN at load (a default: his call to
+   change, VW_GUARDS.atLoad).
+   ITS LOOK (Jack, 2026-10-25, with a photograph of a real opera house's orchestra pit: "the rails [were] meant to be so the
+   audience doesn't fall in, there shouldn't be [one] on the stage, and the guards should look something like these ones do
+   but black"): the classic pit rail — a SOLID low wall following the pit's curve on the audience's side, its house face in
+   rectangular panels, nothing at the stage's edge. So: no rail on the deck along the lip any more (it and its switch on the
+   deck went), and round the well a black panelled wall in place of the posts and rails. Its well-side face 8 mm outside
+   every edge of the lift's hull that is open to the house (both slanted sides and the curved front — not the edge along the
+   stage's front wall at the lip), from the wall round to the wall; 56 mm of body, a cap 50 mm deep on top whose top stands
+   1.07 m over the floor, 16 mm proud of the house face and 4 mm of the well's (so 4 mm clear of the lift's travel), a plinth
+   at the foot, and on the house face panels ~1.2 m wide sunk 12 mm between stiles and rails, each framed by a moulding 4 mm
+   proud of the frame, a bed moulding under the cap. It is that thin because the front row's cushions stand only 75–78 mm
+   off the lift's curved front (measured, 38–50 cm over the stalls): the face reaches 68 mm out at their height, 7–8 mm
+   clear (its check measures it). Where the hall's own walls stand closer to the hull than that (beside the house-left
+   slanted side, 3 mm at the nearest) the guard runs into them. Near-black (0x26262a, the cap, plinth and mouldings 0x404047:
+   anything darker read as a hole in the dim house), lobbyStd materials whose glow and colour are both shaded per face by
+   vertex colours (VW_GUARDS.shade: tops catch the light, undersides and reveals fall dark) so the panels read in the house's
+   flat light — not yellow, no gold. The floor under it measured every 0.25 m at its middle: the stalls (1.49) round the
+   front, the foyer's carpet (0.875) in the narrow gap beside both slanted sides; floors within 3 cm are one floor to it (its
+   top level over the higher); where the floor steps the wall steps with it (over the step the higher floor's top, the
+   lower floor's foot: no gap under it, nothing floating). Corners mitred (every piece is cut on the bisector of its corner).
+   Three draw calls: the body, its trim, the cap (merged per material).
+   It sinks straight down: lowered, the cap's top lies 3 mm over the floor (a dark strip round the well) and the rest, under
+   the floor, is not drawn. Up or down in 2 s, eased, off the frame's dt (vwGuardTick, from vwLiftTick; never setTimeout).
+   THE WALK: raised past half-way it stops a walker along its whole length — each of its runs a prism the wall's full width
+   (cap included) from its foot to its cap, ray-tested by vwGuardHit (from vwLiftHit, inside builtHit), and the switch's post
+   always; nothing in the walk's grid. Rising, it waits while a walker stands where the wall would come up (the hint and the
+   switch say so).
+   CONTROLS: E at a switch on a post on the stalls floor 0.65 m outside the old guard line at the well's house-right front corner
+   (by the stalls' portal there); the header's Lifts row (VW guards, beside VW ▼ / VW ▲); the console:
    MIDTOWN.vanWezel.lift.guards = { up (raised or rising), state, u, hold, set(on) → Promise, run(on), check() }. */
 const VW_GUARDS = {
-  off: 0.06,                        // the rails' line this far outside the lift's hull (and upstage of the lip, on the deck)
-  h: 1.07, mid: 0.53,               // the top rail's top and the mid rail's middle over the floor
-  span: 1.5,                        // posts at most this far apart
+  off: 0.008,                       // the wall's well-side face this far outside the lift's hull
+  thick: 0.056,                     // the body: the well-side face to the panels' frame on the house side
+  h: 1.07,                          // the cap's top over the floor
+  cap: { h: 0.05, out: 0.016, in: 0.004 },   // the cap: this deep, proud of the house face and of the well's
+  plinth: { h: 0.13, out: 0.010 },  // at the foot, on the house side
+  bed: { h: 0.03, out: 0.008 },     // a moulding under the cap, on the house side
+  // the panels: about w wide along the run, between stiles this wide, from bot to top over the floor, sunk into the frame;
+  // a moulding round each this wide and this proud of the frame; none on a stretch of one floor that would make them narrower than min
+  panel: { w: 1.2, stile: 0.11, bot: 0.24, top: 0.90, sink: 0.012, mould: 0.028, proud: 0.004, min: 0.45 },
+  colour: { body: 0x26262a, trim: 0x404047 },   // near-black: the house is dim, and darker than this read as a hole
+  // each face's share of the colour by the way it faces (baked in its vertex colours): the house's light is flat, so without
+  // this the mouldings and the panels' reveals would not read; tops catch the light, undersides and reveals fall dark
+  shade: { top: 1.8, house: 1.0, well: 0.8, end: 0.55, under: 0.35 },
+  glow: 0.6,                        // the materials' own glow (× the colour, × the face's shade)
   t: 2.0,                           // up or down in this, eased
-  flush: 0.003,                     // lowered: the top rail's top this far over the floor
-  rail: { w: 0.05, h: 0.04 }, midRail: 0.03, postR: 0.022,
-  thick: 0.04,                      // the walk's prism: this far each side of a rail's line
+  flush: 0.003,                     // lowered: the cap's top this far over the floor
   atLoad: 0,                        // down at load (Jack's to change: 1 raises them)
-  aisle: 0.15,                      // a floor under the stalls' run: the highest no more than this over the stalls (the side aisles' ends, 1.58)
-  stairGap: 0.10,                   // the deck's run starts this far house left of the stair wagon
-  // the stalls' switch, measured: on the stalls floor at the well's house-right front corner, 0.65 m outside the guard line, between
-  // the stalls' house-right portal (its leaves, 0.78 m, swing clear of it by 4 cm) and the front row's end; facing the way in to the lift
+  level: 0.03,                      // floors closer than this are one floor to the wall (its top kept level over the higher)
+  aisle: 0.15,                      // a floor under the wall: the highest no more than this over the stalls (the side aisles' ends, 1.58)
+  // the switch, measured: on the stalls floor at the well's house-right front corner, ~0.6 m outside the wall, between the
+  // stalls' house-right portal (its leaves, 0.78 m, swing clear of it by 4 cm) and the front row's end; facing the way in to the lift
   stallsSwitch: { x: 67.05, z: -3.50, fx: 0.39, fz: -0.92 },
-  deckSwitch: { dx: 0.40, dz: 1.00 },   // the deck's: this far off the return (L.retX) and upstage of the lip
-  sw: { h: 1.10, r: 0.03 },         // a switch's box: its middle this high on a post this thick
+  sw: { h: 1.10, r: 0.03 },         // the switch's box: its middle this high on a post this thick
 };
 let vwGuards = null;
 const vwGuardWord = G => G.u === G.want ? (G.want ? 'up' : 'down') : G.want ? 'rising' : 'lowering';
-// Built by vwLiftBuild, with the lift (L) and the model (its floors measured): the runs, the switches, their E; down
+// Built by vwLiftBuild, with the lift (L) and the model (its floors measured): the wall, the switch, its E; down
 function vwGuardBuild(L, model) {
   if (!L || !model) return null;
-  const S = VW_GUARDS, h = L.hull, E = h.edges, n = E.length, lip = L.lip, St = VW.stageStair;
-  // 1. the stalls' run: the hull's edges but the lip's, offset outward, from the stage's front wall round to it again
+  const S = VW_GUARDS, P = S.panel, h = L.hull, E = h.edges, n = E.length, lip = L.lip;
+  // (lobbyStd materials whose glow — most of what lights them in the dim house — is shaded by the faces' vertex colours too)
+  const shaded = m3 => { m3.onBeforeCompile = sh => { sh.fragmentShader = sh.fragmentShader.replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n#ifdef USE_COLOR\n\ttotalEmissiveRadiance *= vColor;\n#endif'); }; return m3; };
+  const mat = S.mat = S.mat || { body: shaded(underStd(S.colour.body, 0.55, S.glow, { vertexColors: true })), trim: shaded(underStd(S.colour.trim, 0.45, S.glow, { vertexColors: true })) };
+  // 1. the line: the hull's edges but the lip's, from the stage's front wall round to it again (distances d out from it)
   const li = E.findIndex(e => e.a[1] > lip - 0.05 && e.b[1] > lip - 0.05);
   if (li < 0) return null;
   const run = []; for (let k = 1; k < n; k++) run.push(E[(li + k) % n]);
   const toWall = (e, p) => { const dz = e.b[1] - e.a[1], t = Math.abs(dz) > 1e-6 ? (lip - 0.02 - p[1]) / dz : 0; return [p[0] + (e.b[0] - e.a[0]) * t, p[1] + dz * t]; };
-  const sp = [toWall(run[0], [run[0].a[0] + run[0].nx * S.off, run[0].a[1] + run[0].nz * S.off])];
-  for (let k = 0; k + 1 < run.length; k++) { const e1 = run[k], e2 = run[k + 1], s = S.off / (1 + e1.nx * e2.nx + e1.nz * e2.nz); sp.push([e1.b[0] + (e1.nx + e2.nx) * s, e1.b[1] + (e1.nz + e2.nz) * s]); }
-  const eL = run[run.length - 1]; sp.push(toWall(eL, [eL.b[0] + eL.nx * S.off, eL.b[1] + eL.nz * S.off]));
-  // its floor, measured: the stalls (y 1.49) round the curved front, the side aisles' ends (1.58), and beside both slanted
-  // sides the foyer's carpet (0.875, 0.6 m under the stalls) — the highest floor under each point no higher than the aisles,
-  // so the front row's cushions (1.87…1.99, from 0.10 m out) are passed over. Every 0.25 m, then the straight, level runs joined.
+  const sp = [toWall(run[0], run[0].a)];
+  for (let k = 0; k + 1 < run.length; k++) sp.push(run[k].b);
+  sp.push(toWall(run[run.length - 1], run[run.length - 1].b));
+  // its floor, measured at the wall's middle: the stalls (y 1.49) round the curved front, the side aisles' ends (1.58), and
+  // beside both slanted sides the foyer's carpet (0.875, 0.6 m under the stalls) — the highest floor under each point no
+  // higher than the aisles, so the front row's cushions (1.87…1.99) are passed over. Every 0.25 m, then the straight, level runs joined.
   const under = []; model.root.traverse(o => { if (o.isMesh && !/glass$/.test(o.name)) under.push(o); });
   for (const nm of ['vw foyer', 'vw backstage', 'vw side doors']) { const o = scene.getObjectByName(nm); if (o) o.traverse(m => { if (m.isMesh) under.push(m); }); }
   const fr = new THREE.Raycaster(); fr.layers.enableAll(); fr.far = 1.6;
-  const floorAt = (x, z) => { fr.set(new THREE.Vector3(x, L.stallsY + 0.6, z), DOWN); const h = fr.intersectObjects(under, false).find(q => q.point.y <= L.stallsY + S.aisle); return h ? h.point.y : L.stallsY; };
-  const dense = [];
-  for (let i = 0; i + 1 < sp.length; i++) { const a = sp[i], b = sp[i + 1], k = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / 0.25)); for (let j = i ? 1 : 0; j <= k; j++) { const x = a[0] + (b[0] - a[0]) * j / k, z = a[1] + (b[1] - a[1]) * j / k; dense.push([x, z, floorAt(x, z)]); } }
+  const floorAt = (x, z) => { fr.set(new THREE.Vector3(x, L.stallsY + 0.6, z), DOWN); const q = fr.intersectObjects(under, false).find(q => q.point.y <= L.stallsY + S.aisle); return q ? q.point.y : L.stallsY; };
+  const dm = S.off + S.thick / 2, dense = [];
+  for (let i = 0; i + 1 < sp.length; i++) {
+    const a = sp[i], b = sp[i + 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]), k = Math.max(1, Math.ceil(l / 0.25)), e = run[i];
+    for (let j = i ? 1 : 0; j <= k; j++) { const x = a[0] + (b[0] - a[0]) * j / k, z = a[1] + (b[1] - a[1]) * j / k; dense.push([x, z, floorAt(x + e.nx * dm, z + e.nz * dm)]); }
+  }
   const spf = [dense[0]];
   for (let i = 1; i + 1 < dense.length; i++) {
     const p = spf[spf.length - 1], q = dense[i], r = dense[i + 1], cr = (q[0] - p[0]) * (r[1] - p[1]) - (q[1] - p[1]) * (r[0] - p[0]);
     if (Math.abs(cr) > 1e-5 || Math.abs(q[2] - p[2]) > 0.005 || Math.abs(r[2] - q[2]) > 0.005) spf.push(q);
   }
   spf.push(dense[dense.length - 1]);
-  // 2. the deck's run: along the lip, from the stair wagon's house-left side to past the hull's house-left corner
-  const le = E[li], dzl = lip + S.off;
-  const lines = [{ name: 'stalls', pts: spf }, { name: 'deck', pts: [[St.x1 + S.stairGap, dzl, L.deck], [Math.max(le.a[0], le.b[0]) + S.off, dzl, L.deck]] }];
-  // 3. each run built where it stands raised (world y; the group sinks): the top rail always drawn; the posts and mid rail
-  // drawn while not right down. A run over a change of floor climbs it (a post at each end of the climb).
-  const group = new THREE.Group(); group.name = 'vw lift guards'; scene.add(group);
-  const H = S.h, rh = S.rail.h, post = H - rh;
-  for (const ln of lines) {
-    const T = {}, B = {}, segs = [], cum = [0], at = []; let len = 0;
-    for (let i = 0; i + 1 < ln.pts.length; i++) {
-      const a = ln.pts[i], b = ln.pts[i + 1], dx = b[0] - a[0], dz = b[1] - a[1], dy = b[2] - a[2], l = Math.hypot(dx, dz), l3 = Math.hypot(l, dy);
-      const ry = Math.atan2(-dz, dx), rz = Math.atan2(dy, l), mx = (a[0] + b[0]) / 2, my = (a[2] + b[2]) / 2, mz = (a[1] + b[1]) / 2, level = Math.abs(dy) < 0.005;
-      deskBox(T, 'steel', l3 + (level ? S.rail.w * 0.5 : 0), rh, S.rail.w, mx, my + H - rh / 2, mz, 0, ry, rz);
-      deskBox(B, 'dark', l3, S.midRail, S.midRail, mx, my + S.mid, mz, 0, ry, rz);
-      const px = -dz / l * S.thick, pz = dx / l * S.thick;
-      segs.push({ a, b, f0: Math.min(a[2], b[2]), f1: Math.max(a[2], b[2]), hull: vwHull([[a[0] + px, a[1] + pz], [a[0] - px, a[1] - pz], [b[0] + px, b[1] + pz], [b[0] - px, b[1] - pz]]) });
-      if (!level) at.push(len, len + l);
-      len += l; cum.push(len);
-    }
-    const np = Math.max(1, Math.ceil(len / S.span - 1e-6));
-    for (let j = 0; j <= np; j++) { const s = len * j / np; if (!at.some(q => Math.abs(q - s) < 0.2)) at.push(s); }
-    at.sort((p, q) => p - q);
-    for (let k = 0; k + 1 < at.length; k++) if (at[k + 1] - at[k] > S.span) { at.splice(k + 1, 0, (at[k] + at[k + 1]) / 2); k--; }   // none further apart than span
-    const posts = [];
-    for (const s of at) {
-      let i = 0; while (i + 2 < cum.length && cum[i + 1] < s - 1e-9) i++;
-      const a = ln.pts[i], b = ln.pts[i + 1], f = THREE.MathUtils.clamp((s - cum[i]) / Math.max(1e-9, cum[i + 1] - cum[i]), 0, 1), x = a[0] + (b[0] - a[0]) * f, z = a[1] + (b[1] - a[1]) * f, y = a[2] + (b[2] - a[2]) * f;
-      deskPut(B, 'steel', new THREE.CylinderGeometry(S.postR, S.postR, post, 10), x, y + post / 2, z); posts.push([x, z, y, s]);
-    }
-    ln.gap = Math.max(...posts.slice(1).map((p, k) => p[3] - posts[k][3]));
-    ln.y = Math.max(...ln.pts.map(p => p[2])); ln.y0 = Math.min(...ln.pts.map(p => p[2]));
-    const g = new THREE.Group(); g.name = 'vw lift guards: ' + ln.name; group.add(g);
-    const body = [];
-    for (const [Pk, isBody] of [[T, false], [B, true]]) for (const [key, geos] of Object.entries(Pk)) {
-      const geo = mergeGeometries(geos.map(q => q.index ? q.toNonIndexed() : q), false); geos.forEach(q => q.dispose());
-      const m = new THREE.Mesh(geo, underMat[key]); m.name = `vw lift guards: ${ln.name}, ${isBody ? 'posts and mid rail' : 'top rail'} (${key})`; m.userData.rig = true; g.add(m);
-      if (isBody) body.push(m); else ln.top = m;
-    }
-    const xs = ln.pts.map(p => p[0]), zs = ln.pts.map(p => p[1]);
-    Object.assign(ln, { g, body, segs, posts, len, box: [Math.min(...xs) - 0.1, Math.max(...xs) + 0.1, Math.min(...zs) - 0.1, Math.max(...zs) + 0.1] });
+  // 2. the runs: each straight piece of the line, its outward normal (away from the hull), its ends' offset vectors (mitred
+  // on the corner's bisector; at the two ends, along the stage's front wall), its floor: level, or over a step the higher
+  // floor's top and the lower's foot
+  const segs = [];
+  for (let i = 0; i + 1 < spf.length; i++) {
+    const a = spf[i], b = spf[i + 1], l = Math.hypot(b[0] - a[0], b[1] - a[1]); if (l < 1e-4) continue;
+    const tx = (b[0] - a[0]) / l, tz = (b[1] - a[1]) / l; let nx = -tz, nz = tx;
+    if (nx * (h.cx - (a[0] + b[0]) / 2) + nz * (h.cz - (a[1] + b[1]) / 2) > 0) { nx = -nx; nz = -nz; }
+    segs.push({ a: [a[0], a[1]], b: [b[0], b[1]], len: l, tx, tz, nx, nz, F: Math.max(a[2], b[2]), B: Math.min(a[2], b[2]), step: Math.abs(b[2] - a[2]) > S.level });
   }
-  // 4. the switches: a post on a foot plate, a small steel box on it (a dark face, a green and a red lamp) facing the walker
+  const wallEnd = s => { const tz = Math.abs(s.tz) > 1e-6 ? s.tz : 1e-6, k = s.nz / tz; return [s.nx - k * s.tx, s.nz - k * s.tz]; };   // n slid along the run to the wall's plane
+  segs.forEach((s, i) => {
+    const p = segs[i - 1], q = segs[i + 1];
+    const mit = (u, v) => { const c = 1 + u.nx * v.nx + u.nz * v.nz; return [(u.nx + v.nx) / c, (u.nz + v.nz) / c]; };
+    s.va = p ? mit(p, s) : wallEnd(s); s.vb = q ? mit(s, q) : wallEnd(s);
+  });
+  let len = 0; for (const s of segs) { s.s0 = len; len += s.len; }
+  // 3. the pieces: a box over the run from s = a…b (in the run's own length), d0…d1 out from the hull, y0…y1 (world), its ends
+  // at a corner cut on the corner's bisector; each triangle faced outward
+  const T = { body: [], trim: [], cap: [] }, C = { body: [], trim: [], cap: [] }, SH = S.shade;
+  const box = (key, sg, a, b, d0, d1, y0, y1) => {
+    if (b - a < 1e-5 || y1 - y0 < 1e-5) return;
+    const at = (s, d) => { const v = s <= 1e-6 ? sg.va : s >= sg.len - 1e-6 ? sg.vb : [sg.nx, sg.nz]; return [sg.a[0] + sg.tx * s + v[0] * d, sg.a[1] + sg.tz * s + v[1] * d]; };
+    const c = []; for (const s of [a, b]) for (const d of [d0, d1]) { const p = at(s, d); c.push([p[0], y0, p[1]], [p[0], y1, p[1]]); }
+    // c: [a d0 y0, a d0 y1, a d1 y0, a d1 y1, b d0 y0, b d0 y1, b d1 y0, b d1 y1]
+    const quad = (i, j, k, l, hx, hy, hz, sh) => {
+      for (const [p, q, r] of [[c[i], c[j], c[k]], [c[i], c[k], c[l]]]) {
+        const ux = q[0] - p[0], uy = q[1] - p[1], uz = q[2] - p[2], vx = r[0] - p[0], vy = r[1] - p[1], vz = r[2] - p[2];
+        const nx = uy * vz - uz * vy, ny = uz * vx - ux * vz, nz = ux * vy - uy * vx;
+        T[key].push(...(nx * hx + ny * hy + nz * hz >= 0 ? [...p, ...q, ...r] : [...p, ...r, ...q])); C[key].push(sh, sh, sh, sh, sh, sh, sh, sh, sh);
+      }
+    };
+    quad(0, 1, 3, 2, -sg.tx, 0, -sg.tz, SH.end); quad(4, 5, 7, 6, sg.tx, 0, sg.tz, SH.end);
+    quad(0, 1, 5, 4, -sg.nx, 0, -sg.nz, SH.well); quad(2, 3, 7, 6, sg.nx, 0, sg.nz, SH.house);
+    quad(0, 2, 6, 4, 0, -1, 0, SH.under); quad(1, 3, 7, 5, 0, 1, 0, SH.top);
+  };
+  // a piece along the whole run from s = a…b: split over the runs it crosses (y0, y1 over each run's floor)
+  const along = (key, a, b, d0, d1, y0, y1, foot) => { for (const sg of segs) { const lo = Math.max(a, sg.s0), hi = Math.min(b, sg.s0 + sg.len); if (hi - lo > 1e-6) box(key, sg, lo - sg.s0, hi - sg.s0, d0, d1, foot ? sg.B - 0.02 : sg.F + y0, sg.F + y1); } };
+  const dIn = S.off, dFace = S.off + S.thick, dSunk = dFace - P.sink, H = S.h, capY = H - S.cap.h;
+  // the stretches: the longest runs of one floor (within S.level: the wall's top level along each, over the highest; a step
+  // between them); panels on each long enough to take one
+  const str = []; for (const sg of segs) { const last = str[str.length - 1]; if (last && !sg.step && !last.step && Math.abs(last.F - sg.F) < S.level) { last.b = sg.s0 + sg.len; last.F = Math.max(last.F, sg.F); last.segs.push(sg); } else str.push({ a: sg.s0, b: sg.s0 + sg.len, F: sg.F, step: sg.step, segs: [sg] }); }
+  for (const st of str) for (const sg of st.segs) sg.F = st.F;
+  const panels = [];
+  for (const st of str) {
+    const L2 = st.b - st.a, np = st.step ? 0 : Math.max(1, Math.round((L2 - P.stile) / (P.w + P.stile))), pw = np ? (L2 - (np + 1) * P.stile) / np : 0;
+    if (np && pw >= P.min) for (let k = 0; k < np; k++) { const a = st.a + P.stile + k * (pw + P.stile); panels.push([a, a + pw]); }
+  }
+  // the body: its core to the panels' faces from the foot to the cap; the frame (stiles and rails) on it to the house face
+  along('body', 0, len, dIn, dSunk, 0, capY, false);
+  for (const sg of segs) box('body', sg, 0, sg.len, dIn, dSunk, sg.B - 0.02, sg.F, false);                       // the foot, down past the lower floor
+  along('body', 0, len, dSunk, dFace, 0, P.bot, false); along('body', 0, len, dSunk, dFace, P.top, capY, false);  // the bottom and top rails
+  for (const sg of segs) box('body', sg, 0, sg.len, dSunk, dFace, sg.B - 0.02, sg.F, false);
+  const gaps = []; let s = 0; for (const [a, b] of panels) { gaps.push([s, a]); s = b; } gaps.push([s, len]);
+  for (const [a, b] of gaps) along('body', a, b, dSunk, dFace, P.bot, P.top, false);                            // the stiles
+  // the trim: a moulding round each panel, the plinth, the bed moulding under the cap
+  const m = P.mould, dm2 = dFace + P.proud;
+  for (const [a, b] of panels) {
+    along('trim', a, a + m, dSunk, dm2, P.bot, P.top); along('trim', b - m, b, dSunk, dm2, P.bot, P.top);
+    along('trim', a + m, b - m, dSunk, dm2, P.bot, P.bot + m); along('trim', a + m, b - m, dSunk, dm2, P.top - m, P.top);
+  }
+  for (const sg of segs) box('trim', sg, 0, sg.len, dFace, dFace + S.plinth.out, sg.B - 0.02, sg.F + S.plinth.h);
+  along('trim', 0, len, dFace, dFace + S.bed.out, capY - S.bed.h, capY);
+  along('cap', 0, len, dIn - S.cap.in, dFace + S.cap.out, capY, H);
+  // 4. drawn: built where it stands raised (world y; the group sinks)
+  const group = new THREE.Group(); group.name = 'vw lift guards'; scene.add(group);
+  const g = new THREE.Group(); g.name = 'vw lift guards: the wall'; group.add(g);
+  const mk = (key, m3, name) => { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(T[key], 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(C[key], 3)); geo.computeVertexNormals(); const me = new THREE.Mesh(geo, m3); me.name = 'vw lift guards: ' + name; me.userData.rig = true; g.add(me); return me; };
+  const body = [mk('body', mat.body, 'the wall (body)'), mk('trim', mat.trim, 'the wall (plinth and mouldings)')], cap = mk('cap', mat.cap || mat.trim, 'the cap');
+  // the walk's prisms: each run the wall's full width, cap included; the walker's holds against its middle line
+  const dOut = dFace + S.cap.out, dLo = dIn - S.cap.in, mid = (dLo + dOut) / 2;
+  for (const sg of segs) {
+    const p = (s, d) => { const v = s <= 1e-6 ? sg.va : s >= sg.len - 1e-6 ? sg.vb : [sg.nx, sg.nz]; return [sg.a[0] + sg.tx * s + v[0] * d, sg.a[1] + sg.tz * s + v[1] * d]; };
+    sg.hull = vwHull([p(0, dLo), p(0, dOut), p(sg.len, dLo), p(sg.len, dOut)]);
+    sg.ma = p(0, mid); sg.mb = p(sg.len, mid);
+  }
+  const xs = segs.flatMap(sg => sg.hull.ring.map(q => q[0])), zs = segs.flatMap(sg => sg.hull.ring.map(q => q[1]));
+  const wall = { g, body, cap, segs, panels, str, len, dIn: dLo, dOut, mid, under, y: Math.max(...segs.map(sg => sg.F)), y0: Math.min(...segs.map(sg => sg.B)),
+    tris: (T.body.length + T.trim.length + T.cap.length) / 9, box: [Math.min(...xs) - 0.1, Math.max(...xs) + 0.1, Math.min(...zs) - 0.1, Math.max(...zs) + 0.1] };
+  // 5. the switch: a post on a foot plate, a small steel box on it (a dark face, a green and a red lamp) facing the walker
   const SW = {}, sw = [];
   const sws = (x, z, y, fx, fz) => {
     const f = new THREE.Matrix4().compose(new THREE.Vector3(x, y + S.sw.h, z), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), Math.atan2(fx, fz)), new THREE.Vector3(1, 1, 1));
@@ -15855,14 +15920,13 @@ function vwGuardBuild(L, model) {
   };
   const ss = S.stallsSwitch, sl = Math.hypot(ss.fx, ss.fz), bnx = ss.fx / sl, bnz = ss.fz / sl;
   sws(ss.x, ss.z, floorAt(ss.x, ss.z), bnx, bnz);
-  sws(L.retX + S.deckSwitch.dx, lip + S.deckSwitch.dz, L.deck, 1, 0);
-  const swg = new THREE.Group(); swg.name = 'vw lift guards: switches'; group.add(swg);
-  for (const [key, geos] of Object.entries(SW)) { const m = new THREE.Mesh(mergeGeometries(geos.map(q => q.index ? q.toNonIndexed() : q), false), underMat[key]); m.name = 'vw lift guards: switch ' + key; m.userData.rig = true; swg.add(m); }
-  // 5. the guards
+  const swg = new THREE.Group(); swg.name = 'vw lift guards: switch'; group.add(swg);
+  for (const [key, geos] of Object.entries(SW)) { const me = new THREE.Mesh(mergeGeometries(geos.map(q => q.index ? q.toNonIndexed() : q), false), underMat[key]); me.name = 'vw lift guards: switch ' + key; me.userData.rig = true; swg.add(me); }
+  // 6. the guards
   const G = vwGuards = {
-    group, lines, sw, u: S.atLoad, want: S.atLoad, atLoad: S.atLoad, hold: null, waiters: [], runs: 0,
-    reach: [Math.min(...lines.map(l => l.box[0]), ...sw.map(s => s.x - 0.2)), Math.max(...lines.map(l => l.box[1]), ...sw.map(s => s.x + 0.2)), Math.min(...lines.map(l => l.y0), ...sw.map(s => s.y)) - 0.1, L.deck + S.sw.h + 0.3,
-      Math.min(...lines.map(l => l.box[2]), ...sw.map(s => s.z - 0.2)), Math.max(...lines.map(l => l.box[3]), ...sw.map(s => s.z + 0.2))],
+    group, wall, sw, u: S.atLoad, want: S.atLoad, atLoad: S.atLoad, hold: null, waiters: [], runs: 0,
+    reach: [Math.min(wall.box[0], ...sw.map(q => q.x - 0.2)), Math.max(wall.box[1], ...sw.map(q => q.x + 0.2)), Math.min(wall.y0, ...sw.map(q => q.y)) - 0.1, Math.max(wall.y + H, ...sw.map(q => q.y + S.sw.h)) + 0.3,
+      Math.min(wall.box[2], ...sw.map(q => q.z - 0.2)), Math.max(wall.box[3], ...sw.map(q => q.z + 0.2))],
     set(on) {
       const w = on ? 1 : 0;
       return new Promise(res => {
@@ -15873,29 +15937,24 @@ function vwGuardBuild(L, model) {
     },
   };
   const label = () => `E — ${G.want === 1 ? 'lower the pit guards into the floor' : 'raise the pit guards round the lift\'s well'}${G.u !== G.want ? ' (' + vwGuardWord(G) + ')' : ''}${G.hold ? ' — waiting: ' + G.hold : ''}`;
-  const use = () => { G.set(G.want !== 1).catch(() => {}); };
-  VW_TARGETS.push(
-    { name: 'Van Wezel pit guards, stalls switch', kind: 'switch', cx: sw[0].x + bnx * 0.45, cz: sw[0].z + bnz * 0.45, fy: sw[0].y, label, use },
-    { name: 'Van Wezel pit guards, deck switch', kind: 'switch', cx: sw[1].x + 0.45, cz: sw[1].z, fy: L.deck, label, use });
+  VW_TARGETS.push({ name: 'Van Wezel pit guards, stalls switch', kind: 'switch', cx: sw[0].x + bnx * 0.45, cz: sw[0].z + bnz * 0.45, fy: sw[0].y, label, use: () => { G.set(G.want !== 1).catch(() => {}); } });
   vwGuardAt(G);
   return G;
 }
-// The rails where u puts them: sunk (1 − eased u) of the way into the floor; the posts and mid rail not drawn right down
+// The wall where u puts it: sunk (1 − eased u) of the way into the floor; right down, only the cap drawn
 function vwGuardAt(G) {
-  const S = VW_GUARDS, u = G.u, sink = (1 - u * u * (3 - 2 * u)) * (S.h - S.flush);
-  for (const ln of G.lines) { ln.g.position.y = -sink; for (const m of ln.body) m.visible = u > 1e-3; ln.g.updateMatrixWorld(true); }
+  const S = VW_GUARDS, u = G.u, sink = (1 - u * u * (3 - 2 * u)) * (S.h - S.flush), W = G.wall;
+  W.g.position.y = -sink; for (const m of W.body) m.visible = u > 1e-3; W.g.updateMatrixWorld(true);
 }
-// Is the walker where a rail would rise into them? → the reason, or null
+// Is the walker where the wall would rise into them? → the reason, or null
 function vwGuardBlocked(G) {
   if (!walking) return null;
-  const p = player.pos, R = WALK.radius + VW_GUARDS.thick + 0.02;
-  for (const ln of G.lines) {
-    if (p.y < ln.y0 - 0.5 || p.y > ln.y + 0.5) continue;
-    for (const s of ln.segs) {
-      if (p.y < s.f0 - 0.5 || p.y > s.f1 + 0.5) continue;
-      const a = s.a, dx = s.b[0] - a[0], dz = s.b[1] - a[1], t = THREE.MathUtils.clamp(((p.x - a[0]) * dx + (p.z - a[1]) * dz) / (dx * dx + dz * dz), 0, 1);
-      if (Math.hypot(p.x - a[0] - dx * t, p.z - a[1] - dz * t) < R) return `someone where the ${ln.name === 'deck' ? 'lip\'s' : 'well\'s'} rail comes up`;
-    }
+  const p = player.pos, W = G.wall, R = WALK.radius + (W.dOut - W.dIn) / 2 + 0.02;
+  if (p.y < W.y0 - 0.5 || p.y > W.y + 0.5) return null;
+  for (const s of W.segs) {
+    if (p.y < s.B - 0.5 || p.y > s.F + 0.5) continue;
+    const a = s.ma, dx = s.mb[0] - a[0], dz = s.mb[1] - a[1], t = THREE.MathUtils.clamp(((p.x - a[0]) * dx + (p.z - a[1]) * dz) / (dx * dx + dz * dz), 0, 1);
+    if (Math.hypot(p.x - a[0] - dx * t, p.z - a[1] - dz * t) < R) return 'someone where the wall round the well comes up';
   }
   return null;
 }
@@ -15912,7 +15971,7 @@ function vwGuardTick(dt) {
   if (G.u === G.want) { G.waiters.splice(0).forEach(res => res(vwGuardWord(G))); vwLiftUIState(); }
   return true;
 }
-// The rails (raised past half-way) and the switch posts along a ray (vwLiftHit calls it): the nearest entry within far, or Infinity
+// The wall (raised past half-way) and the switch's post along a ray (vwLiftHit calls it): the nearest entry within far, or Infinity
 function vwGuardHit(ox, oy, oz, dx, dy, dz, far) {
   const G = vwGuards; if (!G || !(far > 0)) return Infinity;
   const B = G.reach, f = Math.min(far, 50), ex = ox + dx * f, ey = oy + dy * f, ez = oz + dz * f;
@@ -15920,21 +15979,20 @@ function vwGuardHit(ox, oy, oz, dx, dy, dz, far) {
   const S = VW_GUARDS; let best = Infinity;
   for (const s of G.sw) best = Math.min(best, vwBoxHit(s.x - 0.09, s.x + 0.09, s.y, s.y + S.sw.h + 0.12, s.z - 0.09, s.z + 0.09, ox, oy, oz, dx, dy, dz, far));
   if (G.u > 0.5) {
-    const sink = (1 - G.u * G.u * (3 - 2 * G.u)) * (S.h - S.flush);
-    for (const ln of G.lines) {
-      const b = ln.box; if (Math.max(ox, ex) < b[0] || Math.min(ox, ex) > b[1] || Math.max(oz, ez) < b[2] || Math.min(oz, ez) > b[3]) continue;
-      for (const s of ln.segs) best = Math.min(best, vwPrismHit(s.hull, s.f0 - 0.05, s.f1 + S.h - sink, ox, oy, oz, dx, dy, dz, Math.min(far, best)));
-    }
+    const sink = (1 - G.u * G.u * (3 - 2 * G.u)) * (S.h - S.flush), W = G.wall, b = W.box;
+    if (!(Math.max(ox, ex) < b[0] || Math.min(ox, ex) > b[1] || Math.max(oz, ez) < b[2] || Math.min(oz, ez) > b[3]))
+      for (const s of W.segs) best = Math.min(best, vwPrismHit(s.hull, s.B - 0.05, s.F + S.h - sink, ox, oy, oz, dx, dy, dz, Math.min(far, best)));
   }
   return best;
 }
-// THE CHECK: built as asked; up and down in t s off dt; raised, a walk toward the well from the stalls and toward the lip from the
-// deck stopped at every guarded edge, the stair's gap open; lowered, the lift at the seating level walked onto from the stalls;
-// the lift run with them up and down never moves them (RULING GK); rising, a walker where a rail comes up holds them. All put back.
+// THE CHECK: built as asked (the front row's cushions measured clear of it, the lift's travel clear of it, nothing on the
+// deck); up and down in t s off dt; raised, a walk toward the well from the stalls stopped at every guarded edge; nothing
+// on the deck stops anyone; lowered, the lift at the seating level walked onto from the stalls; the lift run with it up and
+// down never moves it (RULING GK); rising, a walker where it comes up holds it. All put back.
 function vwGuardCheck() {
   const G = vwGuards, L = vwLift; if (!G || !L) return 'van wezel pit guards: not built';
   if (col.stale) buildCollider();
-  const S = VW_GUARDS, out = [], f3 = v => v === null || !Number.isFinite(v) ? '—' : v.toFixed(3), dt = 1 / 30;
+  const S = VW_GUARDS, out = [], f3 = v => v === null || !Number.isFinite(v) ? '—' : v.toFixed(3), dt = 1 / 30, mm = v => (v * 1000).toFixed(0);
   let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
   const W = vwWagon, keep = { y: L.y, su: L.stairU, state: L.state, target: L.target, gu: G.u, gw: G.want, wu: W ? W.u : 0, ww: W ? W.want : 0, walking, pos: player.pos.clone(), hint: hint.textContent };
   walking = false;                                             // the walker's holds are tested on their own (7.)
@@ -15949,54 +16007,82 @@ function vwGuardCheck() {
       for (let j = 1; j <= k; j++) { const x = a[0] + (b[0] - a[0]) * j / k, z = a[1] + (b[1] - a[1]) * j / k, g = groundAt(x, z, y); if (g === null) { holes++; continue; } worst = Math.max(worst, Math.abs(g - y)); y = g; } }
     return { y, worst, holes, block };
   };
-  const [stl, dck] = G.lines, st = L.stops;
-  // 1. built
-  const sp = G.lines.map(ln => ln.gap);
-  setG(1); const upY = G.lines.map(ln => new THREE.Box3().setFromObject(ln.top).max.y - ln.y);
-  setG(0); const dnY = G.lines.map(ln => new THREE.Box3().setFromObject(ln.top).max.y - ln.y), hid = G.lines.every(ln => ln.body.every(m => !m.visible));
-  line(sp.every(s => s <= S.span + 1e-6) && upY.every(y => Math.abs(y - S.h) < 0.002) && dnY.every(y => Math.abs(y - S.flush) < 0.002) && hid && dck.pts[0][0] > VW.stageStair.x1,
-    `the rails: round the well ${stl.len.toFixed(2)} m (${stl.segs.length} runs over floors ${f3(stl.y0)}…${f3(stl.y)}, ${stl.posts.length} posts, at most ${sp[0].toFixed(2)} m apart), along the lip ${dck.len.toFixed(2)} m (x ${dck.pts[0][0].toFixed(2)}…${dck.pts[1][0].toFixed(2)}, ${dck.posts.length} posts, at most ${sp[1].toFixed(2)} m apart; the stair's gap x ${VW.stageStair.x0}…${VW.stageStair.x1}); the top rail ${upY.map(f3).join(' / ')} m up, ${dnY.map(v => (v * 1000).toFixed(1)).join(' / ')} mm over the floor lowered (the posts ${hid ? 'not drawn' : 'DRAWN'}); at load: ${G.atLoad ? 'up' : 'down'} (VW_GUARDS.atLoad)`);
+  const wl = G.wall, st = L.stops, P = S.panel;
+  // 1. built: the wall, its panels, raised and lowered; nothing on the deck
+  setG(1); const upY = new THREE.Box3().setFromObject(wl.cap).max.y - wl.y;
+  setG(0); const dnY = new THREE.Box3().setFromObject(wl.cap).max.y - wl.y, hid = wl.body.every(m => !m.visible);
+  const pw = wl.panels.map(([a, b]) => b - a), deckFree = G.sw.every(s => s.y < L.deck - 0.5) && wl.y + 0.5 < L.deck && !VW_TARGETS.some(t => /pit guards, deck/.test(t.name));
+  line(Math.abs(upY - S.h) < 0.002 && Math.abs(dnY - S.flush) < 0.002 && hid && wl.panels.length > 0 && deckFree && !scene.getObjectByName('vw lift guards: deck'),
+    `the wall round the well: ${wl.len.toFixed(2)} m (${wl.segs.length} runs over floors ${f3(wl.y0)}…${f3(wl.y)}, ${wl.str.length} stretches of one floor), ${mm(S.thick)} mm body, ${mm(wl.dOut - wl.dIn)} mm over the cap, ${wl.panels.length} panels ${pw.length ? Math.min(...pw).toFixed(2) + '…' + Math.max(...pw).toFixed(2) : '—'} m wide, ${wl.tris} triangles in 3 meshes; the cap ${f3(upY)} m up, ${(dnY * 1000).toFixed(1)} mm over the floor lowered (the rest ${hid ? 'not drawn' : 'DRAWN'}); nothing on the deck (${deckFree ? 'no rail, no switch' : 'SOMETHING THERE'}); at load: ${G.atLoad ? 'up' : 'down'} (VW_GUARDS.atLoad)`);
+  // 1b. clear of the lift's travel and of the front row: from the hull out, at heights up its face, the nearest thing in the
+  // house (the model's meshes, the foyer's) against the wall's own reach at that height
+  const reachAt = y => y < S.plinth.h ? S.off + S.thick + S.plinth.out : y >= S.h - S.cap.h ? S.off + S.thick + S.cap.out : y >= S.h - S.cap.h - S.bed.h ? S.off + S.thick + S.bed.out : S.off + S.thick + P.proud;
+  const rc = new THREE.Raycaster(); rc.layers.enableAll(); rc.far = 0.6;
+  // (a hit the same distance off at the foot and at the cap is a wall standing the full height — the hall's beside the
+  // slanted sides, the stage's front at the ends: the guard runs into it, counted apart; anything else is furniture to clear)
+  let front = { c: Infinity }, side = { c: Infinity }, walls = 0, wallMin = Infinity, pts = 0;
+  const HY = [0.05, 0.25, 0.38, 0.42, 0.46, 0.50, 0.65, 1.03];
+  for (const sg of wl.segs) {
+    const k = Math.max(1, Math.round(sg.len / 0.3));
+    for (let j = 0; j <= k; j++) {
+      const s = sg.len * (0.02 + 0.96 * j / k), x = sg.a[0] + sg.tx * s, z = sg.a[1] + sg.tz * s; pts++;
+      const ds = HY.map(hy => { rc.set(new THREE.Vector3(x + sg.nx * 0.001, sg.F + hy, z + sg.nz * 0.001), new THREE.Vector3(sg.nx, 0, sg.nz)); const q = rc.intersectObjects(wl.under, false)[0]; return q ? q.distance + 0.001 : Infinity; });
+      if (ds[0] < 0.3 && Math.abs(ds[0] - ds[ds.length - 1]) < 0.02) { walls++; wallMin = Math.min(wallMin, ds[0]); continue; }
+      ds.forEach((d, i) => { if (d === Infinity) return; const c = d - reachAt(HY[i]), r = { c, d, hy: HY[i], x, z };
+        if (sg.F > L.stallsY - 0.1) { if (c < front.c) front = r; } else if (c < side.c) side = r; });
+    }
+  }
+  const travel = S.off - S.cap.in;
+  line(travel > 0 && front.c > 0 && side.c > 0,
+    `clear: of the lift's travel by ${mm(travel)} mm (the cap's well-side lip); round the front the nearest thing in the house ${front.d === undefined ? 'none' : f3(front.d) + ' m off the hull (' + (front.hy * 100).toFixed(0) + ' cm up, x ' + front.x.toFixed(2) + ' z ' + front.z.toFixed(2) + ')'}: ${front.c === Infinity ? '—' : mm(front.c) + ' mm'} clear of the wall's face there (${mm(reachAt(front.hy || 0.45))} mm out); beside the slanted sides (the carpet) ${side.d === undefined ? 'nothing' : f3(side.d) + ' m off (' + (side.hy * 100).toFixed(0) + ' cm up): ' + mm(side.c) + ' mm clear'}; at ${walls} of ${pts} places measured it runs into a full-height wall (the hall's, the stage's front), the nearest ${f3(wallMin)} m off the hull`);
   // 2. up and down off dt
   setG(0); G.set(true).catch(() => {}); let n = 0, mid = null;
-  while (G.u < 1 && n < 1000) { vwGuardTick(dt); n++; if (mid === null && G.u >= 0.5) mid = new THREE.Box3().setFromObject(stl.top).max.y - stl.y; }
+  while (G.u < 1 && n < 1000) { vwGuardTick(dt); n++; if (mid === null && G.u >= 0.5) mid = new THREE.Box3().setFromObject(wl.cap).max.y - wl.y; }
   const tUp = n * dt; G.set(false).catch(() => {}); n = 0; while (G.u > 0 && n < 1000) { vwGuardTick(dt); n++; }
   const tDn = n * dt;
-  line(Math.abs(tUp - S.t) < 0.05 && Math.abs(tDn - S.t) < 0.05 && mid > 0.4 && mid < 0.7 && G.want === 0, `up in ${tUp.toFixed(2)} s, down in ${tDn.toFixed(2)} s (off the frame's dt, eased: the top rail ${f3(mid)} m up half-way)`);
-  // 3. raised: from the stalls toward the well (the lift at the seating level, flush) and from the deck toward the lip (the lift at the stage, flush)
+  line(Math.abs(tUp - S.t) < 0.05 && Math.abs(tDn - S.t) < 0.05 && mid > 0.4 && mid < 0.7 && G.want === 0, `up in ${tUp.toFixed(2)} s, down in ${tDn.toFixed(2)} s (off the frame's dt, eased: the cap ${f3(mid)} m up half-way)`);
+  // 3. raised: from the stalls toward the well (the lift at the seating level, flush), a walker 0.6 m out from the wall's
+  // outside on its own floor; lowered, the front row's seats and, from the carpet beside the slanted sides, the slab's own
+  // side close some of these anyway: where it is open lowered, raised it must be the wall that stops them, at its face
   put('SEATING');
-  const outward = s => { const dx = s.b[0] - s.a[0], dz = s.b[1] - s.a[1], l = Math.hypot(dx, dz); let nx = -dz / l, nz = dx / l; const mx = (s.a[0] + s.b[0]) / 2, mz = (s.a[1] + s.b[1]) / 2; if (nx * (L.hull.cx - mx) + nz * (L.hull.cz - mz) > 0) { nx = -nx; nz = -nz; } return [mx, mz, nx, nz]; };
-  // (a walker 0.7 m out on the run's own floor; lowered, the front row's seats and, from the carpet beside the slanted sides, the
-  // slab's own side close some of these anyway: where it is open lowered, raised it must be the rail that stops them)
-  const fromStalls = () => stl.segs.map(s => { const [mx, mz, nx, nz] = outward(s); return low(mx + nx * 0.7, (s.f0 + s.f1) / 2, mz + nz * 0.7, -nx, -nz, 1.5); });
+  const gap = 0.6, fromStalls = () => wl.segs.map(sg => { const s = sg.len / 2, x = sg.a[0] + sg.tx * s + sg.nx * (wl.dOut + gap), z = sg.a[1] + sg.tz * s + sg.nz * (wl.dOut + gap); return low(x, sg.F, z, -sg.nx, -sg.nz, 1.5); });
   setG(1); const sUp = fromStalls(); setG(0); const sDn = fromStalls();
-  const open = sDn.map((d, i) => d >= 0.7 ? i : -1).filter(i => i >= 0), byRail = open.filter(i => Math.abs(sUp[i] - (0.7 - S.thick)) < 0.02);   // met at the rail's near face
-  line(sUp.every(d => d < 0.7) && byRail.length === open.length && open.length > 0, `raised, from the stalls toward the well (the lift at the seating level): all ${stl.segs.length} runs stop a walker 0.7 m out, the farthest at ${f3(Math.max(...sUp))} m; of the ${open.length} open lowered (the rest the front row's seats or the slab's side over the carpet), the rail stops ${byRail.length}, at ${f3(Math.min(...open.map(i => sUp[i])))}…${f3(Math.max(...open.map(i => sUp[i])))} m`);
+  const open = sDn.map((d, i) => d >= gap + 0.05 ? i : -1).filter(i => i >= 0), byWall = open.filter(i => Math.abs(sUp[i] - gap) < 0.02);
+  line(sUp.every(d => d < gap + 0.02) && byWall.length === open.length && open.length > 0, `raised, from the stalls toward the well (the lift at the seating level): all ${wl.segs.length} runs stop a walker ${gap} m out, the farthest at ${f3(Math.max(...sUp))} m; of the ${open.length} open lowered (the rest the front row's seats or the slab's side over the carpet), the wall stops ${byWall.length}, at ${f3(Math.min(...open.map(i => sUp[i])))}…${f3(Math.max(...open.map(i => sUp[i])))} m`);
+  // and along every run, not just its middle: raised, rays toward the well every 0.25 m, from just outside the wall
+  let leak = 0, tried = 0;
+  setG(1);
+  for (const sg of wl.segs) for (let s = 0.05; s < sg.len - 0.04; s += 0.25) { const x = sg.a[0] + sg.tx * s + sg.nx * (wl.dOut + 0.3), z = sg.a[1] + sg.tz * s + sg.nz * (wl.dOut + 0.3); tried++; if (!(low(x, sg.F, z, -sg.nx, -sg.nz, 0.6) < 0.32)) leak++; }
+  line(leak === 0 && tried > 0, `raised, its whole length: ${tried} places every 0.25 m, a walker 0.3 m out stopped at the wall at ${tried - leak} (${leak} through)`);
+  // 4. nothing on the deck: the lift at the stage (a thrust), toward the lip along it with them raised and lowered, all open;
+  // the stair's way deck → stair → onto the lift open with them raised
   put('STAGE');
-  const xs = []; for (let x = dck.pts[0][0] + 0.1; x < dck.pts[1][0] - 0.05; x += 0.5) xs.push(x);
+  const le = L.hull.edges.filter(e => e.a[1] > L.lip - 0.05 && e.b[1] > L.lip - 0.05)[0], xs = [];
+  for (let x = Math.max(Math.min(le.a[0], le.b[0]), VW.stageStair.x1) + 0.2; x < Math.max(le.a[0], le.b[0]) - 0.15; x += 0.5) xs.push(x);   // (the stair's own gap walked below)
   const fromDeck = () => xs.map(x => low(x, st.STAGE, L.lip + 0.7, 0, -1, 1.5));
   setG(1); const dUp = fromDeck(); setG(0); const dDn = fromDeck();
-  line(dUp.every(d => d < 0.7) && dDn.every(d => d === Infinity), `raised, from the deck toward the lip (the lift at the stage, a thrust): all ${xs.length} places along it stopped, the farthest at ${f3(Math.max(...dUp))} m; lowered, all open (${dDn.filter(d => d === Infinity).length})`);
   put('SEATING'); setG(1);
-  const sx = (VW.stageStair.x0 + VW.stageStair.x1) / 2, gap = walk([[sx, 1.2], [sx, -2.3], [71.5, -2.3]], st.STAGE);
-  line(!gap.holes && gap.worst <= WALK.step && gap.block === Infinity && Math.abs(gap.y - st.SEATING) < 0.02, `raised: the stair's gap open — deck → stair → onto the lift: largest change ${(gap.worst * 1000).toFixed(0)} mm, ${gap.holes} without a floor, ${gap.block === Infinity ? 'nothing in the way' : 'blocked at ' + f3(gap.block) + ' m'}, ending on ${f3(gap.y)}`);
-  // 4. lowered: the lift at the seating level walked onto from the stalls, over the strip; raised, the same way stopped
+  const sx = (VW.stageStair.x0 + VW.stageStair.x1) / 2, gw = walk([[sx, 1.2], [sx, -2.3], [71.5, -2.3]], st.STAGE);
+  line(dUp.every(d => d === Infinity) && dDn.every(d => d === Infinity) && !gw.holes && gw.worst <= WALK.step && gw.block === Infinity && Math.abs(gw.y - st.SEATING) < 0.02,
+    `nothing on the deck: the lift at the stage, toward the lip at ${xs.length} places along it, raised ${dUp.filter(d => d === Infinity).length} open, lowered ${dDn.filter(d => d === Infinity).length}; raised, deck → stair → onto the lift: largest change ${mm(gw.worst)} mm, ${gw.holes} without a floor, ${gw.block === Infinity ? 'nothing in the way' : 'blocked at ' + f3(gw.block) + ' m'}, ending on ${f3(gw.y)}`);
+  // 5. lowered: the lift at the seating level walked onto from the stalls, over the strip; raised, the same way stopped
   const fr = vwBuilt.frame, way = [[fr.fp.x - fr.out.x * 0.9, fr.fp.y - fr.out.y * 0.9], [70.0, -2.6], [72.0, -2.4]], y0 = groundAt(way[0][0], way[0][1], st.SEATING + 0.2);   // in through the stalls' house-right portal (as the lift's check)
   setG(0); const wDn = walk(way, y0); setG(1); const wUp = walk(way, y0).block;
   line(y0 !== null && !wDn.holes && wDn.worst <= WALK.step && wDn.block === Infinity && Math.abs(wDn.y - st.SEATING) < 0.005 && wUp < Math.hypot(way[1][0] - way[0][0], way[1][1] - way[0][1]),
     `lowered: inside the stalls' house-right portal (${f3(y0)}) → over the strip → onto the lift at the seating level: largest change ${(wDn.worst * 1000).toFixed(1)} mm, ${wDn.holes} without a floor, ${wDn.block === Infinity ? 'nothing in the way' : 'blocked at ' + f3(wDn.block) + ' m'}; raised, the same way stopped at ${f3(wUp)} m`);
-  // 5. RULING GK: the lift run bottom → seating → stage → seating with them up, then down; they never move
+  // 6. RULING GK: the lift run bottom → seating → stage → seating with them up, then down; they never move
   const seen = [];
   const ride = to => { L.go(to).catch(() => {}); let k = 0; while ((L.state === 'moving' || L.target !== L.state) && k < 20000) { vwLiftTick(dt); seen.push([G.u, G.want]); k++; } return k; };
   setG(1); for (const s of ['BOTTOM', 'SEATING', 'STAGE', 'SEATING']) ride(s); const keptUp = seen.every(([u, w]) => u === 1 && w === 1), n1 = seen.length;
   seen.length = 0; setG(0); for (const s of ['STAGE', 'ORCHESTRA', 'SEATING']) ride(s); const keptDn = seen.every(([u, w]) => u === 0 && w === 0);
   line(keptUp && keptDn && L.state === 'SEATING', `the lift run bottom → seating → stage → seating with them up (${(n1 * dt).toFixed(0)} s) and stage → orchestra → seating with them down (${(seen.length * dt).toFixed(0)} s): they never moved (${keptUp ? 'up' : 'MOVED'}, ${keptDn ? 'down' : 'MOVED'})`);
-  // 6. rising, a walker on the guard line holds them; once they step clear the rails come up
+  // 7. rising, a walker on the wall's line holds it; once they step clear it comes up
   walking = true; setG(0);
-  const s0 = stl.segs[Math.floor(stl.segs.length / 2)], [mx, mz, nx, nz] = outward(s0);
-  player.pos.set(mx, (s0.f0 + s0.f1) / 2, mz); G.set(true).catch(() => {}); for (let k = 0; k < 15; k++) vwGuardTick(dt);
+  const s0 = wl.segs[Math.floor(wl.segs.length / 2)], mx = (s0.ma[0] + s0.mb[0]) / 2, mz = (s0.ma[1] + s0.mb[1]) / 2;
+  player.pos.set(mx, s0.F, mz); G.set(true).catch(() => {}); for (let k = 0; k < 15; k++) vwGuardTick(dt);
   const held = G.u === 0 && G.hold, why = G.hold;
-  player.pos.set(mx + nx * 2, (s0.f0 + s0.f1) / 2, mz + nz * 2); for (let k = 0; k < 15; k++) vwGuardTick(dt);
-  line(held && !G.hold && G.u > 0.2, `rising, a walker on the well's guard line holds them ("${why}"); stepped 2 m clear, they come up (u ${G.u.toFixed(2)} after 0.5 s)`);
+  player.pos.set(mx + s0.nx * 2, s0.F, mz + s0.nz * 2); for (let k = 0; k < 15; k++) vwGuardTick(dt);
+  line(held && !G.hold && G.u > 0.2, `rising, a walker on the wall's line holds it ("${why}"); stepped 2 m clear, it comes up (u ${G.u.toFixed(2)} after 0.5 s)`);
   // put back
   walking = keep.walking; player.pos.copy(keep.pos); hint.textContent = keep.hint;
   if (W) { W.u = keep.wu; W.want = keep.ww; vwWagonAt(W); }
@@ -16008,6 +16094,7 @@ function vwGuardCheck() {
 const VW_GUARDS_API = {
   get up() { return vwGuards ? vwGuards.want === 1 : null; }, get state() { return vwGuards ? vwGuardWord(vwGuards) : null; },
   get u() { return vwGuards ? vwGuards.u : null; }, get hold() { return vwGuards ? vwGuards.hold : null; }, get spec() { return VW_GUARDS; },
+  get wall() { return vwGuards ? vwGuards.wall : null; },     // its runs, panels, meshes (for the console)
   set: on => vwGuards ? vwGuards.set(on) : Promise.reject(new Error('van wezel pit guards: not built')),
   // the debug helper, as the lift's run(): set them and step them home, dt at a time (stops if a walker holds them)
   run(on = true, dt = 1 / 30) {
