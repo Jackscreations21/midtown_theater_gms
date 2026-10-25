@@ -1226,6 +1226,17 @@ const LX_DECK_ALBEDO = 11;                                   // the deck fill's 
 // full white Viper pool near white as in theirs (1104.1, 190.01)
 const LX_POOL_GAIN = { value: 6.0 };
 const LX_POOL = { k: 0.5, strip: 0.08, front: 0.4, behind: 0.6, moving: [1.5, 0.6] };
+// THE POOLS ON A BODY (Jack, 2026-10-25: "the spotlights light up the people too much and they just turn entirely white").
+// The pools are added onto the finished frame — after its tone mapping, in sRGB — and LX_POOL_GAIN is fitted to the deck and
+// the scan (~10 % after the dark-texture boost). A costume runs 10–90 % and a body is already lit by the real lights (LX_REAL):
+// a followspot alone put 8 × albedo on Burr (1-02 Q92; 13 × with the warm wash), a shirt, breeches or a face 10–20 × the
+// knee, added on top of a real-lit body — the whole figure flat white, the coat's colour and every fold gone. So a body takes
+// its pools INSIDE its own shading (lxBodyMat): the summed pool light at its pixel (LXACC, light × its true albedo × the angle)
+// × k joins the material's outgoing light BEFORE the frame's ACES tone mapping, which rolls the highlights off as it does the
+// real lights' and keeps the colour under them; the screen quad passes over a body's pixels. A body's pixels are flagged in
+// the albedo pass (alpha flag, where every other surface writes 1), and there the pool skips the dark-texture boost (a
+// costume's colour is its own). Scenery is lit exactly as before.
+const LX_BODY = { flag: 0.5, k: 0.15 };
 // The real lights: how many, how many shadowed, candela per power at full. Four, not eight: every SpotLight in the scene is
 // paid by every lit pixel even at intensity 0, about 1.5 ms (Front row) / 1 ms (Back of house) each on the Intel UHD
 // (dark rig, 1280 × 800: none 27 / 21 ms, 2 → 27 / 21, 4 → 32 / 24, 6 → 34 / 27, 8 → 39 / 29).
@@ -1341,9 +1352,10 @@ void main(){
   // what the light lands on (lxDepthPass): light × surface, not light on top, so brick, grain and the scan's own photo show
   // through every pool. A very dark texture (the deck's fill averages sRGB 23 — under 1 %, darker than velvet, where a real
   // black deck reflects ~7 %) is SCALED up, not floored: a floor would flatten it to one colour, scaling keeps its pattern
-  vec3 alb = texture2D(uAlbedo, sv).rgb;
+  vec4 A = texture2D(uAlbedo, sv);
+  vec3 alb = A.rgb;
   float al = dot(alb, vec3(0.2126, 0.7152, 0.0722));
-  alb *= mix(4.0, 1.0, smoothstep(0.004, 0.06, al));
+  if (A.a > ${((1 + LX_BODY.flag) / 2).toFixed(3)}) alb *= mix(4.0, 1.0, smoothstep(0.004, 0.06, al));   // not on a body (LX_BODY)
   // capped at a 2.3 m pool (was 0.8, a 3 m pool — engine calibration, 2026-10-12): under 3 m the cap had every pool the same
   // strength whatever its zoom, where Binkley's photos have the narrow ones hot (190.01's 10° Vipers and 1104.1's 17° one near
   // white, 1270's pools) and the 26–36° fields dim (1248's, 366.01's); not lower: at 2.1 (1.6 m) the booms' templates a metre
@@ -1365,13 +1377,28 @@ const LXDEP = { rt: null, alb: new WeakMap(),
 const LX_POOL_LAYER = 1;
 const LX_ACC_KNEE = 0.55;                                    // new: the shoulder starts here (linear); 366.01's ring and 1248's Construction field stay blue
 const LXACC = { rt: null, quad: null, uAcc: { value: null } };
+// A body's material (LX_BODY): the pools' sum at its pixel joins its outgoing light, ahead of the tone mapping. Only while the
+// quad is up — lxDepthPass filled LXACC for this camera at this size this frame (a capture that hides the quad, wlShot, or a
+// frame with no pool lit, reads nothing stale).
+const LX_BODY_ON = { get value() { return LXACC.quad && LXACC.quad.visible ? 1 : 0; } };
+function lxBodyMat(m) {
+  m.userData.lxBody = true;
+  m.onBeforeCompile = sh => {
+    Object.assign(sh.uniforms, { uLxAcc: LXACC.uAcc, uLxRes: LXDEP.uRes, uLxOn: LX_BODY_ON });
+    sh.fragmentShader = 'uniform sampler2D uLxAcc; uniform vec2 uLxRes; uniform float uLxOn;\n' + sh.fragmentShader.replace('#include <opaque_fragment>',
+      `if (uLxOn > 0.5) outgoingLight += ${LX_BODY.k.toFixed(3)} * texture2D(uLxAcc, gl_FragCoord.xy / uLxRes).rgb;   // the pools (LX_BODY)
+#include <opaque_fragment>`);
+  };
+  return m;
+}
 const LX_ACC_VS = `void main(){ gl_Position = vec4(position.xy, 0.0, 1.0); }`;
 const LX_ACC_FS = `
-uniform sampler2D uAcc; uniform vec2 uRes; uniform float uKnee;
+uniform sampler2D uAcc; uniform sampler2D uAlbedo; uniform vec2 uRes; uniform float uKnee;
 void main(){
-  vec3 c = texture2D(uAcc, gl_FragCoord.xy / uRes).rgb;
+  vec2 sv = gl_FragCoord.xy / uRes;
+  vec3 c = texture2D(uAcc, sv).rgb;
   float m = max(c.r, max(c.g, c.b));
-  if (m < 1e-4) discard;
+  if (m < 1e-4 || texture2D(uAlbedo, sv).a < ${((1 + LX_BODY.flag) / 2).toFixed(3)}) discard;   // a body takes its own (LX_BODY)
   float f = m <= uKnee ? m : uKnee + (1.0 - uKnee) * (1.0 - exp(-(m - uKnee) / (1.0 - uKnee)));
   gl_FragColor = linearToOutputTexel(vec4(c * (f / m), 1.0));
 }`;
@@ -1441,7 +1468,7 @@ function lxInit() {
   // the pools' sum, added once over the frame (LXACC): one triangle covering the screen, shown only when lxDepthPass filled it
   const qg = new THREE.BufferGeometry(); qg.setAttribute('position', new THREE.BufferAttribute(new Float32Array([-1, -1, 0, 3, -1, 0, -1, 3, 0]), 3));
   LXACC.quad = new THREE.Mesh(qg, new THREE.ShaderMaterial({ vertexShader: LX_ACC_VS, fragmentShader: LX_ACC_FS,
-    uniforms: { uAcc: LXACC.uAcc, uRes: LXDEP.uRes, uKnee: { value: LX_ACC_KNEE } }, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
+    uniforms: { uAcc: LXACC.uAcc, uAlbedo: LXDEP.uAlbedo, uRes: LXDEP.uRes, uKnee: { value: LX_ACC_KNEE } }, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false }));
   LXACC.quad.name = 'lx pools'; LXACC.quad.frustumCulled = false; LXACC.quad.renderOrder = 10; LXACC.quad.visible = false; LXACC.quad.raycast = () => {};
   LX.group.add(LXACC.quad);
   const Y = new THREE.Vector3(0, 1, 0), inv = new THREE.Matrix4();
@@ -1700,6 +1727,8 @@ function lxAlbedoOf(m) {
     // the stage deck: the house's deck fill texture (and every built piece wearing it, as Jack's floor slab does) is a dark
     // stand-in averaging ~0.9 % — the light sees it as a stained stage deck (~10 %, its pattern kept), as the cue photos show
     if (m.map && m.map.name === 'fill_deck') a.color.multiplyScalar(LX_DECK_ALBEDO);
+    // a body (LX_BODY): its alpha written as it is (NoBlending: three forces 1 on an opaque NormalBlending material)
+    if (m.userData && m.userData.lxBody) { a.blending = THREE.NoBlending; a.opacity = LX_BODY.flag; }
     LXDEP.alb.set(m, a);
   }
   return a;
@@ -5689,7 +5718,7 @@ function actGround(x, z, ref, ey, ey2, T) {
 // ---- the actors in the scene
 function actMat(hex) {                    // a material per colour (shared materials are never tinted in place)
   let m = ACT.mats.get(hex);
-  if (!m) { m = new THREE.MeshStandardMaterial({ color: new THREE.Color(hex), roughness: 0.65, metalness: 0 }); ACT.mats.set(hex, m); }
+  if (!m) { m = new THREE.MeshStandardMaterial({ color: new THREE.Color(hex), roughness: 0.65, metalness: 0 }); lxBodyMat(m); ACT.mats.set(hex, m); }   // lit by the pools in its own shading (LX_BODY)
   return m;
 }
 // THE NAME OVER HER HEAD (FN): a sprite of constant SCREEN size (sizeAttenuation off: ACT_TAG.h ≈ 3.5 % of the view's height,
@@ -7675,7 +7704,7 @@ const COS = { on: !/[?&]costumes=0\b/.test(location.search), d: null, err: null,
 
 const cosRGB = hex => { let c = COS.rgb.get(hex); if (!c) { c = new THREE.Color(hex); COS.rgb.set(hex, c); } return c; };   // linear (the page's colour management)
 function cosMat() {
-  if (!COS.mat) { COS.mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.72, metalness: 0, side: THREE.DoubleSide }); COS.mat.name = 'costumes'; }
+  if (!COS.mat) { COS.mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.72, metalness: 0, side: THREE.DoubleSide }); COS.mat.name = 'costumes'; lxBodyMat(COS.mat); }
   return COS.mat;
 }
 function cosEmpty() {

@@ -2332,6 +2332,20 @@ include the place a failure would show — the corridor behind the house, not on
 - **Under the worklight alone, dark costumes read mid-grey and the tops of heads read pale**: it is very bright from above. A plain
   `MeshStandardMaterial` of the same colour looks the same; judge the colours in a cue, not in the work look.
 
+## From the actor white-out round (2026-10-25)
+
+- **The pools are added AFTER tone mapping, onto the sRGB frame, at a gain fitted to the deck.** Anything brighter than ~10 %
+  that is also lit by real lights clips: a costume under a followspot got 8–13 × its albedo and drew flat white. Scaling the
+  body's albedo in `lxAlbedoOf` does not help: the pool shader's dark-texture boost (×4 under 6 % luminance) scales a dark
+  costume straight back up, and any cap still lands on top of the real-lit, tone-mapped body. A surface that has its own
+  lighting must take the pools inside its shader before tone mapping (`lxBodyMat`), not from the screen quad.
+- **three r160 forces alpha 1 on an opaque `NormalBlending` material** (`#ifdef OPAQUE`). To mark pixels in a pass through
+  the alpha channel, the marking material needs `blending: NoBlending` and its opacity set.
+- **A stale `LXACC` is read by anything that samples it in a render the depth pass did not prepare** (`wlShot`'s small target,
+  a frame with no pool lit). Gate it on the quad being up (`LX_BODY_ON`).
+- **Seeking then reading an actor's pose straight away can give different numbers in two tabs**: the settle and the walk run
+  off the frame. Compare clip measurements at fixed cameras with the same framing, and trust ratios, not pixel counts.
+
 ## From the crew-walks round (2026-10-25)
 
 - **Ask which house before building.** Jack's "lighting booth", "spot booth", "the band", "places" in this round all meant the
