@@ -16326,8 +16326,9 @@ VAN_WEZEL_API.backstage = VW_BACK_API;
    sound booth", source nodes 177–222: house_tex_33's five slabs — floor 8.41…8.56, roof 11.00…11.15, back wall z
    −42.44…−42.29, side walls x 71.46…71.61 and 82.39…82.54 —, two consoles at the window and two racks in its back corners,
    house_lit's) hangs off the auditorium's back wall over the foyer, its window at the wall (z −38.7). THE FOLLOW-SPOT BOOTH
-   (node 242: house_tex_32, a crescent tray under the house ceiling, its floor 14.56 between a back wall and a windowed front,
-   walls to 16.23; the ceiling over it at 16.36; three spots, house_lit's) hangs over the middle of the house.
+   hangs over the middle of the house: the model's (node 242: house_tex_32, a crescent tray under the house ceiling, its floor
+   14.56, walls to 16.23 — 1.67 m inside) is hidden since RULING GT (2026-10-25: "not big enough") and THE BOOTHS' GEAR builds
+   its own, floor 13.96 (VWB.f3.y0), roof 16.26, front 0.6 m nearer the stage (VWG.spot).
    THE BALCONY, chosen over a stair tower: the side galleries' top landings (y 7.914, at each wall's 13th portal) are 0.65 m
    under the booth's floor and 2 m short of where the side walls turn into the back wall, so one walkway at the booth's floor
    joins both galleries to both of its side walls round the back wall, over the foyer's clear band; a tower would have stood
@@ -16345,10 +16346,12 @@ VAN_WEZEL_API.backstage = VW_BACK_API;
    deck behind the booth; (3) a ship's ladder up the ridge (25 risers of 0.216, going 0.14, ~57°), through a doorway in the
    patch band over the house's back wall (THE PATCHES: the wall stops at 14.33), onto (4) a catwalk at 16.55 over the house
    ceiling (15.8…16.33 under it): a steel grating on channels, toe boards, a flat mid bar on the walk's 0.46 m ray, a yellow
-   top rail, caged lamps; (5) a platform over the spot booth's back and (6) a ship's ladder (9 risers of 0.221) down through
-   a hatch in the ceiling, inside the booth's walls, onto its floor behind the spots. Every ladder has side plates from below
-   its treads to 0.62 over its nosings (nothing to step off sideways) and yellow handrails. The model's ceiling stars that
-   hung inside the spot booth at head height (16.15) are cut out.
+   top rail, caged lamps; (5) a platform over the spot booth's back and (6) a ship's ladder (12 risers of 0.216, its top
+   nosing at x 74.75, its foot at 73.21) down through a hatch in the ceiling and the booth's roof, inside its walls, onto its
+   floor (13.96) behind the spots; a black screen behind the hatch, over the platform's rails (from the front seats, in
+   through the booth's row of windows and up the hatch, the catwalk showed). Every ladder has side plates from below its
+   treads to 0.62 over its nosings (nothing to step off sideways) and yellow handrails. The model's ceiling stars that hung
+   inside the spot booth at head height (16.15…16.30) are cut out, over all of the new booth (VWG.spot's walls and ends).
    HIDDEN: check() casts rays from a grid of seats to points all over what is above the house ceiling, and from the foyer and
    the balcony to what is above the foyer's ceiling. One mesh per material in the scene child 'vw booths' (in the walk's
    grid). MIDTOWN.vanWezel.booths: .spec, .built, check(), view(); the header's "VW Booth". */
@@ -16366,9 +16369,9 @@ const VWB = {
   wallCut: [73.70, 74.90, 16.42, 18.45, -39.20, -38.20],        // the doorway through the patch band over the back wall (x, y, z ranges)
   cat: { y: 16.55, x0: 73.85, x1: 74.75, z0: -38.95, z1: -24.40, under: 0.12 },
   plat: { x0: 73.85, x1: 75.60, z1: -23.05, hole: [-23.80, -23.10] },   // from the catwalk's end to z1; the ladder's hole across it (x < f3's top)
-  f3: { foot: [73.63, -23.45], u: [1, 0], w: 0.60, n: 9, g: 0.14, y0: 14.56, y1: 16.55 },
-  ceilCut: [73.00, 74.80, 15.90, 16.70, -23.80, -23.10],        // the hatch in the house ceiling over it
-  spot: [69.85, -22.95],                                        // behind house right's follow-spot (x 69.54…70.13, z −22.62…−21.52)
+  f3: { foot: [73.21, -23.45], u: [1, 0], w: 0.60, n: 12, g: 0.14, y0: 13.96, y1: 16.55 },   // y0: the spot booth's floor (VWG.spot.floor reads it); its top nosing stays at x 74.75
+  ceilCut: [73.00, 74.80, 15.90, 16.70, -23.80, -23.10],        // the hatch in the house ceiling over it (the booth's roof is open under it: VWG)
+  spot: [69.85, -22.95],                                        // behind house right's follow-spot (its lamp house and handles end at r ~35.95, z ~ −22.0)
   view: [[77.0, 10.2, -41.3], [77.0, 8.4, -28.0]],             // in the tech booth between its consoles, looking out through the window to the stage
 };
 let vwBooths = null;
@@ -16532,14 +16535,18 @@ function vwBoothsBuild(model) {
   const ceil = model.byName('house_tex_39'), [cx0, cx1, cy0, cy1, cz0, cz1] = B.ceilCut;
   if (ceil) cut['ceiling hatch'] = vwCutBox(ceil, new THREE.Box3(new THREE.Vector3(cx0, cy0, cz0), new THREE.Vector3(cx1, cy1, cz1)));
   for (const [x0, x1, z0, z1] of [[cx0, cx1, cz0, cz0 + 0.02], [cx0, cx1, cz1 - 0.02, cz1], [cx0, cx0 + 0.02, cz0, cz1]]) wbox(Q, 'dark', x0, x1, 16.33, cy - 0.04, z0, z1);
-  const unlit = model.byName('house_unlit'), tray = model.byName('house_tex_32');
-  if (unlit && tray) {                                                                       // a star over the booth's floor, under 16.3: out
-    const p = unlit.geometry.attributes.position, idx = unlit.geometry.index, N = idx ? idx.count : p.count, v = new THREE.Vector3(), ray = new THREE.Raycaster(), boxes = [];
+  // a black screen behind the hatch, from the ceiling to over the rails (behind the hole's guard and ladder 3's handrail, 4 mm
+  // clear of it): from the front seats, in through the spot booth's row of windows and up through the hatch in its roof, the
+  // catwalk and the platform showed (RULING GT's windows; check(): 16 rays)
+  wbox(Q, 'dark', cx0 - 0.10, f3x + 0.20, 16.33, cy + 1.25, cz0 - 0.066, cz0 - 0.046);
+  const unlit = model.byName('house_unlit'), SB = VWG.spot, eA = Math.asin((SB.ends[1] - SB.c[0]) / SB.portR) + 0.01;
+  if (unlit) {                                                                               // a star over the booth (VWG's, bigger than the model's tray), under its roof's top: out
+    const p = unlit.geometry.attributes.position, idx = unlit.geometry.index, N = idx ? idx.count : p.count, v = new THREE.Vector3(), boxes = [];
     for (let t = 0; t < N; t += 3) {
       const bb = new THREE.Box3(); for (let j = 0; j < 3; j++) bb.expandByPoint(v.fromBufferAttribute(p, idx ? idx.getX(t + j) : t + j).applyMatrix4(unlit.matrixWorld));
-      if (bb.min.y < 15.95 || bb.max.y > 16.30 || bb.max.x < 64.4 || bb.min.x > 89.6 || bb.max.z < -24.5 || bb.min.z > -20.0) continue;
-      bb.getCenter(v); ray.set(v, DOWN); ray.far = 2.0;
-      if (ray.intersectObject(tray, false).length) boxes.push(bb.expandByScalar(0.01));
+      if (bb.min.y < 15.95 || bb.max.y > SB.top + SB.roof + 0.02) continue;
+      bb.getCenter(v); const r = Math.hypot(v.x - SB.c[0], v.z - SB.c[1]);
+      if (r > SB.rF - SB.wall - 0.05 && r < SB.rB + SB.wall + 0.05 && v.z < SB.c[1] && Math.abs(Math.asin((v.x - SB.c[0]) / r)) < eA) boxes.push(bb.expandByScalar(0.01));
     }
     let k = 0; for (const b of boxes) k += vwCutBox(unlit, b); cut['stars in the spot booth'] = k;
   }
@@ -16661,11 +16668,13 @@ function vwBoothsCheck() {
   line(m && m[1] === m[2] && mine === b.doors.length, `DOORS.check(): ${m ? m[1] + ' / ' + m[2] : '?'} pass, the booth's ${mine} / ${b.doors.length}`);
   // 4. HIDDEN: rays from a grid of seats (1.15 m over the stalls' floor) to points all over the catwalk, its platform and the top
   // of ladder 2; from the foyer's floor and the balcony to the roof's deck, rails and ladder 2 under the back wall's top. The
-  // model's (and the foyer's) meshes block; the glass and the big meshes (seats, roof, the house's lit fittings) are left out,
-  // which can only make more rays get through
+  // model's (and the foyer's) meshes block, and the spot booth's shell and the black masking round the ceiling's hatch; the
+  // glass and the big meshes (seats, roof, the house's lit fittings) are left out, which can only make more rays get through
   const ray = new THREE.Raycaster(); ray.layers.enableAll();
   const tri = o => { const g = o.geometry; return (g.index ? g.index.count : g.attributes.position.count) / 3; };
   const blockers = []; VW.root.traverse(o => { if (o.isMesh && o.visible && !/glass$|basement|exterior/.test(o.name) && tri(o) < 7000) blockers.push(o); });
+  const spotShell = vwGear && vwGear.group.getObjectByName('vw booth gear: follow-spot booth'); if (spotShell) blockers.push(spotShell);   // the spot booth's shell (THE BOOTHS' GEAR: the model's tray is hidden)
+  const dark = b.group.getObjectByName('vw booths: dark'); if (dark) blockers.push(dark);   // the ceiling hatch's linings and the screen behind it (masking: nothing hidden is on it)
   const fl = VW.root.getObjectByName('vw: house_tex_41'), seats = [];
   for (let x = 58; x <= 96; x += 4) for (let z = -37; z <= -4; z += 3) { ray.set(new THREE.Vector3(x, 25, z), DOWN); ray.far = 30; const h = fl && ray.intersectObject(fl, false)[0]; if (h) seats.push(h.point.clone().setY(h.point.y + 1.15)); }
   const seen = (eyes, pts, bl) => { let n = 0, vis = 0, ex = null; const t = new THREE.Vector3(), d = new THREE.Vector3();
@@ -16717,17 +16726,32 @@ VAN_WEZEL_API.booths = VW_BOOTHS_API;                         // MIDTOWN.vanWeze
    house-left back corner by its door, another in the house-right corner; an office chair at each desk. The gap x 76.4…77.6 in
    the middle of the desk is kept clear (the "VW Booth" view looks out over it), and so are the doors, the walk from each to
    the ladder, ladder 1 and its hatch (check()).
-   THE FOLLOW-SPOT BOOTH (the model's crescent tray: an arc about (77, 13.13), the front wall's inner face at r 35.38, the back
-   wall's at 37.2, floor 14.56; a port 2.02 m wide, y 14.99…15.65, at each spot): its three spots are follow-spots on stands —
-   a lamp house, a lens tube, a colour boomerang with its levers, a red strap, handles, a yoke on a post — each aimed through
-   its port at the stage; a silver frame round each port, a pair of glass sashes slid to the half the spot does not use, an
-   office chair beside each, a sill with gel frames and coiled cable, mauve walls. Ladder 3's landing (behind x 73.6) is clear.
-   The model's crude consoles, racks and spots are cut out (vwCutBox) where these stand.
+   THE FOLLOW-SPOT BOOTH, RULING GT (2026-10-25), Jack: "not big enough" (the model's tray: floor 14.56, walls to 16.23, 1.67 m
+   inside, ~5 cm over a head), its windows "like the picture" (13.jpg: tall sliding windows in silver frames), "the outside of
+   the spot booth should match the color of the roof" (from the seats it was a black crescent band under the ceiling). The
+   model's tray (house_tex_32) is hidden and the booth is built here, on the same arc about (77, 13.13): the floor 0.60 lower
+   (13.96, ladder 3's foot: VWB.f3.y0), the front wall's inner face 0.6 m nearer the stage (r 34.78), the back's at 37.20, a
+   roof whose underside is 16.26 (2.30 m inside; the house ceiling is 16.44 over the front wall, 16.34 over the back), the
+   ends radial at φ ±0.36 (x 64.20 / 89.80 on r 36.3). The shell — a 0.15 floor slab, 0.12 walls, a 0.05 roof, in chords of
+   ≤ 0.5 m — is ALL in the house ceiling's colour, measured at build (its material's colour × its map's average × its vertex
+   colours unbaked) and baked with vwPlace's own light ('model' in vwGearMerge), so it matches whichever look the ceiling
+   has; the front and end walls run up into the ceiling (+5 cm, by a ray), the back wall only to 16.40 (the catwalk's
+   platform crosses over it on channels at 16.43); the roof is open over ladder 3 behind r 36.28 (the ceiling hatch's front
+   edge), with upstands round it. THE WINDOWS: a continuous row across the front, 15 bays of one angular width (0.0499 rad,
+   1.74 m at the wall) centred so the three spots stand in the middle of bays −4, 0 and 4, the end bays clipped; openings from
+   0.48 to 2.05 over the floor between 0.10 m mullions (the spot's lens sits at ~0.72, its beam clears the sill); in each a
+   silver frame (sill, head, jambs) in the middle of the wall's thickness and two tall sashes on two tracks: in a spot's bay
+   both slid to the half the spot does not use, in the others a fixed sash and a slider, shut. Inside: the three spots,
+   follow-spots on stands — a lamp house, a lens tube, a colour boomerang with its levers, a red strap, handles, a yoke on a
+   post — each aimed through its window at the stage, its nose at the wall's inner face 0.30 off its bay's middle; an office
+   chair beside each, a plum sill ledge with gel frames and coiled cable, mauve linings, a carpet. Ladder 3's landing (behind
+   x 73.2) is clear. The model's crude consoles, racks and spots are cut out (vwCutBox) where these stand.
    COST: everything solid is ONE mesh per booth in ONE unlit material — the model's own recipe (MeshBasicMaterial, a fixed
    light baked into vertex colours: vwPlace), with one shared 2048² canvas atlas for every drawn face (the screens, the
    consoles' surfaces, the racks' fronts) and a white corner for the plain colours; the sashes are one glass mesh. No lights.
-   ~16k triangles; 3–4 more draw calls from the seats or the booth, so no visibility gate. The linings stand 2.4 cm inside
-   the model's walls, which are single double-sided planes (TRAPS: from the stalls a closer lining showed through).
+   ~25k triangles (the spot booth's shell among them); 3–4 more draw calls from the seats or the booth, so no visibility gate.
+   The model's walls are single double-sided planes, so a lining on one stood 2.4 cm inside it (TRAPS: from the stalls a
+   closer one showed through); the spot booth's linings now stand 8 mm inside its own solid walls.
    Built from buildVanWezel's last line; the scene child 'vw booth gear' is in the walk's grid. MIDTOWN.vanWezel.booths.gear:
    .spec, .built, check(), view(name) (a camera: VWG.views' desk, ma3, ion, cl5, racks, tall, spots, spot). */
 const VWG = {
@@ -16735,8 +16759,9 @@ const VWG = {
     desk: { z0: -39.95, z1: -38.83, top: 9.32, t: 0.035 },                  // its top 0.76 over the floor, its operator's edge z0
     gap: [76.40, 77.60],                                                     // kept clear in the middle (the view)
     door: [-41.35, -40.33, 10.74] },                                         // the side doors' openings with their casings (z0, z1, head)
-  spot: { c: [77.0, 13.13], rF: 35.38, rB: 37.20, floor: 14.56, top: 16.23, port: [14.99, 15.65], xs: [69.8, 77.0, 84.2], ends: [65.6, 88.4],
-    ports: [[68.78, 70.80], [75.98, 78.02], [83.20, 85.22]], portR: 36.3, nose: 0.30,   // the ports' x on the radius portR (measured); the nose this far off the port's middle
+  spot: { c: [77.0, 13.13], rF: 34.78, rB: 37.20, wall: 0.12, floor: VWB.f3.y0, top: 16.26, roof: 0.05,   // the walls' inner faces, their thickness; the roof's underside, its thickness
+    port: [VWB.f3.y0 + 0.48, VWB.f3.y0 + 2.05], xs: [69.8, 77.0, 84.2], ends: [64.20, 89.80], portR: 36.3,   // the windows' sill and head; the spots and the end walls' outer faces, x on the radius portR
+    bays: 7, per: 4, mull: 0.10, nose: 0.30,                                 // bays −7…7, a spot every 4th; the mullions; the spot's nose this far off its bay's middle
     pivot: 0.84, tilt: 10 * Math.PI / 180, aim: [77.0, 5.0] },               // the trunnions' height over the floor, the tilt down, aimed at the stage (x, z)
   cuts: [                                                                    // the model's crude pieces: out (x0, x1, y0, y1, z0, z1)
     ['sound console', 72.08, 76.46, 8.561, 10.20, -40.32, -39.26], ['lighting console', 77.54, 81.92, 8.561, 10.20, -40.32, -39.26],
@@ -16746,7 +16771,7 @@ const VWG = {
   views: {
     desk: [[77.0, 10.45, -41.9], [77.0, 9.2, -39.0]], ma3: [[81.25, 10.25, -40.75], [81.25, 9.35, -39.4]], ion: [[79.1, 10.05, -40.45], [79.1, 9.33, -39.45]],
     cl5: [[74.6, 10.15, -40.65], [74.6, 9.35, -39.4]], racks: [[78.6, 10.1, -40.3], [72.1, 9.6, -39.7]], tall: [[79.6, 9.9, -41.0], [82.3, 9.5, -41.9]],
-    spots: [[73.2, 15.75, -23.7], [69.8, 15.2, -21.6]], spot: [[68.3, 15.8, -23.0], [69.6, 15.3, -21.9]] },
+    spots: [[73.0, 15.65, -23.6], [69.7, 14.75, -21.3]], spot: [[68.3, 15.55, -22.9], [69.6, 14.85, -21.6]] },
 };
 let vwGear = null;
 // THE ATLAS: one canvas, every drawn face a region [x, y, w, h] of it; plain colours read its white corner
@@ -16982,7 +17007,8 @@ function vwGearMerge(parts) {
     col.set(hex);
     const C = new Float32Array(n * 3);
     for (let i = 0; i < n; i++) {
-      const nx = N.getX(i), ny = N.getY(i), nz = N.getZ(i), k = shade ? 0.60 + 0.26 * Math.max(0, ny) + 0.16 * Math.abs(nx * VW_LIGHT.x + ny * VW_LIGHT.y + nz * VW_LIGHT.z) - 0.10 * Math.max(0, -ny) : 1;
+      const nx = N.getX(i), ny = N.getY(i), nz = N.getZ(i), dl = Math.abs(nx * VW_LIGHT.x + ny * VW_LIGHT.y + nz * VW_LIGHT.z);
+      const k = shade === 'model' ? 0.50 + 0.30 * dl + 0.20 * Math.max(0, ny) : shade ? 0.60 + 0.26 * Math.max(0, ny) + 0.16 * dl - 0.10 * Math.max(0, -ny) : 1;   // 'model': vwPlace's own bake (to match a model surface)
       C[i * 3] = col.r * k; C[i * 3 + 1] = col.g * k; C[i * 3 + 2] = col.b * k;
     }
     g.setAttribute('color', new THREE.BufferAttribute(C, 3));
@@ -17008,6 +17034,7 @@ function vwGearBuild(model) {
     for (const [name, x0, x1, y0, y1, z0, z1] of VWG.cuts) { const k = vwCutBox(o, new THREE.Box3(V(x0, y0, z0), V(x1, y1, z1))); if (k) cut[name] = (cut[name] || 0) + k; }
   });
   const tech = vwGearKit(), spot = vwGearKit(), glass = [];
+  let spotInfo = null;                                                       // the follow-spot booth's shell: its measured colour, its bays, its hatch
   // ---------------------------------------------------------------- THE TECH BOOTH
   { const K = tech, F = T.floor, D = T.desk, Y = D.top, MAUVE = 0x8c5f8a, LILAC = 0xc2adbf, BLACK = 0x1b1c1f, SILVER = 0xa9adb3;
     // the room: carpet, mauve linings (round the side doors), the ceiling's two light panels
@@ -17122,53 +17149,111 @@ function vwGearBuild(model) {
     for (const [cx, cz] of [[81.27, -40.20], [79.45, -40.20], [75.00, -40.25]]) vwGearChair(K, cx, F, cz, 0);
   }
   // ---------------------------------------------------------------- THE FOLLOW-SPOT BOOTH
-  // everything along the arc by its angle φ about the arc's centre (0 toward −z; the ports' reveals are radial)
-  { const K = spot, [ccx, ccz] = S.c, F = S.floor, MAUVE = 0x8a5a86, PLUM = 0x6a4270, SIL = 0xb4b8bd;
+  // everything along the arc by its angle φ about the arc's centre (0 toward −z; the windows' reveals and the end walls are
+  // radial). The shell is ours (the model's tray, house_tex_32, hidden): floor, walls and roof in the house ceiling's colour,
+  // baked as vwPlace bakes the model, so from the seats it reads as the ceiling coming down round the windows (RULING GT)
+  { const K = spot, [ccx, ccz] = S.c, F = S.floor, TOP = S.top, RF = S.rF, RB = S.rB, TW = S.wall, MAUVE = 0x8a5a86, PLUM = 0x6a4270, SIL = 0xb4b8bd;
     const at = (r, f) => [ccx + r * Math.sin(f), ccz - r * Math.cos(f)], phi = (x, r = S.portR) => Math.asin((x - ccx) / r);
-    const ports = S.ports.map(([a, b]) => [phi(a), phi(b)]), inPort = f => ports.some(([a, b]) => f > a - 1e-9 && f < b + 1e-9);
-    // a box along the chord from φa to φb at radius r (t thick, centred on it), y0…y1
-    const seg = (r, fa, fb, y0, y1, t, hex, ext = 0.003) => { const A = at(r, fa), B = at(r, fb), L = Math.hypot(B[0] - A[0], B[1] - A[1]);
-      return K.put(hex, new THREE.BoxGeometry(L + ext, y1 - y0, t), (A[0] + B[0]) / 2, (y0 + y1) / 2, (A[1] + B[1]) / 2, 0, Math.atan2(-(B[1] - A[1]), B[0] - A[0])); };
-    const e0 = phi(S.ends[0]), e1 = phi(S.ends[1]), step = 0.5 / S.portR;
-    for (let f = e0; f < e1 - 1e-9; f += step) seg(S.rB - 0.012, f, Math.min(e1, f + step), F, S.top, 0.008, MAUVE);   // the back wall
-    for (let f = e0; f < e1 - 1e-9; f += step) seg((S.rF + S.rB) / 2, f, Math.min(e1, f + step), F, F + 0.004, S.rB - S.rF - 0.04, 0x4a2a2c, 0.03);   // a carpet (overlapping: the chords' outer ends)
-    const cuts = new Set([e0, e1]); for (let f = e0 + step; f < e1 - 1e-9; f += step) cuts.add(f); for (const [a, b] of ports) { cuts.add(a); cuts.add(b); }
-    const fl = [...cuts].sort((a, b) => a - b);
-    for (let i = 0; i + 1 < fl.length; i++) {                                                 // the front wall round the ports, the sill under them
-      const fa = fl[i], fb = fl[i + 1]; if (fb - fa < 1e-6) continue;
-      if (inPort((fa + fb) / 2)) { seg(S.rF + 0.024, fa, fb, F, S.port[0], 0.008, MAUVE); seg(S.rF + 0.024, fa, fb, S.port[1], S.top, 0.008, MAUVE); }
-      else seg(S.rF + 0.024, fa, fb, F, S.top, 0.008, MAUVE);
-      seg(S.rF + 0.11, fa, fb, S.port[0] - 0.035, S.port[0] - 0.004, 0.17, PLUM);
-    }
-    // each port: a silver frame round it, two sashes slid to the half the spot does not use; the spot; a chair; gels and cable
-    S.xs.forEach((c, i) => {
-      const side = i === 2 ? -1 : 1, [pa, pb] = ports[i], fc = phi(c), A = at(S.rF + 0.036, pa), B = at(S.rF + 0.036, pb), L = Math.hypot(B[0] - A[0], B[1] - A[1]);
-      const u = [(B[0] - A[0]) / L, (B[1] - A[1]) / L], n = [Math.sin((pa + pb) / 2), -Math.cos((pa + pb) / 2)], ry = Math.atan2(-u[1], u[0]), m = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2];
-      const py = (S.port[0] + S.port[1]) / 2, ph = S.port[1] - S.port[0];
-      K.put(SIL, new THREE.BoxGeometry(L + 0.08, 0.04, 0.05), m[0], S.port[0], m[1], 0, ry); K.put(SIL, new THREE.BoxGeometry(L + 0.08, 0.04, 0.05), m[0], S.port[1], m[1], 0, ry);
-      for (const e of [-1, 1]) K.put(SIL, new THREE.BoxGeometry(0.04, ph, 0.05), m[0] + u[0] * e * L / 2, py, m[1] + u[1] * e * L / 2, 0, ry);
-      for (const [k, dn] of [[0, 0.0], [1, 0.035]]) {                                         // the fixed sash, the slider stacked in behind it
-        const s0 = side > 0 ? 0.02 + k * 0.02 : -L / 2 + 0.02, s1 = side > 0 ? L / 2 - 0.02 : -0.02 - k * 0.02, sm = (s0 + s1) / 2, sw = s1 - s0, h = ph - 0.04;
-        const px = m[0] + u[0] * sm + n[0] * dn, pz = m[1] + u[1] * sm + n[1] * dn;
-        for (const e of [-1, 1]) K.put(SIL, new THREE.BoxGeometry(0.025, h, 0.02), px + u[0] * e * sw / 2, py, pz + u[1] * e * sw / 2, 0, ry);
-        for (const e of [-1, 1]) K.put(SIL, new THREE.BoxGeometry(sw, 0.022, 0.02), px, py + e * h / 2, pz, 0, ry);
-        glass.push(deskPut({}, 'g', new THREE.PlaneGeometry(sw - 0.02, h - 0.02), px, py, pz, 0, ry));
+    // a piece r0…r1 × φa…φb × y0…y1 (the cube's x, y, z → φ, y, r is left-handed: its triangles turned round to face out)
+    const sector = (hex, r0, r1, fa, fb, y0, y1, shade = true) => {
+      const g = new THREE.BoxGeometry(1, 1, 1).translate(0.5, 0.5, 0.5), p = g.attributes.position, ix = g.index;
+      for (let i = 0; i < p.count; i++) { const f = fa + (fb - fa) * p.getX(i), r = r0 + (r1 - r0) * p.getZ(i); p.setXYZ(i, ccx + r * Math.sin(f), y0 + (y1 - y0) * p.getY(i), ccz - r * Math.cos(f)); }
+      for (let t = 0; t < ix.count; t += 3) { const a = ix.getX(t + 1); ix.setX(t + 1, ix.getX(t + 2)); ix.setX(t + 2, a); }
+      g.computeVertexNormals(); return K.add(g, hex, null, shade);
+    };
+    // THE CEILING'S COLOUR, measured: its material's colour × its map's average (none while VW_LOOKS drops it) × its vertex
+    // colours with vwPlace's light taken back out; the shell is baked with that same light ('model')
+    const ceil = model.byName('house_tex_39'), CEIL = new THREE.Color(0x5a3a4a);
+    if (ceil) try {
+      const m = ceil.material, g = ceil.geometry, C = g.attributes.color, N = g.attributes.normal; CEIL.copy(m.color);
+      if (m.map && m.map.image) {
+        const cv = document.createElement('canvas'); cv.width = cv.height = 16; const c2 = cv.getContext('2d'); c2.drawImage(m.map.image, 0, 0, 16, 16);
+        const d = c2.getImageData(0, 0, 16, 16).data, s = [0, 0, 0], lin = m.map.colorSpace === THREE.SRGBColorSpace ? c => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4) : c => c;
+        for (let i = 0; i < d.length; i += 4) for (let k = 0; k < 3; k++) s[k] += lin(d[i + k] / 255);
+        CEIL.multiply(new THREE.Color(s[0] / 256, s[1] / 256, s[2] / 256));
       }
-      // THE SPOT: its nose at the wall's face in the open half, aimed at the stage, tilted down; its stand
-      const nose = at(S.rF, fc - side * S.nose / S.rF), aim = Math.atan2(S.aim[0] - nose[0], S.aim[1] - nose[1]);
+      if (C && N) {
+        const s = [0, 0, 0]; for (let i = 0; i < C.count; i++) { const k = 0.50 + 0.30 * Math.abs(N.getX(i) * VW_LIGHT.x + N.getY(i) * VW_LIGHT.y + N.getZ(i) * VW_LIGHT.z) + 0.20 * Math.max(0, N.getY(i)); s[0] += C.getX(i) / k; s[1] += C.getY(i) / k; s[2] += C.getZ(i) / k; }
+        CEIL.multiply(new THREE.Color(s[0] / C.count, s[1] / C.count, s[2] / C.count));
+      }
+    } catch (e) { console.warn('van wezel booth gear: the ceiling\'s colour not measured —', e); }
+    const tray = model.byName('house_tex_32'); if (tray) tray.visible = false;                // out of sight and out of the walk's grid: the new floor replaces it
+    const ray = new THREE.Raycaster(), UP = new THREE.Vector3(0, 1, 0);
+    const ceilAt = (r, f, dflt) => { if (!ceil) return dflt; const [x, z] = at(r, f); ray.set(new THREE.Vector3(x, TOP - 0.5, z), UP); ray.far = 1.5; const h = ray.intersectObject(ceil, false)[0]; return h ? h.point.y : dflt; };
+    // THE BAYS: all one angular width b, centred so each spot stands in the middle of one (bays −4, 0, 4); openings between
+    // mullions, the end bays clipped to the end walls
+    const e0 = phi(S.ends[0]), e1 = phi(S.ends[1]), dE = TW / ((RF + RB) / 2), b = (phi(S.xs[1]) - phi(S.xs[0])) / S.per, hm = S.mull / 2 / RF, open = [];
+    for (let j = -S.bays; j <= S.bays; j++) { const lo = Math.max(e0 + dE + hm, (j - 0.5) * b + hm), hi = Math.min(e1 - dE - hm, (j + 0.5) * b - hm); if ((hi - lo) * RF > 0.3) open.push({ j, lo, hi }); }
+    const inOpen = f => open.some(o => f > o.lo - 1e-9 && f < o.hi + 1e-9);
+    // the roof's hatch over ladder 3: VWB.ceilCut's x at its middle's radius; the roof stops at rH (the cut's front edge) there
+    const [hx0, hx1, , , hz0, hz1] = VWB.ceilCut, rm = Math.hypot((hx0 + hx1) / 2 - ccx, (hz0 + hz1) / 2 - ccz), ha = Math.asin((hx0 - ccx) / rm), hb = Math.asin((hx1 - ccx) / rm);
+    const rH = Math.min(Math.hypot(hx0 - ccx, hz1 - ccz), Math.hypot(hx1 - ccx, hz1 - ccz)) - 0.02;
+    const cuts = new Set([e0, e0 + dE, e1 - dE, e1, ha, hb]), step = 0.5 / RF;
+    for (let f = e0 + step; f < e1 - 1e-9; f += step) cuts.add(f);
+    for (const o of open) { cuts.add(o.lo); cuts.add(o.hi); }
+    const fl = [...cuts].sort((a, c) => a - c), sill = S.port[0], head = S.port[1], low = F - 0.15, roofT = TOP + S.roof;
+    for (let i = 0; i + 1 < fl.length; i++) {
+      const fa = fl[i], fb = fl[i + 1], fm = (fa + fb) / 2; if (fb - fa < 1e-6) continue;
+      // the shell: the floor slab, the front wall round the windows (up into the ceiling), the back wall (under the catwalk's
+      // platform: its channels are at 16.43), the roof (open over ladder 3 behind rH)
+      const wTop = Math.min(16.62, ceilAt(RF - TW / 2, fm, 16.57) + 0.05), bTop = Math.max(roofT + 0.03, Math.min(16.40, ceilAt(RB + TW / 2, fm, 16.35) + 0.04));
+      const win = inOpen(fm), hole = fm > ha && fm < hb;
+      sector(CEIL, RF, RB, fa, fb, low, F, 'model');
+      if (win) { sector(CEIL, RF - TW, RF, fa, fb, low, sill, 'model'); sector(CEIL, RF - TW, RF, fa, fb, head, wTop, 'model'); }
+      else sector(CEIL, RF - TW, RF, fa, fb, low, wTop, 'model');
+      sector(CEIL, RB, RB + TW, fa, fb, low, bTop, 'model');
+      sector(CEIL, RF, hole ? rH : RB, fa, fb, TOP, roofT, 'model');
+      if (fa < e0 + dE - 1e-9 || fb > e1 - dE + 1e-9) continue;                               // (inside the end walls)
+      // inside: the carpet, mauve linings 8 mm in (under the sills, over the heads), the plum sill ledge
+      sector(0x4a2a2c, RF, RB, fa, fb, F, F + 0.004); sector(MAUVE, RB - 0.016, RB - 0.008, fa, fb, F, TOP);
+      if (win) { sector(MAUVE, RF + 0.008, RF + 0.016, fa, fb, F, sill); sector(MAUVE, RF + 0.008, RF + 0.016, fa, fb, head, TOP); }
+      else sector(MAUVE, RF + 0.008, RF + 0.016, fa, fb, F, TOP);
+      sector(PLUM, RF, RF + 0.20, fa, fb, sill - 0.035, sill - 0.004);
+    }
+    // the end walls (radial, three pieces each, each up into the ceiling over its front edge) and their linings; upstands round
+    // the roof's hatch on its front and house-right edges (as the ceiling's hatch is lined)
+    for (const [fa, fb, la, lb] of [[e0, e0 + dE, e0 + dE + 0.008 / RF, e0 + dE + 0.016 / RF], [e1 - dE, e1, e1 - dE - 0.016 / RF, e1 - dE - 0.008 / RF]]) {
+      for (let k = 0; k < 3; k++) { const r0 = RF - TW + (RB - RF + 2 * TW) * k / 3, r1 = RF - TW + (RB - RF + 2 * TW) * (k + 1) / 3; sector(CEIL, r0, r1, fa, fb, low, Math.min(16.62, ceilAt(r0, (fa + fb) / 2, 16.5) + 0.05), 'model'); }
+      sector(MAUVE, RF, RB, la, lb, F, TOP);
+    }
+    sector(CEIL, rH - 0.02, rH, ha, hb, roofT, TOP + 0.08, 'model'); sector(CEIL, rH - 0.02, RB, ha - 0.02 / rm, ha, roofT, TOP + 0.08, 'model');
+    // THE WINDOWS: in each opening a silver frame (sill, head, jambs) in the middle of the wall's thickness and two tall sashes
+    // on two tracks; a spot's bay has both slid to the half its spot does not use, every other bay a fixed sash and a slider, shut
+    const spotJ = S.xs.map(x => Math.round(phi(x) / b)), rc = RF - TW / 2, ph = head - sill, py = (sill + head) / 2, sh = ph - 0.08;
+    for (const o of open) {
+      const A = at(rc, o.lo), B = at(rc, o.hi), L = Math.hypot(B[0] - A[0], B[1] - A[1]), fm = (o.lo + o.hi) / 2;
+      const u = [(B[0] - A[0]) / L, (B[1] - A[1]) / L], n = [Math.sin(fm), -Math.cos(fm)], ry = Math.atan2(-u[1], u[0]), m = [(A[0] + B[0]) / 2, (A[1] + B[1]) / 2];
+      const P = (s, dn) => [m[0] + u[0] * s + n[0] * dn, m[1] + u[1] * s + n[1] * dn];
+      K.put(SIL, new THREE.BoxGeometry(L, 0.04, 0.07), m[0], sill + 0.02, m[1], 0, ry); K.put(SIL, new THREE.BoxGeometry(L, 0.04, 0.07), m[0], head - 0.02, m[1], 0, ry);
+      for (const e of [-1, 1]) { const q = P(e * (L / 2 - 0.02), 0); K.put(SIL, new THREE.BoxGeometry(0.04, ph - 0.08, 0.07), q[0], py, q[1], 0, ry); }
+      const si = spotJ.indexOf(o.j), side = si === 2 ? -1 : 1, x0 = -L / 2 + 0.04, x1 = L / 2 - 0.04;
+      const sashes = si >= 0 ? (side > 0 ? [[0.02, x1, -0.017], [0.05, x1, 0.017]] : [[x0, -0.02, -0.017], [x0, -0.05, 0.017]]) : [[x0, 0.025, -0.017], [-0.025, x1, 0.017]];
+      for (const [s0, s1, dn] of sashes) {
+        const sm = (s0 + s1) / 2, sw = s1 - s0, c = P(sm, dn);
+        for (const e of [-1, 1]) { const q = P(sm + e * (sw / 2 - 0.02), dn); K.put(SIL, new THREE.BoxGeometry(0.04, sh, 0.025), q[0], py, q[1], 0, ry); }
+        for (const e of [-1, 1]) K.put(SIL, new THREE.BoxGeometry(sw, 0.045, 0.025), c[0], py + e * (sh / 2 - 0.0225), c[1], 0, ry);
+        glass.push(deskPut({}, 'g', new THREE.PlaneGeometry(sw - 0.06, sh - 0.07), c[0], py, c[1], 0, ry));
+      }
+    }
+    // each spot: in the middle of its bay, its nose at the wall's inner face in the open half; a chair; gels and cable
+    S.xs.forEach((c, i) => {
+      const side = i === 2 ? -1 : 1, fc = phi(c);
+      // THE SPOT: aimed at the stage, tilted down; its stand
+      const nose = at(RF, fc - side * S.nose / RF), aim = Math.atan2(S.aim[0] - nose[0], S.aim[1] - nose[1]);
       vwGearSpot(K, new THREE.Vector3(nose[0] - Math.sin(aim) * 0.70, F + S.pivot, nose[1] - Math.cos(aim) * 0.70), aim, S.tilt, F);
-      // the operator's chair beside it (house right's on the far side from the walk in), turned toward the port
-      const ch = at(S.rF + 0.95, fc + (i === 1 ? 1.0 : -side * 1.15) / S.rF);
+      // the operator's chair beside it (house right's on the far side from the walk in), turned toward the window
+      const ch = at(RF + 0.95, fc + (i === 1 ? 1.0 : -side * 1.15) / RF);
       vwGearChair(K, ch[0], F, ch[1], aim + side * 0.5);
-      // two gel frames leaning on the sill in front of the sashes, a coil of cable on it and one on the floor
+      // two gel frames leaning on the sill ledge in front of the sashes, a coil of cable on it and one on the floor
       for (let g2 = 0; g2 < 2; g2++) {
-        const fg = fc + side * (0.50 + g2 * 0.26) / S.rF, gp = at(S.rF + 0.13, fg), ryg = Math.atan2(Math.sin(fg), -Math.cos(fg));
-        const M = new THREE.Matrix4().compose(new THREE.Vector3(gp[0], S.port[0] + 0.118, gp[1]), new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.20, ryg, 0, 'YXZ')), new THREE.Vector3(1, 1, 1));
+        const fg = fc + side * (0.50 + g2 * 0.26) / RF, gp = at(RF + 0.13, fg), ryg = Math.atan2(Math.sin(fg), -Math.cos(fg));
+        const M = new THREE.Matrix4().compose(new THREE.Vector3(gp[0], sill + 0.118, gp[1]), new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.20, ryg, 0, 'YXZ')), new THREE.Vector3(1, 1, 1));
         K.mx(0x18181a, new THREE.BoxGeometry(0.24, 0.24, 0.008), M); K.mx(g2 ? 0x2a3cff : 0x7a2ad0, new THREE.CircleGeometry(0.085, 18).translate(0, 0, 0.0045), M, null, false);
       }
-      const cp = at(S.rF + 0.10, fc + side * 0.82 / S.rF); for (let k = 0; k < 4; k++) K.put(k % 2 ? 0x111111 : 0xe2e2e2, new THREE.TorusGeometry(0.075 - k * 0.008, 0.006, 4, 16), cp[0], S.port[0] + 0.002 + k * 0.006, cp[1], Math.PI / 2);
-      const fp = at(S.rF + 0.32, fc + side * 0.55 / S.rF); for (let k = 0; k < 3; k++) K.put(0x151515, new THREE.TorusGeometry(0.16 - k * 0.02, 0.008, 4, 18), fp[0], F + 0.009 + k * 0.012, fp[1], Math.PI / 2);
+      const cp = at(RF + 0.10, fc + side * 0.82 / RF); for (let k = 0; k < 4; k++) K.put(k % 2 ? 0x111111 : 0xe2e2e2, new THREE.TorusGeometry(0.075 - k * 0.008, 0.006, 4, 16), cp[0], sill - 0.002 + k * 0.006, cp[1], Math.PI / 2);
+      const fp = at(RF + 0.32, fc + side * 0.55 / RF); for (let k = 0; k < 3; k++) K.put(0x151515, new THREE.TorusGeometry(0.16 - k * 0.02, 0.008, 4, 18), fp[0], F + 0.009 + k * 0.012, fp[1], Math.PI / 2);
     });
+    spotInfo = { ceil: '#' + CEIL.getHexString(), bays: open.length, b, hatch: [ha, hb, rH] };
   }
   // ---------------------------------------------------------------- one mesh a booth, the glass, into 'vw booth gear'
   const tex = vwGearAtlas(), mat = new THREE.MeshBasicMaterial({ map: tex, vertexColors: true, toneMapped: false }); mat.name = 'vw booth gear';
@@ -17180,9 +17265,9 @@ function vwGearBuild(model) {
   }
   if (glass.length) { const g = mergeGeometries(glass.map(x => x.index ? x.toNonIndexed() : x), false); glass.forEach(x => x.dispose()); const m = new THREE.Mesh(g, lobbyMat.glass); m.name = 'vw booth gear: sashes'; m.userData.rig = true; m.renderOrder = 2; group.add(m); tris += g.attributes.position.count / 3; }
   scene.add(group); group.updateMatrixWorld(true);
-  vwGear = { group, tex, mat, cut, triangles: tris, ms: performance.now() - t0 };
+  vwGear = { group, tex, mat, cut, spotBooth: spotInfo, triangles: tris, ms: performance.now() - t0 };
   colliderStale();
-  console.info(`van wezel booth gear: the tech booth (grandMA3, Ion and its wing, CL5, the rolling rack, two tall racks, three chairs) and the follow-spot booth (three spots on stands, their ports framed and glazed, three chairs); `
+  console.info(`van wezel booth gear: the tech booth (grandMA3, Ion and its wing, CL5, the rolling rack, two tall racks, three chairs) and the follow-spot booth (its shell in the ceiling's ${spotInfo ? spotInfo.ceil : '?'}, ${spotInfo ? spotInfo.bays : '?'} tall sliding windows, three spots on stands, three chairs); `
     + `cut ${Object.entries(cut).map(([k, v]) => `${k} ${v}`).join(', ')} · ${group.children.length} meshes, ${tris} triangles · ${vwGear.ms.toFixed(0)} ms`);
   requestRender();
   return vwGear;
@@ -17235,10 +17320,10 @@ function vwGearCheck() {
     ['ladder 3 and its landing', [f3.foot[0] - 0.95, f3.foot[0] + (f3.n - 1) * f3.g + 0.25, f3.y0 + 0.01, VWG.spot.top - 0.01, f3.foot[1] - f3.w / 2 - 0.10, f3.foot[1] + f3.w / 2 + 0.10]],
     ['behind the house-right spot (the walk\'s end)', [B.spot[0] - R, B.spot[0] + R, f3.y0 + 0.40, f3.y0 + 2.0, B.spot[1] - R, B.spot[1] + R]],
   ];
-  const v = new THREE.Vector3();
+  const v = new THREE.Vector3(), S = VWG.spot, wall = (x, z) => z < -15 && Math.hypot(x - S.c[0], z - S.c[1]) > S.rB - 0.02;   // the spot booth's back wall and its lining (its shell is in the gear)
   for (const [name, [x0, x1, y0, y1, z0, z1]] of zones) {
     let n = 0;
-    for (const m of G.group.children) { const p = m.geometry.attributes.position; for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); if (v.x > x0 && v.x < x1 && v.y > y0 && v.y < y1 && v.z > z0 && v.z < z1) n++; } }
+    for (const m of G.group.children) { const p = m.geometry.attributes.position; for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i); if (v.x > x0 && v.x < x1 && v.y > y0 && v.y < y1 && v.z > z0 && v.z < z1 && !wall(v.x, v.z)) n++; } }
     line(!n, `${name} (x ${x0.toFixed(2)}…${x1.toFixed(2)}, y ${y0.toFixed(2)}…${y1.toFixed(2)}, z ${z0.toFixed(2)}…${z1.toFixed(2)}): ${n} vertices of the gear in it`);
   }
   const want = VWG.cuts.map(c => c[0]), miss = want.filter(k => !G.cut[k]);
@@ -17508,13 +17593,15 @@ function vwHouseCheck() {
   const P = b.solid.geometry.attributes.position, lift = scene.getObjectByName('vw lift: slab');
   const lb = lift ? new THREE.Box3().setFromObject(lift) : null; if (lb) { lb.min.y = Math.min(lb.min.y, VW.at.y - 0.5); lb.max.y = H.pros.deck + 2.4; lb.max.z -= 0.01; }   // (less the lip strip's 3 mm)
   const tb = new THREE.Box3(new THREE.Vector3(VWB.booth.x0, VWB.floor - 0.2, VWB.booth.z0), new THREE.Vector3(VWB.booth.x1, VWB.booth.roof, VWB.booth.z1 - 0.05));
-  const sb = new THREE.Box3(new THREE.Vector3(64.5, 14.4, -24.2), new THREE.Vector3(89.5, 16.3, -20.1));
+  const S = VWG.spot, sE = Math.asin((S.ends[1] - S.c[0]) / S.portR) + 0.01;          // the follow-spot booth (THE BOOTHS' GEAR builds its shell): its walls, floor and roof, by r and φ about its arc's centre
+  const sb = p => { const r = Math.hypot(p.x - S.c[0], p.z - S.c[1]); return p.z < S.c[1] && r > S.rF - S.wall - 0.05 && r < S.rB + S.wall + 0.05 && Math.abs(Math.asin((p.x - S.c[0]) / r)) < sE && p.y > S.floor - 0.25 && p.y < S.top + S.roof + 0.03; };
   let onstage = 0, inLift = 0, inBooth = 0, maxZ = -Infinity;
-  for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); maxZ = Math.max(maxZ, v.z); if (v.z > H.pros.face + 0.001) onstage++; if (lb && lb.containsPoint(v)) inLift++; if (tb.containsPoint(v) || sb.containsPoint(v)) inBooth++; }
+  for (let i = 0; i < P.count; i++) { v.fromBufferAttribute(P, i); maxZ = Math.max(maxZ, v.z); if (v.z > H.pros.face + 0.001) onstage++; if (lb && lb.containsPoint(v)) inLift++; if (tb.containsPoint(v) || sb(v)) inBooth++; }
   line(!onstage && !inLift && !inBooth, `${P.count} vertices: ${onstage} on the stage's side of the lip's face (the furthest z ${maxZ.toFixed(3)}), ${inLift} in the lift's travel${lb ? '' : ' (no lift)'}, ${inBooth} in the tech or follow-spot booth`);
   // 3. sightlines: each follow-spot and the tech booth's window to points across the stage
   const ray = new THREE.Raycaster(), d = new THREE.Vector3(); let blocked = 0, n = 0;
-  const eyes = [[69.85, 15.3, -22.0], [2 * VW.at.x - 69.85, 15.3, -22.0], [77, 9.8, -38.3], [74, 9.8, -38.3], [80, 9.8, -38.3]].map(a => new THREE.Vector3(...a));
+  const spotEye = x => { const f = Math.asin((x - S.c[0]) / S.portR) + (x < S.c[0] ? -1 : 1) * S.nose / S.rF, r = S.rF - S.wall - 0.05; return [S.c[0] + r * Math.sin(f), S.floor + 0.72, S.c[1] - r * Math.cos(f)]; };   // the house-right and house-left spots' lenses, just outside their windows
+  const eyes = [spotEye(S.xs[0]), spotEye(S.xs[2]), [77, 9.8, -38.3], [74, 9.8, -38.3], [80, 9.8, -38.3]].map(a => new THREE.Vector3(...a));
   for (const e of eyes) for (let x = 70; x <= 84; x += 2) for (const z of [1, 4, 8]) { const t = new THREE.Vector3(x, H.pros.deck + 1.6, z); d.subVectors(t, e); const L = d.length(); ray.set(e, d.normalize()); ray.far = L; n++; if (ray.intersectObject(b.solid, false).length) blocked++; }
   line(!blocked, `the follow-spots' and the tech booth's sight of the stage (1.6 m over the deck): ${blocked} of ${n} rays blocked by it`);
   // 4. the ceiling closed over the coves: rays up from under them meet a cove or the model's ceiling, never the roof
