@@ -229,20 +229,13 @@ compare the *same* production across stages instead.
 
 ---
 
-## NEXT SESSION: **HIS EYE ON HAMILTON IN THE VAN WEZEL, AND THE HOUSE DRESSED FOR IT** (2026-10-25; branch `vw-hamilton`)
+## NEXT SESSION: **HIS EYE ON THE VAN WEZEL DRESSED FOR HAMILTON** (2026-10-25; PR #33 `vw-hamilton`)
 
-Rulings at **GU** (GV next; the Broadway street session was told to start at GV). The branch is pushed; no PR is open yet:
-open and land it when he says so. Then his eye on it: the house dressed for Hamilton ("VW dress" turns it on and off; its
-DONE block below); the "VW Hamilton" view; the stalls in a show (any cue, the Show panel); the pit (the lift down, its wall up, the
-band walking in at the Five from the stage-right prompt desk); the grandMA3's two screens in the tech booth. His to decide:
-- house 1's three followspots shine from the Van Wezel's follow-spot booth there (their cones differ, their pools are the same);
-- house 1's Boom 1 (both box booms) falls inside the Van Wezel's proscenium wall: hidden, its light from behind the proscenium;
-- the band walks out at the interval's calls and back at its Five; with no desk in use it is seated whenever the show is on;
-- the prompt desk's monitor shows house 1's plan (it is the one desk's screen);
-- the Van Wezel's own borders and electrics moved up (and the pars to lineset 10) clear of the set and Hamilton's electrics;
-- the Broadway street session (branch `claude/broadway-street-5514f3`) stopped part-way: see what it left.
+Rulings at **GV** (GW next). Land PR #33 when he says so (main merged in). Then his eye on it: "VW dress" on and off from the
+stalls and from the stage; with the house down in a show. His to decide: listed in the DONE block below. Then the NEXT SESSION
+blocks under it.
 
-## DONE — 2026-10-25 (night): the Van Wezel's auditorium dressed for Hamilton — brick, timber, rope (branch `vw-hamilton`; the lead)
+## DONE — 2026-10-25 (night): the Van Wezel's auditorium dressed for Hamilton — brick, timber, rope (PR #33, `vw-hamilton`; the lead)
 
 Jack: *"make the who inside of the auditorium thmed for hamilton.. put up bricks and ropes and woode beams and a bunch of stuff
 to make it hamitlon themed (in the van wezel"*.
@@ -259,9 +252,107 @@ to make it hamitlon themed (in the van wezel"*.
 - **Checks:** `vanWezel.dress` 6/6 (nothing on the stage's side, in the lift's travel or a booth; 0 of 120 follow-spot and
   tech-booth sightlines blocked; off/on exact); `.house` 5/5; `.hamilton` 10/10; `vanWezel` PASS; `.lift` 26/26;
   `.lift.guards` 9/9; `.booths` 16/16; `doors.check()` 76/76; `lx.check()` 301/313 (as before); `actors.check()` PASS.
+- **After merging main (#31, #32):** built after vwHamBuild so the lintel sits over the fitted opening (0.45 m over its header,
+  braced from the wall outside it: the FOH throws pass just under the header); candle rings only on the first and last
+  trusses (the others' middles are in the moved FOH positions' throws or the middle follow-spot's); rigging drops 2.0/2.6.
+  The check traces the show's own throws (3 follow-spots, 48 FOH units moved up) through the fitted opening: 0 of 914 blocked.
+  On the merged branch: `.dress` 7/7, `.house` 5/5, `.hamilton` 12/12, `vanWezel` PASS, `.lift` 26/26, `doors` 79/79,
+  `actors` PASS. **`.lift.guards` 8/9 — not this round's:** the walk deck → house-right stair → lift is blocked 0.72 m in;
+  #32's fitted pier (x 68.55…71.38, in the walk's grid) stands over the stage stair (x 68.55…69.95).
 - His to decide: the chandeliers hang over the middle of the stalls (13.9 m up, clear of every sightline checked); the brick
   covers only the grille panels (the dark piers and the parapets keep the model's colours); the front panels' sills sit at
   5.0 (2.45 m over the deck) instead of on the panels' feet, clear of the lift's corners.
+
+## DONE — 2026-10-25 (late night): the Van Wezel's opening fitted, its FOH up, its house light, all its doors; the mouse re-locks (PR `claude/festive-liskov-2f7ffa`, one agent session)
+
+Jack: *"sometimes randomly it wont lock my cursor back in and i wont be able to press anything. also fit the proscenium to the
+hamilton set in the van wezel. add a slider for the van wezels house lights. add a button to open or close all the van wezel
+doors. move the lighting rigs that are over the audience farther back up to the ceiling or somewhere else so they dont block
+the view"*. No ruling made (GW is still next).
+- **The mouse lock.** Two refusals in a row (Chrome refuses a re-lock for about a second after Esc, so two quick clicks did it)
+  set the walk to drag-only FOR GOOD: nothing re-locked until a reload. Now it rests 2.5 s (`LOCK_REST`) and the next click asks
+  again; a request no event or promise answers is dropped after 1.5 s (`lockPending` holds when it went); no lock is asked for
+  while seated at a prompt desk (its panel needs the mouse); `pointercancel` / `lostpointercapture` end a drag-look.
+- **THE OPENING FITTED** (`vwHamFrame`): two piers and a header in the proscenium wall's own material (house_tex_35, its map and
+  baked shade) close the model's 16.84 × 7.74 m opening to house 1's (measured off house 1's frame, moved by VWHAM.off): x
+  71.38…82.62, header 8.62 (6.07 m over the deck, as house 1's). In the walk's grid; down with the house. `VWHAM.pros` holds it.
+- **THE FRONT OF HOUSE UP** (`vwHamLift`): house 1's Apron Electric, FOH Electric and FOH Truss (mirrored, they hung at 9 m over
+  the stalls, across the opening) stand moved back and up under the 19.15 m ceiling: z −11 / −13 / −15.5, truss tops 15.1 / 15.4 /
+  13.05 (`VWHAM.foh`); their cables run to the ceiling from there. Their beams and glare are drawn from where the units hang to
+  the same landing points (`vwHamBeamFrom`, as the followspots'), so **every pool is the engine's: the stage looks the same in
+  every cue; only the shafts come down from higher.** House 1's rig is untouched. The heights are what the show allows:
+  `MIDTOWN.vanWezel.hamilton.throws()` settles all 909 cues and tests every moved unit's throw — 0 put through the wall by the
+  move (2 throws of ch21 in cues 596 and 645 clip the pier beside the opening, as they clip house 1's frame from house 1's place).
+  The Van Wezel's own pipes in front of the header were left: they hang above the new header, over the wall.
+- **"Van Wezel house light"** (header slider, 0…1.5, 1 as built): multiplies its auditorium's and stage house's unlit looks
+  (`b.dims`, the new frame among them) on top of the show's house level (`vwHouseLevel`).
+- **"VW doors"** (Lifts row, beside VW guards): opens all 58 Van Wezel doors (the street's pair through its glass among them), or shuts them when all are open
+  (`MIDTOWN.doors.all(match, open)`).
+- **Checks (merged with #31):** `vanWezel.hamilton` 12/12 (two new lines: the opening fitted; the front of house up — 0 of 28
+  stalls sightlines blocked); `vanWezel` PASS; `doors.check()` 79/79; `lx.check()` 301/313 (show stopped); `actors.check()` PASS;
+  `walls.check()` runs; console clean but the 404s of the local-only files. Rendered from the stalls: the set framed, nothing
+  across the opening, the trusses high under the ceiling, the beams down from them.
+- **His to decide:** the follow-spots in the booth (y 14.7) shoot through the FOH Truss's span at 12–13 m (any FOH between the
+  booth and the stage is in their beams; above them no throw clears the header); the three trusses at three heights; the frame's
+  faces flat in the wall's colour (no baked shading); the line arrays now hang in front of the piers; the shafts' new angles.
+
+## DONE — 2026-10-25 (night): Broadway outside the three houses (RULING GV; PR `claude/broadway-street-5514f3`, one session)
+
+Jack: *"i want to make it so you can walk outside the theaters and it is like you are on broadway and there are a bunch of
+theaters (just put up empty fronts plus the 3 we already have for now) with marquis and stuff."*
+- **RULING GV: his four answers** (2026-10-25). (1) One long street along the fronts of all three houses, with the new fronts
+  carrying on past both ends and lining the far side. (2) Each house's lobby or foyer gets street doors on E (THE DOORS).
+  (3) Three lights: ACTUAL TIME (his clock), DAY and NIGHT. At night, chaser bulbs on the marquees, lit signs and street
+  lamps. The switch is in the header and on `MIDTOWN.street`. (4) Real Broadway shows and houses as signs; the empty fronts
+  have no interiors. Midtown plays HAMILTON, Theatre 2 plays JOHNNY TREMAIN, and the Van Wezel shows its own name.
+- **Where it runs** (new section THE STREET, before BUILD MODE): the Van Wezel's glass bulges to z −43.6 and its terrace to
+  −56.4, while the Midtown lobby's front is at −22.3. So the street runs on a slant (−16.2°, as Broadway does across the
+  grid). Its north building line starts at the Midtown front's west corner and is tangent 2.4 m outside the Van Wezel's glass
+  (the glass is measured at build). In front of Midtown and Theatre 2 it leaves a paved wedge 0–12 m deep. The lots run in z
+  and the fronts along the street. The Van Wezel's terrace is clipped at the line. A paved strip fills from its round edge to
+  the first front east of it. The street runs from u −130 to 250, with a tall block closing each end (billboards lit at night).
+- **The Midtown block's front:** a skin over the lobby's entrance wall up to 18 m, and skins down both sides to the
+  backstage's back (the east one is open over the Van Wezel hallway's crossing), so no scan shows from the street. It has
+  limestone over house 1, brick over Theatre 2, pilasters, windows, a cornice, name bands, a blade sign each, a HAMILTON
+  marquee over a new pair of doors at x 0 and JOHNNY TREMAIN over a pair at x 20. `buildLobby` leaves the two openings
+  (`STREET.lobbyDoors`). The lobby's old pavement strip is gone (the street's wedge replaces it). The central glazed doors
+  and their canopy stay.
+- **The Van Wezel's street doors:** a pair cut through the middle of its glass (`vwCutBox`, 4 triangles), with a bronze
+  surround and a marquee reading VAN WEZEL HALL / PERFORMING ARTS HALL. All three pairs use `hangLeafAt` (pair, swinging out
+  over the pavement), with frames in lobbyMat (group `street trim`).
+- **The fronts:** 42 prisms. 19 are theatres (Shubert, Minskoff, Gershwin, Ambassador, New Amsterdam, Eugene O'Neill, Neil
+  Simon, Al Hirschfeld, Walter Kerr, Lena Horne, Stephen Sondheim, Lyric, Bernard B. Jacobs, Lunt-Fontanne, Belasco, Lyceum,
+  Marquis, Winter Garden, Gerald Schoenfeld, each with its show; Circle in the Square did not fit). Each theatre has a
+  marquee (a lit title panel, a name band, its name on the sides, a lit soffit), a blade sign, poster cases, glass doors and
+  bulbs round everything. The rest are shops, hotels and towers: shopfronts, awnings, sign bands, and window grids lit at
+  random at night. The building against the Midtown block starts its walls just over Jack's stage slab (box 21 reaches
+  x −19.1 under it).
+- **The look:** all unlit, in four shaders of the street's own, one merged mesh each: fronts 26.6k triangles, signs (one
+  4096 × 2048 canvas atlas), bulbs 17.4k (the chase runs off the frame dt and only asks for a frame when it steps), and
+  night pools (additive). There is also a sky dome round the camera with stars at night. Fog lives in the street's shaders
+  only (`scene.fog` would recompile every material). Indoors the street and the sky are not drawn (`stWhere`), but they stay
+  in the walk's grid (`colliderMeshes` takes `street` drawn or not). Outdoors at night the Van Wezel's outside is dimmed
+  ×0.45 and put back on the way in. The mode is remembered in the browser.
+- **Checks on the branch:** `street.check()` PASS. Nothing of the street sits inside any building (1.49M vertices tested).
+  The terrace's southmost point is on the line. Walked: out of each of the three street doors to the kerb and across the
+  road, and both pavements end to end. Also `doors.check()` 79/79, `lx.check()` 301/313 (show stopped), `actors.check()`
+  PASS, `vanWezel` / `.sideDoors` / `.foyer` / `.patches` no FAIL, `walls.check()` no cut touched, console clean (only the
+  untracked Johnny Tremain models and the local soundtrack 404, as before).
+- **His to decide:** the Van Wezel's lower wall (the foyer-wall finish where its glass was) stays fairly light at night (it
+  is lit by the scene's hemisphere); the street's slant and the wedge before Midtown; ACTUAL TIME's sunrise and sunset are an
+  approximation for the date; Circle in the Square has no front; the paved strip east of the Van Wezel ends in open air at
+  its far north corner; the house's insides are still drawn from the street (no room culling).
+## NEXT SESSION: **HIS EYE ON HAMILTON IN THE VAN WEZEL** (2026-10-25; PR `vw-hamilton`)
+
+Rulings at **GU** (GV next; the Broadway street session was told to start at GV). Land PR `vw-hamilton` when he says so. Then
+his eye on it: the "VW Hamilton" view; the stalls in a show (any cue, the Show panel); the pit (the lift down, its wall up, the
+band walking in at the Five from the stage-right prompt desk); the grandMA3's two screens in the tech booth. His to decide:
+- house 1's three followspots shine from the Van Wezel's follow-spot booth there (their cones differ, their pools are the same);
+- house 1's Boom 1 (both box booms) falls inside the Van Wezel's proscenium wall: hidden, its light from behind the proscenium;
+- the band walks out at the interval's calls and back at its Five; with no desk in use it is seated whenever the show is on;
+- the prompt desk's monitor shows house 1's plan (it is the one desk's screen);
+- the Van Wezel's own borders and electrics moved up (and the pars to lineset 10) clear of the set and Hamilton's electrics;
+- the Broadway street session (branch `claude/broadway-street-5514f3`) stopped part-way: see what it left.
 
 ## DONE — 2026-10-25 (evening): Hamilton on the Van Wezel's stage — the set, the rig, the cues the same; the pit, the desk, the band (PR `vw-hamilton`, RULING GU; the lead)
 
