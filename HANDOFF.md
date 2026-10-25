@@ -229,6 +229,39 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-25 (late night): the Van Wezel's opening fitted, its FOH up, its house light, all its doors; the mouse re-locks (PR `claude/festive-liskov-2f7ffa`, one agent session)
+
+Jack: *"sometimes randomly it wont lock my cursor back in and i wont be able to press anything. also fit the proscenium to the
+hamilton set in the van wezel. add a slider for the van wezels house lights. add a button to open or close all the van wezel
+doors. move the lighting rigs that are over the audience farther back up to the ceiling or somewhere else so they dont block
+the view"*. No ruling made (GW is still next).
+- **The mouse lock.** Two refusals in a row (Chrome refuses a re-lock for about a second after Esc, so two quick clicks did it)
+  set the walk to drag-only FOR GOOD: nothing re-locked until a reload. Now it rests 2.5 s (`LOCK_REST`) and the next click asks
+  again; a request no event or promise answers is dropped after 1.5 s (`lockPending` holds when it went); no lock is asked for
+  while seated at a prompt desk (its panel needs the mouse); `pointercancel` / `lostpointercapture` end a drag-look.
+- **THE OPENING FITTED** (`vwHamFrame`): two piers and a header in the proscenium wall's own material (house_tex_35, its map and
+  baked shade) close the model's 16.84 × 7.74 m opening to house 1's (measured off house 1's frame, moved by VWHAM.off): x
+  71.38…82.62, header 8.62 (6.07 m over the deck, as house 1's). In the walk's grid; down with the house. `VWHAM.pros` holds it.
+- **THE FRONT OF HOUSE UP** (`vwHamLift`): house 1's Apron Electric, FOH Electric and FOH Truss (mirrored, they hung at 9 m over
+  the stalls, across the opening) stand moved back and up under the 19.15 m ceiling: z −11 / −13 / −15.5, truss tops 15.1 / 15.4 /
+  13.05 (`VWHAM.foh`); their cables run to the ceiling from there. Their beams and glare are drawn from where the units hang to
+  the same landing points (`vwHamBeamFrom`, as the followspots'), so **every pool is the engine's: the stage looks the same in
+  every cue; only the shafts come down from higher.** House 1's rig is untouched. The heights are what the show allows:
+  `MIDTOWN.vanWezel.hamilton.throws()` settles all 909 cues and tests every moved unit's throw — 0 put through the wall by the
+  move (2 throws of ch21 in cues 596 and 645 clip the pier beside the opening, as they clip house 1's frame from house 1's place).
+  The Van Wezel's own pipes in front of the header were left: they hang above the new header, over the wall.
+- **"Van Wezel house light"** (header slider, 0…1.5, 1 as built): multiplies its auditorium's and stage house's unlit looks
+  (`b.dims`, the new frame among them) on top of the show's house level (`vwHouseLevel`).
+- **"VW doors"** (Lifts row, beside VW guards): opens all 58 Van Wezel doors (the street's pair through its glass among them), or shuts them when all are open
+  (`MIDTOWN.doors.all(match, open)`).
+- **Checks (merged with #31):** `vanWezel.hamilton` 12/12 (two new lines: the opening fitted; the front of house up — 0 of 28
+  stalls sightlines blocked); `vanWezel` PASS; `doors.check()` 79/79; `lx.check()` 301/313 (show stopped); `actors.check()` PASS;
+  `walls.check()` runs; console clean but the 404s of the local-only files. Rendered from the stalls: the set framed, nothing
+  across the opening, the trusses high under the ceiling, the beams down from them.
+- **His to decide:** the follow-spots in the booth (y 14.7) shoot through the FOH Truss's span at 12–13 m (any FOH between the
+  booth and the stage is in their beams; above them no throw clears the header); the three trusses at three heights; the frame's
+  faces flat in the wall's colour (no baked shading); the line arrays now hang in front of the piers; the shafts' new angles.
+
 ## DONE — 2026-10-25 (night): Broadway outside the three houses (RULING GV; PR `claude/broadway-street-5514f3`, one session)
 
 Jack: *"i want to make it so you can walk outside the theaters and it is like you are on broadway and there are a bunch of
