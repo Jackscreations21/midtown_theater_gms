@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#47 merged; nothing open)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#48 merged; `vw-leaving` open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,7 +6,12 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR #47 (MERGED `4ee99bd`) `vw-entrances` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): three ways in, security, a lobby
+- **NEWEST: PR `vw-leaving` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the audience goes home.** Jack:
+  "make it so if it is playing the exit music or past it and the doors are open people will start to leave". From the exit
+  music on (2-23 at 234.2 or later), with a stalls door open, the seated get up in an order of their own and walk out the way
+  they came in, reversed, then off along Broadway; with the street doors shut they wait in the foyer. The counter shows
+  "Leaving n · Gone home n". **His eye on it.** Still open: the applause loops while the page is hidden.
+- **Before it: PR #47 (MERGED `4ee99bd`) `vw-entrances` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): three ways in, security, a lobby
   for everyone.** Jack: "make there be multiple doors they can come into the van wezel. make it so they have to walk throught
   metal detecotrs and have ther tickest scanned. make a button to speed up getting th epeople in. make it so people can start
   filling up in the lobby. make somehting to show how many people out of how many people are seated", then "have agents do it

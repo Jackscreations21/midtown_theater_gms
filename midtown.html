@@ -20213,7 +20213,7 @@ function vwAudBuild() {
   for (const p of people) { p.wav = [2 * Math.PI / (wl[0] + wr() * (wl[1] - wl[0])), wr() * 6.283, 2 * Math.PI / (ws[0] + wr() * (ws[1] - ws[0])), wr() * 6.283, wr() * 2 - 1, wr() * 6.283]; p.gate = null; p.scanT = 0; p.scanNeed = 0; p.archS = -1; p.mv = false; }
   for (let i = people.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [people[i], people[j]] = [people[j], people[i]]; }   // the order they come in
   const meshes = vwAudMeshes(group, people.length, S.seats.length);
-  vwAud = { group, ...meshes, seats: S.seats, rows: S.rows, sides, lanes, gates, spots, people, on: false, rnd: vwAudRng(VWA.seed + 9), counts: null, acc: { arrive: 0, admit: 0, enter: 0 }, next: 0, waiting: [], aisle: new Map(), dirty: true, seatedDirty: true, ms: 0, built: performance.now() - t0, laneTurn: 0 };
+  vwAud = { group, ...meshes, seats: S.seats, rows: S.rows, sides, lanes, gates, spots, people, on: false, rnd: vwAudRng(VWA.seed + 9), counts: null, acc: { arrive: 0, admit: 0, enter: 0 }, next: 0, waiting: [], lobby: [], outOrder: null, outNext: 0, aisle: new Map(), dirty: true, seatedDirty: true, ms: 0, built: performance.now() - t0, laneTurn: 0 };
   for (const p of people) { const c = new THREE.Color(); meshes.seat.forEach((m, k) => { c.setHex(p.cols[[0, 1, 2, 3][k]]); m.setColorAt(p.seat, c); }); }
   meshes.seat.forEach(m => { const z = new THREE.Matrix4().makeScale(0, 0, 0); for (let i = 0; i < S.seats.length; i++) m.setMatrixAt(i, z); m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; });
   if (window.MIDTOWN && MIDTOWN.frame) { const frame = MIDTOWN.frame; MIDTOWN.frame = () => { vwAudTick(0); frame(); }; }   // a synchronous frame poses the audience first (captures from a hidden pane)
@@ -20344,6 +20344,61 @@ function vwAudThrough(A, E, p) {
     p.path = vwAudPath([...head.slice(0, -1), ...vwAudPts(rest)]); p.state = 'toSeat';
   } else { p.path = vwAudPath(head); p.state = 'toWait'; }   // no spot and no door: they wait just inside
 }
+// GOING HOME (Jack, 2026-10-25: "make it so if it is playing the exit music or past it and the doors are open people will
+// start to leave"): from the exit music on (2-23 at or past EXM's at), with a stalls door open, the seated get up VWA.out.rate
+// a second (a little uneven, in an order of their own) and walk out the way they came in, reversed: along their row, the
+// side aisle, through the open portal nearest their row (vwAudDoor), down the gallery, round the foyer's ring to the open
+// street doors nearest their side, back out along that gate's radius (past the arch and the podium; no scan going out), then
+// off along Broadway's north pavement, east or west, and gone. With every street door shut they stop in the foyer (a free
+// spot) and go on out once one opens. Their seat is empty the moment they stand.
+VWA.out = { rate: 6, away: [40, 75], w: [-1.2, -3.8] };      // a second; how far along Broadway they walk before they are gone (m), across the pavement (w)
+function vwAudLeaving() {
+  const d = SHW.d; if (!SHW.on || !d) return false;
+  const last = d.tracks.length - 1; if (SHW.ti !== last) return false;
+  return SHW.lt >= (EXM.d && EXM.d.ti === last ? EXM.d.at : d.tracks[last].len + 17);
+}
+// The open street doors nearest a person's side (house right's, the centre, house left's)
+function vwAudExitGate(A, p) {
+  const want = (p.side ? 9 : -9) * Math.PI / 180;
+  let best = null, bd = Infinity;
+  for (const E of A.gates) if (E.open && Math.abs(E.phi - want) < bd) { bd = Math.abs(E.phi - want); best = E; }
+  return best;
+}
+// From the ring's way at gate E out through its doors, then along the pavement until they are gone
+function vwAudOutPts(A, E, p) {
+  const SF = stBuilt.F, O = VWA.out, Wy = VWA.ways, q0 = E.q[0], u0 = SF.uw(q0[0], q0[2])[0], dir = A.rnd() < 0.5 ? -1 : 1;
+  const away = O.away[0] + A.rnd() * (O.away[1] - O.away[0]), w = O.w[0] + A.rnd() * (O.w[1] - O.w[0]);
+  const pts = [vwAudRingPt(E.phi), ...[...E.on].reverse(), ...[...E.q].reverse()];
+  for (const [u, ww] of [[u0 + dir * 1.5, -2.5], [u0 + dir * 8, w], [u0 + dir * away, w]]) { const [x, z] = SF.P(u, ww); pts.push([x, rayDown(x, 2.0, z) ?? STREET.top, z, Wy.pavement]); }
+  return pts;
+}
+// A seated person up and on their way: out if a street door is open, else to a free spot in the foyer
+function vwAudLeave(A, p) {
+  const d = vwAudDoor(A, p); if (!d) return false;
+  const E = vwAudExitGate(A, p), spot = E ? null : vwAudFreeSpot(A, p);
+  const ringPhi = E ? E.phi : spot ? (spot.G ? spot.G.cornerPhi : spot.ap) : d.G.cornerPhi;
+  const back = vwAudPts(vwAudToSeat(A, p, vwAudRingPt(ringPhi), d.G, d.port, null)).reverse();
+  if (E) { p.path = vwAudPath([...back, ...vwAudOutPts(A, E, p).slice(1)]); p.state = 'toOut'; }
+  else if (spot) {
+    spot.taken = p; p.spot = spot;
+    const tail = spot.G ? [...spot.G.corr.filter(c => c.s > spot.s).map(c => c.pt), [...spot.G.F.w3(spot.s, VWF.floor, VWA.route.d).toArray(), VWA.ways.corridor]] : [];
+    p.path = vwAudPath([...back, ...tail, [spot.x, VWF.floor, spot.z, 0]]); p.state = 'toLobby';
+  } else { p.path = vwAudPath(back); p.state = 'toLobby'; }
+  p.s = 0; p.archS = -1;
+  const z = vwAudM.makeScale(0, 0, 0); for (const m of A.seat) m.setMatrixAt(p.seat, z); A.seatedDirty = true;
+  return true;
+}
+// One waiting in the foyer after the show, out through the street doors now open
+function vwAudOut(A, p) {
+  const E = vwAudExitGate(A, p); if (!E) return false;
+  const spot = p.spot, from = [p.pos.x, VWF.floor, p.pos.z, 0], pts = [from];
+  if (spot && spot.G) { const G = spot.G, q = G.F.w3(spot.s, VWF.floor, VWA.route.d); pts.push([q.x, VWF.floor, q.z, VWA.ways.corridor], ...G.corr.filter(c => c.s > spot.s).reverse().map(c => c.pt), vwAudRingPt(G.cornerPhi), ...vwAudArc(VWA.route.ringR, G.cornerPhi, E.phi, VWF.floor, VWA.ways.ring)); }
+  else { const ph = spot ? spot.ap : vwAudPhi(p.pos.x, p.pos.z); pts.push(vwAudRingPt(ph), ...vwAudArc(VWA.route.ringR, ph, E.phi, VWF.floor, VWA.ways.ring)); }
+  pts.push(...vwAudOutPts(A, E, p).slice(1));
+  if (spot) { spot.taken = null; p.spot = null; }
+  p.path = vwAudPath(pts); p.s = 0; p.state = 'toOut'; p.archS = -1;
+  return true;
+}
 function vwAudSit(A, p) {
   p.state = 'seated'; p.path = null;
   const s = A.seats[p.seat], m = vwAudM.compose(vwAudV.set(s.x, s.y, s.z), vwAudQ.setFromAxisAngle(vwAudY, s.yaw), vwAudS.setScalar(p.sc));
@@ -20390,6 +20445,25 @@ function vwAudStep(A, dt) {
       while (A.acc.enter >= 1 && A.waiting.length) { const p = A.waiting.shift(); A.acc.enter -= 0.7 + 0.6 * A.rnd(); vwAudSend(A, p, [p.pos.x, VWF.floor, p.pos.z]); moved = true; }
     } else A.acc.enter = 0;
   }
+  // GOING HOME: from the exit music on, the seated out through the open stalls doors (their own order, a little uneven);
+  // those stopped in the foyer on out once a street door opens
+  if (vwAudLeaving()) {
+    for (const E of A.gates) E.open = vwAudOpen(vwAudGateDoor(E));
+    if (!A.outOrder) { A.outOrder = A.people.filter(p => p.state === 'seated'); for (let i = A.outOrder.length - 1; i > 0; i--) { const j = Math.floor(A.rnd() * (i + 1)); [A.outOrder[i], A.outOrder[j]] = [A.outOrder[j], A.outOrder[i]]; } A.outNext = 0; }
+    if (vwAudAnyOpen(A)) {
+      A.acc.out = Math.min((A.acc.out || 0) + dt * VWA.out.rate, 2);
+      while (A.acc.out >= 1 && A.outNext < A.outOrder.length) {
+        const p = A.outOrder[A.outNext];
+        if (p.state !== 'seated') { A.outNext++; continue; }
+        if (!vwAudLeave(A, p)) break;
+        A.outNext++; A.acc.out -= 0.6 + 0.8 * A.rnd(); moved = true;
+      }
+    } else A.acc.out = 0;
+    if (A.lobby.length && A.gates.some(E => E.open)) {
+      A.acc.lobby = Math.min((A.acc.lobby || 0) + dt * VWA.out.rate, 2);
+      while (A.acc.lobby >= 1 && A.lobby.length) { const p = A.lobby.shift(); if (!vwAudOut(A, p)) { A.lobby.unshift(p); break; } A.acc.lobby -= 0.6 + 0.8 * A.rnd(); moved = true; }
+    } else A.acc.lobby = 0;
+  }
   // the gates: each queue up to its scanner (one at a time there, the next a gap behind), the ticket scanned, then on
   for (const E of A.gates) {
     for (let k = 0; k < E.list.length; k++) {
@@ -20407,11 +20481,13 @@ function vwAudStep(A, dt) {
     if (Math.abs(p.s - want) > 1e-3) { const d = Math.min(Math.abs(p.s - want), vwAudPace(p) * dt); p.s += p.s > want ? -d : d; p.walked += d; moved = true; }
   });
   for (const p of A.people) {
-    if (p.state !== 'toWait' && p.state !== 'toSeat') continue;
+    if (p.state !== 'toWait' && p.state !== 'toSeat' && p.state !== 'toLobby' && p.state !== 'toOut') continue;
     const d = vwAudPace(p) * dt; p.s += d; p.walked += d; moved = true;
     if (p.archS >= 0 && p.s >= p.archS) { p.archS = -1; if (typeof vwSecurityPass === 'function') vwSecurityPass(p.gate ? p.gate.key : null); }
     if (p.s >= p.path.len) {
       if (p.state === 'toSeat') vwAudSit(A, p);
+      else if (p.state === 'toOut') { p.state = 'left'; p.path = null; }
+      else if (p.state === 'toLobby') { p.state = 'lobby'; vwAudAt(p.path, p.path.len, p.pos); p.pos.yaw = (p.spot ? p.spot.yaw : -vwAudPhi(p.pos.x, p.pos.z)) + p.look * 1.4; p.path = null; A.lobby.push(p); }
       else { p.state = 'wait'; vwAudAt(p.path, p.path.len, p.pos); p.pos.yaw = (p.spot ? p.spot.yaw : -vwAudPhi(p.pos.x, p.pos.z)) + p.look * 1.4; p.path = null; A.waiting.push(p); }
     }
   }
@@ -20451,8 +20527,8 @@ function vwAudPose(A) {
   });
   for (const E of A.gates) for (const p of E.list) { vwAudWhere(A, p, p.pos); put(p, p.pos.x, p.pos.y, p.pos.z, p.pos.yaw, p.mv); }
   for (const p of A.people) {
-    if (p.state === 'wait') put(p, p.pos.x, p.pos.y, p.pos.z, p.pos.yaw, false);
-    else if (p.state === 'toWait' || p.state === 'toSeat') { vwAudWhere(A, p, p.pos); put(p, p.pos.x, p.pos.y, p.pos.z, p.pos.yaw, true); }
+    if (p.state === 'wait' || p.state === 'lobby') put(p, p.pos.x, p.pos.y, p.pos.z, p.pos.yaw, false);
+    else if (p.state === 'toWait' || p.state === 'toSeat' || p.state === 'toLobby' || p.state === 'toOut') { vwAudWhere(A, p, p.pos); put(p, p.pos.x, p.pos.y, p.pos.z, p.pos.yaw, true); }
   }
   for (const m of A.stand) { m.count = n; m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true; }
   A.standing = n;
@@ -20491,20 +20567,20 @@ let vwAudSpeed = 1;
 // middle while the audience is out (lined up, or anyone not at home); written only when a number changes. In line: on
 // Broadway and at the gates; in the foyer: there and on the way to a spot; on their way in: to their seats
 function vwAudCounts(A) {
-  const c = [0, 0, 0, 0];
-  for (const p of A.people) { const s = p.state; if (s === 'seated') c[0]++; else if (s === 'line' || s === 'toGate') c[1]++; else if (s === 'wait' || s === 'toWait') c[2]++; else if (s === 'toSeat') c[3]++; }
-  return c;
+  const c = [0, 0, 0, 0, 0, 0];
+  for (const p of A.people) { const s = p.state; if (s === 'seated') c[0]++; else if (s === 'line' || s === 'toGate') c[1]++; else if (s === 'wait' || s === 'toWait') c[2]++; else if (s === 'toSeat') c[3]++; else if (s === 'toLobby' || s === 'lobby' || s === 'toOut') c[4]++; else if (s === 'left') c[5]++; }
+  return c;   // seated, in line, in the foyer, on their way in, leaving (GOING HOME), gone
 }
 function vwAudCounter(A, act) {
   const el = document.getElementById('vw-count'); if (!el) return;
   if (el.hidden === act) el.hidden = !act;
   if (!act) { A.counts = null; return; }
   const c = vwAudCounts(A), o = A.counts;
-  if (o && o[0] === c[0] && o[1] === c[1] && o[2] === c[2] && o[3] === c[3]) return;
+  if (o && c.every((v, i) => v === o[i])) return;
   A.counts = c;
   const f = n => n.toLocaleString('en-US');
   el.children[0].textContent = `Seated ${f(c[0])} / ${f(A.people.length)}`;
-  el.children[1].textContent = `In line ${f(c[1])} · In the foyer ${f(c[2])} · On their way in ${f(c[3])}`;
+  el.children[1].textContent = c[4] || c[5] ? `Leaving ${f(c[4])} · Gone home ${f(c[5])}` : `In line ${f(c[1])} · In the foyer ${f(c[2])} · On their way in ${f(c[3])}`;
 }
 { const lxPanelTickVWA = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickVWA(dt); vwApplauseTick(dt); return vwAudTick(dt) || a; }; }
 // THE APPLAUSE (Jack, 2026-10-25: "also add the apluase one", then "only add it during bows" and "just add the noise there
@@ -20579,7 +20655,7 @@ function vwApplauseTick(dt) {
 }
 function vwAudClear() {
   const A = vwAud; if (!A) return;
-  A.on = false; A.next = 0; A.waiting.length = 0; A.acc = { arrive: 0, admit: 0, enter: 0 };
+  A.on = false; A.next = 0; A.waiting.length = 0; A.lobby.length = 0; A.outOrder = null; A.outNext = 0; A.acc = { arrive: 0, admit: 0, enter: 0 };
   for (const ln of A.lanes) ln.list.length = 0;
   for (const E of A.gates) { E.list.length = 0; E.served = 0; }
   for (const q of A.spots) q.taken = null;
@@ -20698,7 +20774,7 @@ VAN_WEZEL_API.audience = {
   state() {
     const A = vwAud; if (!A) return null; const c = {}; for (const p of A.people) c[p.state] = (c[p.state] || 0) + 1;
     const st = vwAudStreetDoor(), n = vwAudCounts(A);
-    return { on: A.on, sold: A.people.length, ...c, seated: n[0], inLine: n[1], inFoyer: n[2], onTheirWay: n[3], line: A.lanes.map(l => l.list.length), street: st ? +st.u.toFixed(2) : null,
+    return { on: A.on, sold: A.people.length, ...c, seated: n[0], inLine: n[1], inFoyer: n[2], onTheirWay: n[3], leaving: n[4], goneHome: n[5], exitMusic: vwAudLeaving(), line: A.lanes.map(l => l.list.length), street: st ? +st.u.toFixed(2) : null,
       gates: Object.fromEntries(A.gates.map(E => { const d = vwAudGateDoor(E); return [E.key, { door: d ? +d.u.toFixed(2) : 'not built', queue: E.list.length, scanned: E.served }]; })),
       spots: A.spots.length, spotsTaken: A.spots.filter(q => q.taken).length, speed: vwAudSpeed,
       stallsOpen: A.sides.map(G => G.ports.filter(q => vwAudOpen(q.door)).length), standing: A.standing || 0, shown: A.group.visible, ms: +A.ms.toFixed(2) };

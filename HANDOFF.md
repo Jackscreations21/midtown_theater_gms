@@ -229,6 +229,25 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-25: the Van Wezel's audience goes home after the show (PR `vw-leaving`, one session)
+
+Jack: *"make it so if it is playing the exit music or past it and the doors are open people will start to leave"*. No ruling.
+GOING HOME, in THE AUDIENCE (`vwAudLeaving`, `vwAudLeave`, `vwAudOut`, `vwAudOutPts`, `vwAudExitGate`, `VWA.out`):
+- **When:** the show at or past the exit music (2-23, EXM's at: 234.2) and a stalls door open. The seated get up 6 a second,
+  a little uneven, in an order of their own (shuffled once); their seat empties as they stand.
+- **The way out** is the way in reversed: along the row, the side aisle, through the open portal nearest their row, down the
+  gallery, round the foyer's ring to the open street doors nearest their side, out along that gate's radius past the arch and
+  podium (no scan going out), then off along Broadway's north pavement east or west, 40–75 m, and gone. The pieces were all
+  checked on the way in; the walk off the pavement is sampled on the floor.
+- **Street doors shut:** they stop in the foyer on a free spot and go on out, 6 a second, once one opens.
+- **The counter** reads "Leaving n · Gone home n" once anyone is leaving; `state()` adds leaving, goneHome, exitMusic.
+- **Run:** a full house, the show at 200 s into 2-23: nobody moves; at 236 with a stalls door each side open and the street shut:
+  181 up after 30 s, 327 waiting in the foyer after 2 min; the three street doors opened: the foyer drains while the rest go
+  straight out; all 1,600 gone ~9 min later at 1×. Checks: audience 14 / 14, entrances 21 / 21, street PASS, actors pass,
+  console clean.
+- **His to decide:** the pace (6 a second, ~9 min to empty at 1×; the speed button works here too); that they leave through
+  the security lanes.
+
 ## DONE — 2026-10-25: the Van Wezel's three entrances, security, a lobby for the whole house, loose walking, speed, a counter (PR #47 `vw-entrances`, merged `4ee99bd`, the lead and two Opus agents)
 
 Jack: *"make there be multiple doors they can come into the van wezel. make it so they have to walk throught metal detecotrs and
