@@ -229,7 +229,51 @@ compare the *same* production across stages instead.
 
 ---
 
-## NEXT SESSION: **VAN WEZEL — HIS ANSWERS (RULING GT) AND FIVE MORE ASKS** (2026-10-25; PRs #24 and #25 merged)
+## NEXT SESSION: **HIS EYE ON THE VAN WEZEL FIXES; THEN THE OLDER LIST** (2026-10-25; PR `vw-answers`)
+
+Rulings at **GT** (GU next). Land PR `vw-answers` (its DONE block below) when he says so. Then his eye on it: the house in the
+model's colours, the follow-spot booth (bigger, its windows, its outside), the lift (no pedestal, its top black), the pit
+guards ("VW guards" in the Lifts row, or E at the switch on the deck by the stage panel or at the stalls corner by the
+house-right front portal), the foyer without its mullions. His to decide:
+- the foyer's glass line is still a wall to the walk (invisible): the terrace outside ends 6–10 m out in a drop. Open it onto
+  the terrace with a guard at the terrace's edge, or leave it;
+- the guards are DOWN at load (`VW_GUARDS.atLoad`); the deck's rail has a gap at the stair; the stalls rail climbs where the
+  well's slanted sides meet the foyer's carpet (0.875), not the stalls floor;
+- the follow-spot booth's 15 window bays (the spots in bays −4, 0, 4), and a black screen behind the ladder's hatch (from the
+  front seats the catwalk showed through the new windows and up the hatch);
+- `VW_PHOTO_COLOURS` (off) puts the photographs' colours back in one line if he wants them after all;
+- the pit panel (x 71.75) stands on the lip's face, 2 mm into the lift's path (as it did); the orchestra-level panel is on the
+  doorway's jamb instead.
+Then the older list in STATE.md. Tidy owed: the agent worktrees under `.claude/worktrees/` and the merged branches.
+
+## DONE — 2026-10-25: Van Wezel, his twelve answers and five asks (RULING GT; PR `vw-answers`, one lead and two Opus agents)
+
+- **The colours back** (lead, answer 3, *"change the color of the theater to what it was befor"*): `VW_PHOTO_COLOURS` off,
+  so vwPlace leaves the model's colours and maps; THE HOUSE AS IT IS keeps its coves, downlights, arrays, pipes and windows in
+  the model's palette (`VWH.col`: the soffits the old fan's lilac, the risers the ceiling's dark purple); the lip's gold strip
+  goes with the photographs' colours.
+- **The landings' lip** (lead, answer 7): doorways 7 and 13 sat 44 and 42 mm under their aisles because the flight below hit
+  the 0.175 riser. `VW_SIDE.lip` (6 cm): such a landing is raised to its aisle, the flight rising 186 mm. 0 mm through every
+  doorway now.
+- **The lobby's glass walls** (lead, ask 3): the glass was already undrawn; its white mullions and heads (1188 triangles of
+  `exterior_lit` within 0.30 m of `exterior_glass`, `vwDropMullions`) are cut. The glass stays a wall to the walk.
+- **The follow-spot booth** (agent 1, answers 2 and 4, ask 1): a new shell in the spot kit (the model's tray hidden): floor
+  13.96 (0.60 lower), the front 0.60 m toward the stage (r 34.78), a roof at 16.26, so 2.30 m inside (was 1.67); ends out to
+  the model's. 15 bays of tall sliding windows (F+0.48…F+2.05) in silver frames, the spots in the middle of three, the sashes
+  stacked on the half a spot does not use. Its outside in the ceiling's colour, measured at build and baked as the model's.
+  Ladder 3: 12 risers of 0.216, foot x 73.21. A black screen behind the hatch.
+- **The lift** (agent 2, asks 2 and 4): the pedestal ("the yellow thing") gone; its beacon on the stage panel; a panel by
+  the orchestra-level door; the seating wagon's slot for the pedestal closed (lead). The lift's top a 2 mm cap in the stage's
+  marley (0x2a2a2e × 0.89, its scuffed map).
+- **THE PIT GUARDS** (agent 2, ask 5; RULING GK stands: manual only): a rail round the well's stalls edges (27.2 m, 30 posts)
+  and one along the lip on the deck (a gap at the stair), up or down in 2 s off dt, flush when down; raised they stop the
+  walker; they wait for a walker where a rail would rise; never moved by the lift. E at a switch by the stage panel or at the
+  stalls corner, "VW guards" in the Lifts row, `MIDTOWN.vanWezel.lift.guards`.
+- **Checks on the merged branch:** `vanWezel`, `.sideDoors`, `.foyer`, `.patches` PASS; `.lift` 26/26; `.lift.guards` 8/8;
+  `.backstage` 5/5; `.booths` 16/16; `.booths.gear` 10/10; `.house` 5/5; `.stageHouse` 6/6; `doors.check()` 76/76;
+  `under.check()` 16/16; `lx.check()` 301/313; `actors.check()` PASS; console clean.
+
+## SUPERSEDED (the round above did it): **VAN WEZEL — HIS ANSWERS (RULING GT) AND FIVE MORE ASKS** (2026-10-25; PRs #24 and #25 merged)
 
 Rulings at **GT** (GU next). `main` is **`ca692da`**. Read his decisions doc first (https://claude.ai/artifact/UKsnCsyJL6hwKAC7r52cTT, a Claude Doc: read it with the
 docs tools, never web-fetch it); he may have changed an answer since.
