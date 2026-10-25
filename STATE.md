@@ -10,7 +10,15 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 (#20). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under NEXT below); the
 worktrees and local branches are gone.
 
-- **NEWEST: PR #36 (MERGED `cd06c55`) `hamilton-costumes` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling, GW next):
+- **NEWEST: PR `actor-whiteout` (2026-10-25): lit actors no longer turn white.** Jack: "at some parts the lighting or the
+  spotlights light up the people too much and they just turn entirely white". The cause: the engine's pools are added onto the
+  finished, tone-mapped frame at a gain fitted to the ~10 % deck, and a costume is 10–90 % and already lit by the real lights:
+  a followspot put 8–13 × albedo on a body (1-02 Q92 Burr; 1-01 Q59 Hamilton drew a flat white silhouette). Now a body takes
+  its pools inside its own shading, before the ACES tone mapping (`LX_BODY`, `lxBodyMat`), and the screen quad passes over it.
+  Clipped body pixels 29 % → 0 % (Burr), 43–80 % → 0.3–4 % (Hamilton at the peak); colours and folds kept, both houses (the
+  Van Wezel's bodies share the material). Scenery is lit exactly as before. **His eye on it:** the ensemble in dark costumes
+  under the peak looks of 1-01 now read darker than before (they were washed pale); `LX_BODY.k` (0.15) is the one knob.
+- **Before it: PR #36 (MERGED `cd06c55`) `hamilton-costumes` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling, GW next):
   the Hamilton costumes.** 46 looks after Paul Tazewell's design in `assets/hamilton-costumes.json`
   (`docs/hamilton-costumes-format.md`), each body's plot of them by song, worn on the jointed body (vertex-coloured parts, coat
   skirts, gowns, capes, a crown…), changed off stage, a pure function of show time (`MIDTOWN.costumes`, the Blocking panel's
