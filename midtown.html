@@ -20042,14 +20042,20 @@ function vwMonDraw(time, force = false) {
   const t0 = performance.now(), keep = { p: camera.position.clone(), q: camera.quaternion.clone(), fov: camera.fov, aspect: camera.aspect, near: camera.near, far: camera.far };
   const list = (force || M.all ? M.mons : [M.mons[M.next]]).filter(m => m.pic.material.map);   // a monitor shut down (THE BOOTH'S POWER) draws nothing
   M.group.visible = false;
-  const prev = renderer.getRenderTarget();
+  const prev = renderer.getRenderTarget(), res = LXDEP.uRes.value, keepRes = res.clone();
   try {
     for (const m of list) {
       camera.position.copy(m.cam.position); camera.quaternion.copy(m.cam.quaternion); camera.fov = m.cam.fov; camera.aspect = m.cam.aspect; camera.near = m.cam.near; camera.far = m.cam.far;
       camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);
-      lxDrawn(time); renderer.setRenderTarget(m.rt); renderer.clear(); renderer.render(scene, camera); m.n++;
+      lxDrawn(time);
+      // the pools' sum is screen-sized and read at gl_FragCoord / uRes (the quad, a body's shading): in the monitor's own size
+      // here, or the picture takes a stretched corner of it — Jack: "it looks like it is showing two views at once"
+      res.set(m.rt.width, m.rt.height);
+      renderer.setRenderTarget(m.rt); renderer.clear(); renderer.render(scene, camera); m.n++;
+      res.copy(keepRes);
     }
   } finally {
+    res.copy(keepRes);
     renderer.setRenderTarget(prev);
     camera.position.copy(keep.p); camera.quaternion.copy(keep.q); camera.fov = keep.fov; camera.aspect = keep.aspect; camera.near = keep.near; camera.far = keep.far;
     camera.updateProjectionMatrix(); camera.updateMatrixWorld(true);

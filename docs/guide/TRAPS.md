@@ -2369,3 +2369,9 @@ include the place a failure would show — the corridor behind the house, not on
 - **A cluster offset round an offstage spot can land on the deck** (PLACES: ±0.55 m round a wing spot put two ensemble bodies
   onstage). Test "on the deck" after the offset, not before.
 
+## From the booth-monitor round (2026-10-25)
+
+- **The pools' sum is screen-sized and read at `gl_FragCoord / uRes`** (the pools' quad, a body's shading). Drawn into a
+  smaller target (the Van Wezel's 480 × 270 booth monitors), the picture took the bottom-left corner of it, stretched: a second,
+  ghosted view over the stage (Jack: "it looks like it is showing two views at once"). Set `LXDEP.uRes` to the target's size
+  for that draw, and put it back.
