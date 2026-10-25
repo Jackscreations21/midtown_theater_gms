@@ -555,7 +555,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear|vw stage house)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR; vw stage house: THE THIRD HOUSE: THE STAGE HOUSE AS IT IS (not 'vw flies': what hangs)
   baked.traverse(take);
   return list;
 }
@@ -14327,6 +14327,7 @@ function buildVanWezel(gltf) {
   if (model && !VW.missing) vwBoothsBuild(model);              // the balcony to the tech booth, the ladders and catwalk to the spots (THE THIRD HOUSE: THE BOOTHS' WAY UP)
   if (model && !VW.missing) vwHouseBuild(model);               // the ceiling's coves and downlights, the proscenium's speakers and pipes, the back's windows (THE THIRD HOUSE: THE HOUSE AS IT IS)
   if (model && !VW.missing) vwGearBuild(model);                // the consoles, racks and chairs in the tech booth, the spots on their stands (THE THIRD HOUSE: THE BOOTHS' GEAR)
+  if (model && !VW.missing) vwStageBuild(model);               // the fly loft, the fly wall, the floors, the wings as his photographs show them (THE THIRD HOUSE: THE STAGE HOUSE AS IT IS)
   VW.root = model ? model.root : null; VW.works = group; VW.ms = performance.now() - t0;
   vwBuilt = { group, doors, model, cut, triangles: tris, battens: nb, portalFloor: yIn, liftY, frame: { fp, th, half, out } };
   const wb = model ? new THREE.Box3().setFromObject(model.root) : null;
@@ -17496,6 +17497,491 @@ function vwHouseCheck() {
 }
 const VW_HOUSE_API = { spec: VWH, get built() { return vwHouse; }, check: vwHouseCheck };
 VAN_WEZEL_API.house = VW_HOUSE_API;                           // MIDTOWN.vanWezel.house
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE STAGE HOUSE AS IT IS
+   Jack (2026-10-24), with his own photographs of the real hall: "i have all of these picturs from the van wezel use the to
+   improve the model". The model's fly loft was a box: lavender walls, eighteen bare battens 17.8 m over the deck, four grey
+   borders, six grey legs, three pipes of identical cans and a white cyclorama down across the stage. This makes it the
+   stage house of his photographs (reference only, never in the repository).
+   WHICH SIDE: upstage is +z, so an actor facing the house (−z) has his right hand at +x: STAGE RIGHT is +x, STAGE LEFT −x
+   (house right, where the model's basement labels its stair "SR"). His two photographs across the stage (the house's mauve
+   seats on the right of the frame) are taken from the stage-right wing looking stage left, so the wall of tall vertical
+   pipes they look at is the STAGE-LEFT side wall, x 60.24: the counterweight fly system's tracks, arbors and purchase lines,
+   the locking rail across their foot and fluorescent strips over them. The photograph by the proscenium's side position
+   looks the other way, into the stage-right wing: its desk, its white set pieces and the spiral stair by the proscenium.
+   THE FLY LOFT (VWS.sets): 54 linesets 0.23 m apart, z 1.15…13.34, each a black 48 mm batten 24.8 m long, its ends taped in
+   its colour (yellow, pink, blue, green, lilac, white, as on his photo of the rail), on six steel lift lines through trim
+   chains up to loft blocks on the gridiron (26.40) and across it to the head blocks over the fly wall. In at their trims
+   (VWS_HANG): four borders (the lowest 11.25, never under the proscenium's header, 11.09) and four pairs of legs (their
+   inner edges on the opening's line, so they narrow nothing the seats see); the first electric of ellipsoidals just behind
+   the header border, a pipe of movers, one of LED pars, one more of movers (his photo from the stage looking out), two more
+   electrics and cyc lights further up. Flown out: the rest bare, three orchestra-shell ceiling panels (the grey curved
+   panels of his photo from the pin rail) and the white cyc. Work lights under the grid, over it and on the back wall:
+   glowing panels, no real light.
+   THE FLY WALL, STAGE LEFT: per lineset two T-tracks, an arbor where its batten's trim puts it (high when the batten is in),
+   the grey purchase lines (arbor to head block, head block to the floor block through its rope lock) with a band of its
+   colour above the lock; the locking rail at 1 m with its index strip; fluorescent strips on a strut 6.2 m up and under the
+   gallery. Over it, 10 m up, THE FLY GALLERY of his photo from the rail: a red-brown pin rail, wooden belaying pins, grey
+   braided lines coiled on them and running up to the grid. The locking rail is walked to (the aisle between it and
+   BACKSTAGE's house-right hole's parapet is 0.83 m); the fly gallery is seen, not reached.
+   STAGE RIGHT: a gallery along the wall 6.4 m up, guarded with mesh panels, and THE SPIRAL STAIR to it in the downstage
+   corner: 36 treads of 0.178 round a steel column, a steel skirt and a rail on the outside; walked.
+   THE FLOORS: the black dance floor over the stage and under the legs (x 64.4…89.6, to z 13.35, ending in a line where his
+   photo shows it), the grey concrete of the wings round it; BACKSTAGE's holes left open.
+   THE WALLS: the model's loft walls and roof painted black (their vertex colours); the proscenium's stage face faced black up
+   to the roof (the model left the loft open over the house ceiling, above 20.39).
+   THE WINGS: stage left a cart of stacked platforms and a road case upstage, a flat cart and a bin downstage; stage right
+   the production desk (two tables, a monitor, chairs) against the wall, a road case, a cardboard crate, the white set pieces
+   along the back wall and a ghost light by the proscenium; all clear of BACKSTAGE's holes and of the ways out of them.
+   THE MODEL'S OWN: its battens, borders, legs, electrics and cyc (stage_lit, inside the loft) taken out.
+   Merged by kind: 'vw stage house' (what you would walk into or onto: the fly wall, the galleries, the stair, the wings'
+   things; in the walk's grid) and 'vw flies' (all that hangs, the proscenium's facing, the floors; not): one unlit
+   vertex-coloured material each (the model's look, its fixed light baked in) and the floors' with a scuffed map, so three
+   draw calls. Drawn only from inside the Van Wezel (BACKSTAGE's gate). MIDTOWN.vanWezel.stageHouse: .spec, .built,
+   check(), view(), views (his photographs' viewpoints); the header's "VW Stage". */
+const VWS = {
+  deck: 2.557, x0: 60.24, x1: 93.76, z0: 0.46, z1: 14.02, roof: 28.31, header: 11.09, open: [67.63, 86.37],   // the loft's inner faces (the model's)
+  grid: 26.40,                                                  // the gridiron's top
+  sets: { n: 54, z0: 1.15, dz: 0.23 },
+  batten: [64.6, 89.4], lines: [65.3, 70.0, 74.7, 79.3, 84.0, 88.7],
+  holes: [[61.80, 63.00, 5.30, 8.90], [91.00, 92.20, 5.30, 8.90]],   // BACKSTAGE's stair holes in the deck (VW_BACK.stairs)
+  keepOut: [[61.50, 63.30, 2.50, 9.20], [90.70, 92.50, 2.50, 9.20]], // the holes, their parapets and the ways out of them (downstage, −z): nothing of this stands there
+  dance: [64.4, 89.6, -0.15, 13.35],                            // the black dance floor; the rest of the deck the grey concrete
+  wall: { track: 60.25, arbor: 60.31, line: 60.47, fall: 60.56, rail: 60.58, aisle: 61.13 },   // the fly wall, from the wall out; the aisle's middle
+  flyGal: { y: 10.0, x0: 60.80, x1: 62.10, z0: 0.70, z1: 13.85, pins: 0.32 },   // over the deck
+  jump: { y: 6.4, x0: 92.05, z0: 2.42, z1: 13.85 },
+  spiral: { x: 92.85, z: 1.60, r0: 0.09, r1: 0.80, n: 36, step: Math.PI / 8, top: Math.PI / 2, walk: 0.46 },   // tread i's middle at top + (n − 1 − i)·step
+  view: [[85.0, 3.95, 5.4], [60.0, 5.6, 5.0]],                  // his photograph across the stage to the fly wall (VWS_VIEWS)
+};
+// in at their trims: [lineset, kind, y] — a border's y is its bottom, the rest their batten's
+const VWS_HANG = [[0, 'border', 11.25], [1, 'legs', 12.3], [2, 'ellipsoidals', 11.75], [4, 'movers', 12.4], [6, 'pars', 12.8], [8, 'movers', 13.2],
+  [12, 'border', 11.4], [13, 'legs', 12.5], [15, 'electric', 12.4], [18, 'shell', 21.6], [24, 'border', 11.5], [25, 'legs', 12.7], [27, 'electric', 12.6],
+  [31, 'shell', 22.4], [36, 'border', 11.6], [37, 'legs', 12.9], [39, 'cyclights', 12.8], [44, 'shell', 23.2], [48, 'cyc', 25.0]];
+const VWS_COL = {
+  black: 0x29292d, pipe: 0x232427, steel: 0x2b2d31, grate: 0x3a3c40, mesh: 0x34373b, rail: 0x6a6e73, chain: 0x75797e, cable: 0xb9bdc2,
+  rope: 0x8f9194, track: 0xa6aaae, arbor: 0x55585d, rust: 0x7a3322, wood: 0x7b4b28, card: 0xe8e6df, fixture: 0x1b1c1e, lens: 0x56616e,
+  parLens: 0xd8dde0, white: 0xe6e3dc, cyc: 0xcfcfca, shell: 0x6f6e6b, platform: 0x19191a, edge: 0x3a3a3c, case: 0x1d1e20, trim: 0x9a9ea3,
+  yellow: 0xe2b21c, cardboard: 0xb98a52, desk: 0xd9d6cf, timber: 0x8a6a45,
+  yellowTape: 0xe8d21c, pinkTape: 0xe86a8a, blueTape: 0x3f8fe0, greenTape: 0x9be08a, lilacTape: 0xa07ad0, whiteTape: 0xe8e8e0,
+  glowWarm: 0xfff3dc, glowCool: 0xeef6ff, screen: 0x7fa6d8,
+};
+const VWS_TAPES = ['yellowTape', 'pinkTape', 'blueTape', 'greenTape', 'lilacTape', 'whiteTape'];
+let vwStage = null;
+const vwStageMat = {
+  vc: new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }),
+  floor: new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }),   // map: vwsFloorTex(), at build
+};
+// the floors' map: scuffs, specks and seams, 3 m a repeat (grey: the vertex colour carries black or concrete)
+function vwsFloorTex() {
+  return underCanvasTex(256, 256, g => {
+    g.fillStyle = '#e4e4e4'; g.fillRect(0, 0, 256, 256);
+    let s = 29; const rnd = () => (s = (s * 16807) % 2147483647) / 2147483647;
+    for (let i = 0; i < 3000; i++) { const v = 200 + Math.floor(rnd() * 55); g.fillStyle = `rgba(${v},${v},${v},0.6)`; g.fillRect(rnd() * 256, rnd() * 256, 2, 2); }
+    g.strokeStyle = 'rgba(255,255,255,0.22)'; g.lineWidth = 1;
+    for (let i = 0; i < 40; i++) { const x = rnd() * 256, y = rnd() * 256, a = rnd() * 7, l = 6 + rnd() * 30; g.beginPath(); g.moveTo(x, y); g.lineTo(x + Math.cos(a) * l, y + Math.sin(a) * l); g.stroke(); }
+    for (let i = 0; i < 10; i++) { g.fillStyle = 'rgba(150,150,150,0.10)'; g.beginPath(); g.arc(rnd() * 256, rnd() * 256, 10 + rnd() * 26, 0, 7); g.fill(); }
+    g.fillStyle = 'rgba(120,120,120,0.35)'; g.fillRect(0, 127, 256, 1);   // a seam across the repeat
+  });
+}
+const vwsZ = i => VWS.sets.z0 + i * VWS.sets.dz;
+const V3w = (x, y, z) => new THREE.Vector3(x, y, z);
+// The stage house built: buildVanWezel's last line, once the model, the backstage (its holes) and the booths are in.
+function vwStageBuild(model) {
+  if (!model) return null;
+  const t0 = performance.now(), S = VWS, Y = S.deck, G = S.grid, PI = Math.PI, W = S.wall;
+  const A = {}, B = {}, F = {};                                 // A: the solid things (the walk's grid); B: what hangs; F: the floors
+  const file = (T, key, g) => { if (g.index) { const n = g.toNonIndexed(); g.dispose(); g = n; } (T[key] = T[key] || []).push(g); return g; };
+  const bx = (T, key, x0, x1, y0, y1, z0, z1) => file(T, key, new THREE.BoxGeometry(Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0)).translate((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2));
+  const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+  const rod = (T, key, a, b, r, seg = 8) => { deskRod(T, key, a, b, r, seg); const g = T[key].pop(); file(T, key, g); };
+  // a cloth hung in the plane z = zc over x0…x1, y0…y1, pleated: a zigzag `pitch` apart and `depth` deep, both faces
+  const pleat = (T, key, x0, x1, y0, y1, zc, pitch, depth) => {
+    const n = Math.max(2, 2 * Math.round((x1 - x0) / pitch)), p = [];
+    for (let k = 0; k < n; k++) {
+      const xa = x0 + (x1 - x0) * k / n, xb = x0 + (x1 - x0) * (k + 1) / n, za = zc + (k % 2 ? depth / 2 : -depth / 2), zb = zc + (k % 2 ? -depth / 2 : depth / 2);
+      p.push(xa, y0, za, xb, y0, zb, xb, y1, zb, xa, y0, za, xb, y1, zb, xa, y1, za);
+      p.push(xa, y0, za, xb, y1, zb, xb, y0, zb, xa, y0, za, xa, y1, za, xb, y1, zb);
+    }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3)); g.computeVertexNormals(); return file(T, key, g);
+  };
+  // a curved panel across x0…x1, arched along z (half its depth, rising rise at its middle), both faces
+  const arch = (T, key, x0, x1, yc, zc, half, rise, n = 8) => {
+    const p = [], at = k => { const u = (k / n) * 2 - 1; return [zc + half * u, yc + rise * (1 - u * u)]; };
+    for (let k = 0; k < n; k++) {
+      const [za, ya] = at(k), [zb, yb] = at(k + 1);
+      p.push(x0, ya, za, x1, ya, za, x1, yb, zb, x0, ya, za, x1, yb, zb, x0, yb, zb);
+      p.push(x0, ya, za, x1, yb, zb, x1, ya, za, x0, ya, za, x0, yb, zb, x1, yb, zb);
+    }
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3)); g.computeVertexNormals(); return file(T, key, g);
+  };
+  // a flat prism over a plan polygon ([x, z] points), y0…y1
+  const prism = (T, key, pts, y0, y1) => {
+    const sh = new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)));
+    const g = new THREE.ExtrudeGeometry(sh, { depth: y1 - y0, bevelEnabled: false, curveSegments: 2 }).rotateX(-PI / 2).translate(0, y0, 0);
+    return file(T, key, g);
+  };
+  const hung = [];                                              // what hangs in at a trim: { i, kind, y0 (its lowest), x0, x1 }
+  const cut = {};
+  // 0. THE MODEL'S OWN: its battens, borders, legs, electrics and cyc out of the loft; its loft walls and roof black
+  const sl = model.byName('stage_lit');
+  if (sl) {
+    const g = sl.geometry, src = g.index ? g.toNonIndexed() : g, p = src.attributes.position, C = src.attributes.color, keep = [], v = new THREE.Vector3();
+    let dropped = 0, painted = 0;
+    for (let t = 0; t < p.count; t += 3) {
+      let inside = true, lo = Infinity;
+      for (let k = 0; k < 3; k++) { v.fromBufferAttribute(p, t + k).applyMatrix4(sl.matrixWorld); lo = Math.min(lo, v.y); if (!(v.x > 60.5 && v.x < 93.5 && v.y > 2.5 && v.y < 28.2 && v.z > 0.5 && v.z < 13.95)) inside = false; }
+      if (inside) { dropped++; continue; }
+      keep.push(t, t + 1, t + 2);
+      if (lo > 2.5 && C) { painted++; for (let k = 0; k < 3; k++) C.setXYZ(t + k, C.getX(t + k) * 0.20, C.getY(t + k) * 0.20, C.getZ(t + k) * 0.21); }
+    }
+    src.setIndex(keep); if (src !== g) g.dispose(); sl.geometry = src; if (C) C.needsUpdate = true; src.computeBoundingBox(); src.computeBoundingSphere();
+    cut['the model\'s loft'] = dropped; cut['walls painted'] = painted;
+  }
+  // the hall's scalloped roof runs on through the loft (down to ~18 m over the stage): out of the loft's box, which its own
+  // walls and roof close from outside
+  const loft = new THREE.Box3(new THREE.Vector3(S.x0 + 0.02, S.header + 0.1, S.z0 + 0.06), new THREE.Vector3(S.x1 - 0.02, S.roof - 0.02, S.z1 - 0.02));
+  model.root.traverse(o => { if (o.isMesh && /^vw: exterior_/.test(o.name) && o.material !== VW_GLASS_BLOCK) { const k = vwCutBox(o, loft); if (k) cut['loft: ' + o.name.replace(/^vw: /, '')] = k; } });
+  // the house curtain, flown out behind the header (VW.curtainFly): its lined back is what the stage sees (his photo looking
+  // out shows black there); the house never sees it while it is out
+  const cur = model.byName('stage_tex_47');
+  if (cur) cur.material.color.multiplyScalar(0.07);           // (linear: about a quarter as bright to the eye)
+  // 1. THE LINESETS: batten, tape, lift lines; what each carries; its arbor, purchase lines and lock on the fly wall
+  const hang = new Map(VWS_HANG.map(([i, kind, y]) => [i, { kind, y }]));
+  const [b0, b1] = S.batten, tape = 0.15;
+  const fixtures = { ellipsoidals: 0, movers: 0, pars: 0, cyclights: 0 };
+  const ellipsoidal = (x, y, z) => {
+    bx(B, 'fixture', x - 0.03, x + 0.03, y - 0.07, y + 0.03, z - 0.03, z + 0.03); bx(B, 'fixture', x - 0.015, x + 0.015, y - 0.26, y - 0.06, z - 0.015, z + 0.015);
+    const d = V3(0, -0.6, 0.8), c = V3(x, y - 0.30, z);
+    rod(B, 'fixture', c.clone().addScaledVector(d, -0.12), c.clone().addScaledVector(d, 0.06), 0.09, 8); rod(B, 'fixture', c.clone().addScaledVector(d, 0.06), c.clone().addScaledVector(d, 0.34), 0.065, 8);
+    fixtures.ellipsoidals++;
+  };
+  const mover = (x, y, z) => {
+    bx(B, 'fixture', x - 0.17, x + 0.17, y - 0.20, y - 0.04, z - 0.13, z + 0.13);
+    for (const s of [-1, 1]) bx(B, 'fixture', x + s * 0.15, x + s * 0.185, y - 0.48, y - 0.20, z - 0.045, z + 0.045);
+    const d = V3(0, -0.72, 0.69).normalize(), c = V3(x, y - 0.42, z);
+    rod(B, 'fixture', c.clone().addScaledVector(d, -0.17), c.clone().addScaledVector(d, 0.15), 0.13, 10); rod(B, 'lens', c.clone().addScaledVector(d, 0.15), c.clone().addScaledVector(d, 0.16), 0.10, 10);
+    fixtures.movers++;
+  };
+  const par = (x, y, z) => {
+    bx(B, 'fixture', x - 0.03, x + 0.03, y - 0.07, y + 0.03, z - 0.03, z + 0.03); bx(B, 'fixture', x - 0.13, x + 0.13, y - 0.12, y - 0.08, z - 0.02, z + 0.02);
+    for (const s of [-1, 1]) bx(B, 'fixture', x + s * 0.13, x + s * 0.15, y - 0.32, y - 0.08, z - 0.02, z + 0.02);
+    const d = V3(0, -0.75, 0.66).normalize(), c = V3(x, y - 0.28, z);
+    rod(B, 'fixture', c.clone().addScaledVector(d, -0.09), c.clone().addScaledVector(d, 0.08), 0.12, 10); rod(B, 'parLens', c.clone().addScaledVector(d, 0.08), c.clone().addScaledVector(d, 0.09), 0.10, 10);
+    fixtures.pars++;
+  };
+  const cycLight = (x, y, z) => {
+    bx(B, 'fixture', x - 0.03, x + 0.03, y - 0.12, y + 0.03, z - 0.03, z + 0.03);
+    bx(B, 'fixture', x - 0.45, x + 0.45, y - 0.38, y - 0.12, z - 0.10, z + 0.10); bx(B, 'parLens', x - 0.42, x + 0.42, y - 0.36, y - 0.14, z + 0.10, z + 0.11);
+    fixtures.cyclights++;
+  };
+  const along = (n, x0, x1, f) => { for (let k = 0; k < n; k++) f(x0 + (x1 - x0) * (n === 1 ? 0.5 : k / (n - 1))); };
+  for (let i = 0; i < S.sets.n; i++) {
+    const z = vwsZ(i), h = hang.get(i), kind = h ? h.kind : 'out';
+    const y = !h ? 23.6 + ((i * 37) % 11) * 0.17 : kind === 'border' ? h.y + 3.6 : h.y;   // the batten's height
+    // the batten, its tape, its lift lines (a clamp, a trim chain, the cable up to the loft block)
+    rod(B, 'pipe', V3(b0 + tape, y, z), V3(b1 - tape, y, z), 0.024, 6);
+    const tk = VWS_TAPES[i % VWS_TAPES.length];
+    rod(B, tk, V3(b0, y, z), V3(b0 + tape, y, z), 0.026, 6); rod(B, tk, V3(b1 - tape, y, z), V3(b1, y, z), 0.026, 6);
+    for (const lx of S.lines) {
+      bx(B, 'pipe', lx - 0.04, lx + 0.04, y - 0.035, y + 0.045, z - 0.035, z + 0.035);
+      bx(B, 'chain', lx - 0.012, lx + 0.012, y + 0.045, y + 0.34, z - 0.012, z + 0.012);
+      bx(B, 'cable', lx - 0.008, lx + 0.008, y + 0.34, G + 0.06, z - 0.008, z + 0.008);
+      bx(B, 'steel', lx - 0.05, lx + 0.05, G + 0.02, G + 0.24, z - 0.06, z + 0.06);   // the loft block
+    }
+    bx(B, 'cable', W.arbor + 0.6, S.lines[S.lines.length - 1], G + 0.28, G + 0.31, z - 0.012, z + 0.012);   // the lift lines' run over the grid to the head block
+    // what it carries
+    if (kind === 'border') { pleat(B, 'black', b0 + 0.1, b1 - 0.1, h.y, y - 0.03, z + 0.05, 0.36, 0.09); hung.push({ i, kind, y0: h.y, x0: b0 + 0.1, x1: b1 - 0.1 }); }
+    else if (kind === 'legs') {
+      pleat(B, 'black', b0, S.open[0] - 0.03, Y + 0.015, y - 0.03, z + 0.05, 0.30, 0.09); pleat(B, 'black', S.open[1] + 0.03, b1, Y + 0.015, y - 0.03, z + 0.05, 0.30, 0.09);
+      hung.push({ i, kind, y0: Y + 0.015, x0: b0, x1: S.open[0] - 0.03 }, { i, kind, y0: Y + 0.015, x0: S.open[1] + 0.03, x1: b1 });
+    } else if (kind === 'ellipsoidals' || kind === 'movers' || kind === 'pars' || kind === 'electric' || kind === 'cyclights') {
+      bx(B, 'black', b0 + 0.5, b1 - 0.5, y + 0.035, y + 0.10, z - 0.03, z + 0.03);   // the cable trough
+      let lo = y;
+      if (kind === 'ellipsoidals') { along(22, 66.0, 88.0, x => ellipsoidal(x, y, z)); lo = y - 0.47; }
+      if (kind === 'movers') { along(6, 67.6, 86.4, x => mover(x, y, z)); lo = y - 0.60; }
+      if (kind === 'pars') { along(10, 66.4, 87.6, x => par(x, y, z)); lo = y - 0.40; }
+      if (kind === 'electric') { let k = 0; along(12, 66.4, 87.6, x => (k++ % 2 ? mover : par)(x, y, z)); lo = y - 0.60; }
+      if (kind === 'cyclights') { along(8, 66.5, 87.5, x => cycLight(x, y, z)); lo = y - 0.38; }
+      hung.push({ i, kind, y0: lo, x0: 65.9, x1: 88.1 });
+    } else if (kind === 'shell') { arch(B, 'shell', 66.2, 87.8, y - 0.65, z, 1.0, 0.35); for (const lx of S.lines) bx(B, 'chain', lx - 0.01, lx + 0.01, y - 0.65 + 0.35, y, z - 0.01, z + 0.01); }
+    else if (kind === 'cyc') {
+      const g = new THREE.PlaneGeometry(24.4, 8.8); g.translate(77.0, y - 4.45, z + 0.05); file(B, 'cyc', g);
+      const g2 = new THREE.PlaneGeometry(24.4, 8.8).rotateY(PI); g2.translate(77.0, y - 4.45, z + 0.05); file(B, 'cyc', g2);
+      rod(B, 'pipe', V3(64.8, y - 8.85, z + 0.05), V3(89.2, y - 8.85, z + 0.05), 0.024, 6);
+    }
+    // the fly wall: two T-tracks, the arbor (high when the batten is in), the purchase lines, the floor block, the lock
+    const aTop = Math.min(G - 0.5, Math.max(Y + 1.75, G - 0.5 - (y - Y - 1.0))), aBot = aTop - 1.45;
+    for (const s of [-1, 1]) bx(A, 'track', W.track, W.track + 0.04, Y, G, z + s * 0.075 - 0.012, z + s * 0.075 + 0.012);
+    bx(A, 'arbor', W.arbor, W.arbor + 0.11, aBot, aTop, z - 0.05, z + 0.05);
+    bx(A, 'steel', W.arbor - 0.01, W.arbor + 0.13, aTop, aTop + 0.05, z - 0.06, z + 0.06); bx(A, 'steel', W.arbor - 0.01, W.arbor + 0.13, aBot - 0.05, aBot, z - 0.06, z + 0.06);
+    bx(A, 'rope', W.line - 0.01, W.line + 0.01, aTop + 0.05, G + 0.3, z - 0.01, z + 0.01);        // arbor top → head block
+    bx(A, 'rope', W.line - 0.01, W.line + 0.01, Y + 0.16, aBot - 0.05, z - 0.01, z + 0.01);       // arbor bottom → floor block
+    bx(A, 'rope', W.fall - 0.01, W.fall + 0.01, Y + 0.16, G + 0.3, z - 0.01, z + 0.01);           // head block → down through the lock to the floor block
+    bx(A, tk, W.fall - 0.013, W.fall + 0.013, Y + 1.40, Y + 1.52, z - 0.013, z + 0.013);           // its colour on the line over the lock
+    bx(A, 'steel', W.arbor + 0.04, W.fall + 0.06, Y, Y + 0.16, z - 0.06, z + 0.06);                // the floor block
+    bx(A, 'rust', W.fall - 0.04, W.fall + 0.07, Y + 0.93, Y + 1.07, z - 0.045, z + 0.045);          // the rope lock
+    rod(A, 'black', V3(W.fall + 0.07, Y + 1.0, z), V3(W.rail + 0.22, Y + 1.20, z), 0.012, 5);       // its handle
+    bx(B, 'steel', W.arbor - 0.05, W.arbor + 0.55, G + 0.10, G + 0.62, z - 0.05, z + 0.05);         // the head block
+  }
+  // the locking rail, its index strip, its posts; the head-block beam; the strut and the strips over the tracks
+  const zs0 = vwsZ(0) - 0.35, zs1 = vwsZ(S.sets.n - 1) + 0.35;
+  bx(A, 'steel', W.rail - 0.04, W.rail + 0.14, Y + 0.82, Y + 0.92, zs0, zs1);
+  bx(A, 'card', W.rail + 0.10, W.rail + 0.14, Y + 0.84, Y + 0.90, zs0, zs1);
+  for (let z = zs0; z <= zs1 + 1e-6; z += (zs1 - zs0) / 6) bx(A, 'steel', W.rail, W.rail + 0.10, Y, Y + 0.82, z - 0.04, z + 0.04);
+  bx(B, 'steel', W.arbor - 0.06, W.arbor + 0.62, G - 0.12, G + 0.10, zs0, zs1);
+  const strut = Y + 6.2;
+  bx(A, 'steel', 60.70, 60.76, strut - 0.03, strut + 0.03, zs0, zs1);
+  for (let z = 1.6; z < 13.7; z += 2.4) { bx(A, 'steel', 60.76, 60.84, strut - 0.12, strut - 0.03, z - 0.62, z + 0.62); bx(A, 'glowCool', 60.84, 60.85, strut - 0.11, strut - 0.04, z - 0.58, z + 0.58); }
+  // 2. THE GRID: the well beams under each line of loft blocks, the cross channels; work lights under it, over it, on the back wall
+  for (const lx of S.lines) for (const s of [-1, 1]) bx(B, 'steel', lx + s * 0.13 - 0.04, lx + s * 0.13 + 0.04, G - 0.20, G, S.z0 + 0.05, S.z1 - 0.05);
+  for (let z = 0.75; z < S.z1; z += 1.5) bx(B, 'steel', S.x0, S.x1, G - 0.35, G - 0.20, z - 0.05, z + 0.05);
+  for (const z of [3.2, 9.6]) for (const x of [64.8, 71.0, 83.0, 89.2]) { bx(B, 'steel', x - 0.75, x + 0.75, G - 0.47, G - 0.35, z - 0.35, z + 0.35); bx(B, 'glowWarm', x - 0.70, x + 0.70, G - 0.49, G - 0.47, z - 0.30, z + 0.30); }
+  for (let z = 2.0; z < 13.5; z += 2.8) for (const x of [66.5, 77.0, 87.5]) bx(B, 'glowWarm', x - 0.25, x + 0.25, S.roof - 0.06, S.roof - 0.02, z - 0.25, z + 0.25);
+  for (const x of [66.0, 72.0, 82.0, 88.0]) { bx(B, 'steel', x - 0.55, x + 0.55, 19.7, 20.3, S.z1 - 0.10, S.z1); bx(B, 'glowWarm', x - 0.5, x + 0.5, 19.75, 20.25, S.z1 - 0.11, S.z1 - 0.10); }
+  // 3. THE FLY GALLERY, stage left, 10 m up: its deck, toe board, posts, hangers; the pin rail, its pins, the coils, the lines up
+  const FG = S.flyGal, yg = Y + FG.y;
+  bx(A, 'grate', FG.x0, FG.x1, yg - 0.06, yg, FG.z0, FG.z1);
+  bx(A, 'black', FG.x1 - 0.05, FG.x1, yg, yg + 0.12, FG.z0, FG.z1);
+  for (let z = FG.z0 + 0.05; z <= FG.z1; z += 1.6) { bx(A, 'black', FG.x1 - 0.08, FG.x1 - 0.02, yg, yg + 1.0, z - 0.03, z + 0.03); rod(A, 'black', V3(FG.x1 - 0.05, yg + 1.0, z), V3(FG.x1 - 0.05, G - 0.2, z), 0.015, 5); }
+  const pr = FG.x1 - 0.12;
+  rod(A, 'rust', V3(pr, yg + 0.92, FG.z0 + 0.05), V3(pr, yg + 0.92, FG.z1 - 0.05), 0.06, 12);
+  rod(A, 'black', V3(pr, yg + 0.45, FG.z0 + 0.05), V3(pr, yg + 0.45, FG.z1 - 0.05), 0.03, 8);
+  let pins = 0, coils = 0;
+  for (let z = FG.z0 + 0.25; z < FG.z1 - 0.1; z += FG.pins) {
+    rod(A, 'wood', V3(pr, yg + 0.74, z), V3(pr, yg + 1.17, z), 0.022, 6); pins++;
+    if (pins % 3 === 2) continue;
+    for (const [r, dz] of [[0.15, 0], [0.12, 0.03]]) { const g = new THREE.TorusGeometry(r, 0.022, 4, 12).rotateY(PI / 2).translate(pr + 0.08, yg + 0.86 - r, z + dz); file(A, 'rope', g); }
+    bx(A, 'rope', pr - 0.01, pr + 0.01, yg + 1.17, G - 0.05, z - 0.01, z + 0.01);
+    coils++;
+  }
+  for (let z = 1.6; z < FG.z1; z += 3.0) bx(A, 'glowCool', FG.x0 + 0.2, FG.x1 - 0.2, yg - 0.09, yg - 0.06, z - 0.05, z + 0.05);
+  // 4. STAGE RIGHT: the gallery 6.4 m up, its mesh guard; the spiral stair to it
+  const J = S.jump, yj = Y + J.y, SP = S.spiral;
+  bx(A, 'grate', J.x0, S.x1, yj - 0.08, yj, J.z0, J.z1);
+  bx(A, 'mesh', J.x0, J.x0 + 0.04, yj, yj + 1.0, J.z0, J.z1);
+  rod(A, 'rail', V3(J.x0 + 0.02, yj + 1.05, J.z0), V3(J.x0 + 0.02, yj + 1.05, J.z1), 0.025, 8);
+  for (let z = J.z0; z <= J.z1 + 1e-6; z += (J.z1 - J.z0) / 7) bx(A, 'rail', J.x0, J.x0 + 0.05, yj - 0.08, yj + 1.05, z - 0.025, z + 0.025);
+  for (let z = J.z0 + 1.0; z < J.z1; z += 3.0) rod(A, 'black', V3(J.x0 + 0.03, yj + 1.05, z), V3(J.x0 + 0.03, G - 0.2, z), 0.015, 5);
+  const gap = [SP.x - 0.42, SP.x + 0.42];                       // the way off the stair's top onto the gallery
+  bx(A, 'mesh', J.x0, gap[0], yj, yj + 1.0, J.z0, J.z0 + 0.04); bx(A, 'mesh', gap[1], S.x1, yj, yj + 1.0, J.z0, J.z0 + 0.04);
+  const rise = J.y / SP.n, th = i => SP.top + (SP.n - 1 - i) * SP.step;
+  rod(A, 'steel', V3(SP.x, Y, SP.z), V3(SP.x, yj + 1.1, SP.z), SP.r0, 12);
+  for (let i = 0; i < SP.n; i++) {
+    const a0 = th(i) - SP.step / 2 - 0.02, a1 = th(i) + SP.step / 2 + 0.02, yt = Y + (i + 1) * rise, pts = [];
+    for (let k = 0; k <= 3; k++) { const a = a0 + (a1 - a0) * k / 3; pts.push([SP.x + SP.r1 * Math.cos(a), SP.z + SP.r1 * Math.sin(a)]); }
+    for (let k = 3; k >= 0; k--) { const a = a0 + (a1 - a0) * k / 3; pts.push([SP.x + SP.r0 * Math.cos(a), SP.z + SP.r0 * Math.sin(a)]); }
+    prism(A, 'grate', pts, yt - 0.03, yt);
+    if (i >= 2 && i < SP.n - 2) {                               // the skirt and rail on the outside (open where you step on and off)
+      const sk = []; for (let k = 0; k <= 3; k++) { const a = a0 + (a1 - a0) * k / 3; sk.push([SP.x + SP.r1 * Math.cos(a), SP.z + SP.r1 * Math.sin(a)]); }
+      for (let k = 3; k >= 0; k--) { const a = a0 + (a1 - a0) * k / 3; sk.push([SP.x + (SP.r1 - 0.03) * Math.cos(a), SP.z + (SP.r1 - 0.03) * Math.sin(a)]); }
+      prism(A, 'mesh', sk, yt - 0.20, yt + 0.95);
+      const p0 = V3(SP.x + (SP.r1 - 0.015) * Math.cos(a0), yt + 0.95 + 0.02, SP.z + (SP.r1 - 0.015) * Math.sin(a0)), p1 = V3(SP.x + (SP.r1 - 0.015) * Math.cos(a1), yt + 0.95 + 0.02, SP.z + (SP.r1 - 0.015) * Math.sin(a1));
+      rod(A, 'rail', p0, p1, 0.022, 6);
+    }
+  }
+  // 5. THE PROSCENIUM'S STAGE FACE, black to the roof; THE FLOORS
+  const zf = S.z0 + 0.004;
+  bx(B, 'black', S.x0, S.open[0], Y, S.roof, zf, zf + 0.04); bx(B, 'black', S.open[1], S.x1, Y, S.roof, zf, zf + 0.04); bx(B, 'black', S.open[0], S.open[1], S.header, S.roof, zf, zf + 0.04);
+  const quad = (key, [x0, x1, z0, z1]) => { const g = new THREE.PlaneGeometry(x1 - x0, z1 - z0, Math.max(1, Math.ceil((x1 - x0) / 0.6)), Math.max(1, Math.ceil((z1 - z0) / 0.6))).rotateX(-PI / 2).translate((x0 + x1) / 2, Y + 0.003, (z0 + z1) / 2); file(F, key, g); };
+  for (const r of underRects(S.dance, S.holes)) quad('marley', r);
+  for (const r of underRects([S.x0, S.x1, -0.15, S.z1], [S.dance, ...S.holes])) quad('concrete', r);
+  for (const [x, z] of [[62.4, 3.6], [91.6, 3.6], [63.0, 12.0], [91.0, 12.6]]) { quad('tape', [x - 0.15, x + 0.15, z - 0.02, z + 0.02]); quad('tape', [x - 0.02, x + 0.02, z - 0.15, z + 0.15]); }   // spike marks
+  for (const g of F.tape) g.translate(0, 0.001, 0);
+  // 6. THE WINGS. Stage left: a cart of stacked platforms and a road case upstage, a flat cart and a bin downstage
+  const caster = (x, z) => bx(A, 'black', x - 0.04, x + 0.04, Y, Y + 0.10, z - 0.04, z + 0.04);
+  const ccase = (x0, x1, z0, z1, h) => {
+    bx(A, 'case', x0, x1, Y + 0.10, Y + h, z0, z1);
+    for (const [ya, yb] of [[Y + h - 0.03, Y + h + 0.005], [Y + 0.10, Y + 0.14]]) { bx(A, 'trim', x0 - 0.005, x1 + 0.005, ya, yb, z0 - 0.005, z0 + 0.03); bx(A, 'trim', x0 - 0.005, x1 + 0.005, ya, yb, z1 - 0.03, z1 + 0.005); }
+    for (const [x, z] of [[x0 + 0.08, z0 + 0.08], [x1 - 0.08, z0 + 0.08], [x0 + 0.08, z1 - 0.08], [x1 - 0.08, z1 - 0.08]]) caster(x, z);
+  };
+  bx(A, 'black', 62.0, 63.25, Y + 0.10, Y + 0.20, 10.2, 12.7); for (const [x, z] of [[62.08, 10.28], [63.17, 10.28], [62.08, 12.62], [63.17, 12.62]]) caster(x, z);
+  for (let k = 0; k < 7; k++) { const o = (k % 2 ? 0.015 : -0.015); bx(A, k % 2 ? 'edge' : 'platform', 62.04 + o, 63.21 + o, Y + 0.20 + k * 0.11, Y + 0.30 + k * 0.11, 10.24, 12.66); }
+  ccase(63.45, 64.40, 12.90, 13.75, 1.15);
+  bx(A, 'timber', 62.2, 63.5, Y + 0.12, Y + 0.16, 0.85, 1.85); for (const [x, z] of [[62.28, 0.93], [63.42, 0.93], [62.28, 1.77], [63.42, 1.77]]) caster(x, z);
+  for (const x of [62.24, 63.46]) bx(A, 'black', x - 0.02, x + 0.02, Y + 0.16, Y + 0.95, 0.86, 0.90);
+  bx(A, 'yellow', 62.22, 63.48, Y + 0.92, Y + 0.97, 0.86, 0.90);
+  rod(A, 'yellow', V3(64.0, Y, 2.1), V3(64.0, Y + 0.75, 2.1), 0.25, 12);
+  // stage right: the production desk against the wall (two tables, a monitor, two chairs), a road case, a crate, the white
+  // set pieces along the back wall, the ghost light by the proscenium
+  for (const [z0, z1] of [[9.6, 11.4], [11.5, 13.3]]) {
+    bx(A, 'desk', 92.70, 93.50, Y + 0.72, Y + 0.76, z0, z1);
+    for (const [x, z] of [[92.74, z0 + 0.04], [93.46, z0 + 0.04], [92.74, z1 - 0.04], [93.46, z1 - 0.04]]) bx(A, 'steel', x - 0.02, x + 0.02, Y, Y + 0.72, z - 0.02, z + 0.02);
+  }
+  bx(A, 'black', 93.20, 93.30, Y + 0.76, Y + 0.80, 10.2, 10.5); bx(A, 'black', 93.22, 93.27, Y + 0.80, Y + 1.10, 10.33, 10.37); bx(A, 'black', 93.18, 93.24, Y + 1.02, Y + 1.36, 9.98, 10.72); bx(A, 'screen', 93.17, 93.18, Y + 1.04, Y + 1.34, 10.00, 10.70);
+  for (const z of [10.5, 12.4]) {
+    bx(A, 'black', 92.05, 92.50, Y + 0.44, Y + 0.50, z - 0.23, z + 0.23); bx(A, 'black', 91.98, 92.04, Y + 0.50, Y + 0.95, z - 0.22, z + 0.22);
+    rod(A, 'steel', V3(92.27, Y + 0.08, z), V3(92.27, Y + 0.44, z), 0.025, 6); bx(A, 'black', 91.98, 92.56, Y + 0.04, Y + 0.08, z - 0.03, z + 0.03); bx(A, 'black', 92.24, 92.30, Y + 0.04, Y + 0.08, z - 0.29, z + 0.29);
+  }
+  ccase(90.20, 91.40, 10.20, 10.80, 1.0);
+  bx(A, 'cardboard', 89.85, 91.25, Y, Y + 1.35, 11.45, 12.85); bx(A, 'black', 89.84, 91.26, Y + 1.30, Y + 1.36, 11.44, 11.47);
+  for (const [x0, x1, h] of [[89.75, 90.40, 3.0], [90.45, 91.10, 4.2], [91.15, 91.80, 5.4], [91.85, 92.50, 4.6]]) bx(A, 'white', x0, x1, Y, Y + h, 13.58, 13.92);
+  rod(A, 'steel', V3(88.1, Y, 0.85), V3(88.1, Y + 1.7, 0.85), 0.02, 6);
+  for (const a of [0, PI / 2]) bx(A, 'steel', 88.1 - 0.28 * Math.cos(a), 88.1 + 0.28 * Math.cos(a), Y, Y + 0.04, 0.85 - 0.28 * Math.sin(a) - 0.02, 0.85 + 0.28 * Math.sin(a) + 0.02);
+  { const g = new THREE.SphereGeometry(0.07, 10, 8).translate(88.1, Y + 1.82, 0.85); file(A, 'glowWarm', g); }
+  for (let k = 0; k < 4; k++) { const a = k * PI / 2; rod(A, 'black', V3(88.1 + 0.10 * Math.cos(a), Y + 1.70, 0.85 + 0.10 * Math.sin(a)), V3(88.1 + 0.10 * Math.cos(a), Y + 1.94, 0.85 + 0.10 * Math.sin(a)), 0.006, 4); }
+  // 7. ONE MESH PER GROUP: every piece's colour in its vertices, a fixed light baked in as the model's (vwPlace), the glows bright;
+  // the floors take soft pools under the grid's work lights (no real light: a brightness by distance)
+  const pools = []; for (const z of [3.2, 9.6]) for (const x of [64.8, 71.0, 83.0, 89.2]) pools.push([x, z]);
+  const pool = (x, z) => { let s = 0; for (const [px, pz] of pools) s += Math.exp(-((x - px) ** 2 + (z - pz) ** 2) / 32); return Math.min(1.45, 0.62 + 0.55 * s); };
+  const bake = (T, floor) => {
+    const out = [];
+    for (const [key, geos] of Object.entries(T)) {
+      const col = new THREE.Color(VWS_COL[key] !== undefined ? VWS_COL[key] : floor ? (key === 'marley' ? 0x2a2a2e : key === 'tape' ? 0xf2f2ee : 0x86847f) : 0xff00ff), glow = /^glow|^screen/.test(key);
+      for (const g of geos) {
+        if (!g.attributes.normal) g.computeVertexNormals();
+        const N = g.attributes.normal, P = g.attributes.position, n = P.count, c = new Float32Array(n * 3);
+        for (let i = 0; i < n; i++) {
+          const k = glow ? 1 : floor ? pool(P.getX(i), P.getZ(i)) : 0.50 + 0.30 * Math.abs(N.getX(i) * VW_LIGHT.x + N.getY(i) * VW_LIGHT.y + N.getZ(i) * VW_LIGHT.z) + 0.20 * Math.max(0, N.getY(i));
+          c[i * 3] = col.r * k; c[i * 3 + 1] = col.g * k; c[i * 3 + 2] = col.b * k;
+        }
+        g.setAttribute('color', new THREE.BufferAttribute(c, 3));
+        if (floor) { const p = g.attributes.position, uv = new Float32Array(n * 2); for (let i = 0; i < n; i++) { uv[i * 2] = p.getX(i) / 3; uv[i * 2 + 1] = -p.getZ(i) / 3; } g.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); }
+        else g.deleteAttribute('uv');
+        out.push(g);
+      }
+    }
+    const m = mergeGeometries(out, false); out.forEach(g => g.dispose());
+    return m;
+  };
+  if (!vwStageMat.floor.map) { vwStageMat.floor.map = vwsFloorTex(); vwStageMat.floor.needsUpdate = true; }
+  const solid = new THREE.Group(); solid.name = 'vw stage house';
+  const flies = new THREE.Group(); flies.name = 'vw flies';
+  const meshes = [], tris = {};
+  for (const [name, T, grp, mat, floor] of [['vw stage house: fly wall, galleries, stair, wings', A, solid, vwStageMat.vc, false], ['vw flies: linesets, grid, masking, electrics', B, flies, vwStageMat.vc, false], ['vw flies: floors', F, flies, vwStageMat.floor, true]]) {
+    const geo = bake(T, floor);
+    if (!geo) { console.warn(`van wezel stage house: ${name} did not merge — left out`); continue; }
+    geo.computeBoundingBox(); geo.computeBoundingSphere();
+    const mesh = new THREE.Mesh(geo, mat); mesh.name = name; mesh.castShadow = mesh.receiveShadow = false; mesh.userData.rig = true;
+    grp.add(mesh); meshes.push(mesh); tris[name] = geo.attributes.position.count / 3;
+  }
+  scene.add(solid); scene.add(flies); solid.updateMatrixWorld(true); flies.updateMatrixWorld(true);
+  if (vwBack) { for (const m of meshes) m.layers.set(vwBack.shown ? 0 : 31); vwBack.gated.push(...meshes); }   // drawn only from inside the Van Wezel (BACKSTAGE's gate: vwBackGate)
+  vwStage = { solid, flies, meshes, hung, cut, fixtures, pins, coils, triangles: tris, ms: performance.now() - t0 };
+  vwStageUI();
+  colliderStale();
+  const nT = Object.values(tris).reduce((a, b) => a + b, 0);
+  console.info(`van wezel stage house: ${S.sets.n} linesets (${VWS_HANG.length} in at a trim or stored: ${['border', 'legs', 'ellipsoidals', 'movers', 'pars', 'electric', 'cyclights', 'shell', 'cyc'].map(k => `${VWS_HANG.filter(h => h[1] === k).length} ${k}`).join(', ')}), `
+    + `${Object.entries(fixtures).map(([k, v]) => `${v} ${k}`).join(', ')}; the fly wall, the locking rail, the pin rail of ${pins} pins (${coils} coiled), the stage-right gallery and its spiral stair of ${S.spiral.n} treads; `
+    + `cut: ${Object.entries(cut).map(([k, v]) => `${k} ${v}`).join(', ')} · ${meshes.length} meshes, ${nT} triangles · ${vwStage.ms.toFixed(0)} ms`);
+  requestRender();
+  return vwStage;
+}
+// The header: "VW Stage" after "VW Booth" (or the others)
+function vwStageUI() {
+  const after = document.getElementById('v-vwbooth') || document.getElementById('v-vwback') || document.getElementById('v-vanwezel');
+  if (!after || document.getElementById('v-vwstage')) return;
+  VIEWS['v-vwstage'] = VWS.view;
+  const b = document.createElement('button'); b.id = 'v-vwstage'; b.textContent = 'VW Stage'; b.title = "On the Van Wezel's stage, looking stage left: the masking, the fly loft, the fly wall across the stage";
+  b.addEventListener('click', () => go('v-vwstage')); after.after(b);
+}
+// His photographs' viewpoints, for renders beside them: [eye, look-at]
+const VWS_VIEWS = {
+  'up into the loft, looking stage left (11)': [[85.0, 4.2, 5.4], [64.0, 19.0, 7.0]],
+  'across the stage to the fly wall (12)': [[85.0, 3.95, 5.4], [60.0, 5.6, 5.0]],
+  'from the pin rail (3)': [[61.3, 14.4, 6.2], [70.0, 9.8, 6.2]],
+  'along the proscenium into the stage-right wing (14)': [[70.5, 3.6, 0.9], [93.5, 6.0, 4.0]],
+  'from the stage out at the header (10)': [[77.0, 4.2, 5.0], [77.0, 13.0, -1.0]],
+};
+// Walked by the walk's own step (walkStep: its rays, its step up, its body test), W held, turned toward each point in
+// turn, from a start on the floor; the player put back after. → { reached, total, stuck, end, res }
+function vwsWalk(start, y0, legs) {
+  const keep = { pos: player.pos.clone(), vel: player.vel.clone(), on: player.onGround, cr: player.crouched, eye: player.eyeH, spawn: player.spawn.clone(), yaw, pitch, keys: [...keys],
+    cam: camera.position.clone(), q: camera.quaternion.clone(), tgt: orbit.target.clone() };
+  player.pos.set(start[0], groundAt(start[0], start[1], y0), start[1]); player.vel.set(0, 0, 0); player.onGround = true; player.crouched = false; player.eyeH = WALK.eye; player.spawn.copy(player.pos);
+  keys.clear(); keys.add('KeyW');
+  let steps = 0, stuck = null, reached = 0, total = 0; const res = [];
+  try {
+    for (const L of legs) {
+      for (const [tx, tz] of L.pts) {
+        total++; if (stuck) continue;
+        let best = Infinity, since = 0;
+        for (;;) {
+          const dx = tx - player.pos.x, dz = tz - player.pos.z, d = Math.hypot(dx, dz);
+          if (d < 0.1) { reached++; break; }
+          if (d < best - 0.005) { best = d; since = 0; } else if (++since > 120) { stuck = `stuck ${d.toFixed(2)} m short of (${tx.toFixed(2)}, ${tz.toFixed(2)}) at (${player.pos.x.toFixed(2)}, ${player.pos.y.toFixed(3)}, ${player.pos.z.toFixed(2)}) on "${L.name}"`; break; }
+          yaw = Math.atan2(-dx, -dz); pitch = 0; walkStep(1 / 60); steps++;
+          if (steps > 6000) { stuck = 'out of time'; break; }
+        }
+      }
+      res.push(`${L.name} ${player.pos.y.toFixed(3)}`);
+    }
+    return { reached, total, stuck, end: player.pos.clone(), res, s: steps / 60 };
+  } finally {
+    keys.clear(); for (const k of keep.keys) keys.add(k);
+    player.pos.copy(keep.pos); player.vel.copy(keep.vel); player.onGround = keep.on; player.crouched = keep.cr; player.eyeH = keep.eye; player.spawn.copy(keep.spawn); yaw = keep.yaw; pitch = keep.pitch;
+    camera.position.copy(keep.cam); camera.quaternion.copy(keep.q); orbit.target.copy(keep.tgt); if (!walking) orbit.update();
+  }
+}
+// THE CHECK. → the text
+function vwStageCheck() {
+  const b = vwStage; if (!b) return 'van wezel stage house: not built';
+  if (col.stale) buildCollider();
+  const S = VWS, Y = S.deck, out = []; let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  const v = new THREE.Vector3();
+  // 1. nothing hung under the header over the opening (the legs stand outside its line), and the lowest of what is
+  const fl = b.meshes.find(m => /linesets/.test(m.name)), p = fl.geometry.attributes.position;
+  let under = 0, low = Infinity, legIn = Infinity;
+  for (let i = 0; i < p.count; i++) {
+    v.fromBufferAttribute(p, i);
+    if (v.z < S.z0 + 0.06 || v.z > S.z1 - 0.06) continue;
+    if (v.x > S.open[0] + 0.005 && v.x < S.open[1] - 0.005) { if (v.y < S.header) under++; else low = Math.min(low, v.y); }
+    else if (v.y < S.header && v.y > Y + 0.005 && v.x > S.batten[0] - 0.1 && v.x < S.batten[1] + 0.1) legIn = Math.min(legIn, Math.min(Math.abs(v.x - S.open[0]), Math.abs(v.x - S.open[1])));
+  }
+  const lb = b.hung.filter(h => h.kind === 'border').reduce((m, h) => Math.min(m, h.y0), Infinity);
+  line(!under && low >= S.header && lb >= S.header, `over the opening (x ${S.open[0]}…${S.open[1]}): ${under} points of the flies under the header (${S.header}); the lowest thing there ${low.toFixed(2)}, the lowest border ${lb.toFixed(2)}; the legs' inner edges ${legIn.toFixed(2)} m outside the opening's line`);
+  // 2. the seats see the stage: rays from a grid of seats (1.15 m over the stalls' floor) to points 1 m over the deck in the
+  // opening; only this section's meshes block — those of their triangles a ray could meet (under the header, in front of the
+  // points' last row, over the points' height), gathered in one mesh, so it stays quick
+  const ray = new THREE.Raycaster(); ray.layers.enableAll();
+  const near = [], w = [0, 1, 2].map(() => new THREE.Vector3());
+  for (const m of b.meshes) {
+    const q = m.geometry.attributes.position;
+    for (let t = 0; t < q.count; t += 3) {
+      for (let k = 0; k < 3; k++) w[k].fromBufferAttribute(q, t + k);
+      const y0 = Math.min(w[0].y, w[1].y, w[2].y), y1 = Math.max(w[0].y, w[1].y, w[2].y), z0 = Math.min(w[0].z, w[1].z, w[2].z);
+      if (y0 < S.header + 0.1 && y1 > Y + 0.9 && z0 < 9.2) for (const p of w) near.push(p.x, p.y, p.z);
+    }
+  }
+  const ng = new THREE.BufferGeometry(); ng.setAttribute('position', new THREE.Float32BufferAttribute(near, 3));
+  const nm = new THREE.Mesh(ng, new THREE.MeshBasicMaterial({ side: THREE.DoubleSide })); nm.updateMatrixWorld(true);
+  const flr = VW.root.getObjectByName('vw: house_tex_41'), seats = [];
+  for (let x = 58; x <= 96; x += 4) for (let z = -37; z <= -4; z += 3) { ray.set(V3w(x, 25, z), DOWN); ray.far = 30; const h = flr && ray.intersectObject(flr, false)[0]; if (h) seats.push(h.point.clone().setY(h.point.y + 1.15)); }
+  let n = 0, blocked = 0, ex = null; const d = new THREE.Vector3();
+  for (const e of seats) for (let x = 69; x <= 85; x += 2) for (let z = 1; z <= 9; z += 2) {
+    const t = V3w(x, Y + 1.0, z), u = (S.z0 - e.z) / (t.z - e.z), cx = e.x + (t.x - e.x) * u, cy = e.y + (t.y - e.y) * u;
+    if (cx < S.open[0] || cx > S.open[1] || cy > S.header) continue;   // the proscenium hides it from this seat: not this section's to keep clear
+    d.subVectors(t, e); const L = d.length(); ray.set(e, d.normalize()); ray.far = L - 0.02; n++;
+    if (ray.intersectObject(nm, false).length) { blocked++; if (!ex) ex = `(${x}, ${z}) from (${e.x.toFixed(1)}, ${e.y.toFixed(1)}, ${e.z.toFixed(1)})`; }
+  }
+  ng.dispose(); nm.material.dispose();
+  line(seats.length > 50 && n > 2000 && !blocked, `from ${seats.length} seats to 45 points 1 m over the deck in the opening, ${n} rays through the opening: ${blocked} meet any of this (${near.length / 9} of its triangles low enough to)${ex ? ' — e.g. ' + ex : ''}`);
+  // 3. nothing solid of this where BACKSTAGE's holes are or where you walk out of them
+  const so = b.meshes.find(m => /fly wall/.test(m.name)).geometry.attributes.position;
+  let inHole = 0;
+  for (let i = 0; i < so.count; i++) { v.fromBufferAttribute(so, i); if (v.y < Y + 2.2 && S.keepOut.some(k => v.x > k[0] && v.x < k[1] && v.z > k[2] && v.z < k[3])) inHole++; }
+  line(!inHole, `BACKSTAGE's holes and the ways out of them (x ${S.keepOut.map(k => `${k[0]}…${k[1]}`).join(' and ')}, z ${S.keepOut[0][2]}…${S.keepOut[0][3]}): ${inHole} points of this under 2.2 m there`);
+  // 4. the locking rail walked to: centre stage → the stage-left wing → along the aisle beside the rail
+  const W = S.wall, mid = [77.0, 6.0];
+  const r1 = vwsWalk(mid, Y + 0.05, [{ name: 'to the rail', pts: [[64.0, 3.6], [W.aisle, 3.6]] }, { name: 'along it', pts: [[W.aisle, 12.9]] }]);
+  const rr = rayH(W.aisle, Y + 1.0, 8.0, -1, 0, 3);
+  line(!r1.stuck && r1.reached === r1.total && Math.abs(r1.end.y - Y) < 0.02, `the locking rail, walked (walkStep, W held): ${r1.reached} / ${r1.total} points in ${r1.s.toFixed(1)} s, ${r1.stuck || 'never stuck'}, ending at (${r1.end.x.toFixed(2)}, ${r1.end.y.toFixed(3)}, ${r1.end.z.toFixed(2)}); from the aisle's middle the rail is ${rr.toFixed(2)} m off at waist height (the parapet of BACKSTAGE's hole the other side)`);
+  // 5. the spiral stair walked to the stage-right gallery and along it
+  const SP = S.spiral, th = i => SP.top + (SP.n - 1 - i) * SP.step, yj = Y + S.jump.y;
+  const tread = []; for (let i = 0; i < SP.n; i++) tread.push([SP.x + SP.walk * Math.cos(th(i)), SP.z + SP.walk * Math.sin(th(i))]);
+  const a0 = th(0) + 0.15, entry = [SP.x + 1.3 * Math.cos(a0), SP.z + 1.3 * Math.sin(a0)];
+  let worst = 0, y = Y, holes = 0;
+  for (const q of tread) { const g = groundAt(q[0], q[1], y); if (g === null) { holes++; continue; } worst = Math.max(worst, g - y); y = g; }
+  const r2 = vwsWalk([88.5, 2.4], Y + 0.05, [{ name: 'to its foot', pts: [entry] }, { name: 'up it', pts: tread }, { name: 'onto the gallery', pts: [[SP.x, S.jump.z0 + 0.5], [SP.x + 0.1, S.jump.z1 - 0.5]] }]);
+  line(!holes && worst <= WALK.step && !r2.stuck && r2.reached === r2.total && Math.abs(r2.end.y - yj) < 0.02,
+    `the spiral stair: ${SP.n} treads, the walk's floor up them rising ${(worst * 1000).toFixed(0)} mm at most, ${holes} without a floor; walked: ${r2.reached} / ${r2.total} points in ${r2.s.toFixed(1)} s, ${r2.stuck || 'never stuck'}; ${r2.res.join(' · ')}; ending on ${r2.end.y.toFixed(3)} (the gallery ${yj.toFixed(3)})`);
+  // 6. off the gallery's open side and its end nobody falls: the walk's rays meet the guard
+  const gx = (S.jump.x0 + S.x1) / 2, gz = 8.0, side = rayH(gx, yj + 0.8, gz, -1, 0, 2), end = rayH(93.4, yj + 0.8, 4.0, 0, -1, 3);
+  line(side < 1 && end < 2, `the stage-right gallery's guard: from its middle the mesh is ${side.toFixed(2)} m toward the stage, its end panel ${end.toFixed(2)} m from (93.4, 4.0) at waist height`);
+  const s = `van wezel stage house: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
+  console.info(s); return s;
+}
+const VW_STAGE_API = { spec: VWS, hang: VWS_HANG, views: VWS_VIEWS, get built() { return vwStage; }, check: vwStageCheck, view: () => go('v-vwstage') };
+VAN_WEZEL_API.stageHouse = VW_STAGE_API;                      // MIDTOWN.vanWezel.stageHouse
 
 /* ---------------------------------------------------------------- THEATRE 2: THE UNDERGROUND AND THE LIFTS
    RULING GI (2026-10-16), Jack: "make it so there is a stage lift that is used to bring on and off big sets like the ship.
