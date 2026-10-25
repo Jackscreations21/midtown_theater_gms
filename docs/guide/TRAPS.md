@@ -2261,3 +2261,24 @@ include the place a failure would show — the corridor behind the house, not on
   the loft's roof, hidden in the old wall's void) came along and showed as a purple band over the new strip. Move, then look
   up from inside, and cut what the void hid. Also: the loft's cut box must keep the model's x — run with the new wall's x it
   would have cut the stretched front face (z 0.61) out of the strip.
+
+## From the Broadway street round (2026-10-25)
+
+- **Python's text mode on Windows writes CRLF.** `open(p, 'w')` turned every `
+` into `
+`. Git's autocrlf hid it in the
+  diff, but pass `newline=''` when rewriting the page from a script.
+- **The walk's grid lists a triangle in every 0.5 m cell its box touches.** A slanted 300 m road as two triangles would fill
+  the whole grid. The street's ground is tiled at 2.5 m (`stGround`).
+- **`visible = false` on a group takes it out of the walk's grid,** so hiding the street indoors would drop it from the grid
+  if the grid were rebuilt then. `colliderMeshes` takes the `street` group's meshes whether drawn or not.
+- **Jack's stage slab (box 21) runs to x −19.1, outside house 1's west wall.** A building put beside the house stood over
+  it (`street.check` found 32 vertices). Measure every baked piece's extent before building next to a house (as in the
+  second-house round).
+- **`hangLeafAt` hangs ONE leaf unless `pair: true` is given.** A 2.2 m doorway without it got a 2.08 m single leaf, which
+  swept 2.1 m past its 1.3 m limit (`doors.check` caught it).
+- **The lights' albedo pass draws every visible mesh with a stand-in material,** except transparent ones with opacity < 0.6.
+  The sky dome and the pools are transparent at 0.5 so that pass skips them.
+- **With the pane hidden, a check that waits on a timer can hang the console tool.** Start a long check (`lx.check()`,
+  `actors.check()`) in a `setTimeout(…, 0)`, store its result on `window`, then read it in a second call.
+
