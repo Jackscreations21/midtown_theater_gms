@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#36 merged; `main` `cd06c55`; nothing open)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#40 merged but #38; `main` `7e60af6`; open: #38 `theatre2-sign`)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,36 +6,22 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR #40 `crew-walks` (2026-10-25, night; open, not merged; no ruling).** Jack's asks of the round, all in the **Van Wezel**
-  but the first (his word: "i meant all this stuff in the van wezel"):
-  - **Act Two played the end of Act One** — fixed in the show engine (both houses): the one-file soundtrack no longer steps back a
-    track on a landing a little early, and from the act break it plays on to 2-01 without a seek. Seen through the desk's
-    Five / Places / GO: 2-01 from its 0 on the local file and on YouTube ("What'd I Miss").
-  - **THE CREW WAY**: the stage-right spiral stair goes on up 76 treads to 22.47, a door through the stage house's front wall, a
-    steel-clad hallway over the house roof (on columns), a ladder down through the roof to the spot platform; so both booths are
-    a ladder, a hallway and a stair from the dressing rooms. "VW Crew way" view; `MIDTOWN.vanWezel.crewWay.check()`.
-  - **THE CREW**: five (three spot ops, lighting, sound) walk it from the dressing-room corridor at the Five (~75–100 s), stand
-    behind the spots / sit at the grandMA3 and CL5; without the desk a running show has them at their posts.
-  - **Places**: nobody walks onto house 1's deck (the Van Wezel mirrors it): a top on the set, or pushed there by the cluster
-    offset, waits in its wing instead (CO_PLACES); at GO they vanish as before (all off at the tops).
-  - **The band** comes up the orchestra-level stair from the trap room and through its door (opened for them) to their seats;
-    a show started from its top without the desk walks them in too.
-  - **Booth light switches** (both booths, E), **seven monitors** across the tech booth's window (stalls, two from above — the low
-    one under the rig —, two from behind inside the set, one from each side of the house), a **power button** that shuts the
-    tech booth's screens, monitors and console lights down and starts them up in turn.
-  - Header: **Tags** (hide the name tags) and **Rumble** (the view shakes a little on the album's 95 big bass hits,
-    `assets/hamilton-rumble.json` from `tools/rumble.html`).
-  - **His to decide:** the hallway's look on the roof (grey cladding, seen from the street); the spot booth's switch also darkens
-    its outside (one mesh); the rumble's hits are found by the computer (no list of the real gunshots) — too many or too few?;
-    the crew walk ~1.5 minutes, so a quick Five → GO leaves them on the way; the monitors' angles.
-  - Checks: crew way 3/3, crew 6/6, booth lights 4/4, booths 16/16, stage house 8/8, hamilton 12/12, backstage 5/5, pit 11/11,
-    actors pass; lx 301/313 and show.check's 16 channels without units are as before (data not touched). Console: only the
-    local-only Johnny Tremain models 404 in a fresh checkout.
-**2026-10-24: four PRs merged in one day** (each has a DONE block in HANDOFF.md, newest first). `main` is **`852c232`**
-(#20). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under NEXT below); the
-worktrees and local branches are gone.
+- **NEWEST: PR #40 (MERGED `7e60af6`) `crew-walks` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling,
+  GW next).** Act Two opens on What'd I Miss again (the show engine, both houses), and in the **Van Wezel** (his word: "i meant all
+  this stuff in the van wezel"): the crew way (the stage-right spiral on up to a hallway over the roof and a ladder down to the
+  spots), five crew who walk it to the booths at the Five, Places off the deck, the band up the stair and through the pit door,
+  booth light switches, seven monitors across the tech booth's window, a power button for its equipment; the header's Tags and
+  Rumble. **His eye on it, then his to decide:** the hallway's look from the street; the spot booth's switch darkens its outside
+  too; the rumble's 95 hits are found by the computer (too many or too few?); the crew take ~1.5 min to walk up; the monitors'
+  angles.
+- **Open: PR #38 `theatre2-sign` (2026-10-25): Theatre 2's street front renamed.** Jack: "change the sign that says theater 2 to
+  say midtown theater an make its marquis say johhny tremain". `ST_OURS` row 2's signs read MIDTOWN THEATER; the marquee's title
+  was already JOHNNY TREMAIN. Not merged yet.
 
-- **NEWEST: PR `actor-whiteout` (2026-10-25): lit actors no longer turn white.** Jack: "at some parts the lighting or the
+**Main** is **`7e60af6`** (#40). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
+NEXT below, plus `actor-whiteout`, `crew-walks` and `record-40`).
+
+- **Before it: PR #39 (MERGED `75b879b`) `actor-whiteout` (2026-10-25; HANDOFF's DONE block): lit actors no longer turn white.** Jack: "at some parts the lighting or the
   spotlights light up the people too much and they just turn entirely white". The cause: the engine's pools are added onto the
   finished, tone-mapped frame at a gain fitted to the ~10 % deck, and a costume is 10–90 % and already lit by the real lights:
   a followspot put 8–13 × albedo on a body (1-02 Q92 Burr; 1-01 Q59 Hamilton drew a flat white silhouette). Now a body takes

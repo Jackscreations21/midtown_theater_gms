@@ -229,6 +229,83 @@ compare the *same* production across stages instead.
 
 ---
 
+## NEXT SESSION: **HIS EYE ON THE VAN WEZEL'S CREW** (2026-10-25; PR #40 merged `7e60af6`)
+
+Rulings at **GV** (GW next; none made this round). #40 merged `7e60af6`, #39 `75b879b`; #38 (`theatre2-sign`) is open. His eye
+on it, in the Van Wezel: call House, Five and Places from the prompt desk and watch the crew go up (the "VW Crew way" view, then
+"VW Booth"), the band come through the pit door, nobody on the deck at Places; GO into Act Two after the interval; the tech
+booth's monitors, its light switch and power button; the header's Tags and Rumble. His to decide: listed in the DONE block below.
+
+## DONE — 2026-10-25 (night): the Van Wezel's crew — the crew way over the roof, five crew at the Five, the band through its door, the booths' switches, monitors and power; Act Two's music; Tags and Rumble (PR #40 `crew-walks`, one session)
+
+Jack, in one stream: *"when i start atc 2 it starts playing the end of act one music instead of the start of act 2"*, *"make a way
+to get dirsctly from the lighting booth and from the spot booth to backstage"*, *"when you call 5 minuets thew people walk from
+backastage to the lgithing booth and the spot booth"*, *"make it so people dont go onstage when you call placses"*, *"make it so
+the band doesnt just teleport into the pit"*, then *"make lightswitches to turn off the lights in the spot and lighting booth"*,
+*"a button to hide the tags over the actors head"*, *"whenever this is a time when ther should be a lot of base like a gunshot,
+heart beating, etc make the screen rumble a little"*, *"a screen to the booth that shows a cammera of the position vw hamilton"*,
+*"monitors going all across the top … show differnt angles"* (*"some from above some from beghind and some from both sides"*,
+*"lowere that above one to be below the lights"*), *"a button to start up or shut down all of the equtment in the booth"*. Asked
+which booths: *"i meant all this stuff in the van wezel"*. Asked the route (a catwalk to the flies does not fit: 0.3–0.6 m under
+the roof over the front half of the ceiling): *"make the spiral staircase go higher and it brings them to a halway that brings them
+to the spot booth from above the roof"*. No ruling.
+- **ACT TWO'S MUSIC** (the show engine, both houses). With the one-file soundtrack, `showSoundTick` walked back a track whenever
+  the element's time fell a little short of the current track's start — a seek's landing error. At Act Two's GO that took the
+  show back into 1-23; its tail paused the music and the act break came round again. It only moves forward now (the clock waits at
+  0), and from the act break's silence the element plays on to 2-01 without a seek (`SHW_PLAY_ON`, 2.5 s). Seen through the desk's
+  Five / Places / GO: 2-01 from its 0 on the local file, and on the YouTube fallback ("What'd I Miss", the file moved aside).
+- **THE CREW WAY** (new section "THE THIRD HOUSE: THE CREW WAY", `VWC`, `MIDTOWN.vanWezel.crewWay`): the stage-right spiral on up
+  76 more treads (112 in all, the same rise and turn) to 22.47; a landing beside it, railed; a door on E through the stage house's
+  front wall (the lining and the shell cut); a steel-clad hallway over the house roof on columns (out from the wall, one long leg
+  diagonally over the roof, a short leg west), battens inside; a ship's ladder of 27 risers down its far end through a shaft cut in
+  the roof to a grating beside the catwalk, onto the spot platform (THE BOOTHS' WAY UP's south rail there left off). Walked by
+  `check()`: the wing's deck → the platform, 122 / 122 points, and back up the ladder. View "VW Crew way".
+- **THE CREW** (`VWCF`, `MIDTOWN.vanWezel.crew`): three spot operators, a lighting operator and a sound operator, the band's
+  jointed bodies in the booth operators' matcap. At the Five (with the desk in use) they leave the dressing-room corridor 1.6 s
+  apart and walk the stage-right stair, the spiral, the hallway, the ladder; the spot ops down ladder 3 and round the booth to
+  stand behind their spots; the desk ops along the catwalk, down ladders 2 and 1, onto the grandMA3's and the CL5's chairs
+  (~75–100 s). They stay through the interval and the curtain; New show takes them away; without the desk a running show has
+  them at their posts. Polylines with y, off the frame's dt; drawn only from inside the Van Wezel.
+- **PLACES OFF THE DECK** (`coPlaces`, `CO_PLACES`, `coOnDeck`): a top on house 1's set (between its side walls downstage of its
+  back wall, the apron, the gallery), or one the cluster offset round an offstage spot puts there, is not walked to: the body
+  waits in its side's wing in a line up it. All are off at the tops (FJ), so at GO they vanish as before. 20 / 20 at places, none
+  on or crossing the deck; the Van Wezel mirrors it.
+- **THE BAND THROUGH ITS DOOR** (`vwHamBand`): from the trap room's floor up the orchestra-level stair, through its door (opened
+  for them as E would, shut after, only if the band opened it) to each seat; a show started from its top without the desk walks
+  them in too.
+- **THE BOOTHS**: a light switch in each (E; "THE BOOTH LIGHTS": the baked colours down to 0.12 over 0.6 s; each booth's material
+  its own copy; the tech booth's walls through the house dimmer's base). Seven monitors across the tech booth's window ("THE
+  BOOTH'S SHOW CAMERAS"): the stalls ("VW Hamilton"), two from above (the lower under the rig), two from behind inside the set's
+  back wall, one from each side of the house by the proscenium; one drawn a time, 9 a second, ~10 ms each, only with the camera in
+  the booth; the camera stood at each for its pools' pass and put back. A power button ("THE BOOTH'S POWER"): down at once (the
+  monitors black and not drawn, the grandMA3's touchscreens hidden, the gear's screens black and its keys and meters dimmed in
+  its atlas), up over 3 s in turn.
+- **THE HEADER**: Tags (the actors' and props' name tags; the Blocking panel's Names box is the same switch; remembered) and
+  Rumble (THE RUMBLE: the view nudged a few mm and rolled a fraction of a degree, fading over 0.45 s, on the album's 95 big low
+  hits in `assets/hamilton-rumble.json`; the camera put back after the drawn frame, so the walk, the orbit and the pools never see
+  it; remembered). The hits are found by `tools/rumble.html` off his local soundtrack (decoded in 6 MB pieces, each placed on the
+  true time against the stored envelope; the low band under ~110 Hz; a jump over the half-second before, loud and mostly low).
+- **Checks:** crew way 3/3, crew 6/6, booth lights 4/4, booths 16/16, stage house 8/8, hamilton 12/12, backstage 5/5, pit
+  11/11, actors pass (also after #39 was merged in); lx 301/313 and show.check's 16 channels without units as before (data not
+  touched); console clean but the local-only Johnny Tremain models (404 in a fresh checkout).
+- **His to decide:** the hallway's grey cladding on the roof, seen from the street; the spot booth's switch darkens its outside
+  too (one mesh); the rumble's hits are the computer's pick (no list of the real gunshots and heartbeats) — too many or too few?;
+  the crew take ~1.5 min to walk up, so a quick Five → GO leaves them on the way; the monitors' angles.
+- Traps (TRAPS.md "From the crew-walks round"): ask which house; the page is three.js 0.160 (a render target's colour space); a
+  top-level table naming a later `const`; the soundtrack's landing error; `decodeAudioData` and the whole album; the Van Wezel's
+  roof; the cluster offset onto the deck.
+
+## DONE — 2026-10-25: lit actors keep their colours (PR #39 `actor-whiteout`, merged `75b879b`; recorded here by the crew round)
+
+Jack: *"at some parts the lighting or the spotlights light up the people too much and they just turn entirely white"*. The
+engine's pools were added onto the finished, tone-mapped frame at a gain fitted to the ~10 % deck, while a costume is 10–90 % and
+already lit by the real lights: a followspot put 8–13 × albedo on a body (1-02 Q92 Burr; 1-01 Q59 Hamilton a flat white
+silhouette). Now a body takes its pools inside its own shading, before the ACES tone mapping (`LX_BODY`, `lxBodyMat`), and the
+screen quad passes over it. Clipped body pixels 29 % → 0 % (Burr), 43–80 % → 0.3–4 % (Hamilton at the peak); colours and folds
+kept, both houses (the Van Wezel's bodies share the material); scenery lit exactly as before. **His eye on it:** the ensemble in
+dark costumes under 1-01's peak looks now read darker than before (they were washed pale); `LX_BODY.k` (0.15) is the one knob.
+Its traps are in TRAPS.md ("From the actor white-out round").
+
 ## NEXT SESSION: **HIS EYE ON THE COSTUMES** (2026-10-25; PR #36 merged `cd06c55`)
 
 Rulings at **GV** (GW next; none made this round). #36 merged `cd06c55` (2026-10-25). His eye on it: play any
