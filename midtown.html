@@ -18056,7 +18056,8 @@ function vwKeepOut(meshes) {
   const ray = new THREE.Raycaster(), d = new THREE.Vector3();
   const spotEye = x => { const f = Math.asin((x - S.c[0]) / S.portR) + (x < S.c[0] ? -1 : 1) * S.nose / S.rF, r = S.rF - S.wall - 0.05; return [S.c[0] + r * Math.sin(f), S.floor + 0.72, S.c[1] - r * Math.cos(f)]; };   // the house-right and house-left spots' lenses, just outside their windows
   const eyes = [spotEye(S.xs[0]), spotEye(S.xs[2]), [77, 9.8, -38.3], [74, 9.8, -38.3], [80, 9.8, -38.3]].map(a => new THREE.Vector3(...a));
-  for (const e of eyes) for (let x = 70; x <= 84; x += 2) for (const z of [1, 4, 8]) { const t = new THREE.Vector3(x, H.pros.deck + 1.6, z); d.subVectors(t, e); const L = d.length(); ray.set(e, d.normalize()); ray.far = L; o.rays++; if (ray.intersectObjects(meshes, false).length) o.blocked++; }
+  const frame = vwHam && vwHam.frame ? [vwHam.frame.mesh] : [];   // a ray the fitted opening's piers or header stop (THE OPENING FITTED) sees no stage there anyway
+  for (const e of eyes) for (let x = 70; x <= 84; x += 2) for (const z of [1, 4, 8]) { const t = new THREE.Vector3(x, H.pros.deck + 1.6, z); d.subVectors(t, e); const L = d.length(); ray.set(e, d.normalize()); ray.far = L; if (frame.length && ray.intersectObjects(frame, false).length) continue; o.rays++; if (ray.intersectObjects(meshes, false).length) o.blocked++; }
   return o;
 }
 // The checks: the fan of panels gone; nothing of it on the stage's side of the proscenium, in the lift's travel, in the
@@ -18109,8 +18110,11 @@ VAN_WEZEL_API.house = VW_HOUSE_API;                           // MIDTOWN.vanWeze
    Like THE HOUSE AS IT IS: unlit, a fixed light baked into vertex colours (VW_LIGHT), the glowing parts unbaked; down with the
    house (built after vwHamBuild, its looks added to vwHam.dims; the panels' look is there already); not in the walk's grid (the posts' feet are over the
    side portals and the seats, out of reach). Nothing on the stage's side of the lip's face, in the lift's travel, in a booth
-   or across the follow-spots' or the tech booth's sight of the stage (vwKeepOut), nor across the show's own throws here. Five meshes: wood, rope, plain (iron,
-   blocks, sandbags, candles, the lit panes), flags, halos.
+   or across the follow-spots' or the tech booth's sight of the stage (vwKeepOut), nor across the show's own throws here.
+   THE PROSCENIUM WALL (Jack, of it from the stalls: "put more decoration on this wall"): its house face in brick round the
+   fitted opening, deck to ceiling; a pilaster each side of the opening with a lantern and a coil; two beams across with king
+   posts and braces making five bays; a fan of bunting in each bay, rope swags between. Seven meshes: wood, rope, plain (iron,
+   blocks, sandbags, candles, the lit panes), flags, wall brick, bunting, halos.
    MIDTOWN.vanWezel.dress: .spec, .built, .on, set(on), check(), view(); the header's "VW dress" toggle. */
 const VW_HAM_DRESS = true;                                      // built at load and shown (false: not built)
 const VWHD = {
@@ -18128,6 +18132,8 @@ const VWHD = {
   rig: { from: [2.6, 4.4], drop: [2.0, 2.6], r: 0.022 },        // lines in from each wall's end of a truss, hanging this far (longer reach the FOH throws to the stage's edges)
   chandelier: { drop: 1.0, R: 0.62, candles: 8, at: [1, 11] },   // at: the gaps whose truss has one (the others hang in the FOH positions' throws, THE FRONT OF HOUSE UP, or the middle follow-spot's)
   flag: { w: 1.25, h: 2.05, in: 1.8 },                          // on the first truss, its middle this far in from each wall
+  wall: { x: [68.40, 85.60], top: 19.10, z: -0.188, zLow: -0.158, low: 5.0,     // the proscenium wall's face (measured: the side walls at 68.40 / 85.60, its finish at −0.152, the fitted frame's −0.155, THE HOUSE AS IT IS's face over 13.6 at −0.18): brick this far out, under `low` (in the lift's travel box) only 6 mm
+    pil: { w: 0.36, d: 0.24, off: 0.05 }, lantern: 6.4, coil: 7.6, beams: [12.95, 16.6], beam: { h: 0.34, d: 0.26 }, bays: 5, fan: 0.95, sag: 0.45 },
   lintel: { h: 0.40, d: 0.11, gap: 0.02, up: 0.45, brace: 0.85, out: 0.60 },   // over the opening as THE OPENING FITTED leaves it (VWHAM.pros), `up` over its header (the FOH throws pass just under it), its back `gap` in front of the frame's face; braced from the wall `out` beyond each side
 };
 let vwDress = null;
@@ -18161,6 +18167,17 @@ function vwDressRope() {
     g.fillStyle = '#9c7f52'; g.fillRect(0, 0, w, h);
     for (let k = -2; k < 6; k++) { g.strokeStyle = 'rgba(70,52,30,0.85)'; g.lineWidth = 2.2; g.beginPath(); g.moveTo(k * 16, 0); g.lineTo(k * 16 + 24, h); g.stroke(); g.strokeStyle = 'rgba(200,170,120,0.5)'; g.lineWidth = 2; g.beginPath(); g.moveTo(k * 16 + 6, 0); g.lineTo(k * 16 + 30, h); g.stroke(); }
   });
+}
+// A fan of bunting: a half disc hung flat edge up, red and white pleats round a blue middle with stars (outside it clear)
+function vwDressFan() {
+  return underCanvasTex(256, 128, (g, w, h) => {
+    const cx = w / 2, R = w / 2, n = 10;
+    for (let i = 0; i < n; i++) { g.fillStyle = i % 2 ? '#e8e0cc' : '#9e2a2b'; g.beginPath(); g.moveTo(cx, 0); g.arc(cx, 0, R, i / n * Math.PI, (i + 1) / n * Math.PI); g.closePath(); g.fill(); }
+    g.strokeStyle = 'rgba(40,20,20,0.35)'; g.lineWidth = 1.5; for (let i = 1; i < n; i++) { g.beginPath(); g.moveTo(cx, 0); g.lineTo(cx + R * Math.cos(i / n * Math.PI), R * Math.sin(i / n * Math.PI)); g.stroke(); }
+    g.fillStyle = '#22305a'; g.beginPath(); g.moveTo(cx, 0); g.arc(cx, 0, R * 0.36, 0, Math.PI); g.closePath(); g.fill();
+    g.fillStyle = '#e8e0cc'; for (let k = 0; k < 5; k++) { const a = (k + 0.5) / 5 * Math.PI, x = cx + R * 0.24 * Math.cos(a), y = R * 0.24 * Math.sin(a); g.beginPath(); for (let j = 0; j < 10; j++) { const r = j % 2 ? 2.5 : 6, b = j * Math.PI / 5; g.lineTo(x + r * Math.sin(b), y - r * Math.cos(b)); } g.fill(); }
+    g.fillStyle = '#c9a24a'; g.fillRect(0, 0, w, 5);           // its binding along the top
+  }, false);
 }
 // A thirteen-star flag hung by its hoist (the stripes down, the canton at the top)
 function vwDressFlag() {
@@ -18279,6 +18296,24 @@ function vwDressBuild(model) {
     for (const f of [0.25, 0.5, 0.75]) { const p = a.clone().lerp(b, f).setY(cy1), top = upTo(p); if (top < Infinity) rod(p, p.clone().setY(top + 0.05), 0.014); }   // iron hangers to the ceiling
     Object.assign(t, { a, b, u });
   }
+  // a lantern on a bracket out from f (on a face looking along n), its middle at y
+  const lantern = (f, n, y) => {
+    const L = D.lantern, arm = f.clone().addScaledVector(n, L.arm), top = y + L.h / 2 + 0.16;
+    rod(f.clone().setY(top), arm.clone().setY(top), 0.022); rod(arm.clone().setY(top), arm.clone().setY(y + L.h / 2 + 0.12), 0.008);
+    plain(new THREE.BoxGeometry(L.w * 0.86, L.h * 0.78, L.w * 0.86).translate(arm.x, y, arm.z), 0xffc874, true);   // the lit panes
+    for (const [dx, dz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) plain(new THREE.BoxGeometry(0.03, L.h, 0.03).translate(arm.x + dx * L.w / 2, y, arm.z + dz * L.w / 2), 0x1c1a1a);
+    plain(new THREE.ConeGeometry(L.w * 0.75, 0.14, 4).rotateY(Math.PI / 4).translate(arm.x, y + L.h / 2 + 0.07, arm.z), 0x1c1a1a);
+    plain(new THREE.BoxGeometry(L.w * 1.05, 0.04, L.w * 1.05).translate(arm.x, y - L.h / 2, arm.z), 0x1c1a1a);
+    halo(arm.clone().setY(y).addScaledVector(n, 0.14), 1.1); count.lanterns++;
+  };
+  // a coil of rope on a peg out from f, its tail hanging (d: along the face)
+  const coil = (f, n, d, y) => {
+    const K = D.coil, at = f.clone().addScaledVector(n, K.tube * 2 + 0.03);
+    rod(f.clone().setY(y + K.r), at.clone().addScaledVector(n, K.turns * K.tube * 1.6).setY(y + K.r), 0.025);
+    for (let k = 0; k < K.turns; k++) coilRing(new THREE.TorusGeometry(K.r * (1 - k * 0.025), K.tube, 6, 20).lookAt(n).translate(at.x + n.x * k * K.tube * 1.6, y + k * 0.012, at.z + n.z * k * K.tube * 1.6), 9);
+    rope([at.clone().setY(y - K.r), at.clone().setY(y - K.r - 0.35).addScaledVector(n, 0.03), at.clone().setY(y - K.r - 0.7).addScaledVector(d, 0.04)], K.tube, 8);
+    count.coils++;
+  };
   // 3. THE ROPE: swags across the panels; on the posts, lanterns and coils by turns
   for (const ps of posts) {
     for (let i = 0; i + 1 < ps.length; i++) {
@@ -18289,21 +18324,7 @@ function vwDressBuild(model) {
     ps.forEach((s, i) => {
       const y = s.y0 + D.coil.dy, f = s.c.clone().addScaledVector(s.n, pw.d / 2);
       rod(f.clone().setY(D.swag.y + 0.02), f.clone().addScaledVector(s.n, 0.10).setY(D.swag.y + 0.02), 0.03);   // the swags' peg
-      if (i % 2 === 0) {                                        // a lantern on a bracket
-        const L = D.lantern, arm = f.clone().addScaledVector(s.n, L.arm), top = y + L.h / 2 + 0.16;
-        rod(f.clone().setY(top), arm.clone().setY(top), 0.022); rod(arm.clone().setY(top), arm.clone().setY(y + L.h / 2 + 0.12), 0.008);
-        plain(new THREE.BoxGeometry(L.w * 0.86, L.h * 0.78, L.w * 0.86).translate(arm.x, y, arm.z), 0xffc874, true);   // the lit panes
-        for (const [dx, dz] of [[1, 1], [1, -1], [-1, 1], [-1, -1]]) plain(new THREE.BoxGeometry(0.03, L.h, 0.03).translate(arm.x + dx * L.w / 2, y, arm.z + dz * L.w / 2), 0x1c1a1a);
-        plain(new THREE.ConeGeometry(L.w * 0.75, 0.14, 4).rotateY(Math.PI / 4).translate(arm.x, y + L.h / 2 + 0.07, arm.z), 0x1c1a1a);
-        plain(new THREE.BoxGeometry(L.w * 1.05, 0.04, L.w * 1.05).translate(arm.x, y - L.h / 2, arm.z), 0x1c1a1a);
-        halo(arm.clone().setY(y).addScaledVector(s.n, 0.14), 1.1); count.lanterns++;
-      } else {                                                  // a coil of rope on a peg, its tail hanging
-        const K = D.coil, at = f.clone().addScaledVector(s.n, K.tube * 2 + 0.03);
-        rod(f.clone().setY(y + K.r), at.clone().addScaledVector(s.n, K.turns * K.tube * 1.6).setY(y + K.r), 0.025);
-        for (let k = 0; k < K.turns; k++) coilRing(new THREE.TorusGeometry(K.r * (1 - k * 0.025), K.tube, 6, 20).lookAt(s.n).translate(at.x + s.n.x * k * K.tube * 1.6, y + k * 0.012, at.z + s.n.z * k * K.tube * 1.6), 9);
-        rope([at.clone().setY(y - K.r), at.clone().setY(y - K.r - 0.35).addScaledVector(s.n, 0.03), at.clone().setY(y - K.r - 0.7).addScaledVector(s.d, 0.04)], K.tube, 8);
-        count.coils++;
-      }
+      if (i % 2 === 0) lantern(f, s.n, y); else coil(f, s.n, s.d, y);
     });
   }
   // 4. FROM THE TRUSSES: rigging near the walls, a ring of candles over the middle, the flags on the first
@@ -18343,12 +18364,59 @@ function vwDressBuild(model) {
   const [x0, x1] = VWHAM.pros.x, Li = D.lintel, y0 = VWHAM.pros.top + Li.up, lz = VWHAM.frame.face - Li.gap - Li.d / 2;
   beam(new THREE.Vector3(x0 - Li.out - 0.2, y0 + Li.h / 2, lz), new THREE.Vector3(x1 + Li.out + 0.2, y0 + Li.h / 2, lz), Li.d, Li.h);
   for (const [x, s] of [[x0, -1], [x1, 1]]) beam(new THREE.Vector3(x + s * (Li.out + Li.brace), y0 - Li.brace, lz), new THREE.Vector3(x + s * Li.out, y0 + 0.02, lz), Li.d * 0.9, 0.16);   // outside the opening, on the wall
+  // THE PROSCENIUM WALL (Jack, 2026-10-25, of it from the stalls: "put more decoration on this wall"): its house face in brick,
+  // deck to ceiling, wall to wall, round the fitted opening; a timber pilaster each side of the opening up to the lintel, on a
+  // corbel clear of the lift's travel, a lantern and a coil on each; two beams across, king posts between them framing the
+  // brick into bays; a fan of bunting in each bay under the lower beam, rope swags between them
+  const PW = D.wall, wn = new THREE.Vector3(0, 0, -1), wd = new THREE.Vector3(1, 0, 0), BR = [], BU = [];
+  {
+    const W0 = PW.x[0], W1 = PW.x[1], deck = VWH.pros.deck, T0 = VWHAM.pros.top, br = (xa, xb, ya, yb) => {   // a brick quad on the face, UVs in metres
+      const z = yb <= PW.low + 1e-6 ? PW.zLow : PW.z, g = new THREE.PlaneGeometry(xb - xa, yb - ya).rotateY(Math.PI).translate((xa + xb) / 2, (ya + yb) / 2, z), uv = g.attributes.uv, P2 = g.attributes.position;
+      for (let i = 0; i < uv.count; i++) uv.setXY(i, P2.getX(i) / D.brick.w, P2.getY(i) / D.brick.h);
+      BR.push(bake(g, 0xffffff, false, 1.45));
+    };
+    for (const [ya, yb] of [[deck, PW.low], [PW.low, T0], [T0, PW.top]]) {
+      if (yb <= T0 + 1e-6) { br(W0, x0, ya, yb); br(x1, W1, ya, yb); } else br(W0, W1, ya, yb);
+    }
+    const zf = PW.z - 0.004;                                    // timber's back, just proud of the brick
+    for (const [x, sg] of [[x0, -1], [x1, 1]]) {                // the pilasters, their corbels, a lantern and a coil on each
+      const px = x + sg * (PW.pil.w / 2 + PW.pil.off), pz = zf - PW.pil.d / 2;
+      beam(new THREE.Vector3(px, PW.low + 0.30, pz), new THREE.Vector3(px, y0, pz), PW.pil.d, PW.pil.w, new THREE.Vector3(0, 0, 1));
+      beam(new THREE.Vector3(px - PW.pil.w * 0.7, PW.low + 0.15, zf - 0.17), new THREE.Vector3(px + PW.pil.w * 0.7, PW.low + 0.15, zf - 0.17), 0.34, 0.30);   // the corbel
+      const f = new THREE.Vector3(px, 0, pz - PW.pil.d / 2);
+      lantern(f.clone().setX(px + sg * PW.pil.w / 2), new THREE.Vector3(sg, 0, -1).normalize(), PW.lantern);   // its bracket out from the pilaster's outer corner, away from the opening (its glow clear of the throws)
+      coil(f.clone().setX(px + sg * 0.02), wn, wd, PW.coil);
+    }
+    const [b0, b1] = PW.beams, bz = zf - PW.beam.d / 2;
+    for (const y of [b0, b1]) beam(new THREE.Vector3(W0 + 0.05, y + PW.beam.h / 2, bz), new THREE.Vector3(W1 - 0.05, y + PW.beam.h / 2, bz), PW.beam.d, PW.beam.h);
+    const bays = PW.bays, bw = (W1 - W0) / bays;
+    for (let k = 0; k <= bays; k++) {                            // the king posts between the beams, and braces in the outer bays
+      const x = W0 + k * bw + (k === 0 ? 0.15 : k === bays ? -0.15 : 0);
+      beam(new THREE.Vector3(x, b0 + PW.beam.h, bz), new THREE.Vector3(x, b1, bz), PW.beam.d * 0.9, 0.26, new THREE.Vector3(0, 0, 1));
+    }
+    for (let k = 0; k < bays; k++) {                            // a diagonal brace across every bay, by turns
+      const xa = W0 + k * bw + 0.2, xb = W0 + (k + 1) * bw - 0.2, up = k % 2 === 0;
+      beam(new THREE.Vector3(xa, up ? b0 + PW.beam.h + 0.1 : b1 - 0.1, bz), new THREE.Vector3(xb, up ? b1 - 0.1 : b0 + PW.beam.h + 0.1, bz), PW.beam.d * 0.8, 0.18);
+    }
+    const fy = b0 - 0.02, fz = bz - PW.beam.d / 2 - 0.02, R0 = PW.fan;
+    for (let k = 0; k < bays; k++) {                            // the fans under the lower beam, their middles in the bays
+      const x = W0 + (k + 0.5) * bw;
+      BU.push(bake(new THREE.PlaneGeometry(2 * R0, R0).rotateY(Math.PI).translate(x, fy - R0 / 2, fz), 0xffffff, false, 1.25)); count.fans = (count.fans || 0) + 1;
+      if (k + 1 < bays) {                                        // a swag from this fan's edge to the next one's
+        const a = new THREE.Vector3(x + R0 - 0.05, fy - 0.05, fz - 0.03), b = new THREE.Vector3(x + bw - R0 + 0.05, fy - 0.05, fz - 0.03), pts = [];
+        for (let j = 0; j <= 8; j++) { const t = j / 8, q = a.clone().lerp(b, t); q.y -= PW.sag * 4 * t * (1 - t); q.z -= 0.06 * 4 * t * (1 - t); pts.push(q); }
+        rope(pts); count.swags++;
+      }
+    }
+  }
   // 6. the meshes
   const group = new THREE.Group(); group.name = 'vw ham dress';
   const add = (name, geos, mat) => { if (!geos.length) return null; const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); if (!g) { console.warn(`van wezel dress: the ${name} pieces did not merge — left out`); return null; } const m = new THREE.Mesh(g, mat); m.name = 'vw ham dress: ' + name; m.castShadow = m.receiveShadow = false; m.userData.rig = true; group.add(m); return m; };
   const glowTex = underCanvasTex(64, 64, (g, w) => { const r = g.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); r.addColorStop(0, '#ffffff'); r.addColorStop(0.3, '#a07a50'); r.addColorStop(1, '#000000'); g.fillStyle = r; g.fillRect(0, 0, w, w); }, false);
   const basic = map => new THREE.MeshBasicMaterial({ vertexColors: true, map, side: THREE.DoubleSide, toneMapped: false });
-  const meshes = [add('wood', W, basic(vwDressWood())), add('rope', R, basic(vwDressRope())), add('plain', Pl, basic(null)), add('flags', F, basic(vwDressFlag())),
+  const brickMat = basic(brick.map); Object.assign(brickMat, { polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -4 });   // (a few mm in front of the wall and the fitted frame)
+  const fanMat = basic(vwDressFan()); fanMat.alphaTest = 0.5;
+  const meshes = [add('wood', W, basic(vwDressWood())), add('rope', R, basic(vwDressRope())), add('plain', Pl, basic(null)), add('flags', F, basic(vwDressFlag())), add('wall brick', BR, brickMat), add('bunting', BU, fanMat),
     add('halos', G, new THREE.MeshBasicMaterial({ map: glowTex, color: 0xffc890, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide, toneMapped: false }))].filter(Boolean);
   scene.add(group); group.updateMatrixWorld(true);
   const set = on => {
