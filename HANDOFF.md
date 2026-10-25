@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-25 (late night): the Van Wezel's opening fitted, its FOH up, its house light, all its doors; the mouse re-locks (PR `vw-fixes`, one agent session)
+## DONE — 2026-10-25 (late night): the Van Wezel's opening fitted, its FOH up, its house light, all its doors; the mouse re-locks (PR `claude/festive-liskov-2f7ffa`, one agent session)
 
 Jack: *"sometimes randomly it wont lock my cursor back in and i wont be able to press anything. also fit the proscenium to the
 hamilton set in the van wezel. add a slider for the van wezels house lights. add a button to open or close all the van wezel
