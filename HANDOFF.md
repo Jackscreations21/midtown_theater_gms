@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-25: the Van Wezel's audience goes home after the show (PR `vw-leaving`, one session)
+## DONE — 2026-10-25: the Van Wezel's audience goes home after the show (PR #49 `vw-leaving`, merged `9d54fb4`, one session)
 
 Jack: *"make it so if it is playing the exit music or past it and the doors are open people will start to leave"*. No ruling.
 GOING HOME, in THE AUDIENCE (`vwAudLeaving`, `vwAudLeave`, `vwAudOut`, `vwAudOutPts`, `vwAudExitGate`, `VWA.out`):
