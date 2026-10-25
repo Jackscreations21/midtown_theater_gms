@@ -6,7 +6,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR `crew-walks` (2026-10-25, night; open, not merged; no ruling).** Jack's asks of the round, all in the **Van Wezel**
+- **NEWEST: PR #40 `crew-walks` (2026-10-25, night; open, not merged; no ruling).** Jack's asks of the round, all in the **Van Wezel**
   but the first (his word: "i meant all this stuff in the van wezel"):
   - **Act Two played the end of Act One** — fixed in the show engine (both houses): the one-file soundtrack no longer steps back a
     track on a landing a little early, and from the act break it plays on to 2-01 without a seek. Seen through the desk's
