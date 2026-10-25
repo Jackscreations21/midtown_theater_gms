@@ -586,7 +586,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear|vw stage house|vw crew way)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR; vw stage house: THE THIRD HOUSE: THE STAGE HOUSE AS IT IS (not 'vw flies': what hangs); vw crew way: THE THIRD HOUSE: THE CREW WAY
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear|vw stage house|vw crew way|vw entrances)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR; vw stage house: THE THIRD HOUSE: THE STAGE HOUSE AS IT IS (not 'vw flies': what hangs); vw crew way: THE THIRD HOUSE: THE CREW WAY; vw entrances: THE THIRD HOUSE: THE ENTRANCES' SECURITY (its arches and podiums)
   for (const o of scene.children) if (o.name === 'street') o.traverse(m => { if (m.isMesh && m.userData.collide) list.push(m); });   // THE STREET: drawn or not (stTick hides it indoors)
   for (const o of scene.children) if (o.name === 'street trim') o.traverse(take);   // THE STREET: the street doors' frames
   baked.traverse(take);
@@ -14481,6 +14481,7 @@ function buildHouse2(src) {
   buildUnder();                                              // Theatre 2's basement and its two lifts; splits its scan before the cuts (THE UNDERGROUND)
   buildPit();                                                // the orchestra pit under house 1's stage, its passage and stair (THE ORCHESTRA PIT)
   try { buildStreet(); } catch (e) { console.error('street: building the street failed —', e); }   // Broadway outside the three houses, their street doors (THE STREET)
+  try { buildVwEntrances(); } catch (e) { console.error('van wezel entrances: building the security failed —', e); }   // the scanners and the metal detectors inside its three street doors (THE THIRD HOUSE: THE ENTRANCES' SECURITY)
   houseRoot = house.scene;
   gradeSetBrick(root);
   registerModelTextures(root, 'set: ', ['ham_brick', 'ham_plank', 'ham_post', 'ham_rail', 'ham_iron']);
@@ -24512,6 +24513,17 @@ function buildStreet() {
   if (terrace) { const r = stClipKeep(terrace, (x, z) => F.uw(x, z)[1]); vwOut.terraceCut = r.cut + r.dropped; }
   const VD = Q.vwDoor, vwDoorZ = cz - glassR;
   if (glass) vwOut.glassCut = vwCutBox(glass, new THREE.Box3(new THREE.Vector3(VD.x - VD.w / 2, 0.5, vwDoorZ - 0.15), new THREE.Vector3(VD.x + VD.w / 2, 0.875 + VD.head, vwDoorZ + 0.15)));
+  // and the other two pairs of VW_ENTRANCES (Jack, 2026-10-25: "make there be multiple doors they can come into the van
+  // wezel"): the same doorway turned to face out along the glass circle's radius at phi, each a frame on the glass (local x
+  // across, toward house right as the centre one's; local z out over the pavement; turned th = π − phi as hangLeafAt turns)
+  // and its glass cut in that frame (vwSideCut: the arc sags 11 mm over the half-width, inside the box's ±0.15)
+  const vwSides = VW.missing ? [] : VW_ENTRANCES.list.filter(e => e.phi).map(e => {
+    const f = e.phi * Math.PI / 180, o = [Math.sin(f), -Math.cos(f)], gx = cx + glassR * o[0], gz = cz + glassR * o[1], th = Math.PI - f;
+    const M = new THREE.Matrix4().compose(new THREE.Vector3(gx, 0, gz), new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), th), new THREE.Vector3(1, 1, 1));
+    const W = (lx, lz) => [gx + lx * Math.cos(th) + lz * Math.sin(th), gz - lx * Math.sin(th) + lz * Math.cos(th)];   // the frame's local (x, z) → world (x, z)
+    return { ...e, f, o, gx, gz, th, M, W, door: null };
+  });
+  if (glass && vwSides.length) vwOut.glassCut += vwSideCut(glass, vwSides.map(d => ({ M: d.M, lo: new THREE.Vector3(-VD.w / 2, 0.5, -0.15), hi: new THREE.Vector3(VD.w / 2, 0.875 + VD.head, 0.15) })));
   // 3. THE GROUND. The sidewalks (concrete flags, a granite kerb), the road (asphalt, its markings), the wedge before Midtown,
   // the strip between the terrace's round edge and the first front east of the Van Wezel.
   const flag = (i, j) => stMix(stRGB(0xa9a49a), stRGB(0x8f8a80), ((i * 7 + j * 13) % 5) / 6 + R() * 0.12), asphalt = () => stMix(stRGB(0x3a3b3d), stRGB(0x2c2d2f), R());
@@ -24583,6 +24595,12 @@ function buildStreet() {
     stBox(A, M, -VD.w / 2 - 0.35, -VD.w / 2, 0.75, top + 0.35, 0, 0.12, bronze, null); stBox(A, M, VD.w / 2, VD.w / 2 + 0.35, 0.75, top + 0.35, 0, 0.12, bronze, null);
     stBox(A, M, -VD.w / 2, VD.w / 2, top, top + 0.35, 0, 0.12, bronze, null);
     stMarquee(A, S, B, Po, M, houses[2], -4.6, 4.6, top + 0.35, top + 2.25, 3.0, rect, G);
+    // the two turned pairs: the same bronze surround, out along each one's radius; no marquee
+    for (const d of vwSides) {
+      const [mx0, mz0] = d.W(0, VD.depth), Ms = stFrameAt(mx0, mz0, d.o[0], d.o[1]);
+      stBox(A, Ms, -VD.w / 2 - 0.35, -VD.w / 2, 0.75, top + 0.35, 0, 0.12, bronze, null); stBox(A, Ms, VD.w / 2, VD.w / 2 + 0.35, 0.75, top + 0.35, 0, 0.12, bronze, null);
+      stBox(A, Ms, -VD.w / 2, VD.w / 2, top, top + 0.35, 0, 0.12, bronze, null);
+    }
   }
   // 6. THE ROWS OF FRONTS. North of the line west of Midtown and east of the Van Wezel's terrace, south of the road the whole
   // length: theatres between fillers, every footprint a prism. The one against the Midtown block runs its side up x skin.x0.
@@ -24629,7 +24647,7 @@ function buildStreet() {
     }
   }
   // 7. THE LAMPS along both kerbs, staggered, kept off the crossings and off the doors' ways out
-  const doorU = [...Q.lobbyDoors.map(d => F.uw(d.x, K.z0)[0]), uVW, uMid];
+  const doorU = [...Q.lobbyDoors.map(d => F.uw(d.x, K.z0)[0]), uVW, uMid, ...vwSides.map(d => F.uw(d.gx, d.gz)[0])];
   for (const [w, s, off] of [[wN + 0.45, -1, 0], [wS - 0.45, 1, 13]]) for (let u = Q.u0 + 8 + off; u < Q.u1 - 6; u += 26) {
     if (crossings.some(c => Math.abs(c - u) < 5) || doorU.some(c => Math.abs(c - u) < 3)) continue;
     const [x, z] = F.P(u, w); stLamp(A, Po, x, z, G, F.N[0] * s, F.N[1] * s);
@@ -24668,6 +24686,17 @@ function buildStreet() {
     tb('dark', a, a + fw, Gv, top, z0, z1); tb('dark', b - fw, b, Gv, top, z0, z1); tb('dark', a, b, top - DOORS.headH, top, z0, z1);
     tb('brass', a, b, Gv - 0.012, Gv + DOORS.sill, z0, z1);
     doors.push(hangLeafAt({ name: VD.name, px: VD.x, pz: z0, th: Math.PI, x0: -VD.w / 2 + fw, x1: VD.w / 2 - fw, floor: Gv, head: top - DOORS.headH, zhi: 1.3, pair: true }));
+    // the turned pairs: the same frame and sill as boxes turned th in the door's frame (tbT: local x across, local z out),
+    // the leaves hung on its outer face (local z +depth), swinging out over the terrace
+    for (const d of vwSides) {
+      const tbT = (key, x0, x1, y0, y1, lz0, lz1) => { const [wx, wz] = d.W((x0 + x1) / 2, (lz0 + lz1) / 2); deskBox(T, key, Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(lz1 - lz0), wx, (y0 + y1) / 2, wz, 0, d.th, 0); };
+      const a = -VD.w / 2, b = VD.w / 2, D0 = -VD.depth, D1 = VD.depth;
+      tbT('dark', a, a + fw, Gv, top, D0, D1); tbT('dark', b - fw, b, Gv, top, D0, D1); tbT('dark', a, b, top - DOORS.headH, top, D0, D1);
+      tbT('brass', a, b, Gv - 0.012, Gv + DOORS.sill, D0, D1);
+      const [px, pz] = d.W(0, D1);
+      d.door = hangLeafAt({ name: d.name, px, pz, th: d.th, x0: a + fw, x1: b - fw, floor: Gv, head: top - DOORS.headH, zhi: 1.3, pair: true });
+      doors.push(d.door);
+    }
   }
   const trim = new THREE.Group(); trim.name = 'street trim';
   for (const [key, geos] of Object.entries(T)) { const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); const m = new THREE.Mesh(g, lobbyMat[key]); m.name = 'street trim: ' + key; m.userData.rig = true; trim.add(m); }
@@ -24679,7 +24708,7 @@ function buildStreet() {
   colliderStale();
   const k0 = stModeLoad();
   stBuilt = { F, group, sky, trim, mats, atlas, houses, regions, doors, fronts, mode: k0, k: 0, target: 0, clockT: 0, time: 0, shown: true, where: 'street', vw: null, vwF: 1,
-    glassR, terraceR, vwDoorZ, uNE, uMid, uVW, crossings, wN, wS, wB, ms: 0 };
+    glassR, terraceR, vwDoorZ, uNE, uMid, uVW, crossings, wN, wS, wB, vwSides, ms: 0 };
   stBuilt.target = stBuilt.k = stTarget(k0); stApplyK();
   const n = (o) => o.geometry.attributes.position.count / 3;
   stBuilt.ms = performance.now() - t0;
@@ -24870,6 +24899,7 @@ function stCheck() {
   const routes = [
     ...Q.lobbyDoors.map(d => ({ name: d.name, start: [d.x, zF + 1.6, LOBBY.floor + 0.5], legs: [[d.x, K.z0 - 2.0], F.P(F.uw(d.x, K.z0 - 2)[0], S.wN + 0.8), F.P(F.uw(d.x, K.z0 - 2)[0], S.wS - 0.8)] })),
     ...(VW.missing ? [] : [{ name: Q.vwDoor.name, start: [Q.vwDoor.x, S.vwDoorZ + 1.2, 1.4], legs: [[Q.vwDoor.x, S.vwDoorZ - 2.2], F.P(S.uVW, S.wN + 0.8), F.P(S.uVW, S.wS - 0.8)] }]),
+    ...(S.vwSides || []).map(d => { const u = F.uw(d.gx, d.gz)[0]; return { name: d.name, start: [...d.W(0, -1.2), 1.4], legs: [d.W(0, 2.2), F.P(u, S.wN + 0.8), F.P(u, S.wS - 0.8)] }; }),   // VW_ENTRANCES' other two: in along the radius, out the same way
     { name: 'the north pavement, end to end', start: [...F.P(Q.u0 + 3, -2.2), Q.top + 0.5], legs: [F.P(Q.u1 - 3, -2.2)] },
     { name: 'the south pavement, end to end', start: [...F.P(Q.u1 - 3, S.wS - 2.5), Q.top + 0.5], legs: [F.P(Q.u0 + 3, S.wS - 2.5)] },
   ];
@@ -24898,6 +24928,194 @@ const STREET_API = {
   state() { const S = stBuilt; if (!S) return 'street: not built'; const s = `street: ${S.mode} (k ${S.k.toFixed(2)} → ${S.target.toFixed(2)}), the camera ${S.where}, ${S.shown ? 'drawn' : 'not drawn'}, the Van Wezel's outside × ${S.vwF.toFixed(2)}`; console.info(s); return s; },
   view: () => go('v-street'),
   get built() { return stBuilt; },
+};
+
+/* ---------------------------------------------------------------- THE THIRD HOUSE: THE ENTRANCES' SECURITY
+   Jack (2026-10-25): "make there be multiple doors they can come into the van wezel. make it so they have to walk throught
+   metal detecotrs and have ther tickest scanned." The spec is VW_ENTRANCES (THE STREET, above), shared with THE AUDIENCE:
+   three pairs through the glass at phi −9, 0 and +9 degrees about VWF.c. THE DOORS are THE STREET's (buildStreet: the
+   centre one STREET.vwDoor, the other two the same turned to face out along the glass circle's radius, stBuilt.vwSides).
+   Inside each, straight in along its radius (r from VWF.c; s across the way, + toward house left), on the foyer's carpet:
+   - THE TICKET PODIUM at stopR, its middle VW_ENTRANCES.podium to the way's house-left side (its inner face on the lane's
+     edge, laneW / 2): a timber lectern with a dark top, a handheld scanner lying on it (its window lit red; green for
+     VWSEC.scanFlash s on a scan: vwSecurityScan(key)), an usher behind it facing the way (THE CREW's look: pitSkeleton in
+     opsMat).
+   - THE WALK-THROUGH METAL DETECTOR at archR: two grey side panels VWSEC.panel.t thick and VWSEC.panel.d deep, their inner
+     faces archW apart and archH clear under the header, a light on top (dim amber; green for VWSEC.flash s when someone
+     passes: vwSecurityPass(key)), and a guard beside it on its house-right side, looking out at the doors.
+   SOLID in the walk's grid (the group 'vw entrances', colliderMeshes): the panels, the header and the podium — you walk
+   through the arch's opening and round the podium, as at a real one. The staff are not (THE CREW's are not either), and are
+   drawn only with the camera east of the Midtown block (VWA.east). Built after THE STREET (buildVwEntrances), one mesh per
+   material; each light its own small mesh. Time off the frame's dt (riding lxPanelTick), never setTimeout.
+   MIDTOWN.vanWezel.entrances: spec, built, pass(key), scan(key), state(), check(). */
+const VWSEC = {
+  panel: { t: 0.12, d: 0.60 },                    // the arch's side panels: across the way, along it
+  header: 0.22,                                   // the header over the clear height
+  lamp: [0.18, 0.07, 0.12],                       // the light on the header: across, high, along
+  pod: { w: 0.40, d: 0.46, h: 1.06, top: 0.05 },  // the podium's top: across the way, along it, its height; the top's thickness (the body 2 cm in all round)
+  usher: 0.45, guard: 0.40,                       // the usher behind the podium's middle; the guard out from the arch's house-right panel
+  flash: 0.4, scanFlash: 0.5,                     // seconds green: a pass through the arch, a scan
+  idle: 0x6a4208, pass: 0x3cff6e, scanIdle: 0x801010, scanOk: 0x3cff6e,
+  colors: { usher: 0x5a1a34, guard: 0x1a2030, legs: 0x1e1f23, skin: [0x8a6e5c, 0x6a4e3c, 0xa88a72] },
+};
+let vwSec = null;
+// An entrance's frame on plan: o out along its radius, t across (+ toward house left); at(r, s) → world [x, z].
+function vwsFrame(e) {
+  const f = e.phi * Math.PI / 180, [cx, cz] = VWF.c, o = [Math.sin(f), -Math.cos(f)], t = [Math.cos(f), Math.sin(f)];
+  return { ...e, f, o, t, at: (r, s = 0) => [cx + r * o[0] + s * t[0], cz + r * o[1] + s * t[1]] };
+}
+function buildVwEntrances() {
+  if (VW.missing || !stBuilt || !stBuilt.vwSides) return null;
+  const t0 = performance.now(), Q = VW_ENTRANCES, S = VWSEC, F = VWF.floor, P = {}, group = new THREE.Group(); group.name = 'vw entrances';
+  const mats = { panel: new THREE.MeshStandardMaterial({ color: 0xa3a7ac, roughness: 0.55, metalness: 0.15, emissive: 0x3e4044 }), dark: vwfMat('dark'), wood: vwfMat('wood'), brass: vwfMat('brass') };
+  const light = (E, geo, s, y, r, hex) => {                 // a light of its own: a small mesh, its own colour
+    const m = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color: hex, toneMapped: false })), [x, z] = E.at(r, s);
+    m.position.set(x, y, z); m.rotation.y = -E.f; m.name = `vw entrances: ${E.key} ${hex === S.idle ? 'arch light' : 'scanner window'}`; m.userData.rig = true; group.add(m); return m;
+  };
+  const ents = Q.list.map(e => {
+    const E = vwsFrame(e), box = (key, s0, s1, y0, y1, r0, r1) => { const [x, z] = E.at((r0 + r1) / 2, (s0 + s1) / 2); deskBox(P, key, s1 - s0, y1 - y0, r1 - r0, x, (y0 + y1) / 2, z, 0, -E.f, 0); };
+    // THE ARCH: two panels, the header over them, a dark strip down each panel's faces, a keypad on the header, the light
+    const hw = Q.archW / 2, pt = S.panel.t, rd = S.panel.d / 2, R = Q.archR, top = F + Q.archH, hy = top + S.header;
+    for (const s of [-1, 1]) {
+      const a = s < 0 ? -hw - pt : hw, b = s < 0 ? -hw : hw + pt;
+      box('panel', a, b, F, top, R - rd, R + rd);
+      for (const r of [R - rd - 0.006, R + rd + 0.006]) box('dark', a + 0.03, b - 0.03, F + 0.1, top - 0.1, r - 0.004, r + 0.004);   // the dark edge strips on its ends
+    }
+    box('panel', -hw - pt, hw + pt, top, hy, R - rd, R + rd);
+    box('dark', -0.16, 0.16, top + 0.04, hy - 0.04, R + rd, R + rd + 0.02);                  // the keypad and its display, facing the doors
+    E.arch = light(E, new THREE.BoxGeometry(...S.lamp), 0, hy + S.lamp[1] / 2, R, S.idle);
+    // THE PODIUM: a timber body, a dark top, a brass band, and the scanner lying on it, its window toward the way
+    const pm = Q.podium, pw = S.pod.w / 2, pd = S.pod.d / 2, ph = F + S.pod.h, sr = Q.stopR;
+    box('wood', pm - pw + 0.02, pm + pw - 0.02, F, ph - S.pod.top, sr - pd + 0.02, sr + pd - 0.02);
+    box('dark', pm - pw, pm + pw, ph - S.pod.top, ph, sr - pd, sr + pd);
+    box('brass', pm - pw + 0.015, pm + pw - 0.015, ph - S.pod.top - 0.06, ph - S.pod.top - 0.03, sr - pd + 0.015, sr + pd - 0.015);
+    box('dark', pm - 0.04, pm + 0.04, ph, ph + 0.035, sr - 0.09, sr + 0.09);                  // the scanner: its body along the way
+    box('dark', pm - 0.02, pm + 0.02, ph, ph + 0.03, sr + 0.09, sr + 0.14);                   // its grip
+    E.window = light(E, new THREE.BoxGeometry(0.05, 0.008, 0.06), pm, ph + 0.039, sr - 0.05, S.scanIdle);
+    E.passT = 0; E.scanT = 0; E.usher = null; E.guard = null;
+    E.door = DOORS.list.find(d => d.name === e.name) || null;
+    return E;
+  });
+  for (const [key, geos] of Object.entries(P)) { const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); const m = new THREE.Mesh(g, mats[key]); m.name = 'vw entrances: ' + key; m.userData.rig = true; group.add(m); }
+  scene.add(group); group.updateMatrixWorld(true);
+  colliderStale();
+  vwSec = { group, ents, mats, staff: null, ms: performance.now() - t0 };
+  console.info(`van wezel entrances: ${ents.length} entrances (${ents.map(E => `${E.key} at ${E.phi}° — its pair ${E.door ? 'hung' : 'MISSING'}`).join(', ')}), a podium and scanner at r ${Q.stopR}, an arch at r ${Q.archR} (${Q.archW} × ${Q.archH} m clear) in each · ${group.children.length} meshes · ${vwSec.ms.toFixed(0)} ms`);
+  return vwSec;
+}
+// The usher and the guard at each entrance, once the actors' rig is in (THE CREW's look: the RIG's parts in opsMat).
+function vwSecStaffBuild() {
+  const V = vwSec, Q = VW_ENTRANCES, C = VWSEC.colors, g = new THREE.Group(); g.name = 'vw entrance staff'; g.visible = camera.position.x > VWA.east; scene.add(g);
+  const legs = opsMat(C.legs), cloth = { usher: opsMat(C.usher), guard: opsMat(C.guard) }, skins = C.skin.map(h => opsMat(h));
+  V.ents.forEach((E, i) => {
+    for (const who of ['usher', 'guard']) {
+      const root = pitSkeleton(true, { skin: skins[(i * 2 + (who === 'guard' ? 1 : 0)) % skins.length], cloth: cloth[who], legs }); root.name = `vw entrance staff: ${E.key} ${who}`;
+      const [x, z] = who === 'usher' ? E.at(Q.stopR, Q.podium + VWSEC.usher) : E.at(Q.archR, -(Q.archW / 2 + VWSEC.panel.t + VWSEC.guard));
+      const d = who === 'usher' ? [-E.t[0], -E.t[1]] : [E.o[0] + 0.5 * E.t[0], E.o[1] + 0.5 * E.t[1]];   // the usher faces the way; the guard the doors, half turned to the arch
+      root.position.set(x, VWF.floor, z); root.rotation.y = Math.atan2(d[0], d[1]);
+      vwSecPose(root.userData.parts, who); g.add(root); root.updateMatrixWorld(true);
+      E[who] = root;
+    }
+  });
+  V.staff = g;
+}
+// Standing (THE CREW's stance): the usher's forearms forward over the podium's top, the guard's arms down at his sides.
+function vwSecPose(P, who) {
+  vwCrewStill(P, 'stand');
+  for (const [s, k] of [['L', 1], ['R', -1]]) {
+    if (who === 'usher') { P['upperarm_' + s].rotation.set(-0.35, 0, k * 0.10); P['forearm_' + s].rotation.set(-1.05, 0, 0); }
+    else { P['upperarm_' + s].rotation.set(-0.05, 0, k * 0.07); P['forearm_' + s].rotation.set(-0.25, 0, 0); }
+  }
+}
+const vwSecEnt = key => vwSec ? vwSec.ents.find(E => E.key === key) || null : null;
+// Someone through the arch at `key` ('house right', 'centre', 'house left'): its light green for VWSEC.flash s. → true if built.
+function vwSecurityPass(key) { const E = vwSecEnt(key); if (!E) return false; E.passT = VWSEC.flash; E.arch.material.color.setHex(VWSEC.pass); requestRender(); return true; }
+// A ticket scanned at `key`: the scanner's window green for VWSEC.scanFlash s. → true if built.
+function vwSecurityScan(key) { const E = vwSecEnt(key); if (!E) return false; E.scanT = VWSEC.scanFlash; E.window.material.color.setHex(VWSEC.scanOk); requestRender(); return true; }
+function vwSecTick(dt) {
+  const V = vwSec; if (!V) return false;
+  let moved = false;
+  if (!V.staff && RIG.parts) { vwSecStaffBuild(); moved = true; }
+  if (V.staff) { const vis = camera.position.x > VWA.east; if (V.staff.visible !== vis) { V.staff.visible = vis; moved = true; } }
+  for (const E of V.ents) {
+    if (E.passT > 0) { E.passT = Math.max(0, E.passT - dt); if (!E.passT) E.arch.material.color.setHex(VWSEC.idle); moved = true; }
+    if (E.scanT > 0) { E.scanT = Math.max(0, E.scanT - dt); if (!E.scanT) E.window.material.color.setHex(VWSEC.scanIdle); moved = true; }
+  }
+  return moved;
+}
+{ const lxPanelTickVWS = lxPanelTick; lxPanelTick = dt => { const a = lxPanelTickVWS(dt); return vwSecTick(dt) || a; }; }
+// THE CHECK: each pair hung and opening; each way in on the floor from 1.5 m outside its door to a metre past its arch (and
+// walked, the leaves open); the podium and the arch where VW_ENTRANCES says (measured with rays); nothing in the way at
+// a body's heights (WALK.rays) with the leaves open, nor over its head.
+function vwSecCheck() {
+  const V = vwSec; if (!V) return 'van wezel entrances: not built';
+  if (col.stale || !col.n) buildCollider();
+  if (!V.staff && RIG.parts) vwSecStaffBuild();                // as the tick would (it waits on a drawn frame)
+  const Q = VW_ENTRANCES, Fl = VWF.floor, gR = stBuilt.glassR, [cx, cz] = VWF.c, f2 = v => v.toFixed(2), f3 = v => v.toFixed(3);
+  const out = []; let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  const save = { pos: player.pos.clone(), vel: player.vel.clone(), g: player.onGround, yaw, pitch, spawn: player.spawn.clone(), cam: camera.position.clone(), q: camera.quaternion.clone(), doors: DOORS.list.map(e => [e.want, e.u]) };
+  const settle = e => { e.angle = e.u * e.u * (3 - 2 * e.u) * DOORS.swing; for (const l of e.leaves) { l.rotation.y = -l.userData.s * e.angle; l.updateMatrixWorld(true); } };
+  const radial = p => Math.hypot(p.x - cx, p.z - cz), bb = new THREE.Box3(), mid = new THREE.Vector3();
+  for (const E of V.ents) {
+    const e = E.door;
+    // 1. THE PAIR: hung on the glass where the spec says, two leaves, swinging out over the pavement when opened
+    if (!e) { line(false, `${E.key}: no pair named "${E.name}"`); continue; }
+    e.want = 0; e.u = 0; settle(e);
+    const shut = e.leaves.map(l => radial(bb.setFromObject(l).getCenter(mid)));
+    e.want = 1; let n = 0; while (e.u < 1 && n++ < 200) doorsTick(0.05);
+    const open = e.leaves.map(l => radial(bb.setFromObject(l).getCenter(mid)));
+    const at = Math.hypot(e.cx - cx, e.cz - cz), phi = Math.atan2(e.cx - cx, cz - e.cz) * 180 / Math.PI;
+    line(e.kind === 'doors' && e.leaves.length === 2 && Math.abs(phi - E.phi) < 0.05 && Math.abs(at - gR) < 0.4 && e.u === 1 && Math.abs(e.angle - DOORS.swing) < 1e-6 && open.every(r => r > gR + 0.3) && shut.every(r => Math.abs(r - gR) < 0.4),
+      `${E.key}: "${e.name}" hung at phi ${phi.toFixed(2)}°, r ${f2(at)} (the glass ${f2(gR)}), ${e.leaves.length} leaves; open in ${(n * 0.05).toFixed(1)} s to ${(e.angle * 180 / Math.PI).toFixed(0)}°, the leaves' middles from r ${shut.map(f2).join('/')} out to ${open.map(f2).join('/')}`);
+    // 2. THE WAY IN on the floor: every 0.1 m along the radius (and 0.2 m either side) within a step of the last and of the foyer's floor
+    const r0 = gR + 1.5, r1 = Q.archR - 1.0;
+    let worst = 0, jump = 0, where = '', samples = 0;
+    for (const s of [-0.2, 0, 0.2]) {
+      let prev = null;
+      for (let r = r0; r >= r1 - 1e-6; r -= 0.1) {
+        const [x, z] = E.at(r, s), g = groundAt(x, z, (prev ?? Fl) + 0.05); samples++;
+        if (g === null) { worst = Infinity; where = `(${f2(x)}, ${f2(z)}) r ${f2(r)}`; break; }
+        if (Math.abs(g - Fl) > worst) { worst = Math.abs(g - Fl); where = `r ${f2(r)} s ${s}`; }
+        if (prev !== null) jump = Math.max(jump, Math.abs(g - prev));
+        prev = g;
+      }
+    }
+    line(worst < WALK.step && jump < WALK.step, `${E.key}: the way in, r ${f2(r0)} → ${f2(r1)} (${samples} points): the floor at most ${worst === Infinity ? 'MISSING' : f3(worst)} m off the foyer's ${Fl}${where ? ' (' + where + ')' : ''}, ${f3(jump)} m from one point to the next`);
+    { const [xa, za] = E.at(r0), [xb, zb] = E.at(r1), g = groundAt(xa, za, Fl + 0.5);
+      player.pos.set(xa, g ?? Fl, za); player.vel.set(0, 0, 0); player.onGround = true; player.spawn.copy(player.pos);
+      const w = stWalkTo(xb, zb);
+      line(w.ok, `${E.key}: walked in from outside the door to past the arch in ${w.t.toFixed(1)} s, the feet at ${f3(player.pos.y)}${w.ok ? '' : ` — stopped at (${w.at.map(f2).join(', ')})`}`); }
+    // 3. WHERE THE SPEC SAYS: the podium's inner face and the arch's panels across from the axis, the header over it, the scanner's place
+    { const [x, z] = E.at(Q.stopR), y = Fl + 0.8, dp = rayH(x, y, z, E.t[0], E.t[1], 3), [xa, za] = E.at(Q.archR);
+      const dl = rayH(xa, Fl + 1.0, za, E.t[0], E.t[1], 2), dr = rayH(xa, Fl + 1.0, za, -E.t[0], -E.t[1], 2), up = rayUp(xa, Fl + 1.0, za, 3);
+      const want = Q.podium - VWSEC.pod.w / 2 + 0.02, sc = E.window.position, scR = radial(sc), scS = (sc.x - cx) * E.t[0] + (sc.z - cz) * E.t[1];
+      line(Math.abs(dp - want) < 0.03 && Math.abs(scS - Q.podium) < 0.01 && Math.abs(scR - Q.stopR) < 0.1,
+        `${E.key}: the podium's face ${f3(dp)} m to house left of the way at r ${Q.stopR} (its middle ${Q.podium}, ${VWSEC.pod.w} wide), the scanner on it at r ${f2(scR)}, s ${f2(scS)}`);
+      line(Math.abs(dl - Q.archW / 2) < 0.02 && Math.abs(dr - Q.archW / 2) < 0.02 && Math.abs(up + 1.0 - Q.archH) < 0.02,
+        `${E.key}: the arch at r ${Q.archR}: ${f3(dr + dl)} m clear between its panels (spec ${Q.archW}, ${f3(dr)} house right / ${f3(dl)} house left), ${f3(up + 1.0)} m clear under its header (spec ${Q.archH})`); }
+    // 4. NOTHING IN THE WAY with the leaves open: rays along the radius at WALK.rays over the floor, on the axis and 0.2 m either
+    // side (a 0.25 m body through a 0.45 m half-opening), and nothing over a head the whole way
+    { const len = r0 - r1, hits = [];
+      for (const s of [-0.2, 0, 0.2]) for (const h of WALK.rays) { const [x, z] = E.at(r0, s), d = rayH(x, Fl + h, z, -E.o[0], -E.o[1], len); if (d < Infinity) hits.push(`s ${s} y ${h} at r ${f2(r0 - d)}`); }
+      let low = Infinity; for (let r = r0; r >= r1; r -= 0.1) for (const s of [-0.2, 0, 0.2]) { const [x, z] = E.at(r, s), u = rayUp(x, (groundAt(x, z, Fl + 0.05) ?? Fl) + 0.05, z, WALK.head); if (u < low) low = u; }
+      line(!hits.length && low === Infinity, `${E.key}: the way clear at a body's heights (${WALK.rays.join(', ')} m; ${3 * WALK.rays.length} rays r ${f2(r0)} → ${f2(r1)}) and over a ${WALK.head} m head${hits.length ? ' — ' + hits.slice(0, 4).join('; ') : ''}${low < Infinity ? ` — something ${f2(low + 0.05)} m over the floor` : ''}`); }
+    { const sp = (o, r, s) => { if (!o) return null; const [x, z] = E.at(r, s), g = groundAt(x, z, Fl + 0.3); return Math.hypot(o.position.x - x, o.position.z - z) < 1e-6 && g !== null && Math.abs(o.position.y - g) < 0.02; };
+      const u = sp(E.usher, Q.stopR, Q.podium + VWSEC.usher), g = sp(E.guard, Q.archR, -(Q.archW / 2 + VWSEC.panel.t + VWSEC.guard));
+      line(u && g, `${E.key}: the usher ${u === null ? 'NOT BUILT (the rig not in?)' : u ? `behind the podium (s ${f2(Q.podium + VWSEC.usher)})` : 'OFF HIS SPOT'}, the guard ${g === null ? 'NOT BUILT' : g ? `beside the arch (s ${f2(-(Q.archW / 2 + VWSEC.panel.t + VWSEC.guard))})` : 'OFF HIS SPOT'}, both on the floor`); }
+  }
+  // put everything back: the doors where they were, the walker, the camera
+  DOORS.list.forEach((e, i) => { [e.want, e.u] = save.doors[i]; settle(e); });
+  player.pos.copy(save.pos); player.vel.copy(save.vel); player.onGround = save.g; player.spawn.copy(save.spawn); yaw = save.yaw; pitch = save.pitch;
+  camera.position.copy(save.cam); camera.quaternion.copy(save.q); camera.updateMatrixWorld();
+  const s = `van wezel entrances: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
+  console.info(s); requestRender(); return s;
+}
+VAN_WEZEL_API.entrances = {
+  spec: VW_ENTRANCES, security: VWSEC, get built() { return vwSec; },
+  pass: key => vwSecurityPass(key),             // someone through the arch at key: its light green a moment
+  scan: key => vwSecurityScan(key),             // a ticket scanned at key: the scanner's window green a moment
+  state() { const V = vwSec; return V ? V.ents.map(E => ({ key: E.key, door: E.door ? +E.door.u.toFixed(2) : null, pass: +E.passT.toFixed(2), scan: +E.scanT.toFixed(2), staff: !!E.usher })) : null; },
+  check: vwSecCheck,
 };
 
 /* ---------------------------------------------------------------- BUILD MODE
