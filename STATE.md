@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#44 merged; `vw-full-house` open)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#45 merged; nothing open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,7 +6,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR #45 `vw-full-house` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's audience.**
+- **NEWEST: PR #45 (MERGED `6ec85ac`) `vw-full-house` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's audience.**
   From his feature picks (the "Midtown Feature Picks" page: a full house, the interval crowd, the stage door, rain on Broadway,
   sound from the speakers; this is the first) and his ask: "make it so people can line up outside the door and start coming in
   when i open the door … a button to ahev them start lining up", asked where: "Both, one after the other". The header's **Line
@@ -38,8 +38,8 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   was already JOHNNY TREMAIN. Only the street's signs changed; everywhere else still says Theatre 2 (his word: "Leave the rest as
   Theatre 2").
 
-**Main** is #44's merge (#43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
-NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `places-upstage` and `booth-monitor-ghost`).
+**Main** is **`6ec85ac`** (#45; #44 and #43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
+NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `places-upstage`, `booth-monitor-ghost` and `vw-full-house`).
 
 - **Before it: PR #39 (MERGED `75b879b`) `actor-whiteout` (2026-10-25; HANDOFF's DONE block): lit actors no longer turn white.** Jack: "at some parts the lighting or the
   spotlights light up the people too much and they just turn entirely white". The cause: the engine's pools are added onto the

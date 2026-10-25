@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-25: the Van Wezel's audience — a line on Broadway, the foyer, their seats; applause at the bows (PR #45 `vw-full-house`, one session)
+## DONE — 2026-10-25: the Van Wezel's audience — a line on Broadway, the foyer, their seats; applause at the bows (PR #45 `vw-full-house`, merged `6ec85ac`, one session)
 
 Jack ticked five of the 25 ideas on the "Midtown Feature Picks" page (a full house, the interval crowd, the stage door, rain on
 Broadway, sound from the speakers), took the full house first, in the Van Wezel, then: *"make it so people can line up outside
