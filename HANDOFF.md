@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-25 (night): Broadway outside the three houses (RULING GV; PR `broadway-street`, one session)
+## DONE — 2026-10-25 (night): Broadway outside the three houses (RULING GV; PR `claude/broadway-street-5514f3`, one session)
 
 Jack: *"i want to make it so you can walk outside the theaters and it is like you are on broadway and there are a bunch of
 theaters (just put up empty fronts plus the 3 we already have for now) with marquis and stuff."*

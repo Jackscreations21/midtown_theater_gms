@@ -10,7 +10,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 (#20). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under NEXT below); the
 worktrees and local branches are gone.
 
-- **PR `broadway-street` (2026-10-25, night; RULING GV; HANDOFF's newest DONE block): Broadway outside the three houses.**
+- **PR `claude/broadway-street-5514f3` (2026-10-25, night; RULING GV; HANDOFF's newest DONE block): Broadway outside the three houses.**
   A street on a slant past the Midtown front and the Van Wezel's glass, 42 empty fronts with 19 real Broadway houses and
   their shows, HAMILTON and JOHNNY TREMAIN marquees on the Midtown block's new front over two new pairs of street doors, a
   pair through the Van Wezel's glass under its own marquee. The header's Street buttons are Actual time / Day / Night
