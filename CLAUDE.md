@@ -19,7 +19,8 @@ there. GitHub Pages serves this repository's root, so the page is `/midtown.html
    (2026-10-11 onward) before any change; add to it when you hit a new one.
 5. **docs/guide/VISION.md** — the video capture pipeline, when touching `tools/vision/`.
 6. The reference docs: `docs/HAMILTON-RIG.md` (the rig, the patch), `docs/hamilton-cues-format.md`
-   (`assets/hamilton-show.json`), `docs/hamilton-blocking-format.md` (`assets/hamilton-blocking.json`),
+   (`assets/hamilton-show.json`), `docs/hamilton-blocking-format.md` (`assets/hamilton-blocking.json`), `docs/hamilton-costumes-format.md`
+   (`assets/hamilton-costumes.json`),
    `docs/hamilton-dance-moves.md`, `docs/HAMILTON-LIGHTING-STYLE.md`, `assets/README.md` (licences —
    ETC's set and rig are non-commercial).
 

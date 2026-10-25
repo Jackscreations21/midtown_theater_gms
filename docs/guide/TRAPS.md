@@ -2315,3 +2315,19 @@ include the place a failure would show — the corridor behind the house, not on
   call and read its result from a window variable later; don't await timers in the tool call.
 - **`MIDTOWN.show.cues` are summaries** (`q`, `track`, `at`), not the engine's cues: `show.gotoCue(summary)` left the show "on"
   with no time and the pit's MD pose threw every frame. Use `show.seek(c.track, c.at)`.
+
+## From the costume round (2026-10-25)
+
+- **A splice that appends a `// comment` to the start of a one-line function comments out the rest of it.** Twice in this round a
+  scripted `replace` of the front of a long one-line `function … { … }` ended the new text with a trailing comment, and the old
+  tail after it (`… actRetag(a); ACT.dirty = true; }`) became part of the comment: "Unexpected end of input", no line number.
+  Put the comment at the end of the whole line. With no `node` here, find such an error in the Browser pane: fetch the page,
+  cut the module out, strip the `import`s, and `new Function()` it in pieces split at `function` / `const`.
+- **Two `python -m http.server` on the same port both start on Windows** (it allows the second bind). The pane then got
+  another session's checkout from 8137 — the old page, no error. Use a port no one else uses, pass `--directory`, and `curl` a
+  string only your edit has before you trust what the pane shows.
+- **"Change off stage, at her last exit before the track" puts a look on a whole song early** when she went off before the
+  song before and stayed on through both (Seabury's coat in The Schuyler Sisters). The exit must end close to the track
+  (`COS_TUNE.back`), else change at her first exit in the track itself.
+- **Under the worklight alone, dark costumes read mid-grey and the tops of heads read pale**: it is very bright from above. A plain
+  `MeshStandardMaterial` of the same colour looks the same; judge the colours in a cue, not in the work look.

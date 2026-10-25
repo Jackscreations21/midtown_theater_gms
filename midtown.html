@@ -61,6 +61,13 @@
   or on one actor, turned every frame to where she is and zoomed to the pool's size at her; a pure function of show time, so a
   seek is a play (MIDTOWN.follow.check()). Only while the show is on; stopped, they are the engine's to drive by hand.
 
+  THE COSTUMES (Jack: "make a costume system for hamilton and give all the charecotrs the correct costumes at the correct times";
+  "AUTOMATIC ACTORS: THE COSTUMES" below): assets/hamilton-costumes.json (docs/hamilton-costumes-format.md) — 46 looks after Paul
+  Tazewell's Broadway design and each body's plot of them by track. Worn on the jointed body: its parts painted in vertex colours
+  (coat, facings, waistcoat, stock, breeches, boots or stockings, bodice, skin, hair) and pieces on the pelvis, spine and head (coat
+  skirts, gowns, capes, epaulettes, queues, buns, a crown, a cap). A pure function of show time; changes are made off stage.
+  The Blocking panel's Costumes box, ?costumes=0, or MIDTOWN.costumes (on, at, plot, check()).
+
   THE ORCHESTRA PIT (Jack: "make an orchstar pit under the hamstage and make ther be a littlw hole at the front of the stage
   like hamilton has for the conductor"; "HOUSE WORKS: THE ORCHESTRA PIT" below): a black room under house 1's downstage deck
   (x −5.5…5.5, z −1.28…3.5, floor y −2.0), the band in it — the music director on a riser, his head and shoulders up through a
@@ -5725,7 +5732,7 @@ function actBuild(a) {
   a.obj = g; g.add(actTagBuild(a)); a.tag.visible = ACT.names;
   ACT.group.add(g);
 }
-function actRecolour(a) { const m = actMat(a.color); a.obj.userData.body.traverse(o => { if (o.isMesh) o.material = m; }); a.obj.name = 'actor: ' + a.name; actRetag(a); ACT.dirty = true; }
+function actRecolour(a) { const m = actMat(a.color); if (!a.look) a.obj.userData.body.traverse(o => { if (o.isMesh && !o.userData.piece) o.material = m; }); a.obj.name = 'actor: ' + a.name; actRetag(a); ACT.dirty = true; }   // in a costume: only her name's dot
 
 // ---- THE JOINTED BODY (RULING FS — Jack: "start working on the system for moving body parts"). assets/mannequin-woman-rig.glb
 // (tools/mannequin-rig.py): the same mannequin cut at her joints into fifteen rigid parts, each a node whose origin is its joint —
@@ -5785,6 +5792,7 @@ function rigBody(a) {
   }
   let h = 0; for (const ch of String(a.id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
   body.userData.parts = P; body.userData.seed = (h % 1000) / 1000;        // her own breath and weight shift, fixed by her id
+  cosBodyPieces(a, body, P);                                // THE COSTUMES: the pieces' meshes, empty until a look is worn
   return body;
 }
 // Two bones in her side view from a joint at the origin to a target (dz forward, dy up): → [the first bone's angle forward of
@@ -6949,6 +6957,7 @@ function actUpdate(T) {
     if (held && o.visible && !p.co) p.dance = danceAt(a, T); // FV: the move she is in (pure: the moves, the beat grid, T)
     if (typeof o.userData.animate === 'function') { try { o.userData.animate(p, o); } catch (e) { /* a limb rig's own failure never stops the show */ } }
     if (RIG.parts && o.visible && o.userData.body.userData.parts) { try { danceApply(a, p, o); } catch (e) { console.warn('dance:', e); } }
+    cosDress(a, T);                                          // THE COSTUMES: the look she wears at T (after the limbs: a gown's arms)
     if (CO.on) coBubble(a);                                  // THE STAGE MANAGER: an answer's bubble over her head
   }
   propUpdate(T);
@@ -7305,7 +7314,7 @@ function actBuildPanel() {
 <div class="row"><select class="bk-track" aria-label="Track"></select></div>
 <h2>Actors</h2>
 <div class="bk-list bk-actors"></div>
-<div class="row"><button class="bk-add">Add actor</button><button class="bk-del danger">Remove</button><label><input class="bk-shown" type="checkbox" checked> Show actors</label><label><input class="bk-names" type="checkbox" checked> Names</label></div>
+<div class="row"><button class="bk-add">Add actor</button><button class="bk-del danger">Remove</button><label><input class="bk-shown" type="checkbox" checked> Show actors</label><label><input class="bk-names" type="checkbox" checked> Names</label><label><input class="bk-cos" type="checkbox" checked> Costumes</label></div>
 <div class="row"><input class="bk-name" type="text" aria-label="Name"><input class="bk-color" type="color" aria-label="Colour"></div>
 <h2>Path <span class="bk-who"></span></h2>
 <div class="row"><button class="bk-drop" aria-pressed="false">Click to place</button></div>
@@ -7328,7 +7337,7 @@ function actBuildPanel() {
   const q = s => el.querySelector(s), E = ACT.E;
   Object.assign(E, { play: q('.bk-play'), clock: q('.bk-clock'), scrub: q('.bk-scrub'), track: q('.bk-track'), actors: q('.bk-actors'), name: q('.bk-name'), color: q('.bk-color'),
     shown: q('.bk-shown'), who: q('.bk-who'), drop: q('.bk-drop'), wps: q('.bk-wps'), wn: q('.bk-wn'), wtrack: q('.bk-wtrack'), wat: q('.bk-wat'), wdwell: q('.bk-wdwell'),
-    wface: q('.bk-wface'), wx: q('.bk-wx'), wz: q('.bk-wz'), woff: q('.bk-woff'), wlabel: q('.bk-wlabel'), names: q('.bk-names'), status: q('.bk-status'), draft: q('.bk-draft'), del: q('.bk-del') });
+    wface: q('.bk-wface'), wx: q('.bk-wx'), wz: q('.bk-wz'), woff: q('.bk-woff'), wlabel: q('.bk-wlabel'), names: q('.bk-names'), cos: q('.bk-cos'), status: q('.bk-status'), draft: q('.bk-draft'), del: q('.bk-del') });
   q('.bk-x').addEventListener('click', () => actPanel(false));
   // the clock: the show player's own controls (showStart / showPause / showSeek / showSeekT), never a second clock
   E.play.addEventListener('click', () => { if (!SHW.d) return; if (!SHW.on) showStart(true); else showPause(); actUI(true); });
@@ -7348,6 +7357,7 @@ function actBuildPanel() {
   });
   E.shown.addEventListener('change', () => { ACT.shown = E.shown.checked; ACT.dirty = true; requestRender(); });
   E.names.addEventListener('change', () => { ACT.names = E.names.checked; ACT.dirty = true; requestRender(); });
+  E.cos.checked = COS.on; E.cos.addEventListener('change', () => { COS_API.on = E.cos.checked; });
   E.name.addEventListener('change', () => { const a = ACT.actors[ACT.sel]; if (!a) return; a.name = E.name.value.trim() || a.name; actRecolour(a); actEdited(a); });
   E.color.addEventListener('input', () => { const a = ACT.actors[ACT.sel]; if (!a) return; a.color = E.color.value.toLowerCase(); actRecolour(a); ACT.helpDirty = true; requestRender(); });
   E.color.addEventListener('change', () => actEdited(null));
@@ -7484,6 +7494,7 @@ async function actInit() {
     try { rigLoad((await new Promise((ok, no) => new GLTFLoader().load(RIG.url, ok, undefined, no))).scene); }
     catch (e) { RIG.parts = null; RIG.err = String(e.message || e); console.warn('actors: no jointed body, the whole mannequin instead —', RIG.err); }
   }
+  if (RIG.parts) await cosLoadFile();                       // THE COSTUMES: worn on the jointed body only
   try { const r = await fetch(BEAT.url, { cache: 'no-cache' }); if (!r.ok) throw new Error(`${BEAT.url}: HTTP ${r.status}`); beatCompile(await r.json()); }
   catch (e) { BEAT.err = String(e.message || e); console.warn('actors: no beat grid (moves run at 120 BPM from their times) —', BEAT.err); }   // FV
   ACT.root = root;
@@ -7531,7 +7542,7 @@ function actCheck(opts = {}) {
   const limbs = o => { const P = o.visible && o.userData.body.userData.parts; if (!P) return null;
     const B = o.userData.body, v = [P.pelvis.position.x, P.pelvis.position.y, P.pelvis.position.z, B.position.x, B.position.y, B.position.z, B.rotation.y];   // FV: the body's offset too
     for (const n of RIG_NAMES) v.push(P[n].rotation.x, P[n].rotation.y, P[n].rotation.z); return v; };
-  const snap = () => ACT.actors.concat(ACT.props).map(a => ({ p: a.obj.position.clone(), yaw: a.obj.rotation.y, vis: a.obj.visible, tag: a.tagText, limbs: a.obj.userData.body ? limbs(a.obj) : null }));   // the props too (FR)
+  const snap = () => ACT.actors.concat(ACT.props).map(a => ({ p: a.obj.position.clone(), yaw: a.obj.rotation.y, vis: a.obj.visible, tag: a.tagText, look: a.look, limbs: a.obj.userData.body ? limbs(a.obj) : null }));   // the props too (FR)
   const eq = pts.map(T => {
     T = Math.min(T, SHW.d.max);
     // SEEK first, as a jump from far away (whatever the last moment left behind must not survive it) …
@@ -7548,7 +7559,7 @@ function actCheck(opts = {}) {
     }
     const A = snap(), at = showT();
     let dp = 0, dy = 0, dv = 0, dl = 0, dj = 0, nj = 0;
-    A.forEach((x, i) => { dp = Math.max(dp, x.p.distanceTo(B[i].p)); dy = Math.max(dy, Math.abs(actYawLerp(x.yaw, B[i].yaw, 1) - x.yaw)); if (x.vis !== B[i].vis) dv++; if (x.tag !== B[i].tag) dl++;
+    A.forEach((x, i) => { dp = Math.max(dp, x.p.distanceTo(B[i].p)); dy = Math.max(dy, Math.abs(actYawLerp(x.yaw, B[i].yaw, 1) - x.yaw)); if (x.vis !== B[i].vis) dv++; if (x.tag !== B[i].tag || x.look !== B[i].look) dl++;
       if (x.limbs && B[i].limbs) { nj++; x.limbs.forEach((v, k) => { dj = Math.max(dj, Math.abs(v - B[i].limbs[k])); }); } else if (!x.limbs !== !B[i].limbs) dv++; });
     return { T: +at.toFixed(3), posM: +dp.toFixed(6), yawRad: +dy.toFixed(6), visibility: dv, labels: dl, limbs: nj, limbRad: +dj.toFixed(6) };
   });
@@ -7587,8 +7598,360 @@ buildLightsPanel = () => {
       get props() { return ACT.props.map(p => ({ id: p.id, kind: p.kind, item: p.item, label: p.label, size: p.size, waypoints: p.waypoints.length, pose: p.obj.userData.pose || null, visible: p.obj.visible })); },
       propPose: (id, T = actNow()) => { const p = ACT.props.find(x => x.id === id) || ACT.props[id]; if (!p) return null; if (!p.c) p.c = propCompile(p); ACT.root.updateWorldMatrix(true, false); return propPose(p, T); },
     };
+    M.costumes = COS_API;                                    // THE COSTUMES
     M.follow = FOL_API; folLoad(FOL_URL);                    // THE FOLLOWSPOTS: they follow these bodies (their plot fetched now, small)
   }).catch(e => { console.error('actors: they could not be set up —', e); ACT.btn.title = 'No actors: ' + (e.message || e); });
+};
+
+/* ---------------------------------------------------------------- AUTOMATIC ACTORS: THE COSTUMES
+   Jack (2026-10-25): "make a costume system for hamilton and give all the charecotrs the correct costumes at the correct times".
+   The file: assets/hamilton-costumes.json, its format in docs/hamilton-costumes-format.md — `costumes` (each look: its garments
+   and their colours) and `plot` (each body's looks in the show's order: { from: track, at?, costume, onstage? }). The plot is
+   Paul Tazewell's for the Original Broadway Cast as far as it is written down; the rest (most colours, some song boundaries) is
+   read off the film, and the file says which.
+   - A LOOK is worn on the jointed body (FS) — never on the whole mannequin (?rig=0: the actors' own colours, as before). Every
+     part becomes a VERTEX-COLOURED copy of its shared geometry (the index, position and normal buffers shared; a colour buffer
+     of its own), painted by zones in her rest frame (cosZone: a coat and its facings, the waistcoat's front, the stock, cuffs,
+     breeches, knee boots or stockings and shoes, a bodice and its neckline, skin, hair), and up to three PIECES ride on her parts
+     (cosPieces: a coat's skirts or a gown's skirt on the pelvis; a cape, epaulettes on the spine; a queue, a bun, a crown, a cap
+     on the head). Vertex colours, not a shader: the engine's albedo pass (lxAlbedoOf) copies vertexColors, so a pool lands on a
+     coat in the coat's colour. One material for all of it (COS.mat). A look's geometry is made once and shared by every body
+     that wears it.
+   - THE PIECES ARE BUILT WITH THE BODY: three meshes per actor (on the pelvis, the spine, the head) whose geometry is swapped with
+     the look (an empty one for none). No mesh is added or taken away while the show runs: the Van Wezel's mirror re-clones on that,
+     and it syncs each mesh's geometry and material every frame.
+   - THE SKIRTS clear her at rest: her widest at every height (cosProfile: an ellipse per 2 cm slice holding every vertex of the
+     pelvis, spine and legs) carried down from the waist, plus COS_TUNE.margin, plus a flare. A coat's skirts hang behind
+     (COS_TUNE.tails: her hands rest on her hips, so the sides stay open); the hips under the coat are painted the coat's colour.
+     In a gown her arms stand a little out from her sides (COS_TUNE.gownArms, added after the limbs and the moves are posed —
+     every joint is set outright each pose, so this stays a pure function of the show time) so her hands clear the skirt.
+   - WHEN (cosAt): a pure function of the show time, as the pose is, so a seek dresses her as playing does (actors.check compares
+     the look too). A look's entry starts at its track's start + `at`. She changes OFF STAGE: at the moment she last went off
+     since the song before that track began (and since her look before it began), if she came back no more than COS_TUNE.back
+     s before it (so she is not seen in the new look in the song before); else at her first exit in the track itself
+     (the old look a little longer); else — never off in either, or `onstage: true` — at that time itself, in view (Hamilton gets his officer's coat in Right Hand Man; check() lists every change made in
+     view). Before her first entry she wears the first look; after the last, the last.
+   MIDTOWN.costumes: on (get / set), data, load(obj|url), at(id, T), plot(id), looks, check(). ?costumes=0 starts with them off. */
+const COS_URL = 'assets/hamilton-costumes.json';
+const COS_SLOTS = ['pelvis', 'spine', 'head'];            // the parts a look's pieces ride on
+const COS_TUNE = {
+  margin: 0.022,         // m: a skirt this far outside her widest at every height above it (at rest)
+  flare: 0.16,           // m per m down: a coat's skirts widen by this under the waist
+  waist: 0.985,          // m: where a skirt starts (the spine's joint: the sweater's hem)
+  hem: { long: 0.50, short: 0.80 },   // m over the floor: a long coat's hem (at the knee), a short one's
+  tails: [2.05, 4.23],   // rad round her from her front (+x her left): a coat's skirts hang from here to here (behind her)
+  tailsHem: 0.18,        // rad: … and lap this much further round at the hem
+  gownHem: 0.035,        // m: a gown's hem over the floor
+  bell: 0.44,            // m: a gown's radius at the hem (her foot reaches ~0.39 in a stride)
+  bellPow: 1.5,          // the bell's curve (higher: fuller lower down)
+  cape: [1.95, 4.33],    // rad: a cape hangs from here to here round her (behind)
+  capeHem: 0.04,         // m: a cape's hem over the floor
+  boot: 0.52,            // m: a knee boot's top (her knee is at 0.43)
+  hose: 0.47,            // m: stockings' top (under the breeches' knee band)
+  gownArms: [0.2, 0.08], // rad: in a gown, the upper arm out from her side, and the forearm further
+  back: 15,              // s: a change made off stage before its track is made in an exit she comes back from at most this long before it
+};
+const COS_DEF = {                                         // a look's fields when it does not give them (the file's `defaults` over these)
+  skin: '#b88b6d', hair: '#211a15', hairdo: 'queue', shirt: '#f2ebdd', stock: null, legs: 'boots', boots: '#7a5c3e', cuff: null,
+  stockings: '#efebe2', shoes: '#151311', tails: 'long', neck: 'low', sleeves: 'shirt', extras: [],
+};
+const COS = { on: !/[?&]costumes=0\b/.test(location.search), d: null, err: null, url: COS_URL, mat: null, empty: null, prof: null,
+  looks: new Map(), rgb: new Map(), v: 0 };
+
+const cosRGB = hex => { let c = COS.rgb.get(hex); if (!c) { c = new THREE.Color(hex); COS.rgb.set(hex, c); } return c; };   // linear (the page's colour management)
+function cosMat() {
+  if (!COS.mat) { COS.mat = new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 0.72, metalness: 0, side: THREE.DoubleSide }); COS.mat.name = 'costumes'; }
+  return COS.mat;
+}
+function cosEmpty() {
+  if (!COS.empty) { COS.empty = new THREE.BufferGeometry(); COS.empty.setAttribute('position', new THREE.Float32BufferAttribute([], 3)); COS.empty.boundingSphere = new THREE.Sphere(); }
+  return COS.empty;
+}
+const cosClamp = (x, a, b) => Math.min(b, Math.max(a, x));
+
+// ---- her widest at rest, by height: per 2 cm slice the ellipse about her centre line (rx; z forward, z back) that holds every
+// vertex of the pelvis, the spine and the legs in it
+function cosProfile() {
+  if (COS.prof) return COS.prof;
+  const S = 0.02, n = Math.ceil(1.6 / S), pts = Array.from({ length: n }, () => []);
+  for (const d of RIG.parts) {
+    if (!/^(pelvis|spine|thigh|shin|foot)/.test(d.name)) continue;
+    const J = RIG.J[d.name], P = d.geo.attributes.position;
+    for (let k = 0; k < P.count; k++) { const y = P.getY(k) + J.y, s = Math.floor(y / S); if (s >= 0 && s < n) pts[s].push(P.getX(k) + J.x, P.getZ(k) + J.z); }
+  }
+  const rx = new Float32Array(n), zf = new Float32Array(n), zb = new Float32Array(n);
+  for (let s = 0; s < n; s++) {
+    const L = pts[s]; let a = 0.05, f = 0.05, b = 0.05;
+    for (let k = 0; k < L.length; k += 2) { a = Math.max(a, Math.abs(L[k])); f = Math.max(f, L[k + 1]); b = Math.max(b, -L[k + 1]); }
+    let m = 1; for (let k = 0; k < L.length; k += 2) { const z = L[k + 1]; m = Math.max(m, Math.hypot(L[k] / a, z / (z > 0 ? f : b))); }
+    rx[s] = a * m; zf[s] = f * m; zb[s] = b * m;
+  }
+  return (COS.prof = { S, n, rx, zf, zb });
+}
+// her widest anywhere from height y up to the waist: the ellipse a skirt hanging from the waist must stay outside of at y
+function cosEnv(y) {
+  const F = cosProfile(), top = Math.floor(COS_TUNE.waist / F.S), s0 = cosClamp(Math.floor(y / F.S), 0, top);
+  let rx = 0, zf = 0, zb = 0; for (let s = s0; s <= top; s++) { rx = Math.max(rx, F.rx[s]); zf = Math.max(zf, F.zf[s]); zb = Math.max(zb, F.zb[s]); }
+  return { rx, zf, zb };
+}
+
+// ---- THE PAINT: what she wears at a point of her body at rest (world metres at rest, y up from her feet, z her front; nz the
+// normal's forward part) → a colour
+function cosZone(name, x, y, z, nz, L) {
+  const part = name.replace(/_[LR]$/, ''), side = name.slice(-1), ax = Math.abs(x), fr = nz > 0.3 && z > 0.02;
+  const sleeve = L.coat || (L.sleeves === 'skin' ? L.skin : (L.sleeves === 'bodice' || L.sleeves === 'elbow') && L.bodice ? L.bodice : L.shirt);
+  const breeches = L.breeches || L.vest || '#e3d5b8';
+  switch (part) {
+    case 'head': return (y > 1.588 && z < 0.07) || (y > 1.49 && z < -0.005) ? (L.wig || L.hair) : L.skin;
+    case 'hand': return L.gloves || L.skin;
+    case 'upperarm': return sleeve;
+    case 'forearm': {
+      const wr = RIG.J['hand_' + side].y;
+      if (L.coat) return y < wr + 0.075 ? (L.cuffs || L.facing || L.coat) : L.coat;
+      if (L.sleeves === 'elbow') return y < RIG.J['forearm_' + side].y - 0.06 ? L.skin : (L.bodice || L.shirt);
+      return sleeve;
+    }
+    case 'spine': {
+      if (L.coat) {
+        const w = 0.05 + 0.06 * cosClamp((y - 1.0) / 0.34, 0, 1);
+        if (fr && y > 1.36 && ax < 0.042) return L.stock || L.shirt;
+        if (fr && ax < w) return L.vest || L.shirt;
+        if (fr && ax < w + 0.032 && y > 1.10) return L.facing || L.coat;
+        if (y > 1.41) return L.facing || L.coat;
+        if (L.sash && Math.abs(x - (y - 1.17) * 0.75) < 0.03 && z > -0.2) return L.sash;
+        return L.coat;
+      }
+      if (L.vest) {
+        if (fr && y > 1.36 && ax < 0.045) return L.stock || L.shirt;
+        if (fr && y > 1.25 && ax < 0.015 + (y - 1.25) * 0.45) return L.shirt;
+        if (ax > 0.125 && y > 1.27) return L.shirt;
+        return L.vest;
+      }
+      if (L.bodice) {
+        if (fr && y > 1.29 && ax < 0.135) return L.neck === 'high' ? L.shirt : L.skin;
+        if (y > 1.385) return L.neck === 'high' ? L.shirt : sleeve;
+        if (L.stomacher && fr && ax < 0.045) return L.stomacher;
+        return L.bodice;
+      }
+      return fr && y > 1.36 && ax < 0.045 && L.stock ? L.stock : L.shirt;
+    }
+    case 'pelvis':
+      if (L.skirt) return L.skirt;
+      if (L.coat && L.tails !== 'none' && y > 0.80 && !(z > 0 && ax < 0.13)) return L.coat;     // the coat over her hips; open in front
+      if ((L.coat || L.vest) && fr && y > 0.89 && ax < 0.13) return L.vest || L.shirt;           // the waistcoat's skirts
+      if (L.bodice && y > 0.94) return L.bodice;
+      return breeches;
+    case 'thigh': return L.skirt ? L.stockings : breeches;
+    case 'shin':
+      if (L.legs === 'boots' && !L.skirt) return y < COS_TUNE.boot ? (L.cuff && y > COS_TUNE.boot - 0.045 ? L.cuff : L.boots) : breeches;
+      return y < COS_TUNE.hose || L.skirt ? L.stockings : breeches;
+    case 'foot': return L.legs === 'boots' ? L.boots : L.shoes;
+  }
+  return L.shirt;
+}
+
+// ---- THE PIECES: built in her rest frame as plain arrays, then one geometry per part they ride on (its joint taken off)
+function cosBuf() { return { p: [], c: [], i: [] }; }
+function cosGrid(M, nu, nv, at, col) {                     // a grid of (nu+1)×(nv+1): at(u, v) → [x, y, z], col(u, v) → hex
+  const o = M.p.length / 3;
+  for (let j = 0; j <= nv; j++) for (let i = 0; i <= nu; i++) {
+    const u = i / nu, v = j / nv, q = at(u, v), c = cosRGB(col(u, v)); M.p.push(q[0], q[1], q[2]); M.c.push(c.r, c.g, c.b);
+  }
+  for (let j = 0; j < nv; j++) for (let i = 0; i < nu; i++) { const a = o + j * (nu + 1) + i, b = a + 1, d = a + nu + 1, e = d + 1; M.i.push(a, d, b, b, d, e); }
+}
+function cosSolid(M, g, hex) {                             // a three.js geometry (already in her rest frame), one colour
+  const o = M.p.length / 3, P = g.attributes.position, c = cosRGB(hex);
+  for (let k = 0; k < P.count; k++) { M.p.push(P.getX(k), P.getY(k), P.getZ(k)); M.c.push(c.r, c.g, c.b); }
+  if (g.index) for (let k = 0; k < g.index.count; k++) M.i.push(o + g.index.getX(k));
+  else for (let k = 0; k < P.count; k++) M.i.push(o + k);
+  g.dispose();
+}
+function cosGeo(M, J) {
+  if (!M.i.length) return null;
+  const g = new THREE.BufferGeometry(), P = new Float32Array(M.p.length), C = new Uint16Array(M.c.length);
+  for (let k = 0; k < M.p.length; k += 3) { P[k] = M.p[k] - J.x; P[k + 1] = M.p[k + 1] - J.y; P[k + 2] = M.p[k + 2] - J.z; }
+  for (let k = 0; k < M.c.length; k++) C[k] = Math.round(cosClamp(M.c[k], 0, 1) * 65535);
+  g.setAttribute('position', new THREE.BufferAttribute(P, 3)); g.setAttribute('color', new THREE.BufferAttribute(C, 3, true)); g.setIndex(M.i);
+  g.computeVertexNormals(); g.computeBoundingSphere();
+  return g;
+}
+const cosRound = (th, e) => [Math.sin(th) * e.rx, Math.cos(th) * (Math.cos(th) > 0 ? e.zf : e.zb)];   // a point on an ellipse round her (th 0: her front, +x her left)
+function cosPieces(L) {
+  const T = COS_TUNE, top = T.waist, ex = new Set(L.extras || []);
+  const pel = cosBuf(), sp = cosBuf(), hd = cosBuf();
+  if (L.skirt) {                                           // a gown: closed, from the waist to the floor, belled
+    const y1 = T.gownHem, H = top - y1;
+    cosGrid(pel, 48, 14, (u, v) => {
+      const y = top - v * H, e = cosEnv(y), b = T.bell * Math.pow(v, T.bellPow);
+      const [x, z] = cosRound(u * 2 * Math.PI, { rx: Math.max(e.rx + T.margin, b), zf: Math.max(e.zf + T.margin, b * 0.92), zb: Math.max(e.zb + T.margin, b) });
+      return [x, y, z];
+    }, (u, v) => (L.hemband && v > 0.93) ? L.hemband : (L.petticoat && (u < 0.06 || u > 0.94)) ? L.petticoat : L.skirt);
+  } else if (L.coat && L.tails !== 'none') {               // a coat's skirts: behind her, waist to hem, flaring
+    const y1 = T.hem[L.tails] ?? T.hem.long, H = top - y1;
+    cosGrid(pel, 18, 8, (u, v) => {
+      const y = top - v * H, e = cosEnv(y), f = T.margin + T.flare * (top - y), lap = T.tailsHem * v;
+      const th = T.tails[0] - lap + u * (T.tails[1] - T.tails[0] + 2 * lap);
+      const [x, z] = cosRound(th, { rx: e.rx + f, zf: e.zf + f, zb: e.zb + f }); return [x, y, z];
+    }, (u, v) => (u < 0.06 || u > 0.94) ? (L.facing || L.coat) : (L.trim && v > 0.94) ? L.trim : L.coat);
+  }
+  if (L.cape) {                                            // a cape from her shoulders to the floor, behind; an ermine collar
+    const y0 = 1.415, y1 = L.capeHem ?? T.capeHem, len = (y0 - y1) / (y0 - T.capeHem);   // a look's own hem: a shoulder cape
+    cosGrid(sp, 22, 16, (u, v) => {
+      const y = y0 - v * (y0 - y1), k = v, th = T.cape[0] + u * (T.cape[1] - T.cape[0]);
+      return [Math.sin(th) * (0.25 + 0.20 * k * len), y, Math.cos(th) * (0.15 + 0.27 * k * len) - 0.01];
+    }, (u, v) => v < 0.09 ? ((L.ermine && ((Math.round(u * 22) * 7 + Math.round(v * 16 * 3)) % 5 === 0)) ? '#141210' : (L.ermine ? '#f4f1ea' : L.cape)) : L.cape);
+  }
+  if (ex.has('epaulettes')) for (const s of [1, -1]) {
+    cosSolid(sp, new THREE.CylinderGeometry(0.045, 0.048, 0.014, 14).scale(1, 1, 0.8).translate(s * 0.15, 1.402, -0.012), L.trim || '#c9a54a');
+    cosSolid(sp, new THREE.CylinderGeometry(0.049, 0.052, 0.035, 14, 1, true).scale(1, 1, 0.8).translate(s * 0.15, 1.38, -0.012), L.trim || '#c9a54a');
+  }
+  const hair = L.wig || L.hair;
+  if (L.hairdo === 'queue' || L.wig) {                     // a queue tied at the nape with a black ribbon
+    cosSolid(hd, new THREE.CylinderGeometry(0.016, 0.012, 0.13, 8).translate(0, 1.47, -0.095), hair);
+    cosSolid(hd, new THREE.BoxGeometry(0.06, 0.025, 0.012).translate(0, 1.53, -0.098), '#111111');
+  }
+  if (L.wig) for (const s of [1, -1]) cosSolid(hd, new THREE.CylinderGeometry(0.022, 0.022, 0.07, 10).rotateX(Math.PI / 2).translate(s * 0.085, 1.555, -0.005), hair);   // the curls over his ears
+  if (L.hairdo === 'bun') cosSolid(hd, new THREE.SphereGeometry(0.052, 14, 10).translate(0, 1.6, -0.08), hair);
+  if (L.hairdo === 'loose') cosGrid(hd, 12, 6, (u, v) => { const th = 1.75 + u * 2.78, y = 1.62 - v * 0.27; return [Math.sin(th) * (0.098 + 0.03 * v), y, Math.cos(th) * (0.10 + 0.03 * v) + 0.01]; }, () => hair);
+  if (ex.has('cap')) {                                     // a cap (Mulligan's)
+    cosSolid(hd, new THREE.SphereGeometry(0.104, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2).scale(1, 0.55, 1.05).translate(0, 1.6, 0.012), L.hat || '#2a2a2a');
+    cosSolid(hd, new THREE.CylinderGeometry(0.075, 0.075, 0.01, 14, 1, false, -Math.PI / 2, Math.PI).scale(1, 1, 0.75).translate(0, 1.6, 0.075), L.hat || '#2a2a2a');
+  }
+  if (ex.has('crown')) {                                   // a crown: a gold band with points, a red cap, jewels
+    const gold = L.trim || '#d4af37';
+    cosSolid(hd, new THREE.CylinderGeometry(0.096, 0.094, 0.05, 20, 1, true).scale(1, 1, 1.06).translate(0, 1.62, 0.012), gold);
+    for (let k = 0; k < 8; k++) { const th = k / 8 * Math.PI * 2; cosSolid(hd, new THREE.ConeGeometry(0.016, 0.05, 4).translate(Math.sin(th) * 0.095, 1.67, Math.cos(th) * 0.1 + 0.012), gold); }
+    cosSolid(hd, new THREE.SphereGeometry(0.09, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2).scale(1, 0.75, 1.05).translate(0, 1.64, 0.012), '#9e1b2b');
+    cosSolid(hd, new THREE.SphereGeometry(0.018, 8, 6).translate(0, 1.715, 0.012), gold);
+    for (let k = 0; k < 4; k++) { const th = k / 4 * Math.PI * 2; cosSolid(hd, new THREE.SphereGeometry(0.009, 6, 4).translate(Math.sin(th) * 0.1, 1.62, Math.cos(th) * 0.105 + 0.012), k % 2 ? '#1f4fa8' : '#b0122a'); }
+  }
+  return { pelvis: cosGeo(pel, RIG.J.pelvis), spine: cosGeo(sp, RIG.J.spine), head: cosGeo(hd, RIG.J.head) };
+}
+// a look's id → { id, L (its fields, the defaults filled in), geo: part → geometry, pieces: slot → geometry | null }; made once
+function cosLook(id) {
+  let k = COS.looks.get(id); if (k) return k;
+  const src = COS.d && COS.d.costumes[id]; if (!src || !RIG.parts) return null;
+  const L = Object.assign({}, COS_DEF, COS.d.defaults || {}, src);
+  const geo = {};
+  for (const d of RIG.parts) {
+    const J = RIG.J[d.name], P = d.geo.attributes.position, N = d.geo.attributes.normal, C = new Uint16Array(P.count * 3);
+    for (let v = 0; v < P.count; v++) {
+      const c = cosRGB(cosZone(d.name, P.getX(v) + J.x, P.getY(v) + J.y, P.getZ(v) + J.z, N.getZ(v), L));
+      C[v * 3] = Math.round(c.r * 65535); C[v * 3 + 1] = Math.round(c.g * 65535); C[v * 3 + 2] = Math.round(c.b * 65535);
+    }
+    const g = new THREE.BufferGeometry();
+    g.setIndex(d.geo.index); g.setAttribute('position', P); g.setAttribute('normal', N); g.setAttribute('color', new THREE.BufferAttribute(C, 3, true));
+    g.boundingSphere = d.geo.boundingSphere; g.name = `${id} ${d.name}`;
+    geo[d.name] = g;
+  }
+  k = { id, L, geo, pieces: cosPieces(L), gown: !!L.skirt };
+  COS.looks.set(id, k);
+  return k;
+}
+function cosForget() {                                     // a new file: every look made again, every body dressed again
+  for (const k of COS.looks.values()) { for (const g of Object.values(k.geo)) { g.index = null; g.deleteAttribute('position'); g.deleteAttribute('normal'); g.dispose(); } for (const g of Object.values(k.pieces)) if (g) g.dispose(); }   // a part's own buffers are shared: only its colours go
+  COS.looks.clear(); COS.v++;
+  for (const a of ACT.actors) a.look = undefined;
+  ACT.dirty = true; requestRender();
+}
+
+// ---- WHEN: her looks with the moments she changes into them (see the header); made again when her path or the file changes
+function cosCompile(a) {
+  const P = a.c ? a.c.P : [], tr = SHW.d ? SHW.d.byTrack : null, plot = (COS.d && COS.d.plot && COS.d.plot[a.id]) || [];
+  const spans = [];                                        // her unseen spans [t0, t1): standing at an off waypoint, walking between two
+  for (let i = 0; i < P.length; i++) {
+    if (!P[i].off) continue;
+    let j = i; while (j + 1 < P.length && P[j + 1].off) j++;
+    spans.push([i === 0 ? -Infinity : P[i].T, j + 1 < P.length ? P[j].leave : Infinity]); i = j;
+  }
+  const unseen = T => !P.length || spans.some(s => s[0] <= T && T < s[1]);
+  const E = plot.map((e, k) => { const t = tr && tr.get(String(e.from)), b = t && SHW.d.tracks[SHW.d.tracks.indexOf(t) - 1];
+    return { e, k, S: t ? t.start + (+e.at || 0) : NaN, W: b ? b.start - (b.pre || 0) : -Infinity, end: t ? t.start + t.len : NaN }; })
+    .filter(x => Number.isFinite(x.S)).sort((p, q) => p.S - q.S || p.k - q.k);
+  const list = []; let prev = -Infinity;
+  for (const x of E) {
+    let T = -Infinity, inView = false;
+    if (list.length) {
+      if (x.e.onstage || unseen(x.S)) { T = x.S; inView = !unseen(x.S); }
+      else {
+        const w = Math.max(prev, x.W);                         // … but not before the song before it began (she wears the old look there)
+        let best = null; for (const s of spans) if (s[1] > w && s[0] <= x.S && s[1] >= x.S - COS_TUNE.back) best = s;
+        const late = spans.find(s => s[0] > x.S && s[0] < x.end);   // none: her first exit in the track itself (the old look a little longer)
+        if (best) T = Math.max(best[0], w + 1e-3); else if (late && !x.e.onstage) T = late[0]; else { T = x.S; inView = true; }
+      }
+    }
+    list.push({ id: x.e.costume, T, S: x.S, from: String(x.e.from), at: +x.e.at || 0, inView });
+    prev = T;
+  }
+  a.cos = { c: a.c, v: COS.v, d: SHW.d, list };
+  return a.cos;
+}
+function cosAt(a, T) {
+  if (!COS.d) return null;
+  if (!a.cos || a.cos.c !== a.c || a.cos.v !== COS.v || a.cos.d !== SHW.d) cosCompile(a);
+  const L = a.cos.list; let id = null;
+  for (const x of L) { if (x.T <= T) id = x.id; else break; }
+  return id;
+}
+// ---- dressed at the show time (from actUpdate, after the limbs and the moves): the look's geometry on every part, the pieces
+function cosDress(a, T) {
+  const o = a.obj, B = o && o.userData.body, P = B && B.userData.parts; if (!P) return;
+  const id = COS.on ? cosAt(a, T) : null;
+  if (id !== a.look) {
+    a.look = id;
+    const k = id ? cosLook(id) : null;
+    for (const d of RIG.parts) { const m = P[d.name]; m.geometry = k ? k.geo[d.name] : d.geo; m.material = k ? cosMat() : actMat(a.color); }
+    for (const s of COS_SLOTS) { const m = B.userData.pieces[s], g = k && k.pieces[s]; m.geometry = g || cosEmpty(); m.visible = !!g; }
+  }
+  if (id && o.visible && COS.looks.get(id).gown) {        // her hands clear of the skirt (every joint was set outright this pose)
+    const [u, f] = COS_TUNE.gownArms;
+    P.upperarm_L.rotation.z += u; P.upperarm_R.rotation.z -= u; P.forearm_L.rotation.z += f; P.forearm_R.rotation.z -= f;
+  }
+}
+function cosBodyPieces(a, body, P) {                       // from rigBody: the three piece meshes, empty until a look is worn
+  const pieces = {};
+  for (const s of COS_SLOTS) {
+    const m = new THREE.Mesh(cosEmpty(), cosMat()); m.name = 'costume: ' + s; m.visible = false;
+    m.castShadow = false; m.receiveShadow = true; m.userData.rig = true; m.userData.actor = a.id; m.userData.piece = true;
+    P[s].add(m); pieces[s] = m;
+  }
+  body.userData.pieces = pieces;
+}
+function cosSet(d, from) {
+  if (!d || typeof d.costumes !== 'object' || typeof d.plot !== 'object') throw new Error(`${from}: no "costumes" and "plot"`);
+  COS.d = d; COS.err = null; cosForget();
+}
+async function cosLoadFile(url = COS_URL) {
+  try { const r = await fetch(url, { cache: 'no-cache' }); if (!r.ok) throw new Error(`${url}: HTTP ${r.status}`); cosSet(await r.json(), url); COS.url = url; }
+  catch (e) { COS.err = String(e.message || e); console.warn('actors: no costumes —', COS.err); }
+}
+// MIDTOWN.costumes.check(): the file against the company and the album (every look named exists and builds, every track exists,
+// every body has a plot), each body's changes with their moments, and the changes made in view.
+function cosCheck() {
+  if (!COS.d) return { error: COS.err || 'no costume file' };
+  const problems = [], tr = SHW.d ? SHW.d.byTrack : null, used = new Set();
+  for (const a of ACT.actors) {
+    const L = COS.d.plot[a.id];
+    if (!Array.isArray(L) || !L.length) { problems.push(`${a.id}: no looks in the plot`); continue; }
+    L.forEach((e, k) => {
+      if (!COS.d.costumes[e.costume]) problems.push(`${a.id} #${k + 1}: no costume "${e.costume}"`); else used.add(e.costume);
+      if (tr && !tr.get(String(e.from))) problems.push(`${a.id} #${k + 1}: no track "${e.from}"`);
+    });
+  }
+  for (const id of Object.keys(COS.d.plot)) if (!ACT.actors.some(a => a.id === id)) problems.push(`plot: "${id}" is not in the company`);
+  for (const id of used) { try { if (RIG.parts && !cosLook(id)) problems.push(`${id}: did not build`); } catch (e) { problems.push(`${id}: ${e.message || e}`); } }
+  const unused = Object.keys(COS.d.costumes).filter(id => !used.has(id));
+  const bodies = ACT.actors.map(a => { if (!a.c) a.c = actCompile(a); const c = cosCompile(a);
+    return { id: a.id, changes: c.list.map(x => ({ look: x.id, from: x.from, at: Number.isFinite(x.T) ? +x.T.toFixed(2) : null, inView: x.inView })) }; });
+  const inView = bodies.flatMap(b => b.changes.filter(x => x.inView).map(x => `${b.id} → ${x.look} at ${x.from}`));
+  return { pass: !problems.length, problems, looks: used.size, unused, inView, bodies, jointed: !!RIG.parts };
+}
+const COS_API = {
+  get on() { return COS.on; }, set on(v) { COS.on = !!v; for (const a of ACT.actors) a.look = undefined; ACT.dirty = true; requestRender(); if (ACT.E && ACT.E.cos) ACT.E.cos.checked = COS.on; },
+  get data() { return COS.d; }, load: x => typeof x === 'string' ? cosLoadFile(x) : cosSet(x, 'the console'),
+  at: (id, T = actNow()) => { const a = ACT.actors.find(x => x.id === id); return a ? cosAt(a, T) : null; },
+  plot: id => { const a = ACT.actors.find(x => x.id === id); if (!a) return null; if (!a.c) a.c = actCompile(a); return cosCompile(a).list; },
+  get looks() { return [...COS.looks.keys()]; }, check: () => cosCheck(), state: COS, tune: COS_TUNE,
 };
 
 /* ---------------------------------------------------------------- THE FOLLOWSPOTS

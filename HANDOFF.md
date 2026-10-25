@@ -229,6 +229,55 @@ compare the *same* production across stages instead.
 
 ---
 
+## NEXT SESSION: **HIS EYE ON THE COSTUMES** (2026-10-25; PR `hamilton-costumes`)
+
+Rulings at **GV** (GW next; none made this round). Land PR `hamilton-costumes` when he says so. Then his eye on it: play any
+stretch of the show with the Blocking panel's Costumes box on and off; the doubled tracks (Lafayette into Jefferson, Peggy into
+Maria Reynolds, Laurens into Philip); Hamilton's coat in Right Hand Man. His to decide: listed in the DONE block below. Then the
+NEXT SESSION blocks under it (the Van Wezel dressed for Hamilton, #33–#35, all merged).
+
+## DONE — 2026-10-25 (night): the Hamilton costumes — 46 looks, each body's plot of them by song (PR `hamilton-costumes`, one session)
+
+Jack: *"make a costume system for hamilton and give all the charecotrs the correct costumes at the correct times"*. No ruling.
+- **THE COSTUMES** (new section "AUTOMATIC ACTORS: THE COSTUMES", before THE FOLLOWSPOTS; `MIDTOWN.costumes`;
+  `assets/hamilton-costumes.json`, its format in `docs/hamilton-costumes-format.md`). A look is worn on the jointed body: every
+  part a vertex-coloured copy of its shared geometry (its index, position and normal buffers shared), painted by zones in her
+  rest frame — coat, facings and lapels, the waistcoat's front, the stock, cuffs, a sash, breeches, knee boots or stockings and
+  shoes, a bodice and its neckline, skin, hair. Up to three pieces ride on the pelvis, spine and head: a coat's skirts (behind;
+  the hips painted the coat's colour), a gown's belled skirt, a cape with an ermine collar, epaulettes, a queue with its ribbon,
+  a bun, loose hair, a wig's curls, a crown, a cap. The skirts clear her widest at rest at every height (`cosProfile`). In a gown
+  her arms stand 0.2 rad out so her hands clear the skirt. Vertex colours, so the pools' albedo pass sees them.
+  One material (`COS.mat`, DoubleSide).
+- **The pieces' three meshes are built with each body** and only their geometry swaps, so the Van Wezel's mirror (which re-clones
+  when a mesh is added) just syncs them: `vanWezel.hamilton` counts 4284 of 4284 parts.
+- **WHEN** is a pure function of show time; `actors.check()` now compares each body's look too (seek = play). A change is made
+  off stage: at the body's last exit since the song before (if it came back within 15 s of the track), else at its first exit in
+  the track, else in view. In view today: only Hamilton into the student's coat at 1-02 and the officer's at 1-08, both marked
+  `onstage`.
+- **The plot** (Paul Tazewell's design as far as it is written down; most colours and some song boundaries read off the film —
+  each look says S or I). Parchment base for the company. Hamilton: base → brown student's coat (1-02) → Continental officer
+  (1-08) → money-green suit with stockings and shoes (1-23) → darker (2-16) → black with a shoulder cape (2-22). Burr: brown
+  1770s → deep blue 1800s (2-01) → black (2-22). Washington: officer with sash and epaulettes (1-08) → black velvet (2-01) → base
+  (2-23). Lafayette in navy, gold from Guns and Ships, then Jefferson's purple velvet (2-01). Mulligan's coat and cap, then
+  Madison. Laurens' Continental coat, Philip's short blue tailcoat (2-03). King George in red with crown, wig and ermine cape;
+  the cape off from What Comes Next. Eliza's blue, mint zone-front, maternity, empire, black pelisse and blue again; Angelica's
+  peach gowns, spencer and black pelisse; Peggy's yellows, then Maria Reynolds' red (2-04, 2-14). The ensemble's men take
+  Continental coats for the soldier numbers and Act 2 tailcoats. Its women take full skirts for the ball and the wedding and
+  Act 2 spencers. Seabury, Philip Schuyler, James Reynolds and Eacker each have their own coat. Almost everyone is back in
+  parchment for the finale.
+- **The Blocking panel's "Costumes" box** (and `?costumes=0`) puts the actors' own colours back. In a costume, the editor's colour
+  changes only the dot by the name.
+- **Checks:** `costumes.check()` PASS (46 looks, all used, all built; 136 entries); `actors.check()` PASS, with seek-equivalence
+  also run at 14 moments just after changes; `show.check()` seek-equivalent (its pass is false only for the known 16 channels with no
+  unit); `lx.check()` 301/313 (show stopped); `vanWezel.hamilton` 11/12 (the band not yet built at that moment of load, as
+  before); console clean but the local-only 404s. The actors' update costs 0.2–1.1 ms a frame. Rendered in Schuyler Sisters,
+  You'll Be Back, Cabinet Battle #1 and line-ups of every principal's looks under the worklight.
+- **His to decide:** every colour marked I (most of them), and the song boundaries the sources do not give (Hamilton into
+  green at Non-Stop and darker at Blow Us All Away; Eliza's empire gown from What'd I Miss; Philip from Take a Break); which
+  ensemble bodies are women (ens1, ens6–9); no Redcoat set (no source names one); one skin tone for everyone (the mannequin is
+  one body); the coat's skirts hang behind only, so the hands at the hips stay outside them (in a walk a hand can pass through
+  them); the curtain-call parchment is put on at the finale's start.
+
 ## NEXT SESSION: **HIS EYE ON THE VAN WEZEL DRESSED FOR HAMILTON** (2026-10-25; PR #33 `vw-hamilton`)
 
 Rulings at **GV** (GW next). Land PR #33 when he says so (main merged in). Then his eye on it: "VW dress" on and off from the

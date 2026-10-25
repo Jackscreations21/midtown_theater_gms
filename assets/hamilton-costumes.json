@@ -1,0 +1,1179 @@
+{
+ "what": "The Hamilton costumes for midtown.html's automatic actors (THE COSTUMES; docs/hamilton-costumes-format.md). `costumes`: each look, its garments and their colours. `plot`: each body (tools/hamilton-cast.json ids) and its looks in the show's order, each worn from the start of a track (album ids) - changed into off stage, at the moment the body last went off before it, unless `onstage`.",
+ "design": "Paul Tazewell, the Original Broadway production (Richard Rodgers Theatre). A parchment base for the company with character added on top; no wigs but King George's; boots in the war, stockings and shoes for the statesmen; almost everyone back in parchment for the finale.",
+ "sourcing": "Each look's `source`: S = written down (Tazewell's notes, the Smithsonian's record of the green suit, reviews of the film); I = read off the film or inferred. Most colours and many song boundaries are I - check them against the film.",
+ "sources": [
+  "https://tyrannyofstyle.com/costume-design-hamilton-broadway/",
+  "https://frockflicks.com/lets-talk-about-hamilton/",
+  "https://frockflicks.com/hamilton-on-broadway/",
+  "https://drpence.wordpress.com/2017/10/02/hamilton-costumes/",
+  "https://www.wfdd.org/2016-06-10/designing-hamilton-bringing-characters-to-life-through-costume",
+  "https://theartofcostume.com/2020/11/25/the-costumes-of-hamilton-how-an-18th-century-silhouette-tells-a-story/",
+  "https://si.edu/object/costume-worn-lin-manuel-miranda-alexander-hamilton-hamilton-american-musical-broadway%3Anmah_1853537"
+ ],
+ "women": "The ensemble's women are ens1 (The Bullet), ens6 (Dolly), ens7 (Martha), ens8 and ens9; its men ens2-ens5 and ens10.",
+ "defaults": {
+  "skin": "#b88b6d",
+  "hair": "#211a15"
+ },
+ "costumes": {
+  "base-m": {
+   "label": "Parchment base (men): shirt, stock, waistcoat, breeches, knee boots",
+   "source": "S",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#7a5c3e"
+  },
+  "base-w": {
+   "label": "Parchment base (women): corset bodice over a chemise, leggings, knee boots",
+   "source": "S",
+   "bodice": "#e8dcc3",
+   "breeches": "#d9c9a8",
+   "shirt": "#f2ebdd",
+   "sleeves": "shirt",
+   "neck": "low",
+   "boots": "#7a5c3e",
+   "hairdo": "bun"
+  },
+  "ens-continental": {
+   "label": "Ensemble: Continental coat over the base",
+   "source": "S: coats added for the soldier numbers; colour I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#7a5c3e",
+   "coat": "#2e3a55",
+   "facing": "#cdb98f"
+  },
+  "ens-skirt": {
+   "label": "Ensemble women: full skirt over the base (the ball and the wedding)",
+   "source": "S: \"four wear full skirts\"; songs I",
+   "bodice": "#e8dcc3",
+   "breeches": "#d9c9a8",
+   "shirt": "#f2ebdd",
+   "sleeves": "elbow",
+   "neck": "low",
+   "boots": "#7a5c3e",
+   "hairdo": "bun",
+   "skirt": "#efe6d2",
+   "legs": "stockings"
+  },
+  "ens-m-act2-brown": {
+   "label": "Ensemble men, Act 2: high-waisted tailcoat, brown",
+   "source": "I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#7a5c3e",
+   "coat": "#5e5040",
+   "facing": "#5e5040"
+  },
+  "ens-m-act2-grey": {
+   "label": "Ensemble men, Act 2: high-waisted tailcoat, grey",
+   "source": "I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#7a5c3e",
+   "coat": "#6b6b6b",
+   "facing": "#6b6b6b"
+  },
+  "ens-w-act2-taupe": {
+   "label": "Ensemble women, Act 2: short Regency spencer over the corset",
+   "source": "S: spencers; colour I",
+   "bodice": "#e8dcc3",
+   "breeches": "#d9c9a8",
+   "shirt": "#f2ebdd",
+   "sleeves": "shirt",
+   "neck": "low",
+   "boots": "#7a5c3e",
+   "hairdo": "bun",
+   "coat": "#9c9283",
+   "facing": "#9c9283",
+   "vest": "#e8dcc3",
+   "tails": "none"
+  },
+  "ens-w-act2-grey": {
+   "label": "Ensemble women, Act 2: short Regency spencer over the corset",
+   "source": "S: spencers; colour I",
+   "bodice": "#e8dcc3",
+   "breeches": "#d9c9a8",
+   "shirt": "#f2ebdd",
+   "sleeves": "shirt",
+   "neck": "low",
+   "boots": "#7a5c3e",
+   "hairdo": "bun",
+   "coat": "#6e6658",
+   "facing": "#6e6658",
+   "vest": "#e8dcc3",
+   "tails": "none"
+  },
+  "seabury": {
+   "label": "Samuel Seabury: dark clerical coat over the base",
+   "source": "I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f7f5f0",
+   "boots": "#7a5c3e",
+   "coat": "#3c3a36",
+   "facing": "#3c3a36"
+  },
+  "schuyler": {
+   "label": "Philip Schuyler: an older man's long brown frock coat",
+   "source": "I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#7a5c3e",
+   "coat": "#5a4632",
+   "facing": "#5a4632",
+   "hair": "#9a958c"
+  },
+  "james-reynolds": {
+   "label": "James Reynolds: dark coat over the base",
+   "source": "I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#7a5c3e",
+   "coat": "#2e2a26",
+   "facing": "#2e2a26"
+  },
+  "eacker": {
+   "label": "George Eacker: dark Act 2 tailcoat",
+   "source": "I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#1b1612",
+   "coat": "#252321",
+   "facing": "#252321"
+  },
+  "ham-student": {
+   "label": "Hamilton: distressed brown suede frock coat (the new arrival)",
+   "source": "S; colour I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#5a3e28",
+   "coat": "#7b5b3a",
+   "facing": "#7b5b3a"
+  },
+  "ham-officer": {
+   "label": "Hamilton: navy-and-tan Continental officer's coat, riding boots",
+   "source": "S; colour I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#3a2a1e",
+   "coat": "#1f2a44",
+   "facing": "#d2be92",
+   "trim": "#c9a54a",
+   "extras": [
+    "epaulettes"
+   ]
+  },
+  "ham-green": {
+   "label": "Hamilton: the \"money green\" suit, white shirt and stock, stockings and buckled shoes",
+   "source": "S (the Smithsonian); from Non-Stop I",
+   "vest": "#2f5d3a",
+   "breeches": "#2f5d3a",
+   "shirt": "#f5f2ea",
+   "stock": "#f5f2ea",
+   "boots": "#7a5c3e",
+   "coat": "#2f5d3a",
+   "facing": "#2f5d3a",
+   "legs": "stockings",
+   "stockings": "#f0eee8",
+   "shoes": "#111111",
+   "trim": "#c9a54a"
+  },
+  "ham-dark": {
+   "label": "Hamilton: a darker coat as he ages",
+   "source": "S; from Blow Us All Away I",
+   "vest": "#2a2a2a",
+   "breeches": "#1c1c1c",
+   "shirt": "#eeeeee",
+   "stock": "#eeeeee",
+   "boots": "#7a5c3e",
+   "coat": "#1c1c1c",
+   "facing": "#1c1c1c",
+   "legs": "stockings",
+   "stockings": "#e8e6e0",
+   "shoes": "#111111"
+  },
+  "ham-duel": {
+   "label": "Hamilton: black caped coat for the duel",
+   "source": "S",
+   "vest": "#1e1e1e",
+   "breeches": "#141414",
+   "shirt": "#eeeeee",
+   "stock": "#eeeeee",
+   "boots": "#0f0f0f",
+   "coat": "#141414",
+   "facing": "#141414",
+   "cape": "#141414",
+   "capeHem": 1.0
+  },
+  "burr-1770": {
+   "label": "Burr: brown 1770s frock coat, waistcoat, breeches, knee boots",
+   "source": "S (brown first); colour I",
+   "vest": "#cdb99a",
+   "breeches": "#d6c6a6",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#2b1f17",
+   "coat": "#6b4e34",
+   "facing": "#5a4029"
+  },
+  "burr-1800": {
+   "label": "Burr: deep blue high-waisted 1800s tailcoat",
+   "source": "S (blue, after Non-Stop); colour I",
+   "vest": "#8c8fa0",
+   "breeches": "#cfc3a8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2f2f2",
+   "boots": "#1b1612",
+   "coat": "#1e2d52",
+   "facing": "#1e2d52"
+  },
+  "burr-black": {
+   "label": "Burr: all black",
+   "source": "S (the duel and the bows)",
+   "vest": "#1e1e1e",
+   "breeches": "#151515",
+   "shirt": "#f2ebdd",
+   "stock": "#eeeeee",
+   "boots": "#0f0f0f",
+   "coat": "#151515",
+   "facing": "#151515"
+  },
+  "wash-officer": {
+   "label": "Washington: the general's uniform as in the portraits: sash, gold braid, epaulettes",
+   "source": "S; colours I",
+   "vest": "#d2be92",
+   "breeches": "#d2be92",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#1a1a1a",
+   "coat": "#1f2a44",
+   "facing": "#d2be92",
+   "trim": "#c9a54a",
+   "sash": "#7fa7c9",
+   "extras": [
+    "epaulettes"
+   ]
+  },
+  "wash-black": {
+   "label": "Washington: black velvet suit, white stock (the President)",
+   "source": "S",
+   "vest": "#161616",
+   "breeches": "#161616",
+   "shirt": "#f2f2f2",
+   "stock": "#f2f2f2",
+   "boots": "#7a5c3e",
+   "coat": "#161616",
+   "facing": "#161616",
+   "legs": "stockings",
+   "shoes": "#111111"
+  },
+  "laf-uniform": {
+   "label": "Lafayette: navy uniform with ivory facings, hair in a queue",
+   "source": "S; colour I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#2b1f17",
+   "coat": "#22305a",
+   "facing": "#ede6d6"
+  },
+  "laf-general": {
+   "label": "Lafayette: the uniform embellished as he commands (gold epaulettes, braid)",
+   "source": "S; from Guns and Ships I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#2b1f17",
+   "coat": "#22305a",
+   "facing": "#ede6d6",
+   "trim": "#c9a54a",
+   "extras": [
+    "epaulettes"
+   ]
+  },
+  "jefferson": {
+   "label": "Jefferson: purple velvet suit, frilled shirt (the rock star)",
+   "source": "S; colours I",
+   "vest": "#7a3f9a",
+   "breeches": "#4a2370",
+   "shirt": "#f5f0f5",
+   "stock": "#f5f0f5",
+   "boots": "#141414",
+   "coat": "#5b2a86",
+   "facing": "#3e1a5e",
+   "cuffs": "#3e1a5e",
+   "trim": "#c9a54a",
+   "hairdo": "loose"
+  },
+  "mulligan": {
+   "label": "Mulligan: a working man's frock coat over the base, a cap",
+   "source": "S (the hat); the rest I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#2b1f17",
+   "coat": "#4e3b2b",
+   "facing": "#4e3b2b",
+   "hat": "#2a2a2a",
+   "extras": [
+    "cap"
+   ]
+  },
+  "madison": {
+   "label": "Madison: high-waisted 1800s coat",
+   "source": "S; colour I",
+   "vest": "#b8a88a",
+   "breeches": "#b8a88a",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#1b1612",
+   "coat": "#4a2a2a",
+   "facing": "#4a2a2a"
+  },
+  "laurens": {
+   "label": "Laurens: Continental coat over the base",
+   "source": "I",
+   "vest": "#e3d5b8",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#7a5c3e",
+   "coat": "#2e3a55",
+   "facing": "#cdb98f"
+  },
+  "philip": {
+   "label": "Philip: a boy's short tailcoat, lighter blue",
+   "source": "I",
+   "vest": "#efe6d2",
+   "breeches": "#e3d5b8",
+   "shirt": "#f2ebdd",
+   "stock": "#f2ebdd",
+   "boots": "#7a5c3e",
+   "coat": "#4f6e9a",
+   "facing": "#4f6e9a",
+   "tails": "short"
+  },
+  "king-robe": {
+   "label": "King George: red coat with gold, ermine cape, crown, white curled wig",
+   "source": "S; colours I",
+   "cape": "#8e1a24",
+   "ermine": true,
+   "coat": "#a3202a",
+   "facing": "#c9a54a",
+   "cuffs": "#c9a54a",
+   "vest": "#c9a54a",
+   "breeches": "#f0eee8",
+   "shirt": "#f5f2ea",
+   "stock": "#f5f2ea",
+   "legs": "stockings",
+   "stockings": "#f0eee8",
+   "shoes": "#111111",
+   "wig": "#edebe6",
+   "trim": "#d4af37",
+   "extras": [
+    "crown"
+   ]
+  },
+  "king": {
+   "label": "King George: as before, the cape off",
+   "source": "S (less each time); I",
+   "coat": "#a3202a",
+   "facing": "#c9a54a",
+   "cuffs": "#c9a54a",
+   "vest": "#c9a54a",
+   "breeches": "#f0eee8",
+   "shirt": "#f5f2ea",
+   "stock": "#f5f2ea",
+   "legs": "stockings",
+   "stockings": "#f0eee8",
+   "shoes": "#111111",
+   "wig": "#edebe6",
+   "trim": "#d4af37",
+   "extras": [
+    "crown"
+   ]
+  },
+  "eliza-blue": {
+   "label": "Eliza: robin's-egg blue robe a l'anglaise (silk taffeta)",
+   "source": "S; colour I",
+   "bodice": "#8fc6d6",
+   "skirt": "#8fc6d6",
+   "sleeves": "elbow",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  },
+  "eliza-zone": {
+   "label": "Eliza: mint-teal zone-front over-gown over the blue",
+   "source": "S; colour I",
+   "bodice": "#a6d4c0",
+   "skirt": "#a6d4c0",
+   "sleeves": "elbow",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b",
+   "petticoat": "#8fc6d6",
+   "stomacher": "#8fc6d6"
+  },
+  "eliza-maternity": {
+   "label": "Eliza: maternity gown",
+   "source": "S; songs and colour I",
+   "bodice": "#7fb8b0",
+   "skirt": "#7fb8b0",
+   "sleeves": "elbow",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  },
+  "eliza-empire": {
+   "label": "Eliza: slim empire-waist gown, pale blue and white (cotton voile)",
+   "source": "S; colours I",
+   "bodice": "#bfd9e6",
+   "skirt": "#f4f7f8",
+   "sleeves": "bodice",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  },
+  "eliza-black": {
+   "label": "Eliza: black pelisse after Philip's death",
+   "source": "S",
+   "bodice": "#151515",
+   "skirt": "#151515",
+   "sleeves": "bodice",
+   "neck": "high",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b",
+   "shirt": "#222222"
+  },
+  "eliza-blue-2": {
+   "label": "Eliza: back to blue",
+   "source": "S",
+   "bodice": "#bfd9e6",
+   "skirt": "#bfd9e6",
+   "sleeves": "bodice",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  },
+  "angelica-1": {
+   "label": "Angelica: peach gown, sweetheart neckline",
+   "source": "S; colour I",
+   "bodice": "#f2a98e",
+   "skirt": "#f2a98e",
+   "sleeves": "elbow",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  },
+  "angelica-2": {
+   "label": "Angelica: zone-front bodice with centre-front buttons",
+   "source": "S; colour I",
+   "bodice": "#f0b39a",
+   "skirt": "#f0b39a",
+   "sleeves": "elbow",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b",
+   "stomacher": "#e2957a"
+  },
+  "angelica-3": {
+   "label": "Angelica: jacket bodice (the wedding, the move to England)",
+   "source": "S; colours I",
+   "bodice": "#d98e72",
+   "skirt": "#f0b39a",
+   "sleeves": "bodice",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  },
+  "angelica-4": {
+   "label": "Angelica: 1800s gown with a two-tone spencer bodice",
+   "source": "S; colours I",
+   "bodice": "#c9785e",
+   "skirt": "#f6d3c2",
+   "sleeves": "bodice",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  },
+  "angelica-black": {
+   "label": "Angelica: black pelisse",
+   "source": "S",
+   "bodice": "#151515",
+   "skirt": "#151515",
+   "sleeves": "bodice",
+   "neck": "high",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b",
+   "shirt": "#222222"
+  },
+  "angelica-peach": {
+   "label": "Angelica: muted peach (the finale)",
+   "source": "S",
+   "bodice": "#f3cdbd",
+   "skirt": "#f3cdbd",
+   "sleeves": "elbow",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  },
+  "peggy-1": {
+   "label": "Peggy: soft yellow gown",
+   "source": "S; colour I",
+   "bodice": "#f2d675",
+   "skirt": "#f2d675",
+   "sleeves": "elbow",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  },
+  "peggy-2": {
+   "label": "Peggy: a different bodice",
+   "source": "S; colours I",
+   "bodice": "#efcb5e",
+   "skirt": "#f2d675",
+   "sleeves": "elbow",
+   "neck": "low",
+   "hairdo": "bun",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  },
+  "maria": {
+   "label": "Maria Reynolds: red low-cut Regency gown, hair loose",
+   "source": "I (no source)",
+   "bodice": "#b3122e",
+   "skirt": "#b3122e",
+   "sleeves": "skin",
+   "neck": "low",
+   "hairdo": "loose",
+   "legs": "stockings",
+   "shoes": "#2a211b"
+  }
+ },
+ "plot": {
+  "hamilton": [
+   {
+    "from": "1-01",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-02",
+    "costume": "ham-student",
+    "onstage": true
+   },
+   {
+    "from": "1-08",
+    "costume": "ham-officer",
+    "onstage": true
+   },
+   {
+    "from": "1-23",
+    "costume": "ham-green"
+   },
+   {
+    "from": "2-16",
+    "costume": "ham-dark"
+   },
+   {
+    "from": "2-22",
+    "costume": "ham-duel"
+   }
+  ],
+  "burr": [
+   {
+    "from": "1-01",
+    "costume": "burr-1770"
+   },
+   {
+    "from": "2-01",
+    "costume": "burr-1800"
+   },
+   {
+    "from": "2-22",
+    "costume": "burr-black"
+   }
+  ],
+  "eliza": [
+   {
+    "from": "1-01",
+    "costume": "base-w"
+   },
+   {
+    "from": "1-05",
+    "costume": "eliza-blue"
+   },
+   {
+    "from": "1-09",
+    "costume": "eliza-zone"
+   },
+   {
+    "from": "1-17",
+    "costume": "eliza-maternity"
+   },
+   {
+    "from": "2-01",
+    "costume": "eliza-empire"
+   },
+   {
+    "from": "2-18",
+    "costume": "eliza-black"
+   },
+   {
+    "from": "2-19",
+    "costume": "eliza-blue-2"
+   }
+  ],
+  "angelica": [
+   {
+    "from": "1-01",
+    "costume": "base-w"
+   },
+   {
+    "from": "1-05",
+    "costume": "angelica-1"
+   },
+   {
+    "from": "1-08",
+    "costume": "angelica-2"
+   },
+   {
+    "from": "1-12",
+    "costume": "angelica-3"
+   },
+   {
+    "from": "2-03",
+    "costume": "angelica-4"
+   },
+   {
+    "from": "2-18",
+    "costume": "angelica-black"
+   },
+   {
+    "from": "2-23",
+    "costume": "angelica-peach"
+   }
+  ],
+  "peggy": [
+   {
+    "from": "1-01",
+    "costume": "base-w"
+   },
+   {
+    "from": "1-05",
+    "costume": "peggy-1"
+   },
+   {
+    "from": "1-10",
+    "costume": "peggy-2"
+   },
+   {
+    "from": "1-12",
+    "costume": "base-w"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-w-act2-taupe"
+   },
+   {
+    "from": "2-04",
+    "costume": "maria"
+   },
+   {
+    "from": "2-05",
+    "costume": "ens-w-act2-taupe"
+   },
+   {
+    "from": "2-14",
+    "costume": "maria"
+   },
+   {
+    "from": "2-15",
+    "costume": "ens-w-act2-taupe"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-w"
+   }
+  ],
+  "washington": [
+   {
+    "from": "1-01",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-08",
+    "costume": "wash-officer"
+   },
+   {
+    "from": "2-01",
+    "costume": "wash-black"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-m"
+   }
+  ],
+  "lafayette": [
+   {
+    "from": "1-01",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-02",
+    "costume": "laf-uniform"
+   },
+   {
+    "from": "1-18",
+    "costume": "laf-general"
+   },
+   {
+    "from": "2-01",
+    "costume": "jefferson"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-m"
+   }
+  ],
+  "mulligan": [
+   {
+    "from": "1-01",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-02",
+    "costume": "mulligan"
+   },
+   {
+    "from": "2-01",
+    "costume": "madison"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-m"
+   }
+  ],
+  "laurens": [
+   {
+    "from": "1-01",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-02",
+    "costume": "laurens"
+   },
+   {
+    "from": "1-21",
+    "costume": "base-m"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-m-act2-grey"
+   },
+   {
+    "from": "2-03",
+    "costume": "philip"
+   },
+   {
+    "from": "2-18",
+    "costume": "ens-m-act2-grey"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-m"
+   }
+  ],
+  "king": [
+   {
+    "from": "1-01",
+    "costume": "king-robe"
+   },
+   {
+    "from": "1-21",
+    "costume": "king"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-m"
+   }
+  ],
+  "ens2": [
+   {
+    "from": "1-01",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-06",
+    "costume": "seabury"
+   },
+   {
+    "from": "1-07",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-08",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-09",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-14",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-17",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-18",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-21",
+    "costume": "base-m"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-m-act2-brown"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-m"
+   }
+  ],
+  "ens3": [
+   {
+    "from": "1-01",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-08",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-09",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-14",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-17",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-18",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-21",
+    "costume": "base-m"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-m-act2-grey"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-m"
+   }
+  ],
+  "ens4": [
+   {
+    "from": "1-01",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-05",
+    "costume": "schuyler"
+   },
+   {
+    "from": "1-06",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-08",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-09",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-10",
+    "costume": "schuyler"
+   },
+   {
+    "from": "1-11",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-14",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-17",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-18",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-21",
+    "costume": "base-m"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-m-act2-brown"
+   },
+   {
+    "from": "2-04",
+    "costume": "james-reynolds"
+   },
+   {
+    "from": "2-05",
+    "costume": "ens-m-act2-brown"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-m"
+   }
+  ],
+  "ens5": [
+   {
+    "from": "1-01",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-08",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-09",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-14",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-17",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-18",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-21",
+    "costume": "base-m"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-m-act2-grey"
+   },
+   {
+    "from": "2-16",
+    "costume": "eacker"
+   },
+   {
+    "from": "2-17",
+    "costume": "ens-m-act2-grey"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-m"
+   }
+  ],
+  "ens10": [
+   {
+    "from": "1-01",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-08",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-09",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-14",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-17",
+    "costume": "base-m"
+   },
+   {
+    "from": "1-18",
+    "costume": "ens-continental"
+   },
+   {
+    "from": "1-21",
+    "costume": "base-m"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-m-act2-brown"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-m"
+   }
+  ],
+  "ens1": [
+   {
+    "from": "1-01",
+    "costume": "base-w"
+   },
+   {
+    "from": "1-09",
+    "costume": "ens-skirt"
+   },
+   {
+    "from": "1-12",
+    "costume": "base-w"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-w-act2-taupe"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-w"
+   }
+  ],
+  "ens6": [
+   {
+    "from": "1-01",
+    "costume": "base-w"
+   },
+   {
+    "from": "1-09",
+    "costume": "ens-skirt"
+   },
+   {
+    "from": "1-12",
+    "costume": "base-w"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-w-act2-grey"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-w"
+   }
+  ],
+  "ens7": [
+   {
+    "from": "1-01",
+    "costume": "base-w"
+   },
+   {
+    "from": "1-09",
+    "costume": "ens-skirt"
+   },
+   {
+    "from": "1-12",
+    "costume": "base-w"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-w-act2-taupe"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-w"
+   }
+  ],
+  "ens8": [
+   {
+    "from": "1-01",
+    "costume": "base-w"
+   },
+   {
+    "from": "1-09",
+    "costume": "ens-skirt"
+   },
+   {
+    "from": "1-12",
+    "costume": "base-w"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-w-act2-grey"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-w"
+   }
+  ],
+  "ens9": [
+   {
+    "from": "1-01",
+    "costume": "base-w"
+   },
+   {
+    "from": "1-09",
+    "costume": "ens-skirt"
+   },
+   {
+    "from": "1-12",
+    "costume": "base-w"
+   },
+   {
+    "from": "2-01",
+    "costume": "ens-w-act2-taupe"
+   },
+   {
+    "from": "2-23",
+    "costume": "base-w"
+   }
+  ]
+ }
+}
