@@ -17960,8 +17960,22 @@ VAN_WEZEL_API.house = VW_HOUSE_API;                           // MIDTOWN.vanWeze
    BACKSTAGE's house-right hole's parapet is 0.83 m); the fly gallery is seen, not reached.
    STAGE RIGHT: a gallery along the wall 6.4 m up, guarded with mesh panels, and THE SPIRAL STAIR to it in the downstage
    corner: 36 treads of 0.178 round a steel column, a steel skirt and a rail on the outside; walked.
+   THE STAGE-RIGHT WING WIDENED (S.wing). Jack (2026-10-25): "also add a little more space stage right" — which? "move out
+   that wall farther back". The model's stage-right loft wall stood at x 93.76 (the wing 7.39 m from the opening's edge);
+   it stands at 96.76 now (10.39 m), the stage house 36.52 m wide inside. Beyond the old wall (measured) was the building's
+   outside: the loft wall's outer face 94.07, a 0.6 m void, the shell's side face 94.68 (exterior_tex_25, one quad from the
+   ground 0.70 to the roof 28.92), then an open yard at the ground (0.88) between the house's foyer (to z −0.15) and the
+   back block's open dock (from z 15.24, its face out at 99.86), the basement under it all. Three metres: "a little", and it
+   keeps the shell 2.2 m inside the back block's corner. The shell is stretched, not rebuilt: its side face's vertices, the
+   front (z 0.61), back (15.24) and top faces' that meet it, and the roof's parapet (exterior_tex_27, 94.83) moved out
+   3.0, so the outside is the building's own look. Inside: the model's wall (stage_lit) cut out of the strip and built again
+   black at the new x with the strip's roof and back wall; a black lining just inside the shell's front face (the strip's
+   downstage face, z 0.67, as the proscenium's facing is for the rest, which stops at the old wall's line); a deck slab
+   (in the walk's grid) under the strip's concrete. Moved out with the wall, 3.0: the gallery and its guards, the spiral
+   stair, the production desk, its monitor and chairs, the white set pieces along the back wall; the road case, the crate,
+   the ghost light and BACKSTAGE's stair hole stay, so the middle of the wing is open floor.
    THE FLOORS: the black dance floor over the stage and under the legs (x 64.4…89.6, to z 13.35, ending in a line where his
-   photo shows it), the grey concrete of the wings round it; BACKSTAGE's holes left open.
+   photo shows it), the grey concrete of the wings round it (out to the new wall); BACKSTAGE's holes left open.
    THE WALLS: the model's loft walls and roof painted black (their vertex colours); the proscenium's stage face faced black up
    to the roof (the model left the loft open over the house ceiling, above 20.39).
    THE WINGS: stage left a cart of stacked platforms and a road case upstage, a flat cart and a bin downstage; stage right
@@ -17974,7 +17988,11 @@ VAN_WEZEL_API.house = VW_HOUSE_API;                           // MIDTOWN.vanWeze
    draw calls. Drawn only from inside the Van Wezel (BACKSTAGE's gate). MIDTOWN.vanWezel.stageHouse: .spec, .built,
    check(), view(), views (his photographs' viewpoints); the header's "VW Stage". */
 const VWS = {
-  deck: 2.557, x0: 60.24, x1: 93.76, z0: 0.46, z1: 14.02, roof: 28.31, header: 11.09, open: [67.63, 86.37],   // the loft's inner faces (the model's)
+  deck: 2.557, x0: 60.24, x1: 96.76, z0: 0.46, z1: 14.02, roof: 28.31, header: 11.09, open: [67.63, 86.37],   // the loft's inner faces (x1: the stage-right wall moved out, S.wing)
+  // the stage-right wing widened (Jack, 2026-10-25): the model's wall's inner face x0, moved out by `out`; the strip's
+  // downstage face z0 (a black lining just inside the shell's front face, `front`); the shell's back face `back`; the
+  // shell's side face and its roof's parapet, the model's x of each (their vertices moved out)
+  wing: { x0: 93.76, out: 3.0, z0: 0.67, front: 0.61, back: 15.24, shell: 94.68, parapet: 94.83 },
   grid: 26.40,                                                  // the gridiron's top
   sets: { n: 54, z0: 1.15, dz: 0.23 },
   batten: [64.6, 89.4], lines: [65.3, 70.0, 74.7, 79.3, 84.0, 88.7],
@@ -17983,8 +18001,8 @@ const VWS = {
   dance: [64.4, 89.6, -0.15, 13.35],                            // the black dance floor; the rest of the deck the grey concrete
   wall: { track: 60.25, arbor: 60.31, line: 60.47, fall: 60.56, rail: 60.58, aisle: 61.13 },   // the fly wall, from the wall out; the aisle's middle
   flyGal: { y: 10.0, x0: 60.80, x1: 62.10, z0: 0.70, z1: 13.85, pins: 0.32 },   // over the deck
-  jump: { y: 6.4, x0: 92.05, z0: 2.42, z1: 13.85 },
-  spiral: { x: 92.85, z: 1.60, r0: 0.09, r1: 0.80, n: 36, step: Math.PI / 8, top: Math.PI / 2, walk: 0.46 },   // tread i's middle at top + (n − 1 − i)·step
+  jump: { y: 6.4, x0: 95.05, z0: 2.42, z1: 13.85 },             // (both moved out with the wall, 3.0)
+  spiral: { x: 95.85, z: 1.60, r0: 0.09, r1: 0.80, n: 36, step: Math.PI / 8, top: Math.PI / 2, walk: 0.46 },   // tread i's middle at top + (n − 1 − i)·step
   view: [[85.0, 3.95, 5.4], [60.0, 5.6, 5.0]],                  // his photograph across the stage to the fly wall (VWS_VIEWS)
 };
 // in at their trims: [lineset, kind, y] — a border's y is its bottom, the rest their batten's
@@ -18073,8 +18091,30 @@ function vwStageBuild(model) {
   }
   // the hall's scalloped roof runs on through the loft (down to ~18 m over the stage): out of the loft's box, which its own
   // walls and roof close from outside
-  const loft = new THREE.Box3(new THREE.Vector3(S.x0 + 0.02, S.header + 0.1, S.z0 + 0.06), new THREE.Vector3(S.x1 - 0.02, S.roof - 0.02, S.z1 - 0.02));
+  // (the model's loft: to its own wall, S.wing.x0 — the strip beyond is the shell, stretched below, never cut)
+  const WG = S.wing;
+  const loft = new THREE.Box3(new THREE.Vector3(S.x0 + 0.02, S.header + 0.1, S.z0 + 0.06), new THREE.Vector3(WG.x0 - 0.02, S.roof - 0.02, S.z1 - 0.02));
   model.root.traverse(o => { if (o.isMesh && /^vw: exterior_/.test(o.name) && o.material !== VW_GLASS_BLOCK) { const k = vwCutBox(o, loft); if (k) cut['loft: ' + o.name.replace(/^vw: /, '')] = k; } });
+  // 0b. THE STAGE-RIGHT WALL MOVED OUT (S.wing): the building's shell stretched — every vertex on its side face's plane
+  // (and so the front, back and top faces' edges that meet it) and on its roof's parapet moved out WG.out; the model's own
+  // loft wall cut out of the strip, built again at the new x in 8. below
+  const stretch = (name, xOld, test) => {
+    const m = model.byName(name); if (!m) return 0;
+    const g = m.geometry, P = g.attributes.position, w = new THREE.Vector3(), inv = m.matrixWorld.clone().invert(); let n = 0;
+    for (let i = 0; i < P.count; i++) {
+      w.fromBufferAttribute(P, i).applyMatrix4(m.matrixWorld);
+      if (Math.abs(w.x - xOld) < 0.03 && test(w)) { w.x += WG.out; w.applyMatrix4(inv); P.setXYZ(i, w.x, w.y, w.z); n++; }
+    }
+    if (n) { P.needsUpdate = true; g.computeBoundingBox(); g.computeBoundingSphere(); }
+    return n;
+  };
+  cut['shell stretched (vertices)'] = stretch('exterior_tex_25', WG.shell, w => w.z > WG.front - 0.05 && w.z < WG.back + 0.05 && w.y > 0.6 && w.y < 29.0);
+  cut['parapet stretched (vertices)'] = stretch('exterior_tex_27', WG.parapet, w => w.z > S.z0 - 0.05 && w.z < WG.back + 0.2 && w.y > 28.0);
+  if (sl) cut['the model\'s stage-right wall'] = vwCutBox(sl, new THREE.Box3(V3w(WG.x0 - 0.06, Y + 0.002, -0.01), V3w(WG.x0 + 0.36, S.roof + 0.40, S.z1 + 0.40)));
+  // the parapet's soffit (28.16, under the loft's roof: hidden in the old wall's void) stretched across the strip: out
+  // under the strip's new roof
+  const soffit = model.byName('exterior_tex_27');
+  if (soffit) cut['the parapet\'s soffit over the strip'] = vwCutBox(soffit, new THREE.Box3(V3w(WG.x0 - 0.06, S.roof - 0.25, S.z0 + 0.04), V3w(S.x1 + 0.31, S.roof + 0.30, S.z1 + 0.31)));
   // the house curtain, flown out behind the header (VW.curtainFly): its lined back is what the stage sees (his photo looking
   // out shows black there); the house never sees it while it is out
   const cur = model.byName('stage_tex_47');
@@ -18215,10 +18255,19 @@ function vwStageBuild(model) {
   }
   // 5. THE PROSCENIUM'S STAGE FACE, black to the roof; THE FLOORS
   const zf = S.z0 + 0.004;
-  bx(B, 'black', S.x0, S.open[0], Y, S.roof, zf, zf + 0.04); bx(B, 'black', S.open[1], S.x1, Y, S.roof, zf, zf + 0.04); bx(B, 'black', S.open[0], S.open[1], S.header, S.roof, zf, zf + 0.04);
+  bx(B, 'black', S.x0, S.open[0], Y, S.roof, zf, zf + 0.04); bx(B, 'black', S.open[1], WG.x0, Y, S.roof, zf, zf + 0.04); bx(B, 'black', S.open[0], S.open[1], S.header, S.roof, zf, zf + 0.04);
+  // THE WIDENED WING'S OWN (S.wing): the wall at the new x, the strip's back wall and roof (the model's, cut in 0b, were
+  // 0.31 thick: so these), the lining inside the shell's front face, the deck slab under the strip (the walk's floor)
+  const xs = WG.x0 - 0.06, wt = 0.31;
+  bx(A, 'black', S.x1, S.x1 + wt, Y - wt, S.roof + wt, WG.front + 0.02, S.z1 + wt);   // the wall (its outer face 0.61 inside the shell's)
+  bx(A, 'black', xs, S.x1, Y - wt, S.roof + wt, S.z1, S.z1 + wt);                     // the back wall, the strip's length of it
+  bx(A, 'black', xs, S.x1, Y, S.roof, WG.front + 0.02, WG.z0);                         // the lining (2 cm clear of the shell's face)
+  bx(A, 'black', WG.x0, S.x1, Y - wt, Y, WG.front + 0.02, S.z1);                       // the deck slab, its top the deck's
+  bx(B, 'black', xs, S.x1, S.roof, S.roof + wt, S.z0 + 0.04, S.z1);                   // the roof (its front edge behind the parapet's fascia, z 0.46)
   const quad = (key, [x0, x1, z0, z1]) => { const g = new THREE.PlaneGeometry(x1 - x0, z1 - z0, Math.max(1, Math.ceil((x1 - x0) / 0.6)), Math.max(1, Math.ceil((z1 - z0) / 0.6))).rotateX(-PI / 2).translate((x0 + x1) / 2, Y + 0.003, (z0 + z1) / 2); file(F, key, g); };
   for (const r of underRects(S.dance, S.holes)) quad('marley', r);
-  for (const r of underRects([S.x0, S.x1, -0.15, S.z1], [S.dance, ...S.holes])) quad('concrete', r);
+  for (const r of underRects([S.x0, WG.x0, -0.15, S.z1], [S.dance, ...S.holes])) quad('concrete', r);
+  quad('concrete', [WG.x0, S.x1, WG.z0, S.z1]);                                         // the strip
   for (const [x, z] of [[62.4, 3.6], [91.6, 3.6], [63.0, 12.0], [91.0, 12.6]]) { quad('tape', [x - 0.15, x + 0.15, z - 0.02, z + 0.02]); quad('tape', [x - 0.02, x + 0.02, z - 0.15, z + 0.15]); }   // spike marks
   for (const g of F.tape) g.translate(0, 0.001, 0);
   // 6. THE WINGS. Stage left: a cart of stacked platforms and a road case upstage, a flat cart and a bin downstage
@@ -18236,19 +18285,21 @@ function vwStageBuild(model) {
   bx(A, 'yellow', 62.22, 63.48, Y + 0.92, Y + 0.97, 0.86, 0.90);
   rod(A, 'yellow', V3(64.0, Y, 2.1), V3(64.0, Y + 0.75, 2.1), 0.25, 12);
   // stage right: the production desk against the wall (two tables, a monitor, two chairs), a road case, a crate, the white
-  // set pieces along the back wall, the ghost light by the proscenium
+  // set pieces along the back wall, the ghost light by the proscenium. The desk, its chairs and the set pieces moved out with
+  // the wall (o: S.wing.out); the case, the crate and the ghost light where they stood
+  const o = WG.out;
   for (const [z0, z1] of [[9.6, 11.4], [11.5, 13.3]]) {
-    bx(A, 'desk', 92.70, 93.50, Y + 0.72, Y + 0.76, z0, z1);
-    for (const [x, z] of [[92.74, z0 + 0.04], [93.46, z0 + 0.04], [92.74, z1 - 0.04], [93.46, z1 - 0.04]]) bx(A, 'steel', x - 0.02, x + 0.02, Y, Y + 0.72, z - 0.02, z + 0.02);
+    bx(A, 'desk', o + 92.70, o + 93.50, Y + 0.72, Y + 0.76, z0, z1);
+    for (const [x, z] of [[o + 92.74, z0 + 0.04], [o + 93.46, z0 + 0.04], [o + 92.74, z1 - 0.04], [o + 93.46, z1 - 0.04]]) bx(A, 'steel', x - 0.02, x + 0.02, Y, Y + 0.72, z - 0.02, z + 0.02);
   }
-  bx(A, 'black', 93.20, 93.30, Y + 0.76, Y + 0.80, 10.2, 10.5); bx(A, 'black', 93.22, 93.27, Y + 0.80, Y + 1.10, 10.33, 10.37); bx(A, 'black', 93.18, 93.24, Y + 1.02, Y + 1.36, 9.98, 10.72); bx(A, 'screen', 93.17, 93.18, Y + 1.04, Y + 1.34, 10.00, 10.70);
+  bx(A, 'black', o + 93.20, o + 93.30, Y + 0.76, Y + 0.80, 10.2, 10.5); bx(A, 'black', o + 93.22, o + 93.27, Y + 0.80, Y + 1.10, 10.33, 10.37); bx(A, 'black', o + 93.18, o + 93.24, Y + 1.02, Y + 1.36, 9.98, 10.72); bx(A, 'screen', o + 93.17, o + 93.18, Y + 1.04, Y + 1.34, 10.00, 10.70);
   for (const z of [10.5, 12.4]) {
-    bx(A, 'black', 92.05, 92.50, Y + 0.44, Y + 0.50, z - 0.23, z + 0.23); bx(A, 'black', 91.98, 92.04, Y + 0.50, Y + 0.95, z - 0.22, z + 0.22);
-    rod(A, 'steel', V3(92.27, Y + 0.08, z), V3(92.27, Y + 0.44, z), 0.025, 6); bx(A, 'black', 91.98, 92.56, Y + 0.04, Y + 0.08, z - 0.03, z + 0.03); bx(A, 'black', 92.24, 92.30, Y + 0.04, Y + 0.08, z - 0.29, z + 0.29);
+    bx(A, 'black', o + 92.05, o + 92.50, Y + 0.44, Y + 0.50, z - 0.23, z + 0.23); bx(A, 'black', o + 91.98, o + 92.04, Y + 0.50, Y + 0.95, z - 0.22, z + 0.22);
+    rod(A, 'steel', V3(o + 92.27, Y + 0.08, z), V3(o + 92.27, Y + 0.44, z), 0.025, 6); bx(A, 'black', o + 91.98, o + 92.56, Y + 0.04, Y + 0.08, z - 0.03, z + 0.03); bx(A, 'black', o + 92.24, o + 92.30, Y + 0.04, Y + 0.08, z - 0.29, z + 0.29);
   }
   ccase(90.20, 91.40, 10.20, 10.80, 1.0);
   bx(A, 'cardboard', 89.85, 91.25, Y, Y + 1.35, 11.45, 12.85); bx(A, 'black', 89.84, 91.26, Y + 1.30, Y + 1.36, 11.44, 11.47);
-  for (const [x0, x1, h] of [[89.75, 90.40, 3.0], [90.45, 91.10, 4.2], [91.15, 91.80, 5.4], [91.85, 92.50, 4.6]]) bx(A, 'white', x0, x1, Y, Y + h, 13.58, 13.92);
+  for (const [x0, x1, h] of [[89.75, 90.40, 3.0], [90.45, 91.10, 4.2], [91.15, 91.80, 5.4], [91.85, 92.50, 4.6]]) bx(A, 'white', o + x0, o + x1, Y, Y + h, 13.58, 13.92);
   rod(A, 'steel', V3(88.1, Y, 0.85), V3(88.1, Y + 1.7, 0.85), 0.02, 6);
   for (const a of [0, PI / 2]) bx(A, 'steel', 88.1 - 0.28 * Math.cos(a), 88.1 + 0.28 * Math.cos(a), Y, Y + 0.04, 0.85 - 0.28 * Math.sin(a) - 0.02, 0.85 + 0.28 * Math.sin(a) + 0.02);
   { const g = new THREE.SphereGeometry(0.07, 10, 8).translate(88.1, Y + 1.82, 0.85); file(A, 'glowWarm', g); }
@@ -18313,7 +18364,7 @@ const VWS_VIEWS = {
   'up into the loft, looking stage left (11)': [[85.0, 4.2, 5.4], [64.0, 19.0, 7.0]],
   'across the stage to the fly wall (12)': [[85.0, 3.95, 5.4], [60.0, 5.6, 5.0]],
   'from the pin rail (3)': [[61.3, 14.4, 6.2], [70.0, 9.8, 6.2]],
-  'along the proscenium into the stage-right wing (14)': [[70.5, 3.6, 0.9], [93.5, 6.0, 4.0]],
+  'along the proscenium into the stage-right wing (14)': [[70.5, 3.6, 0.9], [96.5, 6.0, 4.0]],
   'from the stage out at the header (10)': [[77.0, 4.2, 5.0], [77.0, 13.0, -1.0]],
 };
 // Walked by the walk's own step (walkStep: its rays, its step up, its body test), W held, turned toward each point in
@@ -18409,8 +18460,49 @@ function vwStageCheck() {
   line(!holes && worst <= WALK.step && !r2.stuck && r2.reached === r2.total && Math.abs(r2.end.y - yj) < 0.02,
     `the spiral stair: ${SP.n} treads, the walk's floor up them rising ${(worst * 1000).toFixed(0)} mm at most, ${holes} without a floor; walked: ${r2.reached} / ${r2.total} points in ${r2.s.toFixed(1)} s, ${r2.stuck || 'never stuck'}; ${r2.res.join(' · ')}; ending on ${r2.end.y.toFixed(3)} (the gallery ${yj.toFixed(3)})`);
   // 6. off the gallery's open side and its end nobody falls: the walk's rays meet the guard
-  const gx = (S.jump.x0 + S.x1) / 2, gz = 8.0, side = rayH(gx, yj + 0.8, gz, -1, 0, 2), end = rayH(93.4, yj + 0.8, 4.0, 0, -1, 3);
-  line(side < 1 && end < 2, `the stage-right gallery's guard: from its middle the mesh is ${side.toFixed(2)} m toward the stage, its end panel ${end.toFixed(2)} m from (93.4, 4.0) at waist height`);
+  const ex6 = S.x1 - 0.36, gx = (S.jump.x0 + S.x1) / 2, gz = 8.0, side = rayH(gx, yj + 0.8, gz, -1, 0, 2), end = rayH(ex6, yj + 0.8, 4.0, 0, -1, 3);
+  line(side < 1 && end < 2, `the stage-right gallery's guard: from its middle the mesh is ${side.toFixed(2)} m toward the stage, its end panel ${end.toFixed(2)} m from (${ex6.toFixed(2)}, 4.0) at waist height`);
+  // 7. the stage-right wing widened (S.wing): the walk's floor level from the deck across the old wall's line to the new
+  // wall; the new wall met at its x at every height to the roof; from inside the strip no ray out of the building
+  const WG = S.wing; let nF = 0, flat = 0, worstF = 0, noF = 0;
+  for (const z of [3.2, 5.0, 7.0, 9.0, 11.0]) for (let x = WG.x0 - 0.8; x < S.x1 - 0.15; x += 0.1) {
+    const g = groundAt(x, z, Y + 0.05); nF++;
+    if (g === null) { noF++; continue; }
+    worstF = Math.max(worstF, Math.abs(g - Y)); if (Math.abs(g - Y) < 0.005) flat++;
+  }
+  let wN = 0, wOk = 0, wBad = null;
+  for (const h of [0.3, 1.5, 4.0, 8.0, 12.0, 16.0, 20.0, 24.0, S.roof - Y - 0.08]) for (const z of [3.0, 7.0, 11.0, 13.85]) {
+    const d = rayH(S.x1 - 1.0, Y + h, z, 1, 0, 3); wN++;
+    if (Math.abs(d - 1.0) < 0.02) wOk++; else if (!wBad) wBad = `at (${z}, ${(Y + h).toFixed(2)}) met ${d.toFixed(2)} m out`;
+  }
+  const r7 = new THREE.Raycaster(); r7.layers.enableAll();
+  const shut = [VW.root, ...b.meshes]; let esc = 0, nR = 0, escEx = null;
+  const dirs = [[1, 0, 0], [0, 1, 0], [0, 0, -1], [0, 0, 1], [1, 1, 0], [1, 0, -1], [1, 0, 1], [1, 1, -1], [1, 1, 1], [0, 1, -1], [0, 1, 1], [1, -0.2, 0], [0.3, -0.2, -1]].map(d => V3w(...d).normalize());
+  for (const x of [WG.x0 + 0.3, (WG.x0 + S.x1) / 2, S.x1 - 0.2]) for (const y of [Y + 0.3, Y + 3.0, Y + 12.0, S.roof - 0.3]) for (const z of [WG.z0 + 0.15, 7.0, S.z1 - 0.15]) for (const d of dirs) {
+    r7.set(V3w(x, y, z), d); r7.far = 60; nR++;
+    if (!r7.intersectObjects(shut, true).length) { esc++; if (!escEx) escEx = `from (${x.toFixed(2)}, ${y.toFixed(2)}, ${z.toFixed(2)}) toward (${d.toArray().map(a => a.toFixed(2)).join(', ')})`; }
+  }
+  line(!noF && flat === nF && wOk === wN && !esc,
+    `the stage-right wing, ${WG.out} m wider (the wall ${WG.x0} → ${S.x1}): the walk's floor at ${nF} points from x ${(WG.x0 - 0.8).toFixed(2)} to the wall, ${flat} level with the deck (worst ${(worstF * 1000).toFixed(0)} mm, ${noF} with none); the new wall met at x ${S.x1} by ${wOk} / ${wN} rays at 0.3 m … ${(S.roof - Y - 0.08).toFixed(2)} m up${wBad ? ' — ' + wBad : ''}; ${nR} rays from inside the strip: ${esc} out of the building${escEx ? ' — e.g. ' + escEx : ''}`);
+  // 8. the seats see into the strip only where they saw the old wall: rays from the seats to points on its floor and wall
+  // that pass through the opening, against the masking, the proscenium and the model; each one that gets there must cross
+  // the old wall's line (x S.wing.x0) inside the old wall's face — the black wall seen there before, black wall and wing
+  // floor further off now (from the far house-left seats, between the legs); nothing else of it
+  let seen = 0, through = 0, seenEx = null, fresh = 0;
+  const tg = []; for (const x of [WG.x0 + 0.2, WG.x0 + 1.5, S.x1 - 0.1]) for (const y of [Y + 0.05, Y + 2.0, Y + 6.0]) for (const z of [1.0, 4.0, 7.0, 10.0, 13.0]) tg.push(V3w(x, y, z));
+  const masks = [b.meshes.find(m => /linesets/.test(m.name)), b.meshes.find(m => /fly wall/.test(m.name))];
+  VW.root.traverse(q => { if (q.isMesh && /^vw: (house_tex_35|stage_lit|stage_tex_47)$/.test(q.name)) masks.push(q); });
+  for (const e of seats) for (const t of tg) {
+    const u = (S.z0 - e.z) / (t.z - e.z), cx = e.x + (t.x - e.x) * u, cy = e.y + (t.y - e.y) * u;
+    if (cx < S.open[0] || cx > S.open[1] || cy > S.header) continue;
+    through++; d.subVectors(t, e); const L = d.length(); r7.set(e, d.normalize()); r7.far = L - 0.05;
+    if (!r7.intersectObjects(masks, false).length) {
+      seen++; if (!seenEx) seenEx = `(${t.x.toFixed(1)}, ${t.y.toFixed(1)}, ${t.z.toFixed(1)}) from (${e.x.toFixed(1)}, ${e.y.toFixed(1)}, ${e.z.toFixed(1)})`;
+      const w = (WG.x0 - e.x) / (t.x - e.x), wy = e.y + (t.y - e.y) * w, wz = e.z + (t.z - e.z) * w;
+      if (!(w > 0 && w < 1 && wy > Y && wy < S.roof && wz > S.z0 && wz < S.z1)) fresh++;
+    }
+  }
+  line(!fresh, `from the seats into the widened wing: ${through} rays through the opening to ${tg.length} points on the strip's floor and wall; ${seen} not stopped by the legs, the proscenium or the model${seenEx ? ' (e.g. ' + seenEx + ')' : ''}, ${fresh} of them where the old wall was not seen before`);
   const s = `van wezel stage house: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
   console.info(s); return s;
 }
