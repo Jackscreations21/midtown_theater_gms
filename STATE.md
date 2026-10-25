@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#32 merged; `main` `0340da9`; open: #33 `vw-hamilton`)
+# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#35 merged; `main` `3c82316`; open: #36 `hamilton-costumes`)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -10,7 +10,13 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 (#20). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under NEXT below); the
 worktrees and local branches are gone.
 
-- **NEWEST: PR #33 `vw-hamilton` (2026-10-25, night; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's
+- **NEWEST: PR #36 `hamilton-costumes` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling, GW next):
+  the Hamilton costumes.** 46 looks after Paul Tazewell's design in `assets/hamilton-costumes.json`
+  (`docs/hamilton-costumes-format.md`), each body's plot of them by song, worn on the jointed body (vertex-coloured parts, coat
+  skirts, gowns, capes, a crown…), changed off stage, a pure function of show time (`MIDTOWN.costumes`, the Blocking panel's
+  Costumes box). **His eye on it, then his to decide:** the colours read off the film (most of them), the song boundaries no
+  source gives, which ensemble bodies are women, no Redcoat set.
+- **Before it: PR #33 `vw-hamilton` (2026-10-25, night; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's
   auditorium dressed for Hamilton** — brick on the side walls' panels, timber posts, headers and trusses, rope swags, coils
   and rigging, lanterns, candle rings, flags, a lintel over the proscenium, and the proscenium wall itself in brick with pilasters, timber bays and fan bunting, the lilac oval
   over it hidden ("VW dress" toggles it; PR #34 merged; the oval PR `vw-oval`). Main merged in. **Open bug from #32:** the fitted proscenium pier stands over the Van
