@@ -229,16 +229,36 @@ compare the *same* production across stages instead.
 
 ---
 
-## NEXT SESSION: **HIS EYE ON THE VAN WEZEL FIXES; THEN THE OLDER LIST** (2026-10-25; PR `vw-answers`)
+## DONE — 2026-10-25 (later): the pit's wall, the foyer's walls, the stage-right wing wider (PR `vw-pit-rail`, the lead and two Opus agents)
+
+Jack, with a photograph of an opera house's orchestra pit: *"now put walls where the galss used to be in the lobby and the
+rails where meant to be so the suadiance dosunt fall in there shooulfnt be ano on the stage and itthe guards should look
+something like these onse do but black"*, then *"also add a little more space stage right"* (asked which: *"move out that
+wall farther back"*).
+- **The foyer's walls** (lead): the glass's own mesh (already the walk's wall) drawn in the foyer's wall finish, both faces,
+  up to the building's fascia under the ceiling.
+- **THE PIT GUARDS as a pit wall** (agent): the deck's rail and switch gone; round the well's audience side one solid black
+  panelled wall like his photo (27 m, 20 recessed panels in moulded frames, a cap 1.07 m up, a plinth), 56 mm thick (the
+  front row's cushions stand 75–78 mm off the lift), stepping where the floor steps. Still manual (RULING GK), up/down in 2 s,
+  down at load, only its cap showing when down. It runs into the hall's wall in places beside the house-left slanted side.
+- **The stage-right wing 3 m wider** (agent): the stage house's stage-right wall from x 93.76 to 96.76 (beyond it was the
+  building's outside and an open yard, the dock's corner at 99.86): the shell stretched, the model's loft wall cut and built
+  again in black, the deck and concrete out to it, the gallery, spiral stair, production desk and set pieces moved out with
+  it. The wing is 10.39 m from the opening's edge (was 7.39).
+- **Checks on the merged branch:** `vanWezel`, `.sideDoors`, `.foyer`, `.patches` PASS; `.lift` 26/26; `.lift.guards` 9/9;
+  `.backstage` 5/5; `.booths` 16/16; `.booths.gear` 10/10; `.house` 5/5; `.stageHouse` 8/8; `doors.check()` 76/76;
+  `under.check()` 16/16; `lx.check()` 301/313; `actors.check()` PASS; console clean.
+- His to decide: the purple fascia band over the new foyer walls (the building's, under the ceiling); the tower's front face
+  above the house roof shows black (the loft cut, from before); the pit wall into the hall's wall house left.
+
+## NEXT SESSION: **HIS EYE ON THE VAN WEZEL FIXES; THEN THE OLDER LIST** (2026-10-25; PRs #27 and `vw-pit-rail`)
 
 Rulings at **GT** (GU next). Land PR `vw-answers` (its DONE block below) when he says so. Then his eye on it: the house in the
 model's colours, the follow-spot booth (bigger, its windows, its outside), the lift (no pedestal, its top black), the pit
-guards ("VW guards" in the Lifts row, or E at the switch on the deck by the stage panel or at the stalls corner by the
-house-right front portal), the foyer without its mullions. His to decide:
-- the foyer's glass line is still a wall to the walk (invisible): the terrace outside ends 6–10 m out in a drop. Open it onto
-  the terrace with a guard at the terrace's edge, or leave it;
-- the guards are DOWN at load (`VW_GUARDS.atLoad`); the deck's rail has a gap at the stair; the stalls rail climbs where the
-  well's slanted sides meet the foyer's carpet (0.875), not the stalls floor;
+guards (now the black pit wall: "VW guards" in the Lifts row, or E at the switch at the stalls corner by the house-right
+front portal), the foyer's walls where the glass was, the stage-right wing 3 m wider. His to decide:
+- the pit wall is DOWN at load (`VW_GUARDS.atLoad`); it steps where the well's slanted sides meet the foyer's carpet (0.875);
+  plus the decisions in the DONE block above;
 - the follow-spot booth's 15 window bays (the spots in bays −4, 0, 4), and a black screen behind the ladder's hatch (from the
   front seats the catwalk showed through the new windows and up the hatch);
 - `VW_PHOTO_COLOURS` (off) puts the photographs' colours back in one line if he wants them after all;
