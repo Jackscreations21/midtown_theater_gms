@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-25: the Van Wezel's three entrances, security, a lobby for the whole house, loose walking, speed, a counter (PR `vw-entrances`, the lead and two Opus agents)
+## DONE — 2026-10-25: the Van Wezel's three entrances, security, a lobby for the whole house, loose walking, speed, a counter (PR #47 `vw-entrances`, merged `4ee99bd`, the lead and two Opus agents)
 
 Jack: *"make there be multiple doors they can come into the van wezel. make it so they have to walk throught metal detecotrs and
 have ther tickest scanned. make a button to speed up getting th epeople in. make it so people can start filling up in the
