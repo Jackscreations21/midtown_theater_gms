@@ -13,8 +13,10 @@ worktrees and local branches are gone.
 - **NEXT: his eye on PR #27 (`vw-answers`, MERGED `d98673c`; HANDOFF's NEXT SESSION block and its DONE block, RULING GT).** Every one
   of his Van Wezel answers and five asks is built: the model's colours back (`VW_PHOTO_COLOURS` off), the landings' lip, the
   foyer's mullions out, the follow-spot booth bigger with tall windows and its outside the ceiling's colour, the lift's pedestal
-  gone and its top black, manual pit guards ("VW guards"). His to decide (listed in the NEXT SESSION block): the foyer's glass
-  line is still an invisible wall to the walk (a drop beyond the terrace); the guards down at load; the booth's window bays.
+  gone and its top black, manual pit guards ("VW guards"). Then PR `vw-pit-rail` (2026-10-25, later; HANDOFF's newest DONE
+  block): the pit guards a black panelled pit wall like his photo, audience side only; walls where the foyer's glass was; the
+  stage-right wing 3 m wider. His to decide (listed in the NEXT SESSION and DONE blocks): the wall down at load; the booth's
+  window bays; the fascia band over the foyer's new walls.
   - Tidy: every worktree under `.claude/worktrees/` and every local branch but `main` removed (2026-10-25). STILL OWED (the
     sandbox refuses remote deletes, so Jack or a terminal): `git push origin --delete film-round orchestra-pit
     preshow-announcement record-20 record-25 sm-voices stage-manager van-wezel vw-answers vw-booths vw-round record-27`
