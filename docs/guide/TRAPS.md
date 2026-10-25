@@ -2222,3 +2222,15 @@ include the place a failure would show — the corridor behind the house, not on
   must still meet but nobody sees, keep the mesh visible and give it a `visible: false` MATERIAL (`VW_GLASS_BLOCK`, `underMat.block`).
 - **The Browser pane's screenshot can lag one draw behind** a camera move made in script: take it twice before trusting it.
 
+## From the four-stop lift and seating wagon round (2026-10-24, night)
+
+- **`vwCutBox` rebuilds the whole mesh it touches**, copying every triangle through JS arrays. Cutting the wagon bay's mouth
+  in 84 slices through `house_lit` (22k triangles) took 8 s at load. Cut only the triangles near the region: split them into
+  a mesh of their own, cut that, merge it back with the rest (`vwWagonBuild` step 4: under 0.1 s).
+- **A top-level `const` read by another top-level object literal is in its TDZ** when it is declared further down the file:
+  `VW_LIFT_API.wagon = { spec: VW_WAGON }` threw as the script ran and took the page down (`house2Mesh` failed after it).
+  Read it through a getter, or declare it first. Functions that only run at build time are fine.
+- **The lift's SEATING stop depends on what it carries.** With the seating wagon on, the lift's top stops 15 cm under the
+  stalls (`L.liftY`) so the wagon's deck meets the floor; anything comparing the lift's `y` with `stops.SEATING` (the stair's
+  deploy, the edge guard) must go through `liftY` / `surf()`.
+
