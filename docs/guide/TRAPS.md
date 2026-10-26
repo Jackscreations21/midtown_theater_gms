@@ -2426,3 +2426,16 @@ include the place a failure would show — the corridor behind the house, not on
 - **The Van Wezel's mirror copies `visible` from its source** (`vwHamCopy`). Hide house 1's production only while the camera is
   outside the Van Wezel, and show it again before the mirror syncs.
 
+## From the slow-motion round (2026-10-26)
+
+- **The Browser pane, hidden, runs no frames at all** (not 1.5 fps: `requestAnimationFrame` never fired in a minute), and
+  `mcp__ccd_view__show_pane` cannot show it when the session is not open in a window. Anything timed off the frame (a rate, a
+  fade) was measured in a headless Chrome instead, driven by `tools/cdp-eval.py` (its header has the recipe).
+- **Kill that headless Chrome by its port, never `taskkill /IM chrome.exe`:** a filter on the image name took every Chrome
+  process on the machine, Jack's own included.
+- **A media element's `src` change resets `playbackRate` to `defaultPlaybackRate`:** set both, or the next track plays at 1×
+  under a ¼× clock (`showRateApply`).
+- **The sound tap assumes 20 ms of music per 20 ms bin:** at any other rate its matches would send corrective seeks to the
+  wrong place, so it listens only at 1×.
+- **python's http.server has no Range requests,** so a seek into a streamed file (the exit music started mid-span) sticks at
+  0 locally; start the test inside the first 1.5 s of the span, where no seek goes out. Pages serves ranges.

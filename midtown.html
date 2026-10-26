@@ -4244,7 +4244,7 @@ const SHW_COLKEYS = ['cmy', 'cto', 'rgb', 'w', 'a', 'lime', 'indigo', 'cyan', 'c
 const SHW_EMIT = { red: p => p.rgb && p.rgb[0], green: p => p.rgb && p.rgb[1], blue: p => p.rgb && p.rgb[2], white: p => p.w, amber: p => p.a, lime: p => p.lime, indigo: p => p.indigo, cyan: p => p.cyan };
 const SHW = { d: null, loading: null, err: null, urls: null, on: false, playing: false, hold: false, houseUp: true, ti: 0, lt: 0, next: 0, cue: -1,
   ch: new Map(), ut: new Map(), save: null, cm: null, cam: null, haze: null, A: null, fileA: null, stA: null, sound: null, yt: null, ytOn: true, vol: 0.8, files: new Map(), st: null, localHandle: null, audioOn: false, audioWant: null, soundOff: 0,
-  audioNote: '', silent: false, E: {}, btn: null, el: null, built: false, shown: { cue: -2, ti: -1, sec: -1 }, perf: { fireMs: 0, fireMax: 0, n: 0 } };
+  audioNote: '', silent: false, rate: 1, E: {}, btn: null, el: null, built: false, shown: { cue: -2, ti: -1, sec: -1 }, perf: { fireMs: 0, fireMax: 0, n: 0 } };
 const showKey = c => String(+c);                             // channel keys: 7, "7", "7.0" → "7"; 619.2 → "619.2"
 const showFmt = s => { if (s < 0) return '−' + showFmt(Math.ceil(-s - 1e-9)); const m = Math.floor(s / 60), x = Math.floor(s - m * 60); return `${m}:${String(x).padStart(2, '0')}`; };   // a lead-in counts down: −0:10
 
@@ -4651,7 +4651,7 @@ function exmTick() {
   const X = A || exmEl(), dur = Number.isFinite(X.duration) ? X.duration : Infinity;
   if (p >= dur || (X.ended && p > dur - 5)) return;           // over: the house as it is
   if (X.readyState >= 1 && Math.abs(X.currentTime - p) > (X.paused ? 0.5 : 1.5)) X.currentTime = p;
-  X.volume = SHW.vol;
+  X.volume = SHW.vol; if (X.playbackRate !== SHW.rate) showRateApply();
   if (X.paused) X.play().catch(e => { if (e && e.name !== 'AbortError') console.warn('show: the exit music could not play —', e.message || e.name); });
 }
 function exmEl() {                                          // made when the show loads, so its length is known before the bows
@@ -4662,6 +4662,26 @@ function exmEl() {                                          // made when the sho
 }
 function exmStop() { if (EXM.el && !EXM.el.paused) EXM.el.pause(); }
 
+// SLOW MOTION (Jack's list-3 pick, 2026-10-26: "run the show at quarter speed to watch the choreography and the cues"). The
+// Show panel's ¼× (MIDTOWN.show.slow()) sets SHW.rate. While the show is on, the frame hands the show's side of the page a dt
+// of dt · rate (showDt): the silent clock, the engine's fades and travel, the actors and the follow spots — the walk, the doors,
+// the street, Theatre 2 and the Van Wezel's own people keep real time. With music the music IS the clock, so it plays at the
+// rate too (playbackRate on the file elements, pitch kept; setPlaybackRate on YouTube, whose own rate is read back, so a video
+// that refuses ¼× keeps the clock honest at its real speed). The sound tap's bins assume 20 ms of music each, so it listens
+// only at 1× (sndStart's tap, sndTick). The announcement stays at 1×: the clock holds while it plays. Hand-driven time
+// (showAdvance, the checks) passes its own d and is never scaled.
+const SHW_SLOW = 0.25;
+const showDt = dt => SHW.on ? dt * SHW.rate : dt;
+function showRateApply() {                                   // the rate onto every music source there is
+  for (const X of [SHW.fileA, SHW.stA, EXM.el]) if (X) { X.preservesPitch = true; X.defaultPlaybackRate = SHW.rate; if (X.playbackRate !== SHW.rate) X.playbackRate = SHW.rate; }   // a new src resets playbackRate to the default
+  if (SHW.yt) SHW.yt.setRate(SHW.rate);
+}
+function showSlow(on = SHW.rate === 1) {
+  SHW.rate = on ? SHW_SLOW : 1;
+  SND.bins.length = 0;                                       // what the tap heard at the other rate is not this rate's
+  showRateApply(); showUI(true);
+  return SHW.rate;
+}
 // ---- the frame's call (through lxPanelTick). → true every frame while playing (the page draws); false otherwise.
 function showTick(dt, silent = false) {
   if (!SHW.on || !SHW.d) return false;
@@ -4782,7 +4802,7 @@ async function sndStart(A) {
     const tap = SND.tap = ctx.createScriptProcessor(2048, 2, 1), BIN = Math.round(ctx.sampleRate * SND_BIN);
     let acc = 0, cnt = 0;
     tap.onaudioprocess = e => {
-      if (A.seeking || A.paused) { acc = 0; cnt = 0; return; }
+      if (A.seeking || A.paused || A.playbackRate !== 1) { acc = 0; cnt = 0; return; }   // SLOW MOTION: a bin is 20 ms of music only at 1×
       const L = e.inputBuffer.getChannelData(0), R = e.inputBuffer.numberOfChannels > 1 ? e.inputBuffer.getChannelData(1) : L, at = A.currentTime;
       for (let i = 0; i < L.length; i++) { const s = (L[i] + R[i]) * 0.5; acc += s * s; if (++cnt === BIN) { SND.bins.push([at, sndLog(Math.sqrt(acc / cnt))]); acc = 0; cnt = 0; } }
       if (SND.bins.length > 1500) SND.bins.splice(0, SND.bins.length - 1500);
@@ -4812,7 +4832,7 @@ function sndMatch() {                                        // the last 4 s of 
   return { off: bk * SND_BIN - seg[0][0] + SND_LAT, score: best, margin: best - second };
 }
 function sndTick(A) {                                        // each frame while the file plays: the pending check, then a confirmation every half-minute
-  if (!SND.ctx || !SND.env || !SHW.playing || A.seeking) return;
+  if (!SND.ctx || !SND.env || !SHW.playing || A.seeking || A.playbackRate !== 1) return;
   const now = performance.now() / 1000, C = SND.check;
   if (C) {
     if (SND.bins.length < SND_N) return;
@@ -4945,7 +4965,7 @@ function showSoundTick() {                                   // the file's time 
 // 0.6 s on — this reads the music's own clock, it is not game timing).
 function showYT() {
   if (SHW.yt) return SHW.yt;
-  const Y = SHW.yt = { p: null, ready: false, failed: false, vid: null, want: null, state: -1, base: 0, wall: 0, vol: SHW.vol,
+  const Y = SHW.yt = { p: null, ready: false, failed: false, vid: null, want: null, state: -1, base: 0, wall: 0, vol: SHW.vol, r: SHW.rate,
     get readyState() { return this.ready && this.vid ? 4 : 0; },
     get seeking() { return this.state === 3; },
     get paused() { return this.state !== 1; },
@@ -4953,9 +4973,11 @@ function showYT() {
       if (!this.ready || !this.p.getCurrentTime) return 0;
       const b = +this.p.getCurrentTime() || 0, now = performance.now();   // an unavailable video answers undefined: 0, so showState never throws
       if (b !== this.base) { this.base = b; this.wall = now; }
-      return this.state === 1 ? this.base + Math.min(0.6, (now - this.wall) / 1000) : this.base;
+      return this.state === 1 ? this.base + Math.min(0.6, (now - this.wall) / 1000) * this.rate : this.base;
     },
     set currentTime(s) { if (this.ready) { this.p.seekTo(s, true); this.base = s; this.wall = performance.now(); } else this.want = s; },
+    get rate() { return this.ready && this.p.getPlaybackRate ? +this.p.getPlaybackRate() || 1 : 1; },   // what YouTube really plays at (SLOW MOTION)
+    setRate(r) { this.r = r; if (this.ready && this.p.setPlaybackRate && this.rate !== r) this.p.setPlaybackRate(r); },
     get volume() { return this.vol; },
     set volume(v) { this.vol = v; if (this.ready) this.p.setVolume(Math.round(v * 100)); },
     load(vid, at, play) {
@@ -4973,8 +4995,8 @@ function showYT() {
   const make = () => {
     Y.p = new YT.Player('sh-yt-p', { width: 320, height: 180, playerVars: { playsinline: 1, controls: 1, rel: 0, modestbranding: 1, origin: location.origin },
       events: {
-        onReady: () => { Y.ready = true; Y.p.setVolume(Math.round(Y.vol * 100)); if (Y.vid) { const go = SHW.on && SHW.playing && SHW.A === Y; Y.load(Y.vid, Y.want || 0, go); } showUI(true); },
-        onStateChange: e => { Y.state = e.data; if (e.data === 0 && SHW.A === Y) showAudioEnded(); },
+        onReady: () => { Y.ready = true; Y.p.setVolume(Math.round(Y.vol * 100)); Y.setRate(Y.r); if (Y.vid) { const go = SHW.on && SHW.playing && SHW.A === Y; Y.load(Y.vid, Y.want || 0, go); } showUI(true); },
+        onStateChange: e => { Y.state = e.data; if (e.data === 1) Y.setRate(Y.r); if (e.data === 0 && SHW.A === Y) showAudioEnded(); },   // a new video may start at 1×
         onError: e => { if (SHW.A === Y) showAudioFail({ message: `YouTube error ${e.data} on ${Y.vid}` }); },
       } });
   };
@@ -4998,6 +5020,7 @@ function showTrackAudio() {
   const f = SHW.files.get(SHW.ti), tr = SHW.d && SHW.d.tracks[SHW.ti];
   const ytBox = document.getElementById('sh-yt');
   SHW.gap = !!tr && (SHW.lt < 0 || (tr.post > 0 && SHW.lt >= tr.len - 1e-3));   // a lead-in or a tail (FQ): no music; the tick runs the clock
+  showRateApply();                                           // SLOW MOTION: a source made or reloaded since plays at the rate
   if (SHW.gap) { for (const X of [SHW.stA, SHW.fileA, SHW.yt]) if (X && !X.paused) X.pause(); return; }
   if (!f && tr && SHW.sound) {                               // the one-file soundtrack
     if (SHW.fileA && !SHW.fileA.paused) SHW.fileA.pause();
@@ -5109,7 +5132,7 @@ function showBuildPanel() {
   el.innerHTML = `<div class="sh-head"><b>Show</b><button class="sh-x" title="Hide the panel (the show keeps playing)">Hide</button></div>
 <div class="sh-now" aria-live="polite"></div>
 <div class="sh-next"></div>
-<div class="row"><button class="sh-prev" title="The previous track (this one's top, past its first 3 s)">Prev</button><button class="sh-play" aria-pressed="false">Play</button><button class="sh-nexttr" title="The next track">Next</button><button class="sh-stop" title="Stop: the rig, the work light, the haze and the view go back as they were">Stop</button><span class="sh-clock"></span></div>
+<div class="row"><button class="sh-prev" title="The previous track (this one's top, past its first 3 s)">Prev</button><button class="sh-play" aria-pressed="false">Play</button><button class="sh-nexttr" title="The next track">Next</button><button class="sh-stop" title="Stop: the rig, the work light, the haze and the view go back as they were">Stop</button><button class="sh-slow" aria-pressed="false" title="Slow motion: the show at quarter speed — the music, the actors, the cues and the lights together">¼×</button><span class="sh-clock"></span></div>
 <input class="sh-scrub" type="range" min="0" max="1" step="0.1" value="0" aria-label="Position in the track">
 <div class="row"><button class="sh-files">Load album audio…</button><button class="sh-dir" title="A folder of the album (both discs)">Folder…</button><button class="sh-local" hidden title="The one-file album from this computer, instead of YouTube (remembered for next time)">Use your soundtrack file…</button><input class="sh-lin" type="file" accept="audio/*" hidden><input class="sh-fin" type="file" accept="audio/*" multiple hidden><input class="sh-din" type="file" webkitdirectory multiple hidden></div>
 <label><input class="sh-ytin" type="checkbox" checked> Play the album from YouTube (your own files win)</label>
@@ -5121,11 +5144,12 @@ function showBuildPanel() {
 <div class="note sh-data"></div>`;
   document.getElementById('stage').appendChild(el);
   const q = s => el.querySelector(s), E = SHW.E;
-  Object.assign(E, { now: q('.sh-now'), next: q('.sh-next'), play: q('.sh-play'), stop: q('.sh-stop'), clock: q('.sh-clock'), scrub: q('.sh-scrub'), audio: q('.sh-audio'),
+  Object.assign(E, { now: q('.sh-now'), next: q('.sh-next'), play: q('.sh-play'), stop: q('.sh-stop'), slow: q('.sh-slow'), clock: q('.sh-clock'), scrub: q('.sh-scrub'), audio: q('.sh-audio'),
     tracks: q('.sh-tracks'), cues: q('.sh-cues'), data: q('.sh-data'), vol: q('.sh-vol'), local: q('.sh-local'), lin: q('.sh-lin') });
   q('.sh-x').addEventListener('click', () => showPanel(false));
   E.play.addEventListener('click', () => { if (!SHW.d) return; if (!SHW.on) showStart(true); else showPause(); });
   E.stop.addEventListener('click', () => showStop());
+  E.slow.addEventListener('click', () => showSlow());
   q('.sh-prev').addEventListener('click', () => showStep(-1));
   q('.sh-nexttr').addEventListener('click', () => showStep(1));
   E.scrub.addEventListener('pointerdown', () => { SHW.scrubbing = true; });
@@ -5183,7 +5207,7 @@ function showHud() {
   const D = SHW.d;
   if (!SHW.on || !D) { if (!H.el.hidden) { H.el.hidden = true; H.key = ''; } return; }
   const t = Math.max(0, SHW.lt), t10 = Math.floor(t * 10), tr = D.tracks[SHW.ti], c = D.cues[SHW.cue];
-  const key = `${SHW.ti}|${SHW.cue}|${t10}|${SHW.playing}|${SHW.hold}|${SND.note}`;
+  const key = `${SHW.ti}|${SHW.cue}|${t10}|${SHW.playing}|${SHW.hold}|${SND.note}|${SHW.rate}`;
   if (key === H.key) return;
   H.key = key; H.el.hidden = false;
   const m = Math.floor(t / 60), s = t - m * 60;
@@ -5192,7 +5216,7 @@ function showHud() {
   H.time.textContent = `${m}:${s.toFixed(1).padStart(4, '0')}`;
   H.sec.textContent = `${t.toFixed(1)} s in · of ${showFmt(tr.len)}`;
   H.cue.textContent = c && c.ti === SHW.ti ? `Q ${c.q}${c.label ? ` · ${c.label}` : ''}` : c ? `Q ${c.q} (from ${D.tracks[c.ti].id})` : 'before the first cue';
-  H.state.textContent = (SHW.hold ? `${D.tracks[SHW.ti + 1].hold || 'Held for the GO'} — press Play` : SHW.playing ? '' : 'paused') + (SND.note && SHW.A === SHW.stA ? (SHW.playing && !SHW.hold ? '' : ' · ') + SND.note : '');
+  H.state.textContent = [SHW.rate !== 1 ? 'slow motion ¼×' : '', SHW.hold ? `${D.tracks[SHW.ti + 1].hold || 'Held for the GO'} — press Play` : SHW.playing ? '' : 'paused', SND.note && SHW.A === SHW.stA ? SND.note : ''].filter(Boolean).join(' · ');
 }
 function showUI(force) {
   const E = SHW.E, D = SHW.d;
@@ -5214,9 +5238,11 @@ function showUI(force) {
   if (!SHW.scrubbing) { E.scrub.min = String(-tr.pre); E.scrub.max = String(showScrubMax(tr)); E.scrub.value = String(SHW.lt); }
   E.play.textContent = SHW.on && SHW.playing ? 'Pause' : 'Play'; E.play.setAttribute('aria-pressed', String(SHW.on && SHW.playing));
   E.stop.disabled = !SHW.on;
+  if (E.slow) E.slow.setAttribute('aria-pressed', String(SHW.rate !== 1));
   const f = SHW.files.get(SHW.ti);
   if (E.local) { E.local.hidden = !SHW.st || !!SHW.sound; E.local.textContent = SHW.localHandle ? 'Use your soundtrack file (one click to allow)' : 'Use your soundtrack file…'; }
   E.audio.textContent = SHW.audioNote || (!f && SHW.sound ? (SHW.sound.note || (SHW.sound.local ? `the album: your soundtrack file (${SHW.sound.name}, from this computer)` : 'the album: your soundtrack file (assets/audio/hamilton-soundtrack.mp3)')) : !f && SHW.audioOn && SHW.A === SHW.yt ? `the album from YouTube${SHW.yt.ready ? '' : ' (loading the player…)'}` : !SHW.files.size ? (SHW.ytOn ? 'the album from YouTube when the show plays' : 'no audio — silent clock') : f ? `${SHW.files.size} / ${D.tracks.length} tracks have audio · ${SHW.audioOn ? 'playing' : 'ready'}: ${f.name}` : `${SHW.files.size} / ${D.tracks.length} tracks have audio · this one none — silent clock`);
+  if (SHW.rate !== 1) E.audio.textContent += SHW.audioOn && SHW.A === SHW.yt && SHW.yt.ready && SHW.yt.state === 1 && SHW.yt.rate !== SHW.rate ? ` · this video will not play at ¼× — the show runs at its ${SHW.yt.rate}×` : ' · slow motion: ¼×';
   if (S.cue !== SHW.cue || force) {
     if (E.cueRows[S.cue]) E.cueRows[S.cue].classList.remove('on');
     const r = E.cueRows[SHW.cue]; if (r) { r.classList.add('on'); if (!SHW.el.hidden) r.scrollIntoView({ block: 'nearest' }); }
@@ -5341,7 +5367,7 @@ placeSet = s => {                                            // a set-size chang
   if (SHW.on) for (const [r, N] of SHW.ut) if (N && N.focus) { const P = showWorld(N.focus); if (P) showAim(r.unit, P, 0, true); }
 };
 const lxPanelTickK = lxPanelTick;
-lxPanelTick = dt => { const a = showTick(dt), b = lxPanelTickK(dt); return a || b; };
+lxPanelTick = dt => { const a = showTick(showDt(dt)), b = lxPanelTickK(dt); return a || b; };   // SLOW MOTION: the show's dt
 const buildLightsPanelK = buildLightsPanel;
 buildLightsPanel = () => {
   buildLightsPanelK();
@@ -5351,6 +5377,7 @@ buildLightsPanel = () => {
       load: urls => showLoad(urls), useLocalFile: (file, handle) => showUseLocalFile(file, handle || null), pickLocalFile: () => showLocalSound(true), play: () => showStart(true), pause: () => showPause(true), resume: () => showPause(false), stop: () => showStop(),
       seek: (trackId, sec) => showSeek(trackId, sec), gotoCue: q => showGotoCue(q), next: () => showStep(1), prev: () => showStep(-1),
       advance: (sec, step) => SHW.on ? showAdvance(sec, step) : null, settle: showSettle, panel: on => showPanel(on !== false),
+      slow: on => showSlow(on === undefined ? SHW.rate === 1 : !!on), get rate() { return SHW.rate; },   // SLOW MOTION: ¼× on / off / toggled → the rate
       get state() { return showState(); }, get cues() { return SHW.d ? SHW.d.cues.map(c => ({ q: c.q, label: c.label, track: c.track, at: c.at, real: c.real, n: c.n })) : []; },
       get tracks() { return SHW.d ? SHW.d.tracks.map(t => ({ id: t.id, title: t.title, len: t.len, start: t.start, pre: t.pre, post: Number.isFinite(t.post) ? t.post : 'open', hold: t.hold, audio: SHW.files.has(t.i) ? SHW.files.get(t.i).name : null })) : []; },
       check: opts => showCheck(opts), matchFiles: files => showMatchFiles(files), parseName: name => { const p = showParseFile({ name, webkitRelativePath: name }); return { disc: p.disc, n: p.n, rest: p.rest }; },
@@ -7643,7 +7670,7 @@ ACT.btn.id = 'bk-toggle'; ACT.btn.textContent = 'Blocking'; ACT.btn.setAttribute
 SHW.btn.after(ACT.btn);
 ACT.btn.addEventListener('click', () => actPanel(!ACT.el || ACT.el.hidden));
 const lxPanelTickA = lxPanelTick;
-lxPanelTick = dt => { const a = lxPanelTickA(dt), b = actTick(dt); return a || b; };   // after showTick: the clock has moved this frame
+lxPanelTick = dt => { const a = lxPanelTickA(dt), b = actTick(showDt(dt)); return a || b; };   // after showTick: the clock has moved this frame
 const buildLightsPanelA = buildLightsPanel;
 buildLightsPanel = () => {
   buildLightsPanelA();
@@ -9440,7 +9467,7 @@ const OPS_API = {
   get perf() { return Object.assign({ tickMs: +OPS_S.ms.toFixed(3) }, OPS_S.perf); }, get group() { return OPS_S.group; }, tune: OPS,
 };
 const lxPanelTickC = lxPanelTick;
-lxPanelTick = dt => { const a = lxPanelTickC(dt), b = opsTick(dt); return a || b; };   // after the actors' tick: the spots are aimed this frame
+lxPanelTick = dt => { const a = lxPanelTickC(dt), b = opsTick(showDt(dt)); return a || b; };   // after the actors' tick: the spots are aimed this frame
 const buildLightsPanelC = buildLightsPanel;
 buildLightsPanel = () => {
   buildLightsPanelC();
@@ -25960,7 +25987,7 @@ renderer.setAnimationLoop(() => {
   }
   if (walking) { if (ready && walkStep(dt)) moving = true; }  // the walk, its gravity and its floor come off this frame's dt
   else if (orbit.update()) moving = true;                    // true while the camera moved: input, or damping still settling
-  if (ready && lxTick(dt)) moving = true;                    // the lights' fades, movers travelling, gobos turning: off this frame's dt
+  if (ready && lxTick(showDt(dt))) moving = true;           // the lights' fades, movers travelling, gobos turning: off this frame's dt (the show's: SLOW MOTION)
   if (ready && doorsTick(dt)) moving = true;                 // the auditorium doors and curtains moving on E, and what E would reach: off this frame's dt
   if (ready && underTick(dt)) moving = true;                 // Theatre 2's lifts travelling, their gates and rails: off this frame's dt (THE UNDERGROUND)
   if (ready && vwLiftTick(dt)) moving = true;                // the Van Wezel's orchestra lift and its stair wagon: off this frame's dt (THE THIRD HOUSE: THE ORCHESTRA LIFT)
