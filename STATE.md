@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#49 merged; nothing open)
+# STATE — 2026-10-26 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#52 merged; #53 open, the picks sessions at work)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,7 +6,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **OPEN: PR `house1-empty` (2026-10-26; no ruling, GW next): Hamilton off house 1's stage, kept in the Van Wezel.** Jack: "take
+- **NEWEST: PR #52 (MERGED `4ad5ee0`) `house1-empty` (2026-10-26; HANDOFF's DONE block; no ruling, GW next): Hamilton off house 1's stage, kept in the Van Wezel.** Jack: "take
   hamilton off of the small stage. keep it on the van wezel but take it off the other"; asked, he chose house 1 "empty, like
   Theatre 2" and its cut walls left as they are. The production still runs in house 1 (the Van Wezel's is its mirror; the light
   lands on house 1's set), but outside the Van Wezel house 1's set, rig, company, pit band and the light are hidden, and the walk
@@ -15,7 +15,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   on stage (empty), "VW Hamilton" (as before). **His to decide:** the Midtown front's marquee still says HAMILTON over house 1's
   doors; house 1's followspots are hidden with the rig (Theatre 2's booth keeps its three as props); the company is hidden
   everywhere outside the Van Wezel, the shared backstage included (the picks sessions' half-hour and dressing rooms meet this).
-- **NEWEST: PR #49 (MERGED `9d54fb4`) `vw-leaving` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the audience goes home.** Jack:
+- **Before it: PR #49 (MERGED `9d54fb4`) `vw-leaving` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the audience goes home.** Jack:
   "make it so if it is playing the exit music or past it and the doors are open people will start to leave". From the exit
   music on (2-23 at 234.2 or later), with a stalls door open, the seated get up in an order of their own and walk out the way
   they came in, reversed, then off along Broadway; with the street doors shut they wait in the foyer. The counter shows
@@ -62,8 +62,8 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   was already JOHNNY TREMAIN. Only the street's signs changed; everywhere else still says Theatre 2 (his word: "Leave the rest as
   Theatre 2").
 
-**Main** is **`9d54fb4`** (#49; #47 `4ee99bd`, #45 `6ec85ac`, #44 `df7322c`, #43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
-NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `places-upstage`, `booth-monitor-ghost`, `vw-full-house`, `record-45`, `vw-entrances`, `vw-entrances-security`, `record-47`, `vw-leaving` and the agents' `worktree-agent-*` branches).
+**Main** is **`4ad5ee0`** (#52; #49 `9d54fb4`, #47 `4ee99bd`, #45 `6ec85ac`, #44 `df7322c`, #43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
+NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `places-upstage`, `booth-monitor-ghost`, `vw-full-house`, `record-45`, `vw-entrances`, `vw-entrances-security`, `record-47`, `vw-leaving`, `house1-empty` and the agents' `worktree-agent-*` branches).
 
 - **Before it: PR #39 (MERGED `75b879b`) `actor-whiteout` (2026-10-25; HANDOFF's DONE block): lit actors no longer turn white.** Jack: "at some parts the lighting or the
   spotlights light up the people too much and they just turn entirely white". The cause: the engine's pools are added onto the

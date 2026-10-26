@@ -254,6 +254,37 @@ home, #47 three entrances with security and a lobby for everyone, #45 the audien
   - sound from the speakers, last (it touches the show's audio)
 - **Post-merge tidy owed:** the remote branches listed in STATE.md, and the agents' local worktrees under `.claude/worktrees/`
   (never `git add -A` while they exist).
+- **Since (2026-10-26):** #52 took Hamilton off house 1's stage (DONE block below; his eye on it). Two sessions are building
+  his newer feature picks one PR at a time: `picks-list-2` (ghost light first; then cleaners, prop tables, the half-hour and
+  dressing rooms, box office and lottery, a season, a day clock) and `picks-list-3` (slow motion, PR #53 open; then the roof,
+  elevators, lighting designer mode, the stage door's guard, a green room). The picks page now shows his list 3; earlier ticks
+  stay in its `features` collection.
+
+## DONE — 2026-10-26: Hamilton off house 1's stage, kept in the Van Wezel (PR #52 `house1-empty`, merged `4ad5ee0`, one session)
+
+Jack: *"take hamilton off of the small stage. keep it on the van wezel but take it off the other"*; asked, he chose house 1
+"empty, like Theatre 2" and its cut walls left as they are. No ruling.
+- **How:** the Van Wezel's Hamilton is a mirror of house 1's production, so it still runs in house 1. `VWHAM.empty1` and
+  `vwHamHouse1` (THE THIRD HOUSE: HAMILTON ON ITS STAGE) hide, whenever the camera is outside the Van Wezel: `setGroup` (the set,
+  the rig, the whole company), Jack's pieces on the set (`vwHamOnSet`), the pit's band, MD and kit, and `LX.group` (beams, pools,
+  glare). They come back before the mirror syncs, since the mirror copies `visible`. Each frame re-hides anything shown since,
+  also after the engine's tick (a refresh shows `LX.group`). The real lights and work spots are left alone (showing or hiding a
+  light recompiles every material).
+- **The walk:** the collision grid is also the actors' floor and where every beam lands, so house 1's set, rig structures and
+  on-set pieces stay in it as ghost triangles (`col.ghost`). Only the walk's own queries skip them (`colPlayer`, set in
+  `walkStep` and `placePlayer`; `builtHit` skips hidden built pieces). `colliderMeshes` counts `vwHam.h1` as shown.
+  `compare()` shows house 1 for its proof (`h1Keep`).
+- **Checks:**
+  - `vanWezel.hamilton` 13 / 13, with a new line 13: from house 1's stalls 5 / 5 hidden, shown again in the Van Wezel, 95,735
+    ghost triangles; on a set floor the actors stand at 3.546 and the walk at 0.845.
+  - lx 301 / 313 and `show.check` seek-equivalent, as before; actors pass; pit 11 / 11; `vanWezel` PASS; console clean.
+  - Seen: house 1 from the back of the house and the front row, empty; "VW Hamilton" as before.
+- **His to decide:**
+  - the Midtown front's marquee still says HAMILTON over house 1's doors;
+  - house 1's followspots go with the rig;
+  - the company is hidden everywhere outside the Van Wezel, the shared backstage included. `picks-list-2` was told, since its
+    half-hour and dressing rooms put actors there.
+- Traps (TRAPS.md "From the house-1-empty round").
 
 ## DONE — 2026-10-25: the Van Wezel's audience goes home after the show (PR #49 `vw-leaving`, merged `9d54fb4`, one session)
 
