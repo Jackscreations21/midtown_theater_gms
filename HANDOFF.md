@@ -229,6 +229,59 @@ compare the *same* production across stages instead.
 
 ---
 
+## NEXT SESSION: **HIS EYE ON #52, #53 AND #55; THEN HIS PICKS WHERE THEY STOPPED** (2026-10-26; PRs #52–#55 merged, main `b2c88e1`)
+
+Rulings at **GV** (GW next; none made since). Today's rounds, newest first, each in its DONE block below: #55 the ghost
+lights, #53 slow motion, #52 Hamilton off house 1's stage.
+- **His eye on it:**
+  - house 1 empty;
+  - the ¼× button in the Show panel, with his own soundtrack (not timed: the file is local only);
+  - a house going dark to its ghost light after a show, and how dark (`GHOST.dark` 0.975).
+- **His feature picks** (the "Midtown Feature Picks" artifact; it shows list 3, and every tick is in its `features`
+  collection). He dropped list 1's leftovers (*"forget about the old ones"*). Both picks sessions were stopped at his word
+  after one feature each. Still to build, one PR at a time:
+  - list 2: cleaners → prop tables → half-hour + dressing rooms → box office + lottery → season → day clock;
+  - list 3: roof → elevators → lighting designer mode → the stage door's guard → a green room (after the half-hour).
+  Before the half-hour: ask him where the company should be seen (#52 hides it outside the Van Wezel, backstage included).
+- **Still open from before:** the applause loops while the page is hidden; his eye on the Van Wezel's audience (the block
+  below).
+- **Post-merge tidy owed:** the remote branches listed in STATE.md, the picks sessions' worktrees under `.claude/worktrees/`
+  (never `git add -A` while they exist).
+
+## DONE — 2026-10-26: the ghost lights (PR #55 `claude/picks-ghost-light-8f29dc`, merged `b2c88e1`; the `picks-list-2` session, merged by the lead)
+
+The first of his list-2 picks. His answers: all three houses, on when the show has stopped and nobody is in, and the page still
+opens lit.
+- **When:** Stage 1 at the show's Stop; the Van Wezel at Stop with nobody in, or when the last of its audience has gone home;
+  Theatre 2 at the end of Johnny Tremain's Auto, its rig to blackout with it. Play, Line up, a worklight, a house light
+  slider or a JT scene change by hand strikes it.
+- **What:** a caged bulb on a stand at downstage centre. The Van Wezel's stands in its stage-right wing when struck: the
+  wing's old merged prop is now this one. The light is shader terms beside the worklights' (`GH_U`), plus the rig's pools'
+  pass; `GHOST.dark` 0.975, so the house just reads. `MIDTOWN.ghost`: set, state, check.
+- **Checks:**
+  - ghost and worklight PASS; actors; doors 82/82; street; vanWezel; audience 14/14; entrances 21/21; stage house 8/8; jt;
+    jtLights; under 16/16;
+  - lx 301/313, as before; pit 8/9 (the band is built on frames and a hidden pane gives none).
+  - After main (#52, #53) was merged in by the lead: ghost PASS (Stage 1's bulb on the floor of the empty house),
+    `vanWezel.hamilton` 13/13, actors pass, lx 301/313, console clean.
+  - JT's Auto end was not run to its end (no frames in a hidden pane); its hook was read.
+- Traps (TRAPS.md, the ghost-light round).
+
+## DONE — 2026-10-26: slow motion (PR #53 `picks-slow-mo`, merged `e77a6d6`; the `picks-list-3` session, merged by the lead)
+
+The first of his list-3 picks; he chose Hamilton only. No ruling.
+- **What:** the Show panel's **¼×** button (the clock card reads "slow motion ¼×"; `MIDTOWN.show.slow()`). Hamilton runs at
+  quarter speed: the silent clock, the music (his file or the exit music by `playbackRate`, pitch kept; YouTube by
+  `setPlaybackRate`, read back), the lights' fades, the actors and the follow spots, all on one `showDt`. The walk, the
+  street, Theatre 2 and the Van Wezel's people keep normal speed. The sound tap (his MP3's re-sync) only listens at 1×.
+- **Checks:**
+  - Timed in a headless Chrome (`tools/cdp-eval.py`): the clock 0.25 s a second silent, with YouTube, and with the exit
+    music (0.05 s apart), then back to 1.00.
+  - actors pass; `show.check` as on main; lx 301/313.
+  - After main (#52) was merged in by the lead: `vanWezel.hamilton` 13/13, actors pass, console clean.
+- **Not timed:** his own soundtrack MP3 (not in the worktree); it uses the same mechanism as the exit music.
+- **Its cleanup** used `taskkill` on every `chrome.exe` and may have closed his Chrome (TRAPS.md, the slow-motion round).
+
 ## NEXT SESSION: **HIS EYE ON THE VAN WEZEL'S AUDIENCE; THEN HIS NEXT PICK, THE INTERVAL CROWD** (2026-10-25; PRs #43–#49 merged, main `9d54fb4`)
 
 Rulings at **GV** (GW next; none made since). Today's rounds, newest first, each in its DONE block below: #49 the audience goes

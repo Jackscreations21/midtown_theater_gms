@@ -1,4 +1,4 @@
-# STATE — 2026-10-26 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#52 merged; #53 open, the picks sessions at work)
+# STATE — 2026-10-26 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#55 merged; nothing open; the picks sessions stopped)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,7 +6,14 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: the ghost lights (2026-10-26, branch `claude/picks-ghost-light-8f29dc`, PR open, not merged; no ruling, GW next).** The
+- **NEXT: his feature picks, where they stopped.** Jack (2026-10-26) had both picks sessions stop once their first feature was
+  done; #53 and #55 merged. Still to build, one PR at a time, never stacked:
+  - list 2: cleaners → prop tables → half-hour + dressing rooms → box office + lottery → season → day clock;
+  - list 3: roof → elevators → lighting designer mode → the stage door's guard → a green room (the last two after the
+    half-hour and dressing rooms).
+  Before the half-hour and dressing rooms, ask him where the company should be seen: since #52 it is hidden outside the Van
+  Wezel, the shared backstage included.
+- **NEWEST: PR #55 (MERGED `b2c88e1`) the ghost lights (2026-10-26, branch `claude/picks-ghost-light-8f29dc`; HANDOFF's DONE block; no ruling, GW next).** The
   first of Jack's list-2 picks ("Midtown Feature Picks", `features`). His answers: all three houses; on when the show has stopped
   and nobody is in; the page opens lit as ever, a house goes to its ghost light only after a show. Stage 1 at the show's Stop; the
   Van Wezel at Stop with nobody in, or when the last of its audience has gone home; Theatre 2 at the end of Johnny Tremain's Auto
@@ -20,7 +27,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   **Jack, 2026-10-26: "forget about the old ones"** — list 1's unbuilt picks (the interval crowd, the stage door, rain, the
   speakers) are DROPPED. List 2's order, agreed: ghost light → cleaners → prop tables → half-hour + dressing rooms → box office
   + lottery → season → day clock, one PR each, never stacked. Ask which house before each when it is not obvious.
-- **Before it: `slow-mo` (2026-10-26; PR open, no ruling): slow motion, the first of Jack's list-3 picks.** The Show panel's ¼×
+- **Before it: PR #53 (MERGED `e77a6d6`) `picks-slow-mo` (2026-10-26; HANDOFF's DONE block; no ruling): slow motion, the first of Jack's list-3 picks.** The Show panel's ¼×
   (and the clock card's "slow motion ¼×"; `MIDTOWN.show.slow()`) runs Hamilton at quarter speed: the silent clock, the music
   (his file or the exit music by `playbackRate`, pitch kept; YouTube by `setPlaybackRate`, read back), the lights' fades, the
   actors and the follow spots, all on one `showDt`. Timed in headless Chrome: clock 0.25 s/s silent, with YouTube and with
@@ -83,8 +90,8 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   was already JOHNNY TREMAIN. Only the street's signs changed; everywhere else still says Theatre 2 (his word: "Leave the rest as
   Theatre 2").
 
-**Main** is **`4ad5ee0`** (#52; #49 `9d54fb4`, #47 `4ee99bd`, #45 `6ec85ac`, #44 `df7322c`, #43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
-NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `places-upstage`, `booth-monitor-ghost`, `vw-full-house`, `record-45`, `vw-entrances`, `vw-entrances-security`, `record-47`, `vw-leaving`, `house1-empty` and the agents' `worktree-agent-*` branches).
+**Main** is **`b2c88e1`** (#55; #53 `e77a6d6`, #52 `4ad5ee0`, #49 `9d54fb4`, #47 `4ee99bd`, #45 `6ec85ac`, #44 `df7322c`, #43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
+NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `places-upstage`, `booth-monitor-ghost`, `vw-full-house`, `record-45`, `vw-entrances`, `vw-entrances-security`, `record-47`, `vw-leaving`, `house1-empty`, `record-52`, `picks-slow-mo`, `claude/picks-ghost-light-8f29dc` and the agents' `worktree-agent-*` branches).
 
 - **Before it: PR #39 (MERGED `75b879b`) `actor-whiteout` (2026-10-25; HANDOFF's DONE block): lit actors no longer turn white.** Jack: "at some parts the lighting or the
   spotlights light up the people too much and they just turn entirely white". The cause: the engine's pools are added onto the
