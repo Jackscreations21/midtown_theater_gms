@@ -229,6 +229,32 @@ compare the *same* production across stages instead.
 
 ---
 
+## NEXT SESSION: **HIS EYE ON THE VAN WEZEL'S AUDIENCE; THEN HIS NEXT PICK, THE INTERVAL CROWD** (2026-10-25; PRs #43–#49 merged, main `9d54fb4`)
+
+Rulings at **GV** (GW next; none made since). Today's rounds, newest first, each in its DONE block below: #49 the audience goes
+home, #47 three entrances with security and a lobby for everyone, #45 the audience and its applause, #44 the booth monitors,
+#43 Places off the gallery.
+- **His eye on it, in the Van Wezel:**
+  - Line up on Broadway (the header's button; the speed button 1× / 4× / 10× beside it).
+  - The three street doors; the ushers, scanners and metal-detector arches.
+  - The foyer filling; the stalls doors; the house filling (the "Seated n / 1,600" counter).
+  - The applause through the bows at 2-23's end.
+  - The house emptying from the exit music on.
+- **His to decide:**
+  - the bodies' look; their loose walking
+  - the pace (~23 min to seat everyone at 1×, ~9 min to empty)
+  - leaving back through the security lanes
+  - the applause's sound and level (`VWA.clap.gain`)
+- **Open, his "not now":** the applause loops while the page is hidden (its timer runs on drawn frames). Fix: silence it
+  when the document is hidden, and time its test by the clock.
+- **Next from his feature picks** (the "Midtown Feature Picks" artifact, its `features` collection; read it first):
+  - the interval crowd: the same people up into the foyer at the interval and back at the chimes
+  - then the stage door after the show
+  - rain on Broadway
+  - sound from the speakers, last (it touches the show's audio)
+- **Post-merge tidy owed:** the remote branches listed in STATE.md, and the agents' local worktrees under `.claude/worktrees/`
+  (never `git add -A` while they exist).
+
 ## DONE — 2026-10-25: the Van Wezel's audience goes home after the show (PR #49 `vw-leaving`, merged `9d54fb4`, one session)
 
 Jack: *"make it so if it is playing the exit music or past it and the doors are open people will start to leave"*. No ruling.
@@ -317,7 +343,7 @@ the door and start coming in when i open the door. make it so there is a button 
   applause sounds now, and how loud (VWA.clap.gain).
 - Traps (TRAPS.md "From the full-house round"): a `//` comment pasted mid-line; the cross aisle's riser; a hidden pane's doors.
 
-## DONE — 2026-10-25: the booth's monitors show one view each (PR `booth-monitor-ghost`, one session)
+## DONE — 2026-10-25: the booth's monitors show one view each (PR #44 `booth-monitor-ghost`, merged `df7322c`, one session)
 
 Jack: *"the screen in the middl is look slike it is showing two vies at once it should only show vw hamilton"*, with a
 screenshot: the middle monitor's stage with a faint second stage, beams and a stair over it. The engine's pools are summed into a
