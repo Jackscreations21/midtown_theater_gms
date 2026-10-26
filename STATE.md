@@ -6,7 +6,14 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR #49 (MERGED `9d54fb4`) `vw-leaving` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the audience goes home.** Jack:
+- **NEWEST: `slow-mo` (2026-10-26; PR open, no ruling): slow motion, the first of Jack's list-3 picks.** The Show panel's ¼×
+  (and the clock card's "slow motion ¼×"; `MIDTOWN.show.slow()`) runs Hamilton at quarter speed: the silent clock, the music
+  (his file or the exit music by `playbackRate`, pitch kept; YouTube by `setPlaybackRate`, read back), the lights' fades, the
+  actors and the follow spots, all on one `showDt`. Timed in headless Chrome: clock 0.25 s/s silent, with YouTube and with
+  the exit music (lag 0.05 s), back to 1.00 after. Not timed: his own soundtrack MP3 (not in the worktree) — same mechanism.
+  Order agreed with Jack for list 3: slow-mo → roof → elevators → ld-mode → door-guard → green-room (the last two after the
+  other session's half-hour and dressing rooms merge). **His eye on it.**
+- **Before it: PR #49 (MERGED `9d54fb4`) `vw-leaving` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the audience goes home.** Jack:
   "make it so if it is playing the exit music or past it and the doors are open people will start to leave". From the exit
   music on (2-23 at 234.2 or later), with a stalls door open, the seated get up in an order of their own and walk out the way
   they came in, reversed, then off along Broadway; with the street doors shut they wait in the foyer. The counter shows
