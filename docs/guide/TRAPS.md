@@ -2413,3 +2413,16 @@ include the place a failure would show — the corridor behind the house, not on
 - **A JS string with `\'` written from a Python script broke the page** ("Unexpected identifier"): use double quotes there.
 - **Staff built on a frame tick are missing while the pane is hidden:** a check right after load failed 3 lines until they
   were built; `entrances.check()` now builds them itself.
+
+## From the house-1-empty round (2026-10-26)
+
+- **The walk's collision grid is not only the walk's.** `col` (buildCollider) is also the floor the actors stand on
+  (`rayDown`, `groundAt` in their routes), where every beam of the lighting engine lands (`lxCast`), and what the house checks
+  measure. Taking house 1's set out of it to let the walk through would have dropped the company through the set's floors and
+  moved every pool in both houses. Hidden-but-solid-for-others is a ghost triangle (`col.ghost`) that only the walk's own
+  queries skip (`colPlayer`, set in `walkStep` and `placePlayer`).
+- **`colliderMeshes` drops what is not shown.** Hiding a group for the eye takes it out of the next grid build unless the
+  shown test is told otherwise (`vwHam.h1` counts as shown).
+- **The Van Wezel's mirror copies `visible` from its source** (`vwHamCopy`). Hide house 1's production only while the camera is
+  outside the Van Wezel, and show it again before the mirror syncs.
+

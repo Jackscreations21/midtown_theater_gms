@@ -6,6 +6,15 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
+- **OPEN: PR `house1-empty` (2026-10-26; no ruling, GW next): Hamilton off house 1's stage, kept in the Van Wezel.** Jack: "take
+  hamilton off of the small stage. keep it on the van wezel but take it off the other"; asked, he chose house 1 "empty, like
+  Theatre 2" and its cut walls left as they are. The production still runs in house 1 (the Van Wezel's is its mirror; the light
+  lands on house 1's set), but outside the Van Wezel house 1's set, rig, company, pit band and the light are hidden, and the walk
+  passes through the set's ghost (`VWHAM.empty1`, `vwHamHouse1`, `col.ghost`, `colPlayer`). `vanWezel.hamilton` 13 / 13 (a new
+  line for it), lx 301 / 313, actors, pit 11 / 11, vanWezel PASS, console clean. **His eye on it:** house 1 from the stalls and
+  on stage (empty), "VW Hamilton" (as before). **His to decide:** the Midtown front's marquee still says HAMILTON over house 1's
+  doors; house 1's followspots are hidden with the rig (Theatre 2's booth keeps its three as props); the company is hidden
+  everywhere outside the Van Wezel, the shared backstage included (the picks sessions' half-hour and dressing rooms meet this).
 - **NEWEST: PR #49 (MERGED `9d54fb4`) `vw-leaving` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the audience goes home.** Jack:
   "make it so if it is playing the exit music or past it and the doors are open people will start to leave". From the exit
   music on (2-23 at 234.2 or later), with a stalls door open, the seated get up in an order of their own and walk out the way

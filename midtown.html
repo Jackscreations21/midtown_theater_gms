@@ -90,6 +90,10 @@
   when a stalls door opens; applause (a sound) through the bows at 2-23's end; MIDTOWN.vanWezel.audience. They come in by
   three gates (a ticket scanner and a metal detector each), the foyer and side foyers hold all of them, they walk loosely
   (not single file); a speed button (1×, 4×, 10×) beside Line up; a Seated counter over the view.
+  HOUSE 1 EMPTY (Jack, 2026-10-26: "take hamilton off of the small stage. keep it on the van wezel but take it off the other";
+  VWHAM.empty1, "THE THIRD HOUSE: HAMILTON ON ITS STAGE" below): Hamilton is seen in the Van Wezel only. It still runs in house 1
+  (the Van Wezel's is a mirror of it, and the light lands on house 1's set), but house 1's set, rig, company, pit band and the
+  light's beams and pools are hidden whenever the camera is not in the Van Wezel; the walk passes through where the set stands.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -584,16 +588,21 @@ addEventListener('blur', () => keys.clear());
 const col = { n: 0, T: null, Y0: null, Y1: null, x0: 0, z0: 0, nx: 0, nz: 0, start: null, list: null, stamp: null, query: 0, meshes: 0, stale: true, ms: 0 };
 function colliderStale() { col.stale = true; lxStale(); }   // lxStale: the lighting engine's pools land on the same scenery
 function colliderMeshes() {
-  const list = [], shown = o => { for (let p = o; p; p = p.parent) if (!p.visible) return false; return true; };
-  const take = o => { if (o.isMesh && o.geometry && o.geometry.attributes.position && !o.userData.cutter && shown(o)) list.push(o); };
+  // shown: what HOUSE 1 EMPTY hides (vwHam.h1) counts as shown — it is still there for the actors and the light to land on
+  const h1 = vwHam ? vwHam.h1 : null, shown = o => { for (let p = o; p; p = p.parent) if (!p.visible && !(h1 && h1.has(p))) return false; return true; };
+  const list = [], take = o => { if (o.isMesh && o.geometry && o.geometry.attributes.position && !o.userData.cutter && shown(o)) list.push(o); };
+  // HOUSE 1 EMPTY (THE THIRD HOUSE: HAMILTON ON ITS STAGE): house 1's set, the rig's structures and Jack's pieces on the set are
+  // ghosts — in the grid for the actors and the light, not for the walk (colPlayer)
+  const ghost = list.ghost = new Set(), onSet = vwHam && VWHAM.empty1 ? new Set(vwHamOnSet()) : null;
+  const takeG = o => { const n = list.length; take(o); if (onSet && list.length > n) ghost.add(o); };
   if (houseRoot) houseRoot.traverse(take);
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
-  setGroup.traverse(o => { if (!o.userData.rig) take(o); });  // the set; not the rig's 313 units (they hang overhead)
-  if (rig) for (const o of rig.children) if (o.isMesh) take(o);   // the rig's structures: booms, trusses, the grid, the wing towers
+  setGroup.traverse(o => { if (!o.userData.rig) takeG(o); });  // the set; not the rig's 313 units (they hang overhead)
+  if (rig) for (const o of rig.children) if (o.isMesh) takeG(o);   // the rig's structures: booms, trusses, the grid, the wing towers
   for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear|vw stage house|vw crew way|vw entrances)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR; vw stage house: THE THIRD HOUSE: THE STAGE HOUSE AS IT IS (not 'vw flies': what hangs); vw crew way: THE THIRD HOUSE: THE CREW WAY; vw entrances: THE THIRD HOUSE: THE ENTRANCES' SECURITY (its arches and podiums)
   for (const o of scene.children) if (o.name === 'street') o.traverse(m => { if (m.isMesh && m.userData.collide) list.push(m); });   // THE STREET: drawn or not (stTick hides it indoors)
   for (const o of scene.children) if (o.name === 'street trim') o.traverse(take);   // THE STREET: the street doors' frames
-  baked.traverse(take);
+  for (const o of baked.children) (onSet && onSet.has(o) ? o.traverse(takeG) : o.traverse(take));
   if (vwHam) list.push(...vwHam.solid, ...(vwHam.desk ? vwHam.desk.solid : []));   // the set on the Van Wezel's stage, shown or not, and its prompt desk (THE THIRD HOUSE: HAMILTON ON ITS STAGE)
   return list;
 }
@@ -603,12 +612,13 @@ function buildCollider() {
   const meshes = colliderMeshes();
   let n = 0;
   for (const o of meshes) { const g = o.geometry; n += Math.floor((g.index ? g.index.count : g.attributes.position.count) / 3); }
-  const T = new Float32Array(n * 9), Y0 = new Float32Array(n), Y1 = new Float32Array(n), X = new Float32Array(n * 4);
+  const T = new Float32Array(n * 9), Y0 = new Float32Array(n), Y1 = new Float32Array(n), X = new Float32Array(n * 4), G = new Uint8Array(n);
   const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
-  let k = 0, xmin = Infinity, xmax = -Infinity, zmin = Infinity, zmax = -Infinity;
+  let k = 0, xmin = Infinity, xmax = -Infinity, zmin = Infinity, zmax = -Infinity, ghosts = 0;
   for (const o of meshes) {
-    const g = o.geometry, pos = g.attributes.position, idx = g.index ? g.index.array : null, m = idx ? idx.length : pos.count;
+    const g = o.geometry, pos = g.attributes.position, idx = g.index ? g.index.array : null, m = idx ? idx.length : pos.count, gh = meshes.ghost.has(o);
     for (let t = 0; t + 2 < m; t += 3) {
+      if (gh) { G[k] = 1; ghosts++; }
       a.fromBufferAttribute(pos, idx ? idx[t] : t).applyMatrix4(o.matrixWorld);
       b.fromBufferAttribute(pos, idx ? idx[t + 1] : t + 1).applyMatrix4(o.matrixWorld);
       c.fromBufferAttribute(pos, idx ? idx[t + 2] : t + 2).applyMatrix4(o.matrixWorld);
@@ -635,7 +645,7 @@ function buildCollider() {
   for (let ci = 0; ci < cells; ci++) cnt[ci + 1] += cnt[ci];
   const fill = cnt.slice(0, cells), list = new Uint32Array(cnt[cells]);
   for (let t = 0; t < k; t++) span(t, ci => { list[fill[ci]++] = t; });
-  Object.assign(col, { n: k, T, Y0, Y1, start: cnt, list, stamp: new Uint32Array(k), query: 0, meshes: meshes.length, stale: false });
+  Object.assign(col, { n: k, T, Y0, Y1, ghost: G, ghosts, start: cnt, list, stamp: new Uint32Array(k), query: 0, meshes: meshes.length, stale: false });
   col.ms = performance.now() - t0;
   console.info(`walk: collision grid — ${k} triangles from ${meshes.length} meshes, ${col.nx} × ${col.nz} cells of ${C} m (${list.length} entries), built in ${col.ms.toFixed(0)} ms`);
 }
@@ -666,16 +676,19 @@ function builtHit(ox, oy, oz, dx, dy, dz, far) {
   if (!built.children.length) return door;
   builtRay.set(builtO.set(ox, oy, oz), builtD.set(dx, dy, dz)); builtRay.far = Math.min(far, door);
   const h = builtRay.intersectObjects(built.children, true);
-  return h.length ? h[0].distance : door;
+  const f = colPlayer && vwHam && vwHam.h1.size ? h.find(q => !vwHamHidden(q.object)) : h[0];   // the walk passes through what HOUSE 1 EMPTY hides
+  return f ? f.distance : door;
 }
+// The walk's own queries (walkStep, placePlayer) pass through HOUSE 1 EMPTY's ghosts (col.ghost); everyone else's land on them
+let colPlayer = false;
 // The highest surface straight down from (x, y, z): its y, or null.
 function rayDown(x, y, z) {
   let best = -Infinity;
   if (col.n) {
-    const ci = cellJ(z) * col.nx + cellI(x), L = col.list, Y0 = col.Y0, Y1 = col.Y1;
+    const ci = cellJ(z) * col.nx + cellI(x), L = col.list, Y0 = col.Y0, Y1 = col.Y1, G = colPlayer && col.ghosts ? col.ghost : null;
     for (let k = col.start[ci], e = col.start[ci + 1]; k < e; k++) {
       const t = L[k];
-      if (Y0[t] > y || Y1[t] <= best) continue;
+      if (Y0[t] > y || Y1[t] <= best || (G && G[t])) continue;
       const d = hitTri(t, x, y, z, 0, -1, 0, Infinity);
       if (d >= 0 && y - d > best) best = y - d;
     }
@@ -688,10 +701,10 @@ function rayDown(x, y, z) {
 function rayUp(x, y, z, far) {
   let best = far, hit = false;
   if (col.n) {
-    const ci = cellJ(z) * col.nx + cellI(x), L = col.list, Y0 = col.Y0, Y1 = col.Y1;
+    const ci = cellJ(z) * col.nx + cellI(x), L = col.list, Y0 = col.Y0, Y1 = col.Y1, G = colPlayer && col.ghosts ? col.ghost : null;
     for (let k = col.start[ci], e = col.start[ci + 1]; k < e; k++) {
       const t = L[k];
-      if (Y1[t] < y || Y0[t] > y + best) continue;
+      if (Y1[t] < y || Y0[t] > y + best || (G && G[t])) continue;
       const d = hitTri(t, x, y, z, 0, 1, 0, best);
       if (d >= 0 && d <= best) { best = d; hit = true; }
     }
@@ -703,7 +716,7 @@ function rayUp(x, y, z, far) {
 function rayH(ox, oy, oz, dx, dz, far) {
   let best = far, hit = false;
   if (col.n) {
-    const ex = ox + dx * far, ez = oz + dz * far, L = col.list, Y0 = col.Y0, Y1 = col.Y1, S = col.stamp;
+    const ex = ox + dx * far, ez = oz + dz * far, L = col.list, Y0 = col.Y0, Y1 = col.Y1, S = col.stamp, G = colPlayer && col.ghosts ? col.ghost : null;
     const i0 = cellI(Math.min(ox, ex)), i1 = cellI(Math.max(ox, ex)), j0 = cellJ(Math.min(oz, ez)), j1 = cellJ(Math.max(oz, ez));
     if (++col.query > 0xfffffff0) { S.fill(0); col.query = 1; }
     const q = col.query;
@@ -713,7 +726,7 @@ function rayH(ox, oy, oz, dx, dz, far) {
         const t = L[k];
         if (S[t] === q) continue;
         S[t] = q;
-        if (Y0[t] > oy || Y1[t] < oy) continue;
+        if (Y0[t] > oy || Y1[t] < oy || (G && G[t])) continue;
         const d = hitTri(t, ox, oy, oz, dx, 0, dz, best);
         if (d >= 0 && d <= best) { best = d; hit = true; }
       }
@@ -768,7 +781,8 @@ function stepTo(nx, nz) {
 }
 // On the floor under the camera, facing where it faces. Outdoors (nothing overhead: the camera was out over
 // the roof) or over nothing at all, at the Front row viewpoint instead.
-function placePlayer() {
+function placePlayer() { colPlayer = true; try { placePlayerAt(); } finally { colPlayer = false; } }
+function placePlayerAt() {
   if (col.stale) buildCollider();
   const c = camera.position;
   let g = rayDown(c.x, c.y, c.z), x = c.x, z = c.z;
@@ -786,7 +800,8 @@ function placeCamera() {
 }
 // One frame of walking. → whether the view moved (render on demand draws only then).
 const walkPerf = { frames: 0, sum: 0, max: 0, logged: false };
-function walkStep(dt) {
+function walkStep(dt) { colPlayer = true; try { return walkStepAt(dt); } finally { colPlayer = false; } }
+function walkStepAt(dt) {
   const t0 = performance.now();
   if (col.stale) buildCollider();
   const p = player.pos, before = p.clone(), wasGround = player.onGround;
@@ -21098,6 +21113,7 @@ const VWHAM = {
   // player every `gap` s from the Five call; the calls the band is in the pit for
   band: { dz: -0.152 - 0.30 - 3.50, podium: 0.18, walk: 1.0, gap: 1.1, sit: 0.6, inFor: ['FIVE', 'PLACES', 'ACT ONE', 'ACT TWO', 'CURTAIN'] },
   pit: 'ORCHESTRA',                                             // the orchestra lift at load: Hamilton's pit, its wall up (null: as THE ORCHESTRA LIFT leaves it)
+  empty1: true,                                                 // HOUSE 1 EMPTY: the production seen in the Van Wezel only (false: in both houses, as before)
 };
 let vwHam = null;
 // A clone of src's subtree, every mesh sharing its geometry and material; each clone keeps its source (userData.vwSrc) and its
@@ -21456,7 +21472,7 @@ function vwHamBuild() {
   const lights = new THREE.Group(); lights.name = 'vw hamilton lights'; scene.add(lights);
   const moved = [...LX.real, ...lxWorkLights.filter(l => l.isSpotLight)];
   for (const l of moved) { lights.add(l); lights.add(l.target); }
-  const b = vwHam = { root, lights, off, on: false, copy: null, map: null, solid: [], setMeshes: [], extra: [], spots: [], inWall: [], nodes: 0, rebuilds: 0, syncMs: 0, house: 1, dims: [], fs: [], screens: [], ms: 0 };
+  const b = vwHam = { root, lights, off, on: false, copy: null, map: null, solid: [], setMeshes: [], extra: [], spots: [], inWall: [], nodes: 0, rebuilds: 0, syncMs: 0, house: 1, dims: [], fs: [], screens: [], ms: 0, h1: new Map(), h1Keep: false };
   vwHamFrame(b);
   vwHamMirror(b);
   // the followspots: house 1's three (by their x in house 1), each to the Van Wezel's spot in the same place across its booth
@@ -21532,6 +21548,7 @@ function vwHamGate() {
   if (!b.desk && SM.desk) vwHamDesk(b);                         // house 1's desk and band come in after the load: theirs then
   if (!b.band && pitBuilt && pitBuilt.band && RIG.parts) vwHamBand(b);
   const p = camera.position, inside = p.x > 50.5 && p.x < 104.0 && p.z > -52 && p.z < 34;   // vwBackGate's box
+  vwHamHouse1(b, inside || b.h1Keep);
   if (inside !== b.on) {
     b.on = inside; b.root.visible = inside;
     const o = inside ? b.off : VWHAM_ZERO;
@@ -21560,7 +21577,25 @@ function vwHamGate() {
   }
   b.syncMs = performance.now() - t0;
 }
-{ const lxDrawnH1 = lxDrawn; lxDrawn = time => { vwHamGate(); lxDrawnH1(time); }; }
+{ const lxDrawnH1 = lxDrawn; lxDrawn = time => { vwHamGate(); lxDrawnH1(time); if (vwHam) vwHamHouse1(vwHam, vwHam.on || vwHam.h1Keep); }; }   // (and HOUSE 1 EMPTY again after the engine's tick: a refresh shows the light's group)
+// HOUSE 1 EMPTY (Jack, 2026-10-26: "take hamilton off of the small stage. keep it on the van wezel but take it off the other";
+// asked, he chose house 1 "empty, like Theatre 2", its cut walls left as they are). The production still runs in house 1 — the
+// Van Wezel's mirror is a copy of it, and the engine lands every beam on house 1's set — but it is drawn only in the Van Wezel:
+// with the camera anywhere else, house 1's set, rig and company (setGroup), Jack's pieces on the set (vwHamOnSet), the pit's
+// band, MD and kit, and the light's beams, pools and glare (LX.group) are hidden; in the Van Wezel they are shown again before
+// the mirror syncs (it copies what is shown). Each frame, whatever has come to be shown since (the band built, a refresh) is
+// hidden again; b.h1 holds what was hidden and is put back. Their triangles stay in the walk's grid for the actors and the
+// light, as ghosts the walk passes through (col.ghost, colPlayer). house 1's real lights and work spots are left as they are (a
+// light shown or hidden recompiles every material); with nothing lit on the stage they light little. The walk's grid is the
+// same shown or hidden (colliderMeshes counts b.h1 as shown). b.h1Keep: the proof (compare) draws house 1 too.
+function vwHamHouse1(b, show) {
+  if (show || !VWHAM.empty1) { if (b.h1.size) { for (const [o] of b.h1) o.visible = true; b.h1.clear(); } return; }
+  const B = pitBuilt, list = [setGroup, ...vwHamOnSet(), LX.group];
+  if (B) list.push(B.kit, ...(B.band ? [B.band.group, B.band.md] : []));
+  for (const o of list) if (o && o.visible) { b.h1.set(o, true); o.visible = false; }
+}
+// A part of what HOUSE 1 EMPTY hides?
+function vwHamHidden(o) { const h = vwHam ? vwHam.h1 : null; if (!h || !h.size) return false; for (let q = o; q; q = q.parent) if (h.has(q)) return true; return false; }
 // The Van Wezel's house light slider (the header's "Van Wezel house light"): its level, 1 as built
 const vwBrightEl = document.getElementById('vw-bright');
 const vwHouseLevel = () => vwBrightEl ? parseFloat(vwBrightEl.value) : 1;
@@ -21703,6 +21738,22 @@ function vwHamCheck() {
     }
     line(boxes.length === b.lift.n && headroom > 0.5 && !blocked && !thrBad && (b.liftRecs || []).length > 0, `the front of house up (${Object.entries(VWHAM.foh).map(([k, [z, t]]) => `${k} z ${z}, top ${t}`).join('; ')}): ${b.lift.n} parts moved, ${(b.liftRecs || []).length} units' beams drawn from there, the least headroom under the ceiling ${headroom.toFixed(2)} m; ${blocked} of ${seen} sightlines from the stalls to the opening blocked; ${thrBad} of ${thr} throws onto the stage put through the proscenium's wall by the move (now; the whole show: throws())`);
   } else line(false, 'the front of house up: nothing moved (the rig not at real size?)');
+  // 13. HOUSE 1 EMPTY: from house 1's stalls nothing of the production is drawn (the set, the rig, the company, the pit's band,
+  // the light), back in the Van Wezel all of it is again; on a floor of the set's own, the walk stands on house 1's deck through
+  // it while the actors' floor (and the light's) is still the set's
+  if (VWHAM.empty1) {
+    const keepH = camera.position.clone(); camera.position.set(0, 2.6, -9.0); lxDrawn(clock.elapsedTime);
+    const B = pitBuilt, hid = [setGroup, LX.group, ...(B && B.band ? [B.band.group, B.band.md, B.kit] : [])], off1 = hid.filter(o => !o.visible).length;
+    let gp = null, ga = null, at = null;
+    for (let x = -6; x <= 6 && !at; x += 0.5) for (let z = 2; z <= 8.5 && !at; z += 0.5) {
+      const a = rayDown(x, HOUSE.deckY + 4, z); if (a === null || a < HOUSE.deckY + 0.2) continue;
+      colPlayer = true; try { gp = groundAt(x, z, HOUSE.deckY + 0.05); } finally { colPlayer = false; } ga = a; at = [x, z];
+    }
+    camera.position.set(77, 5, -10); lxDrawn(clock.elapsedTime);
+    const on2 = [setGroup, LX.group].filter(o => o.visible).length;
+    camera.position.copy(keepH); lxDrawn(clock.elapsedTime);
+    line(off1 === hid.length && on2 === 2 && col.ghosts > 0 && at && gp !== null && gp < HOUSE.deckY + 0.1, `house 1 empty: from its stalls ${off1} / ${hid.length} hidden (the set, rig and company; the light; ${B && B.band ? "the pit's band, MD and kit" : 'no pit band yet'}); in the Van Wezel the set and the light shown again (${on2} / 2); ${col.ghosts} ghost triangles in the walk's grid; ${at ? `at (${at.join(', ')}) the set's floor ${ga.toFixed(3)} for the actors, the walk's ${gp === null ? '—' : gp.toFixed(3)}` : 'no floor of the set found'}`);
+  }
   camera.position.copy(keep.p); vwHamGate(); scene.updateMatrixWorld(true);
   const s = `van wezel hamilton: ${out.length - fails} / ${out.length} PASS\n` + out.join('\n');
   console.info(s); return s;
@@ -21739,6 +21790,7 @@ function vwHamCompare(opts = {}) {
   };
   const res = { n: 0, views: views.map(v => v[0]), perCue: [], worst: [], size: [W, H] };
   const wasOn = SHW.on, wasT = wasOn ? showState() : null;
+  b.h1Keep = true;                                              // HOUSE 1 EMPTY: house 1's production drawn for the proof
   return new Promise(done => {
     let k = from, sumMean = 0, nOver = 0;
     const one = () => {
@@ -21774,7 +21826,7 @@ function vwHamCompare(opts = {}) {
       if ((k - from) / step % (opts.batch || 4)) one(); else vwHamYield(one);   // a few cues a turn: the page breathes between
     };
     vwHamYield(one);
-  }).finally(() => { if (!wasOn) showStop(false); else if (wasT) showSeek(wasT.track, wasT.t); });
+  }).finally(() => { b.h1Keep = false; vwHamGate(); requestRender(); if (!wasOn) showStop(false); else if (wasT) showSeek(wasT.track, wasT.t); });
 }
 // the state a cue leaves, settled: the show's own tick (paused: the actors and the followspots posed at its time, nothing
 // fired) and every fade and journey run out (the engine's own advance, a long tick at once)
