@@ -1,4 +1,4 @@
-# STATE — 2026-10-25 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#49 merged; nothing open)
+# STATE — 2026-10-26 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#51 merged; the ghost light's PR open)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,7 +6,21 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR #49 (MERGED `9d54fb4`) `vw-leaving` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the audience goes home.** Jack:
+- **NEWEST: the ghost lights (2026-10-26, branch `claude/picks-ghost-light-8f29dc`, PR open, not merged; no ruling, GW next).** The
+  first of Jack's list-2 picks ("Midtown Feature Picks", `features`). His answers: all three houses; on when the show has stopped
+  and nobody is in; the page opens lit as ever, a house goes to its ghost light only after a show. Stage 1 at the show's Stop; the
+  Van Wezel at Stop with nobody in, or when the last of its audience has gone home; Theatre 2 at the end of Johnny Tremain's Auto
+  (its rig to blackout with it). Play, Line up, a worklight, a house light slider or a JT scene change by hand strikes it. A caged
+  bulb on a stand at downstage centre (the Van Wezel's stands in its stage-right wing when struck: the wing's old merged prop is
+  this one now). The light is shader terms beside the worklights' (`GH_U`), plus the rig's pools' pass. `MIDTOWN.ghost`: set,
+  state, check (PASS). **His eye on it**, and on the darkness (`GHOST.dark` 0.975: the house just reads). Checks: ghost PASS,
+  worklight PASS, actors, doors 82/82, street, vanWezel, audience 14/14, entrances 21/21, stage house 8/8, jt, jtLights, under
+  16/16, lx 301/313 (as before), pit 8/9 (the band, built on frames: none in a hidden pane). JT's Auto end was not run to its end
+  here (no frames in the hidden pane); its hook is read, not run.
+  **Jack, 2026-10-26: "forget about the old ones"** — list 1's unbuilt picks (the interval crowd, the stage door, rain, the
+  speakers) are DROPPED. List 2's order, agreed: ghost light → cleaners → prop tables → half-hour + dressing rooms → box office
+  + lottery → season → day clock, one PR each, never stacked. Ask which house before each when it is not obvious.
+- **Before it: PR #49 (MERGED `9d54fb4`) `vw-leaving` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the audience goes home.** Jack:
   "make it so if it is playing the exit music or past it and the doors are open people will start to leave". From the exit
   music on (2-23 at 234.2 or later), with a stalls door open, the seated get up in an order of their own and walk out the way
   they came in, reversed, then off along Broadway; with the street doors shut they wait in the foyer. The counter shows

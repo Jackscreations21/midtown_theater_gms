@@ -2413,3 +2413,24 @@ include the place a failure would show — the corridor behind the house, not on
 - **A JS string with `\'` written from a Python script broke the page** ("Unexpected identifier"): use double quotes there.
 - **Staff built on a frame tick are missing while the pane is hidden:** a check right after load failed 3 lines until they
   were built; `entrances.check()` now builds them itself.
+
+## From the ghost-light round (2026-10-26)
+
+- **"localhost" in the Browser pane can reach another session's server.** Another process listened on 0.0.0.0:8093 while
+  mine was on 127.0.0.1:8093; the pane's `localhost` got the other one, an older page, and every reload "lost" the change.
+  Serve on 127.0.0.1 and open `http://127.0.0.1:<port>/`; check `[...document.scripts]` holds your new code.
+- **A top-level const read by another top-level const before its line is a TDZ error that kills the page** (`GHOST.houses`
+  read `VWHAM.off`, defined 8,000 lines later). Read such values at build time, not at module evaluation.
+- **Terms in the material shaders do not reach light drawn elsewhere.** Darkening a house in the shaders left the rig's pools
+  (LXACC, their own pass: the ghost lights patch `LX_POOL_FS` too), Theatre 2's rig (many units drawn as real lights and pools:
+  the ghost light takes it to blackout) and every unpatched MeshBasic (the Van Wezel's `house_unlit` is shared with the side
+  doors' copies, so `vwHam.dims` leaves it out) as they were.
+- **2.5 % reads dark, 7 % does not.** A linear multiplier of 0.07 still looks half lit after the sRGB curve; and a light's
+  falloff of 1 / (1 + d²/2.4²) gave walls 10 m off 14 % — a bare bulb wants ~1 / d².
+- **Screenshots of a hidden pane's WebGL canvas lag and time out.** Draw (`MIDTOWN.frame()`), `drawImage` the canvas into a 2D
+  canvas in the same task, and read its pixels or post the JPEG somewhere you can open; don't judge brightness from the
+  screenshot tool. And a hidden pane gets NO `requestAnimationFrame` at all now (0 in 10 s): anything ticked by the frame
+  (JT's Auto, the band, doors) does not run.
+- **The Bash tool turns `\n` inside a heredoc into a real newline** before Python sees it: a JS string written that way broke
+  across lines. Make such edits with the Edit tool.
+

@@ -56,6 +56,12 @@
   given its irradiance), so nothing behind the back brick sees it. The show takes Stage 1's out with the work look (at the
   panel's open and at every Play); Stop puts it back.
 
+  THE GHOST LIGHTS (Jack's pick, 2026-10-26: "when everyone has gone home, the stage goes dark except one bare bulb on a stand
+  downstage"; "HOUSE WORKS: THE GHOST LIGHTS" below): one in each house. After a show, once the house is empty — Stage 1 at the
+  show's Stop, the Van Wezel at Stop with nobody in or when the last of its audience has gone home, Theatre 2 at the end of
+  Johnny Tremain's Auto — the house goes dark but for a caged bulb on a stand at downstage centre. The page opens lit, as
+  ever; Play, Line up, a worklight, a slider or a scene change strikes it. Shader terms like the worklights'; MIDTOWN.ghost.
+
   THE FOLLOWSPOTS (Jack: "use the 3 spotlights to make sure people get lit up fully when they should be"; THE FOLLOWSPOTS below):
   house 1's three Lycians in the booth play assets/hamilton-follow.json (tools/blocking/follow.py) on the show clock — each dark,
   or on one actor, turned every frame to where she is and zoomed to the pool's size at her; a pure function of show time, so a
@@ -1494,9 +1500,9 @@ function lxInit() {
       // BackSide: the cone's far half only — one layer of blending a beam instead of two (p4 drew both), and it still draws
       // with the eye inside the cone. Its strength is made up in LX_BEAM_GAIN.
       transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.BackSide }));
-    const pool = new THREE.Mesh(LX_POOL_GEO, new THREE.ShaderMaterial({ vertexShader: LX_POOL_VS, fragmentShader: LX_POOL_FS,
+    const pool = new THREE.Mesh(LX_POOL_GEO, new THREE.ShaderMaterial({ vertexShader: LX_POOL_VS, fragmentShader: ghostPoolFS(LX_POOL_FS),   // a ghost light's house dark (THE GHOST LIGHTS)
       uniforms: { uProj: { value: new THREE.Matrix4() }, uColor: { value: new THREE.Color(0, 0, 0) }, uOrg: { value: new THREE.Vector3() }, uGobo: { value: lxGoboTexture(0) },
-        uZ: { value: new THREE.Vector2(0, 1) }, uR: { value: new THREE.Vector2(0, 0) }, uDepth: LXDEP.uDepth, uAlbedo: LXDEP.uAlbedo, uInvPV: LXDEP.uInvPV, uRes: LXDEP.uRes, uGain: LX_POOL_GAIN, uOff: LX_OFF },
+        uZ: { value: new THREE.Vector2(0, 1) }, uR: { value: new THREE.Vector2(0, 0) }, uDepth: LXDEP.uDepth, uAlbedo: LXDEP.uAlbedo, uInvPV: LXDEP.uInvPV, uRes: LXDEP.uRes, uGain: LX_POOL_GAIN, uOff: LX_OFF, ...GH_U },
       // the far side only and no depth test: each pixel the cone covers is lit once, from outside it or inside it
       transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, depthTest: false, side: THREE.BackSide }));
     pool.frustumCulled = false;                              // one shared unit cone, scaled in its shader: its own bounds say nothing
@@ -4554,6 +4560,7 @@ function showPause(on = SHW.playing) {
   exmTick();                                                 // the exit music follows Play / Pause (the click is the gesture it needs)
   if (SHW.playing && SHW.houseUp) showHouse(false);
   if (SHW.playing) wlShow(true);                             // Stage 1's worklight out at every Play (THE WORKLIGHTS)
+  if (SHW.playing) ghostShow(true);                          // and the ghost lights struck on both its stages (THE GHOST LIGHTS)
   const A = SHW.A;
   if (A && SHW.audioOn) { if (SHW.playing && !SHW.gap && (A !== SHW.stA || A.src)) { A.play().catch(e => showAudioFail(e)); if (A === SHW.stA) sndStart(A); } else A.pause(); }   // a lead-in or a tail: silent; the Play click is the gesture the sound tap needs
   showUI(true); requestRender();
@@ -4569,6 +4576,7 @@ function showStop(camBack = true) {
   const ytBox = document.getElementById('sh-yt'); if (ytBox) ytBox.hidden = true;
   lxjRestore(SHW.save); lxdCmRestore(SHW.cm);
   wlShow(false);                                             // and Stage 1's worklight back if the show took it out
+  if (camBack) ghostShow(false);                             // a Stop of his (not a self-test's or the Preview's): the ghost lights (THE GHOST LIGHTS)
   if (camBack && SHW.cam && !walking) {
     tween = { t: 0, start: performance.now(), p0: camera.position.clone(), t0: orbit.target.clone(), p1: SHW.cam.p.clone(), t1: SHW.cam.t.clone() };
     if (matchMedia('(prefers-reduced-motion: reduce)').matches) tween.t = 1;
@@ -12620,11 +12628,11 @@ function wlPatchScan(m) {
   if (wlPatched.has(m)) return;
   wlChain(m, sh => {
     if (!sh.fragmentShader.includes('#include <map_fragment>') || !sh.vertexShader.includes('#include <project_vertex>')) return;
-    Object.assign(sh.uniforms, WL_U);
+    Object.assign(sh.uniforms, WL_U, GH_U);                  // and the ghost lights' (THE GHOST LIGHTS), which ride the same patch
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWlP; varying vec3 vWlN;')
       .replace('#include <project_vertex>', '#include <project_vertex>' + WL_VERT + '\n\tvWlN = mat3(modelMatrix) * normal;');
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>' + WL_GLSL + WL_SCAN_FS)
-      .replace('#include <map_fragment>', '#include <map_fragment>\n\tif (uWlAny > 0.0) { float wlK = wlScan(vWlP, vWlN); diffuseColor.rgb = diffuseColor.rgb * (1.0 + uWlCol * (uWlScan.x * wlK)) + diffuse * uWlCol * (uWlLift * wlK); }');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>' + WL_GLSL + WL_SCAN_FS + GH_GLSL + GH_SCAN_FS)
+      .replace('#include <map_fragment>', '#include <map_fragment>\n\tif (uWlAny > 0.0) { float wlK = wlScan(vWlP, vWlN); diffuseColor.rgb = diffuseColor.rgb * (1.0 + uWlCol * (uWlScan.x * wlK)) + diffuse * uWlCol * (uWlLift * wlK); }' + GH_SCAN_MAIN);
   });
 }
 const wlLitKind = m => m && (m.isMeshStandardMaterial || m.isMeshLambertMaterial || m.isMeshPhongMaterial || m.isMeshToonMaterial);
@@ -12632,11 +12640,11 @@ function wlPatchLit(m) {
   if (wlPatched.has(m) || !wlLitKind(m) || m.userData.noWorklight) return;
   wlChain(m, sh => {
     if (!sh.fragmentShader.includes('#include <lights_fragment_end>') || !sh.vertexShader.includes('#include <project_vertex>')) return;
-    Object.assign(sh.uniforms, WL_U);
+    Object.assign(sh.uniforms, WL_U, GH_U);
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWlP;')
       .replace('#include <project_vertex>', '#include <project_vertex>' + WL_VERT);
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>' + WL_GLSL + WL_LIT_FS)
-      .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\n\tif (uWlAny > 0.0) reflectedLight.directDiffuse += wlLit(vWlP, inverseTransformDirection(normal, viewMatrix)) * BRDF_Lambert(material.diffuseColor);');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>' + WL_GLSL + WL_LIT_FS + GH_GLSL + GH_LIT_FS)
+      .replace('#include <lights_fragment_end>', '#include <lights_fragment_end>\n\tif (uWlAny > 0.0) reflectedLight.directDiffuse += wlLit(vWlP, inverseTransformDirection(normal, viewMatrix)) * BRDF_Lambert(material.diffuseColor);' + GH_LIT_MAIN);
   });
 }
 // Every material in the scene that should take the light: the scan's (houseMats) one way, every lit one the other. Run at
@@ -12848,6 +12856,7 @@ function wlSet(r, on, fade = WORKLIGHT.fade, byShow = false) {
   r.dur = Math.max(0, +fade || 0);
   if (!r.dur) r.u = r.want;
   if (r.want) wlPatchScene();                                // anything made since the last look takes the light (compiles once)
+  if (r.want && !byShow) ghostSet(r.i, false, 'the worklight');   // someone is in: the ghost light struck (THE GHOST LIGHTS)
   wlApply(r); wlUI();
   if (walking) doorAimTick();
   return r.want === 1;
@@ -13085,6 +13094,343 @@ const WORKLIGHT_API = {
     console.info('worklight: ' + s); return s;
   },
   check: wlCheck, tick: wlTick, patchScene: wlPatchScene,
+};
+
+/* ---------------------------------------------------------------- HOUSE WORKS: THE GHOST LIGHTS
+   Jack's pick (the feature list's "ghost-light", 2026-10-26): "When everyone has gone home, the stage goes dark except one bare
+   bulb on a stand downstage." All three houses; on when the show has stopped and nobody is in; the page opens lit as it always
+   has, and a house goes to its ghost light only after a show (his answers, 2026-10-26).
+   WHEN. One state per house (want), every way through ghostSet:
+   - Stage 1: on at the show's Stop (showStop with camBack: the Show panel's Stop, MIDTOWN.show's, the desk's; not the
+     self-tests' quiet stops nor the Preview's; house 1 never has an audience).
+   - The Van Wezel: on at the show's Stop if nobody is in its house; on when the last of its audience has gone home (THE
+     AUDIENCE's 'left', after the exit music); a Clear house is not going home, so it leaves it as it is.
+   - Theatre 2: on when Johnny Tremain's Auto reaches the end of the show, its rig taken to blackout with it.
+   - Off (struck): every Play (showPause; Stage 1 and the Van Wezel: the show runs on both stages); the Van Wezel's audience
+     coming in (Line up);
+     that stage's worklight switched on by hand; the House light slider (Stage 1 and Theatre 2) or the Van Wezel's; Johnny
+     Tremain's Auto started or a scene changed by hand. MIDTOWN.ghost.set(house, on) either way.
+   THE STAND: a bare bulb in a wire cage on a pole, a three-legged base on casters and its cable off toward the wing, at
+   downstage centre (Stage 1: 0.6 m upstage of the set's front, clear of the pit's opening; Theatre 2: on its apron; the Van
+   Wezel: where house 1's spot lands on its stage, VWHAM.off, so on the Hamilton set as it is mirrored there). Struck (hidden)
+   while out, except the Van Wezel's, which stands in its stage-right wing by the proscenium where its stage house always had one
+   (that one was merged into 'vw stage house'; it is this one now). Not in the walk's grid (the worklight's way): it is struck
+   while anyone runs the show on it.
+   THE LIGHT, the worklights' way (no light in the scene; HOUSE WORKS: THE WORKLIGHTS): terms in the same patched shaders, one
+   set of uniforms (GH_U) for the three. Inside a house's region, everything else goes down to (1 − dark) of what it was — the
+   scan's colour, a lit surface's light, the rig's and the work lights' with it — and the bulb adds its own: on the scan a
+   multiplier and a lift by distance (no cone: a bare bulb), on lit materials a point light's irradiance. A house's region is
+   its box (house and stage for the two Midtown houses; the Van Wezel's stage house) or, for the Van Wezel's auditorium, its
+   fan: inside the back wall's arc (VWF.c, VWF.wallR) and both side walls (VWF.wall and its mirror), downstage of VWF.front —
+   so its foyer, the lobby, backstage, the booths and the street keep their light. The Van Wezel's own unlit house and stage
+   house (the materials its house lights dim, vwHam's) are patched as the scan is. At level 0 the shaders skip it all.
+   FADES: on over GHOST.on s (the house going down), out over GHOST.off s, off the frame's dt (ghostTick). */
+const GHOST = {
+  stand: { pole: 1.75, legs: 0.40, bulb: 0.062, cage: 0.105, cageH: 0.24 },   // metres: the pole's top; the legs' reach; the bulb's and the cage's radius, the cage's height
+  dark: 0.975,                              // how much of everything else in the house goes (linear): 2.5 % is left, so the room still just
+                                            // reads (at 0.93 the sRGB curve left the house looking half lit)
+  on: 4.0, off: 1.2,                        // seconds: the house going down to it, and struck
+  colour: 0xffcf96,                         // a bare incandescent bulb, warmer than the worklight
+  // on the scan: colour × (1 − dark·level + gain·k) + its own colour × lift·k, k = (floor + (1 − floor)·lambert) / (1 + d²/range²)
+  scan: { gain: 2.6, range: 1.2, floor: 0.30, lift: 0.10 },   // range: near a bulb's 1/d² (at 2.4 the walls 10 m off took 14 % and the house read lit)
+  lit: { cd: 22, decay: 2.0 },              // on lit materials: candela, decay (a 40 W lamp; at 70 the set's back brick, 9 m off, read lit)
+  houses: [                                 // its spot (world x, z), and where its cable runs off (the stand turned so it lies toward that side)
+    { i: 0, house: 1, name: 'Stage 1', x: 0.0, z: 0.60, rot: 0 },
+    { i: 1, house: 2, name: 'Theatre 2', x: HOUSE2.dx, z: 1.60, rot: 0 },
+    { i: 2, house: 'vw', name: 'Van Wezel', x: null, z: null, rot: 0, wing: { x: 88.10, z: 0.85, rot: Math.PI } },   // x, z: Stage 1's moved VWHAM.off (at build)
+  ],
+  list: [],
+};
+const GH_U = {
+  uGhAny: { value: 0 },                     // the largest of the three levels: 0 skips the whole term
+  uGhLevel: { value: [0, 0, 0] },
+  uGhPos: { value: [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()] },   // the bulb
+  uGhBox0: { value: [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()] },  // the house's box
+  uGhBox1: { value: [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()] },
+  uGhFan: { value: [new THREE.Vector4(), new THREE.Vector4(), new THREE.Vector4()] },   // an auditorium's fan: centre x, z, radius (0: none), its front z
+  uGhWall: { value: [new THREE.Vector4(), new THREE.Vector4(), new THREE.Vector4()] },  // its house-right side wall: a point x, z, the inward normal (house left's mirrored about the centre's x)
+  uGhFanY: { value: [new THREE.Vector2(), new THREE.Vector2(), new THREE.Vector2()] },  // the fan's floor and top
+  uGhCol: { value: new THREE.Color(GHOST.colour) },
+  uGhScan: { value: new THREE.Vector4(GHOST.scan.gain, 1 / (GHOST.scan.range * GHOST.scan.range), GHOST.scan.floor, GHOST.scan.lift) },
+  uGhLit: { value: new THREE.Vector2(GHOST.lit.cd, GHOST.lit.decay) },
+  uGhDark: { value: GHOST.dark },
+};
+const GH_GLSL = `
+uniform float uGhAny; uniform float uGhLevel[3]; uniform vec3 uGhPos[3]; uniform vec3 uGhBox0[3]; uniform vec3 uGhBox1[3];
+uniform vec4 uGhFan[3]; uniform vec4 uGhWall[3]; uniform vec2 uGhFanY[3];
+uniform vec3 uGhCol; uniform vec4 uGhScan; uniform vec2 uGhLit; uniform float uGhDark;
+float ghIn(vec3 P, vec3 b0, vec3 b1, vec4 f, vec4 w, vec2 fy) {
+  if (all(greaterThanEqual(P, b0)) && all(lessThanEqual(P, b1))) return 1.0;
+  if (f.z <= 0.0 || P.z > f.w || P.y < fy.x || P.y > fy.y) return 0.0;
+  vec2 q = P.xz - f.xy;
+  if (dot(q, q) > f.z * f.z) return 0.0;
+  if (dot(P.xz - w.xy, w.zw) < 0.0 || dot(P.xz - vec2(2.0 * f.x - w.x, w.y), vec2(-w.z, w.w)) < 0.0) return 0.0;
+  return 1.0;
+}
+float ghDark(vec3 P) {
+  float d = 0.0;
+  for (int i = 0; i < 3; i++) if (uGhLevel[i] > 0.0) d = max(d, uGhLevel[i] * ghIn(P, uGhBox0[i], uGhBox1[i], uGhFan[i], uGhWall[i], uGhFanY[i]));
+  return d * uGhDark;
+}`;
+// The scan: k, the bulb's reach at P (a face only from the bulb's side of it, as the worklight's)
+const GH_SCAN_FS = `
+float ghScan(vec3 P, vec3 N) {
+  float k = 0.0, nl = length(N);
+  for (int i = 0; i < 3; i++) {
+    if (uGhLevel[i] <= 0.0 || ghIn(P, uGhBox0[i], uGhBox1[i], uGhFan[i], uGhWall[i], uGhFanY[i]) <= 0.0) continue;
+    vec3 L = uGhPos[i] - P; float d2 = max(dot(L, L), 1e-4); L *= inversesqrt(d2);
+    float lam = 1.0;
+    if (nl > 1e-5) { float a = dot(N, L); if (a * dot(N, cameraPosition - P) <= 0.0) continue; lam = abs(a) / nl; }
+    k += uGhLevel[i] * (uGhScan.z + (1.0 - uGhScan.z) * lam) / (1.0 + d2 * uGhScan.y);
+  }
+  return k;
+}`;
+const GH_SCAN_MAIN = `
+\tif (uGhAny > 0.0) { float ghD = ghDark(vWlP), ghK = ghScan(vWlP, vWlN); diffuseColor.rgb = diffuseColor.rgb * (1.0 - ghD + uGhCol * (uGhScan.x * ghK)) + diffuse * uGhCol * (uGhScan.w * ghK); }`;
+// Lit materials: the irradiance of a point light at the bulb (cd · NdotL / d^decay), diffuse only
+const GH_LIT_FS = `
+vec3 ghLit(vec3 P, vec3 N) {
+  float e = 0.0;
+  for (int i = 0; i < 3; i++) {
+    if (uGhLevel[i] <= 0.0 || ghIn(P, uGhBox0[i], uGhBox1[i], uGhFan[i], uGhWall[i], uGhFanY[i]) <= 0.0) continue;
+    vec3 L = uGhPos[i] - P; float d2 = max(dot(L, L), 1e-4); L *= inversesqrt(d2);
+    e += uGhLevel[i] * max(dot(N, L), 0.0) * uGhLit.x / max(pow(d2, 0.5 * uGhLit.y), 0.01);
+  }
+  return uGhCol * e;
+}`;
+const GH_LIT_MAIN = `
+\tif (uGhAny > 0.0) { float ghK = 1.0 - ghDark(vWlP); reflectedLight.directDiffuse *= ghK; reflectedLight.directSpecular *= ghK; reflectedLight.indirectDiffuse *= ghK; reflectedLight.indirectSpecular *= ghK; totalEmissiveRadiance *= ghK;
+\t  reflectedLight.directDiffuse += ghLit(vWlP, inverseTransformDirection(normal, viewMatrix)) * BRDF_Lambert(material.diffuseColor); }`;
+// The rig's pools (THE LIGHTING ENGINE's LX_POOL_FS): drawn in a pass of their own, so the house going dark takes them down there
+// too, at the pixel's world point W (its uniforms: GH_U, given with the pool's own)
+function ghostPoolFS(fs) {
+  return fs.replace('void main(){', GH_GLSL + '\nvoid main(){')
+    .replace('  gl_FragColor = linearToOutputTexel(vec4(col, 1.0));\n}', '  if (uGhAny > 0.0) col *= 1.0 - ghDark(W);\n  gl_FragColor = linearToOutputTexel(vec4(col, 1.0));\n}');
+}
+// The same test in JS (the check's twin of ghIn): → whether P is in slot i's region
+function ghostIn(i, P) {
+  const U = GH_U, b0 = U.uGhBox0.value[i], b1 = U.uGhBox1.value[i], f = U.uGhFan.value[i], w = U.uGhWall.value[i], fy = U.uGhFanY.value[i];
+  if (P.x >= b0.x && P.y >= b0.y && P.z >= b0.z && P.x <= b1.x && P.y <= b1.y && P.z <= b1.z) return true;
+  if (f.z <= 0 || P.z > f.w || P.y < fy.x || P.y > fy.y) return false;
+  if ((P.x - f.x) ** 2 + (P.z - f.y) ** 2 > f.z * f.z) return false;
+  return (P.x - w.x) * w.z + (P.z - w.y) * w.w >= 0 && (P.x - (2 * f.x - w.x)) * -w.z + (P.z - w.y) * w.w >= 0;
+}
+const GH_BULB_OFF = new THREE.Color(0x3a3530), GH_BULB_ON = new THREE.Color(0xfff0d8);
+// One stand, built about its base's middle on the floor (y 0), its cable off along −x
+function ghostStand(name) {
+  const S = GHOST.stand, V = (x, y, z) => new THREE.Vector3(x, y, z), body = [], wire = [], cable = [];
+  const hub = 0.16, top = S.pole, bulbY = top + 0.13;
+  body.push(new THREE.CylinderGeometry(0.04, 0.04, 0.08, 12).translate(0, hub, 0));                 // the hub
+  for (let k = 0; k < 3; k++) {                                                                       // the legs, a caster at each foot
+    const a = k * 2 * Math.PI / 3 + Math.PI / 6, fx = S.legs * Math.cos(a), fz = S.legs * Math.sin(a);
+    body.push(wlRod(V(0.03 * Math.cos(a), hub, 0.03 * Math.sin(a)), V(fx, 0.06, fz), 0.013, 8));
+    body.push(new THREE.CylinderGeometry(0.022, 0.022, 0.02, 10).translate(fx, 0.055, fz));
+    cable.push(new THREE.SphereGeometry(0.028, 10, 8).translate(fx, 0.028, fz));
+  }
+  body.push(wlRod(V(0, hub, 0), V(0, top, 0), 0.017, 10));                                            // the pole
+  body.push(new THREE.CylinderGeometry(0.026, 0.026, 0.06, 12).translate(0, 1.02, 0));               // the height clamp and its knob
+  body.push(new THREE.CylinderGeometry(0.012, 0.012, 0.06, 8).rotateZ(Math.PI / 2).translate(0.05, 1.02, 0));
+  body.push(new THREE.CylinderGeometry(0.03, 0.026, 0.07, 12).translate(0, top + 0.035, 0));         // the socket
+  // the cage: six uprights, a ring at its foot and its head, a cross over the top
+  const c0 = top + 0.01, c1 = top + 0.01 + S.cageH;
+  for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; wire.push(wlRod(V(S.cage * Math.cos(a), c0, S.cage * Math.sin(a)), V(S.cage * Math.cos(a), c1, S.cage * Math.sin(a)), 0.004, 5)); }
+  for (const y of [c0, c1]) wire.push(new THREE.TorusGeometry(S.cage, 0.004, 5, 24).rotateX(Math.PI / 2).translate(0, y, 0));
+  for (const a of [0, Math.PI / 2]) wire.push(wlRod(V(-S.cage * Math.cos(a), c1, -S.cage * Math.sin(a)), V(S.cage * Math.cos(a), c1, S.cage * Math.sin(a)), 0.004, 5));
+  for (let k = 0; k < 3; k++) { const a = k * 2 * Math.PI / 3; wire.push(wlRod(V(0.026 * Math.cos(a), top + 0.03, 0.026 * Math.sin(a)), V(S.cage * Math.cos(a), c0, S.cage * Math.sin(a)), 0.004, 5)); }
+  // the cable: down the pole, off the hub and along the floor toward the wing
+  cable.push(wlRod(V(0.022, top, 0.0), V(0.022, hub + 0.02, 0.0), 0.007, 6));
+  const run = new THREE.CatmullRomCurve3([V(0.022, hub, 0), V(-0.10, 0.03, 0.06), V(-0.7, 0.008, 0.25), V(-1.6, 0.008, 0.05), V(-2.6, 0.008, 0.35)]);
+  cable.push(new THREE.TubeGeometry(run, 48, 0.008, 6, false));
+  const g = new THREE.Group(); g.name = name;
+  g.add(wlMesh(name + ': stand', body, WL_MAT.body), wlMesh(name + ': cage', wire, WL_MAT.wire), wlMesh(name + ': cable', cable, WL_MAT.cable));
+  // the bulb (an A-lamp: its neck and globe), glowing; and the glow over it (light, not a solid)
+  const bulbMat = new THREE.MeshBasicMaterial({ color: GH_BULB_OFF.clone(), toneMapped: false });
+  const bulb = wlMesh(name + ': bulb', [new THREE.CylinderGeometry(0.024, 0.03, 0.05, 12).translate(0, top + 0.095, 0), new THREE.SphereGeometry(S.bulb, 16, 12).translate(0, bulbY, 0)], bulbMat);
+  const glowMat = new THREE.SpriteMaterial({ map: wlGlowTex, color: 0xffffff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+  const glow = new THREE.Sprite(glowMat); glow.position.set(0, bulbY, 0); glow.scale.set(0.9, 0.9, 1); glow.visible = false;
+  glow.userData.noCheck = true; glow.raycast = () => {};
+  g.add(bulb, glow);
+  return { group: g, bulb, bulbMat, glow, glowMat, bulbY };
+}
+// The three, their regions in the uniforms, and the ways in that only exist after the load (the sliders). Called by the
+// loader after the worklights (it reads THE WORKLIGHTS' kit), with the Van Wezel built.
+function ghostBuildAll() {
+  const t0 = performance.now(), deck = HOUSE.deckY, fly = WALL.flyRoof + 0.2, U = GH_U;
+  wlTextures();
+  const box = (i, x0, y0, z0, x1, y1, z1) => { U.uGhBox0.value[i].set(x0, y0, z0); U.uGhBox1.value[i].set(x1, y1, z1); };
+  // Stage 1 and Theatre 2: the house and its stage house, from just inside the passages' linings to the stage's back
+  // (Stage 1's backstage wall, Theatre 2's brick); the pit below the stalls' floor keeps its own lamps
+  box(0, -9.90, -0.30, LOBBY.linZ, 10.00, fly, BACKSTAGE.stageZ.h1 - 0.05);
+  box(1, 10.00, -0.30, LOBBY.linZ, HOUSE2.dx + 10.10, fly, HOUSE.backZ + 0.30);
+  // the Van Wezel: its stage house (the wing as widened) as the box, the auditorium as the fan
+  box(2, VWS.x0 - 0.10, 0.50, VWF.front, VWS.wing.shell + VWS.wing.out + 0.10, VWS.grid + 1.0, VWS.wing.back);
+  // (half a metre past the back wall and the side walls: the dressing's panels and sconces stand on their faces)
+  const u = VWF.wall.u, mg = 0.5;
+  U.uGhFan.value[2].set(VWF.c[0], VWF.c[1], VWF.wallR + mg, VWF.front);
+  U.uGhWall.value[2].set(VWF.wall.a[0] - mg * u[1], VWF.wall.a[1] + mg * u[0], u[1], -u[0]);
+  U.uGhFanY.value[2].set(-1.0, VWG.spot.floor - 0.05);           // up to the spots' booth's floor: the booths keep their light
+  const rows = [], H = GHOST.houses;
+  H[2].x = H[0].x + VWHAM.off[0]; H[2].z = H[0].z + VWHAM.off[2];
+  GHOST.list = H.map(h => {
+    const st = ghostStand(`ghost light, ${h.name}`), y = (x, z, guess) => { const g = groundAt(x, z, guess + 1.0); return g === null ? guess : g; };
+    const on = { x: h.x, z: h.z, y: y(h.x, h.z, h.i === 2 ? VWS.deck : deck), rot: h.rot };
+    const off = h.wing ? { x: h.wing.x, z: h.wing.z, y: y(h.wing.x, h.wing.z, VWS.deck), rot: h.wing.rot } : null;
+    scene.add(st.group);
+    const r = { ...h, ...st, on, off, want: 0, u: 0, dur: GHOST.on, why: '', bulbAt: new THREE.Vector3() };
+    ghostPlace(r, off); ghostApply(r);
+    rows.push(`${h.name} at (${on.x.toFixed(2)}, ${on.y.toFixed(3)}, ${on.z.toFixed(2)})${off ? `, struck to (${off.x.toFixed(2)}, ${off.y.toFixed(3)}, ${off.z.toFixed(2)})` : ''}`);
+    return r;
+  });
+  // the Van Wezel's unlit house and stage house take it as the scan does: the model's house and stage meshes and the groups
+  // built over them, their glows, signs, lamps and screens left lit. Not vwHam.dims (what its house light slider dims): that
+  // leaves out the materials the side doors' copies share ('vw: house_unlit', 'house_tex_38'), and the region clips anyway
+  let vw = 0;
+  // (the Hamilton dressing's sconces and halos go too: they are the house lights)
+  const vwGroups = /^(vw house|vw stage house|vw flies|vw lift|vw seating wagon|vw pros frame|vw side doors|vw hamilton|vw ham dress)$/, lit =/sign|glow|led|lamp|screen|lens|pop|mirror|red|amber/;
+  scene.traverse(o => {
+    if (!o.isMesh || !o.material) return;
+    let top = o; while (top.parent && top.parent !== scene) top = top.parent;
+    if (!((top === VW.root && /^vw: (house_(?!glass)|stage_|patches)/.test(o.name)) || (vwGroups.test(top.name) && !lit.test(o.name)))) return;
+    for (const m of [].concat(o.material)) if (m && m.isMeshBasicMaterial && !wlHouseMats.has(m)) { wlHouseMats.add(m); vw++; }
+  });
+  const n = wlPatchScene();
+  // the sliders: moving one means someone wants to see
+  bright.addEventListener('input', () => { ghostSet(0, false, 'the house lights'); ghostSet(1, false, 'the house lights'); });
+  const vwb = document.getElementById('vw-bright'); if (vwb) vwb.addEventListener('input', () => ghostSet(2, false, 'the house lights'));
+  console.info(`ghost light: ${rows.join('; ')} — the Van Wezel's ${vw} unlit house materials added to the scan's; ${n} patched · ${(performance.now() - t0).toFixed(0)} ms; all out`);
+  return GHOST.list;
+}
+// The stand where it stands now (struck: off, or hidden)
+function ghostPlace(r, p) {
+  r.group.visible = !!p;
+  if (p) { r.group.position.set(p.x, p.y, p.z); r.group.rotation.y = p.rot; r.group.updateMatrixWorld(true); }
+  r.bulbAt.set(0, r.bulbY, 0).applyMatrix4(r.group.matrixWorld);
+  GH_U.uGhPos.value[r.i].copy(r.bulbAt);
+}
+// Its look at its level u: the uniform, the bulb, the glow; struck once it is out
+function ghostApply(r) {
+  const k = r.u;
+  GH_U.uGhLevel.value[r.i] = k;
+  GH_U.uGhAny.value = Math.max(...GH_U.uGhLevel.value);
+  r.bulbMat.color.copy(GH_BULB_OFF).lerp(GH_BULB_ON, k);
+  r.glowMat.opacity = 0.75 * k; r.glow.visible = k > 0.002;
+  if (k === 0 && !r.want) ghostPlace(r, r.off);             // out: struck
+  requestRender();
+}
+// On or off (i: 0 Stage 1, 1 Theatre 2, 2 the Van Wezel), over fade seconds (default GHOST.on / GHOST.off); why: who did it
+function ghostSet(i, on, why = '', fade) {
+  const r = GHOST.list[i]; if (!r) return false;
+  const want = on ? 1 : 0;
+  if (r.want === want) return !!want;
+  r.want = want; r.why = why;
+  r.dur = Math.max(0, fade === undefined ? (want ? GHOST.on : GHOST.off) : +fade || 0);
+  if (want) { ghostPlace(r, r.on); wlPatchScene(); }        // set downstage; anything made since takes the light
+  // Theatre 2's own rig out with it: many of its units are drawn as real lights and pools of their own, which the dark term
+  // does not reach (a scene change by hand puts its look back). Not for the self-check, which must leave the rig as it found it.
+  if (want && r.i === 1 && why !== 'the check' && JTL.state) JTL_API.blackout(r.dur);
+  if (!r.dur) r.u = want;
+  ghostApply(r);
+  return !!want;
+}
+// Who is in the Van Wezel: anyone of its audience neither at home nor gone home
+const ghostVwIn = () => !!vwAud && vwAud.people.some(p => p.state !== 'home' && p.state !== 'left');
+// The show's Play and Stop (showStart, showStop)
+function ghostShow(start) {
+  if (start) { ghostSet(0, false, 'the show'); ghostSet(2, false, 'the show'); return; }
+  ghostSet(0, true, 'after the show');
+  if (!ghostVwIn()) ghostSet(2, true, 'after the show');
+}
+// One frame: the fades, and the Van Wezel's audience (4 times a second). → whether anything changed
+const GH_WATCH = { t: 0, vwIn: false };
+function ghostTick(dt) {
+  let moved = false;
+  for (const r of GHOST.list) {
+    if (r.u === r.want) continue;
+    const step = r.dur > 0 ? dt / r.dur : 1;
+    r.u = r.want > r.u ? Math.min(1, r.u + step) : Math.max(0, r.u - step);
+    ghostApply(r); moved = true;
+  }
+  if (GHOST.list.length && (GH_WATCH.t += dt) > 0.25) {
+    GH_WATCH.t = 0;
+    const inside = ghostVwIn();
+    if (inside && !GH_WATCH.vwIn) ghostSet(2, false, 'the audience');
+    if (!inside && GH_WATCH.vwIn && vwAud.people.some(p => p.state === 'left') && (!SHW.on || vwAudLeaving())) ghostSet(2, true, 'everyone has gone home');
+    GH_WATCH.vwIn = inside;
+  }
+  return moved;
+}
+// THE CHECK: the stands on their floors; the regions at points that must and must not be in them; each house's view with its
+// ghost light on alone (its own view dark, the bulb bright in it, every other view and the lobby's untouched); all out again
+// exactly as before. → { pass, fails, summary }
+function ghostCheck() {
+  const fails = [], fail = s => fails.push(s), out = [], f3 = v => v.toFixed(3), V = (x, y, z) => new THREE.Vector3(x, y, z);
+  if (GHOST.list.length !== 3) { const s = 'ghost light: FAIL — not built'; console.warn(s); return { pass: false, fails: ['not built'], summary: s }; }
+  // the stands: each foot on its floor, where it stands lit and where it is struck
+  for (const r of GHOST.list) for (const [p, what] of [[r.on, 'downstage'], [r.off, 'struck']]) {
+    if (!p) continue;
+    let worst = 0;
+    for (let k = 0; k < 3; k++) {
+      const a = k * 2 * Math.PI / 3 + Math.PI / 6, L = GHOST.stand.legs, f = V(L * Math.cos(a), 0, L * Math.sin(a)).applyAxisAngle(V(0, 1, 0), p.rot);
+      const g = groundAt(p.x + f.x, p.z + f.z, p.y + 0.5);
+      worst = Math.max(worst, g === null ? 9 : Math.abs(g - p.y));
+    }
+    if (worst > 0.03) fail(`${r.name} ${what}: a foot ${(worst * 1000).toFixed(0)} mm off the floor`);
+    out.push(`${r.name} ${what} (${p.x.toFixed(2)}, ${f3(p.y)}, ${p.z.toFixed(2)}), feet within ${(worst * 1000).toFixed(0)} mm`);
+  }
+  // the regions
+  const pts = [
+    ['Stage 1 centre stage', V(0, 1.6, 4.0), 0], ['Stage 1 stalls', V(0, 1.2, -8.0), 0], ['Stage 1 pit', V(0, -1.2, 1.0), -1],
+    ['Theatre 2 centre stage', V(20, 1.6, 4.5), 1], ['Theatre 2 stalls', V(20, 1.2, -8.0), 1],
+    ['the lobby', V(10, 1.6, -18.0), -1], ['backstage', V(5, 1.6, 13.0), -1],
+    ['the Van Wezel centre stage', V(77, 3.6, 6.0), 2], ['its stage-right wing', V(94, 3.6, 6.0), 2], ['its stalls', V(77, 2.0, -15.0), 2],
+    ['its stalls by a side wall', V(64.5, 2.0, -8.0), 2], ['its foyer behind the house', V(77, 1.6, -42.0), -1], ['its side foyer', V(53, 1.6, -15.0), -1],
+    ['its other side foyer', V(101, 1.6, -15.0), -1], ['its tech booth', V(77, 9.6, -40.0), -1], ['its spots\' booth', V(77, 15.8, -22.6), -1],
+    ['Broadway', V(40, 1.6, -60.0), -1],
+  ];
+  for (const [what, P, want] of pts) {
+    const got = [0, 1, 2].filter(i => ghostIn(i, P));
+    if (want < 0 ? got.length : !(got.length === 1 && got[0] === want)) fail(`${what} (${P.toArray().join(', ')}) is in ${got.length ? got.map(i => GHOST.list[i].name).join(' and ') : 'none'}, not ${want < 0 ? 'none' : GHOST.list[want].name}`);
+  }
+  out.push(`${pts.length} points in the right region or none`);
+  // the looks
+  const keep = GHOST.list.map(r => [r.want, r.u, r.dur, r.why]);
+  const looks = () => GHOST.list.map(r => [GH_U.uGhLevel.value[r.i], r.bulbMat.color.getHex(), r.glow.visible, r.group.visible, r.group.visible ? r.group.position.toArray().join(',') : 'struck'].join(',')).join(';') + ';' + GH_U.uGhAny.value;
+  const views = [[V(0, 2.6, -8), V(0, 1.4, 3)], [V(20, 2.6, -8), V(20, 1.4, 3)], [V(77, 4.2, -16), V(77, 3.2, 4)], [V(10, 1.7, -17.5), V(10, 1.6, -21)]];
+  const names = ['Stage 1', 'Theatre 2', 'the Van Wezel', 'the lobby'];
+  for (const r of GHOST.list) ghostSet(r.i, false, 'the check', 0);
+  wlPatchScene();
+  const l0 = looks(), shots0 = views.map(v => wlShot(...v)), lit = [];
+  for (const r of GHOST.list) {
+    ghostSet(r.i, true, 'the check', 0);
+    const shots = views.map(v => wlShot(...v));
+    shots.forEach((s, k) => {
+      if (k === r.i) {
+        // the bulb's own pixels: where it projects in this view (the shot's camera put back to it)
+        const c = wlShot.cam; c.position.copy(views[k][0]); c.lookAt(views[k][1]); c.updateMatrixWorld(true);
+        const p = r.bulbAt.clone().project(c), W = 160, H = 100, px = Math.round((p.x + 1) / 2 * W), py = Math.round((p.y + 1) / 2 * H);
+        let best = 0; for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const x = px + dx, y = py + dy; if (x < 0 || y < 0 || x >= W || y >= H) continue; const j = (y * W + x) * 4; best = Math.max(best, s.px[j], s.px[j + 1], s.px[j + 2]); }
+        lit.push(`${r.name}: its house ${shots0[k].mean.toFixed(1)} → ${s.mean.toFixed(1)}, the bulb ${best}`);
+        if (!(s.mean < shots0[k].mean * 0.6)) fail(`${r.name} on: its house did not go dark (mean ${shots0[k].mean.toFixed(1)} → ${s.mean.toFixed(1)})`);
+        if (!(best > 60 && best > 8 * s.mean)) fail(`${r.name} on: the bulb is not bright where it stands in the view (${best} at ${px}, ${py}; the view's mean ${s.mean.toFixed(1)})`);
+      } else if (s.hash !== shots0[k].hash) fail(`${r.name} on changed ${names[k]}'s view`);
+    });
+    ghostSet(r.i, false, 'the check', 0);
+    if (looks() !== l0) fail(`${r.name} out: the stand or a uniform did not come back`);
+    views.forEach((v, k) => { if (wlShot(...v).hash !== shots0[k].hash) fail(`${r.name} out: ${names[k]}'s view is not the frame it was`); });
+  }
+  GHOST.list.forEach((r, k) => { [r.want, r.u, r.dur, r.why] = keep[k]; ghostPlace(r, r.want || r.u > 0 ? r.on : r.off); ghostApply(r); });
+  requestRender();
+  const pass = !fails.length;
+  const s = `ghost light: ${pass ? 'PASS' : 'FAIL'} — ${out.join(' · ')} · ${lit.join('; ')}; on → out restores the uniforms, the stands and all four views exactly${pass ? '' : ' · FAILS: ' + fails.join('; ')}`;
+  (pass ? console.info : console.warn)(s);
+  return { pass, fails, summary: s };
+}
+const GHOST_API = {
+  spec: GHOST, uniforms: GH_U, get list() { return GHOST.list; },
+  // house: 1 / 2 / 'vw' (or 0, 1, 2 as the slots); → the state
+  set(house, on = true, fade) { const i = house === 'vw' || /van|wezel/i.test(String(house)) ? 2 : +house === 2 ? 1 : +house === 1 ? 0 : -1; if (i < 0) { console.warn(`ghost light: no house "${house}" — 1, 2 or 'vw'`); return null; } ghostSet(i, on, 'the console', fade); return this.state(); },
+  state() { return GHOST.list.map(r => ({ house: r.name, on: !!r.want, level: +r.u.toFixed(2), why: r.why, standing: r.group.visible ? r.group.position.toArray().map(v => +v.toFixed(2)) : 'struck' })); },
+  in: ghostIn, check: ghostCheck, tick: ghostTick,
 };
 
 /* ---------------------------------------------------------------- HOUSE WORKS: THE DOORS
@@ -14518,6 +14864,8 @@ function buildHouse2(src) {
   MIDTOWN.backstageFittings = backstageFittings;             // { group, bulbs, byRoom, items, triangles, check() } (BACKSTAGE — THE FITTINGS)
   try { wlBuildAll(house.scene, house2Root); } catch (e) { console.error('worklight: building the worklights failed —', e); }   // one a stage, both off; every material takes their light (THE WORKLIGHTS)
   MIDTOWN.worklight = WORKLIGHT_API;
+  try { ghostBuildAll(); } catch (e) { console.error('ghost light: building the ghost lights failed —', e); }   // one a house, all out (THE GHOST LIGHTS)
+  MIDTOWN.ghost = GHOST_API;                                 // MIDTOWN.ghost.set(1 | 2 | 'vw', on), .state(), .check()
   MIDTOWN.pit = PIT_API;                                     // the orchestra pit: check(), band, opening, pose(T), view() (THE ORCHESTRA PIT)
   { const frame = MIDTOWN.frame; MIDTOWN.frame = () => { pitTick(0, true); frame(); }; }   // a synchronous frame poses the band first (who is seen, at the show's time)
   MIDTOWN.under = UNDER_API;                                 // Theatre 2's lifts (CONTRACT: .lifts.front/.back, .bays, .tick), check(), report()                         // MIDTOWN.worklight.set(1 | 2, on), .toggle(house), .state(), .check()
@@ -19014,14 +19362,14 @@ VAN_WEZEL_API.dress = VW_DRESS_API;                           // MIDTOWN.vanWeze
    downstage face, z 0.67, as the proscenium's facing is for the rest, which stops at the old wall's line); a deck slab
    (in the walk's grid) under the strip's concrete. Moved out with the wall, 3.0: the gallery and its guards, the spiral
    stair, the production desk, its monitor and chairs, the white set pieces along the back wall; the road case, the crate,
-   the ghost light and BACKSTAGE's stair hole stay, so the middle of the wing is open floor.
+   the ghost light (THE GHOST LIGHTS' now) and BACKSTAGE's stair hole stay, so the middle of the wing is open floor.
    THE FLOORS: the black dance floor over the stage and under the legs (x 64.4…89.6, to z 13.35, ending in a line where his
    photo shows it), the grey concrete of the wings round it (out to the new wall); BACKSTAGE's holes left open.
    THE WALLS: the model's loft walls and roof painted black (their vertex colours); the proscenium's stage face faced black up
    to the roof (the model left the loft open over the house ceiling, above 20.39).
    THE WINGS: stage left a cart of stacked platforms and a road case upstage, a flat cart and a bin downstage; stage right
    the production desk (two tables, a monitor, chairs) against the wall, a road case, a cardboard crate, the white set pieces
-   along the back wall and a ghost light by the proscenium; all clear of BACKSTAGE's holes and of the ways out of them.
+   along the back wall and a ghost light by the proscenium (its own stand: HOUSE WORKS: THE GHOST LIGHTS); all clear of BACKSTAGE's holes and of the ways out of them.
    THE MODEL'S OWN: its battens, borders, legs, electrics and cyc (stage_lit, inside the loft) taken out.
    Merged by kind: 'vw stage house' (what you would walk into or onto: the fly wall, the galleries, the stair, the wings'
    things; in the walk's grid) and 'vw flies' (all that hangs, the proscenium's facing, the floors; not): one unlit
@@ -19330,8 +19678,8 @@ function vwStageBuild(model) {
   bx(A, 'yellow', 62.22, 63.48, Y + 0.92, Y + 0.97, 0.86, 0.90);
   rod(A, 'yellow', V3(64.0, Y, 2.1), V3(64.0, Y + 0.75, 2.1), 0.25, 12);
   // stage right: the production desk against the wall (two tables, a monitor, two chairs), a road case, a crate, the white
-  // set pieces along the back wall, the ghost light by the proscenium. The desk, its chairs and the set pieces moved out with
-  // the wall (o: S.wing.out); the case, the crate and the ghost light where they stood
+  // set pieces along the back wall. The desk, its chairs and the set pieces moved out with the wall (o: S.wing.out); the case
+  // and the crate where they stood. (The ghost light by the proscenium is HOUSE WORKS: THE GHOST LIGHTS' now, a stand of its own.)
   const o = WG.out;
   for (const [z0, z1] of [[9.6, 11.4], [11.5, 13.3]]) {
     bx(A, 'desk', o + 92.70, o + 93.50, Y + 0.72, Y + 0.76, z0, z1);
@@ -19345,10 +19693,6 @@ function vwStageBuild(model) {
   ccase(90.20, 91.40, 10.20, 10.80, 1.0);
   bx(A, 'cardboard', 89.85, 91.25, Y, Y + 1.35, 11.45, 12.85); bx(A, 'black', 89.84, 91.26, Y + 1.30, Y + 1.36, 11.44, 11.47);
   for (const [x0, x1, h] of [[89.75, 90.40, 3.0], [90.45, 91.10, 4.2], [91.15, 91.80, 5.4], [91.85, 92.50, 4.6]]) bx(A, 'white', o + x0, o + x1, Y, Y + h, 13.58, 13.92);
-  rod(A, 'steel', V3(88.1, Y, 0.85), V3(88.1, Y + 1.7, 0.85), 0.02, 6);
-  for (const a of [0, PI / 2]) bx(A, 'steel', 88.1 - 0.28 * Math.cos(a), 88.1 + 0.28 * Math.cos(a), Y, Y + 0.04, 0.85 - 0.28 * Math.sin(a) - 0.02, 0.85 + 0.28 * Math.sin(a) + 0.02);
-  { const g = new THREE.SphereGeometry(0.07, 10, 8).translate(88.1, Y + 1.82, 0.85); file(A, 'glowWarm', g); }
-  for (let k = 0; k < 4; k++) { const a = k * PI / 2; rod(A, 'black', V3(88.1 + 0.10 * Math.cos(a), Y + 1.70, 0.85 + 0.10 * Math.sin(a)), V3(88.1 + 0.10 * Math.cos(a), Y + 1.94, 0.85 + 0.10 * Math.sin(a)), 0.006, 4); }
   // 7. ONE MESH PER GROUP: every piece's colour in its vertices, a fixed light baked in as the model's (vwPlace), the glows bright;
   // the floors take soft pools under the grid's work lights (no real light: a brightness by distance)
   const pools = []; for (const z of [3.2, 9.6]) for (const x of [64.8, 71.0, 83.0, 89.2]) pools.push([x, z]);
@@ -23024,7 +23368,8 @@ function jtTick(dt) {
   if (JT.busy && JT.el && !JT.el.hidden && (JT.stT = (JT.stT || 0) + dt) > 0.25) { JT.stT = 0; jtPanelStatus(); }
   if (JT.auto && !JT.busy) {                                   // Auto: hold, then the next shift; off at the show's end
     JT.held += dt * JT.speed;
-    if (JT.held >= JT.hold) { JT.held = 0; if (jtIndex() >= JT.order.length - 1) jtAuto(false); else jtStep(1); }
+    // at the show's end: the ghost light, and the rig out with it (THE GHOST LIGHTS)
+    if (JT.held >= JT.hold) { JT.held = 0; if (jtIndex() >= JT.order.length - 1) { jtAuto(false); ghostSet(1, true, 'after Johnny Tremain'); } else jtStep(1); }
   }
   return moving;
 }
@@ -23173,6 +23518,7 @@ const jtAt = pl => ({ x: pl.x, y: pl.y || 0, z: pl.z, rotY: pl.rotY || 0, s: pl.
 function jtScene(n, seg = 1, opt = {}) {
   const s = JT.d && JT.d.scenes.find(q => q.n === n); if (!s) return Promise.resolve(null);
   if (!s.segments.some(g => g.seg === seg)) seg = s.segments[0].seg;
+  if (!JT.auto && JT.cur) ghostSet(1, false, 'a scene change');   // a shift by hand: someone is in (THE GHOST LIGHTS)
   if (opt.snap || JT.snap || !JT.cur) { if (JT.busy) { JT.want = [n, seg, true]; JT.skipping = true; return JT.run; } jtSnap(n, seg); return Promise.resolve(JT.cur); }
   if (JT.busy) { JT.want = [n, seg, false]; return JT.run; }
   if (JT.cur[0] === n && JT.cur[1] === seg) return Promise.resolve(JT.cur);
@@ -23190,7 +23536,7 @@ function jtStep(k) { const j = jtIndex() + k; if (j < 0 || j >= JT.order.length)
 // Skip: the change running now finishes at once (its glides and flies end this frame; a lift already moving finishes its run).
 function jtSkip() { if (JT.busy) JT.skipping = true; }
 // Auto: the whole show's shifts in order from here, a hold of JT.hold s (at speed) on each segment; stops at the end.
-function jtAuto(on) { JT.auto = !!on; JT.held = 0; if (JT.el) { const b = JT.el.querySelector('.jt-auto'); b.setAttribute('aria-pressed', String(JT.auto)); b.textContent = JT.auto ? 'Stop auto' : 'Auto'; } }
+function jtAuto(on) { if (on) ghostSet(1, false, 'Johnny Tremain'); JT.auto = !!on; JT.held = 0; if (JT.el) { const b = JT.el.querySelector('.jt-auto'); b.setAttribute('aria-pressed', String(JT.auto)); b.textContent = JT.auto ? 'Stop auto' : 'Auto'; } }
 function jtSpeed(k) { JT.speed = k; if (JT.el) JT.el.querySelectorAll('.jt-spd').forEach(b => b.setAttribute('aria-pressed', String(+b.dataset.k === k))); }
 
 // For the shift check: a convex hull (monotone chain) of plan points; two pieces clash where their footprints and heights
@@ -25914,6 +26260,7 @@ renderer.setAnimationLoop(() => {
   if (ready && vwLiftTick(dt)) moving = true;                // the Van Wezel's orchestra lift and its stair wagon: off this frame's dt (THE THIRD HOUSE: THE ORCHESTRA LIFT)
   if (ready && pitTick(dt)) moving = true;                   // the orchestra pit's band on the show's time, drawn only when seen (THE ORCHESTRA PIT)
   if (ready && wlTick(dt)) moving = true;                    // the worklights coming up or going out: off this frame's dt (THE WORKLIGHTS)
+  if (ready && ghostTick(dt)) moving = true;                 // the ghost lights coming on or struck, the Van Wezel's house emptying: off this frame's dt (THE GHOST LIGHTS)
   if (ready && jtlTick(dt)) moving = true;
   if (ready && stTick(dt)) moving = true;                    // the street: its light easing between modes, drawn only from outside, the bulbs' chase, off this frame's dt (THE STREET)                   // Theatre 2's Johnny Tremain rig: its crossfades, movers, water and flicker, off this frame's dt
   if (ready && lxPanelTick(dt)) moving = true;               // the lights panel: Step through's Play (off this frame's dt), the selection's outline
