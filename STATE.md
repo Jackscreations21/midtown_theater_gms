@@ -11,7 +11,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   music on (2-23 at 234.2 or later), with a stalls door open, the seated get up in an order of their own and walk out the way
   they came in, reversed, then off along Broadway; with the street doors shut they wait in the foyer. The counter shows
   "Leaving n · Gone home n". **His eye on it.** Still open: the applause loops while the page is hidden.
-- **Before it: PR #47 (MERGED `4ee99bd`) `vw-entrances` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): three ways in, security, a lobby
+- **Before it: PR #47 (MERGED `4ee99bd`) `vw-entrances` (2026-10-25; HANDOFF's DONE block; no ruling, GW next): three ways in, security, a lobby
   for everyone.** Jack: "make there be multiple doors they can come into the van wezel. make it so they have to walk throught
   metal detecotrs and have ther tickest scanned. make a button to speed up getting th epeople in. make it so people can start
   filling up in the lobby. make somehting to show how many people out of how many people are seated", then "have agents do it
@@ -21,7 +21,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   **Open, his "not now":** the applause keeps looping while the page is hidden (its timer runs only on drawn frames, so a
   switched-away tab during the bows, or its test, loops until he comes back). The fix: silence it when the document is hidden,
   and time the test by the clock.
-- **Before it: PR #45 (MERGED `6ec85ac`) `vw-full-house` (2026-10-25; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's audience.**
+- **Before it: PR #45 (MERGED `6ec85ac`) `vw-full-house` (2026-10-25; HANDOFF's DONE block; no ruling, GW next): the Van Wezel's audience.**
   From his feature picks (the "Midtown Feature Picks" page: a full house, the interval crowd, the stage door, rain on Broadway,
   sound from the speakers; this is the first) and his ask: "make it so people can line up outside the door and start coming in
   when i open the door … a button to ahev them start lining up", asked where: "Both, one after the other". The header's **Line
@@ -32,7 +32,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   **His eye on it, then his to decide:** the bodies are simple blocks (no faces, no hands); nobody steps round anybody; the
   line takes ~10 min to get everyone in; nobody leaves after the show yet; how the applause sounds now. **Next of his picks:** the interval crowd (the same
   people up into the foyer and back at the chimes), then the stage door.
-- **Before it: PR #44 `booth-monitor-ghost` (2026-10-25; HANDOFF's DONE block; no ruling, GW next): the Van Wezel booth's
+- **Before it: PR #44 (MERGED `df7322c`) `booth-monitor-ghost` (2026-10-25; HANDOFF's DONE block; no ruling, GW next): the Van Wezel booth's
   monitors show one view.** Jack: "the screen in the middl is look slike it is showing two vies at once it should only show vw
   hamilton". The lighting's pools were laid over each monitor's picture from a stretched corner of the screen-sized sum; now in
   the monitor's own size (`vwMonDraw`). **His eye on it:** the middle monitor with the show lit.
@@ -40,7 +40,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   Places.** Jack: "when i call placses hamilton, king george and wahignton go on stage". Their act-1 tops sit in the passage
   under the gallery (z 9.01), in front of the back wall, and the deck line stopped at 9.0; it is at 10.0 now (`CO_PLACES.z`).
   20 / 20 off the deck at Places in act 1 and act 2, both houses. **His eye on it:** call Places and watch the stage stay empty.
-- **Before it: PR #40 (MERGED `7e60af6`) `crew-walks` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling,
+- **Before it: PR #40 (MERGED `7e60af6`) `crew-walks` (2026-10-25, night; HANDOFF's NEXT SESSION and DONE blocks; no ruling,
   GW next).** Act Two opens on What'd I Miss again (the show engine, both houses), and in the **Van Wezel** (his word: "i meant all
   this stuff in the van wezel"): the crew way (the stage-right spiral on up to a hallway over the roof and a ladder down to the
   spots), five crew who walk it to the booths at the Five, Places off the deck, the band up the stair and through the pit door,
@@ -53,7 +53,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   was already JOHNNY TREMAIN. Only the street's signs changed; everywhere else still says Theatre 2 (his word: "Leave the rest as
   Theatre 2").
 
-**Main** is **`9d54fb4`** (#49; #47 `4ee99bd`, #45 `6ec85ac`, #44, #43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
+**Main** is **`9d54fb4`** (#49; #47 `4ee99bd`, #45 `6ec85ac`, #44 `df7322c`, #43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
 NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `places-upstage`, `booth-monitor-ghost`, `vw-full-house`, `record-45`, `vw-entrances`, `vw-entrances-security`, `record-47`, `vw-leaving` and the agents' `worktree-agent-*` branches).
 
 - **Before it: PR #39 (MERGED `75b879b`) `actor-whiteout` (2026-10-25; HANDOFF's DONE block): lit actors no longer turn white.** Jack: "at some parts the lighting or the
@@ -64,23 +64,23 @@ NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `
   Clipped body pixels 29 % → 0 % (Burr), 43–80 % → 0.3–4 % (Hamilton at the peak); colours and folds kept, both houses (the
   Van Wezel's bodies share the material). Scenery is lit exactly as before. **His eye on it:** the ensemble in dark costumes
   under the peak looks of 1-01 now read darker than before (they were washed pale); `LX_BODY.k` (0.15) is the one knob.
-- **Before it: PR #36 (MERGED `cd06c55`) `hamilton-costumes` (2026-10-25, night; HANDOFF's newest NEXT SESSION and DONE blocks; no ruling, GW next):
+- **Before it: PR #36 (MERGED `cd06c55`) `hamilton-costumes` (2026-10-25, night; HANDOFF's NEXT SESSION and DONE blocks; no ruling, GW next):
   the Hamilton costumes.** 46 looks after Paul Tazewell's design in `assets/hamilton-costumes.json`
   (`docs/hamilton-costumes-format.md`), each body's plot of them by song, worn on the jointed body (vertex-coloured parts, coat
   skirts, gowns, capes, a crown…), changed off stage, a pure function of show time (`MIDTOWN.costumes`, the Blocking panel's
   Costumes box). **His eye on it, then his to decide:** the colours read off the film (most of them), the song boundaries no
   source gives, which ensemble bodies are women, no Redcoat set.
-- **Before it: PR #33 `vw-hamilton` (2026-10-25, night; HANDOFF's newest DONE block; no ruling, GW next): the Van Wezel's
+- **Before it: PR #33 `vw-hamilton` (2026-10-25, night; HANDOFF's DONE block; no ruling, GW next): the Van Wezel's
   auditorium dressed for Hamilton** — brick on the side walls' panels, timber posts, headers and trusses, rope swags, coils
   and rigging, lanterns, candle rings, flags, a lintel over the proscenium, and the proscenium wall itself in brick with pilasters, timber bays and fan bunting, the lilac oval
   over it hidden ("VW dress" toggles it; PR #34 merged; the oval PR `vw-oval`). Main merged in. **Open bug from #32:** the fitted proscenium pier stands over the Van
   Wezel's house-right stage stair, so the walk from the stage down it is blocked (`.lift.guards` 8/9).
-- **Before it: PR #32 (MERGED `0340da9`) `claude/festive-liskov-2f7ffa` (2026-10-25, late night; HANDOFF's newest DONE block; no ruling, GW next).** The mouse re-locks after
+- **Before it: PR #32 (MERGED `0340da9`) `claude/festive-liskov-2f7ffa` (2026-10-25, late night; HANDOFF's DONE block; no ruling, GW next).** The mouse re-locks after
   refusals (it used to give up for good); the Van Wezel's proscenium closed to house 1's opening round the set; house 1's three
   FOH positions there moved back and up under its ceiling (beams from there, the pools the same); a "Van Wezel house light"
   slider; a "VW doors" button for all 58. **His to decide:** the follow-spot beams pass through the FOH Truss; the trusses'
   three heights; the frame's flat finish.
-- **PR #31 (MERGED `ba250fd`) `claude/broadway-street-5514f3` (2026-10-25, night; RULING GV; HANDOFF's newest DONE block): Broadway outside the three houses.**
+- **PR #31 (MERGED `ba250fd`) `claude/broadway-street-5514f3` (2026-10-25, night; RULING GV; HANDOFF's DONE block): Broadway outside the three houses.**
   A street on a slant past the Midtown front and the Van Wezel's glass, 42 empty fronts with 19 real Broadway houses and
   their shows, HAMILTON and JOHNNY TREMAIN marquees on the Midtown block's new front over two new pairs of street doors, a
   pair through the Van Wezel's glass under its own marquee. The header's Street buttons are Actual time / Day / Night
@@ -95,7 +95,7 @@ NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `
 - **NEXT (before it): his eye on PR #27 (`vw-answers`, MERGED `d98673c`; HANDOFF's NEXT SESSION block and its DONE block, RULING GT).** Every one
   of his Van Wezel answers and five asks is built: the model's colours back (`VW_PHOTO_COLOURS` off), the landings' lip, the
   foyer's mullions out, the follow-spot booth bigger with tall windows and its outside the ceiling's colour, the lift's pedestal
-  gone and its top black, manual pit guards ("VW guards"). Then PR `vw-pit-rail` (2026-10-25, later; HANDOFF's newest DONE
+  gone and its top black, manual pit guards ("VW guards"). Then PR `vw-pit-rail` (2026-10-25, later; HANDOFF's DONE
   block): the pit guards a black panelled pit wall like his photo, audience side only; walls where the foyer's glass was; the
   stage-right wing 3 m wider. His to decide (listed in the NEXT SESSION and DONE blocks): the wall down at load; the booth's
   window bays; the fascia band over the foyer's new walls.
@@ -129,7 +129,7 @@ NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `
   - the announcement plays only from a Play before Burr's walk (the top of the show); Prev/Next skip it;
   - after the exit music the stage stays lit with nobody on it until Stop (no end to the show).
 
-- **#20 Van Wezel Hall (RULING-free; HANDOFF's newest block):** a third house east of Theatre 2 (origin x 77), its own
+- **#20 Van Wezel Hall (RULING-free; HANDOFF's block):** a third house east of Theatre 2 (origin x 77), its own
   glazed foyer and box office, a 15 m hallway from the Midtown lobby's east end beside the bar. `assets/van-wezel-hall.glb`
   was made for Jack by another Claude session; its textures are procedural, so it is committed. It was in feet:
   `tools/van-wezel-optimise.py` scales and merges it. **His to decide:**
@@ -184,7 +184,7 @@ NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `
   16/16, lx 301/313, console clean, no new shader programs. **His to decide:** whether Theatre 2's end also wants a hallway
   (only house 1's side has one); and the look (backstage-style paint, dark reveals at the openings).
 - **The lag (2026-10-16, late; PRs #12 and #13 merged, `main` `b78c183`).** #12 cut the JT rig's cold compile from ~6.5 s
-  to ~0.5 s a program (HANDOFF's newest DONE block). His Chrome is on the **RTX 5060** (verified 2026-10-16: `ANGLE (NVIDIA,
+  to ~0.5 s a program (HANDOFF's DONE block). His Chrome is on the **RTX 5060** (verified 2026-10-16: `ANGLE (NVIDIA,
   NVIDIA GeForce RTX 5060 Laptop GPU …)`, pixel ratio 1, canvas 981×639). After #12, his first load still lagged for 1–2
   minutes. His long-frame record showed the page's own code done within 10 s, so the rest was Chrome's GPU process
   compiling the new shaders once. A reload lags only ~5 s. **Open:** the first load after any shader change will lag
@@ -218,19 +218,19 @@ NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `
   *"work on all the notes i put for the first and second half of hamilton using opus agents … fix the spotlights"*:
   every note in his blocking checklist (act 1 and act 2) applied by three Opus agents, standing on a prop by a fourth,
   his lighting notes, the hand-offs and a show-wide spotlight audit (`tools/spot-audit.py`, 84 re-aims, 17 swaps) by a
-  fifth; the replies are in his checklist rows (status left for him to flip). HANDOFF.md's newest DONE block. Post-merge
+  fifth; the replies are in his checklist rows (status left for him to flip). HANDOFF.md's DONE block. Post-merge
   protocol done the same night: `main` fast-forwarded, `his-notes` deleted both sides, every worktree removed. Pages
   serves it.
 - **PR #5 (`worklight`) MERGED** (2026-10-15, `badd196`): https://github.com/Jackscreations21/midtown_theater_gms/pull/5 —
   *"make a worklight i can turn on for both stages"*: a caged work flood on each stage's stage-left fly wall with a wall
   switch (E while walking), `Worklight` header buttons and `MIDTOWN.worklight`; no real light, a shader term clipped to
   each stage house; the show takes Stage 1's out at every Play and Stop puts it back. Built by one Opus agent, checked by
-  a second, its one bug fixed by the lead (HANDOFF.md's newest block). Record files in the PR. Post-merge: fast-forward
+  a second, its one bug fixed by the lead (HANDOFF.md's block). Record files in the PR. Post-merge: fast-forward
   `main`, delete `worklight` both sides, remove the worktree `.claude/worktrees/worklight`.
 - **Johnny Tremain on Theatre 2 — PR #8 MERGED (2026-10-16, `main` `daa9bcd`), post-merge done (branches deleted both sides, worktrees removed):** his own play, two acts, 26 scenes — the set as
   sized stand-ins with model slots, two stage lifts and an underground under Theatre 2 (RULINGS GI, GJ), a 128-unit rig
-  with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's newest DONE block.
-- **Rulings are at GU (GV next).** GU (2026-10-25, PR `vw-hamilton`): with Hamilton on, the Van Wezel's lift down as its pit at load, its wall up. GT (2026-10-25): his twelve Van Wezel answers (HANDOFF's SUPERSEDED block under the newest DONE). GR–GS (2026-10-24, PR `preshow-announcement`): the announcement before 1-01, Burr's walk in its last 5 s; the exit music at the walk-off, the bows' look held. GM–GQ (2026-10-24): the stage manager spec (his answers). GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
+  with 48 looks, and the QLC+ workspace `assets/johnny-tremain/qlc/johnny-tremain.qxw`. HANDOFF.md's DONE block.
+- **Rulings are at GV (GW next).** GV (2026-10-25, PR #31 `claude/broadway-street-5514f3`): his four answers on Broadway outside the three houses (HANDOFF's DONE block). GU (2026-10-25, PR `vw-hamilton`): with Hamilton on, the Van Wezel's lift down as its pit at load, its wall up. GT (2026-10-25): his twelve Van Wezel answers (HANDOFF's SUPERSEDED block under the newest DONE). GR–GS (2026-10-24, PR `preshow-announcement`): the announcement before 1-01, Burr's walk in its last 5 s; the exit music at the walk-off, the bows' look held. GM–GQ (2026-10-24): the stage manager spec (his answers). GL (2026-10-24, his pick): the three followspots FOLLOW an actor, picked up by a cue, tracked every frame until an OUT. GK (2026-10-16, Jack: *"dont make the railings come up when the lift moves"*): the lift
   rails stay down in the deck, so nothing guards the hole while a lift is away (PR #13, merged). GI (2026-10-16): Theatre 2 only, a front lift brings big sets on, a back lift takes
   them off. GJ (2026-10-16): an underground under Theatre 2 for storage. Earlier: **GH**. The second-house line used FF and FG on 2026-10-15 while the actors line had
   already reached GF, so those two were RENUMBERED on the split: **GG** (2026-10-15) the auditorium doors swing INTO
@@ -245,7 +245,7 @@ NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `
    tick Art-Net output on 127.0.0.1 for universes 1 and 2, open localhost:8080/midtown.html, press "T2 rig" — the panel
    should read "Desk: QLC+ live". Unverified with real QLC+ (not installed here). If it reads "relay up, no Art-Net",
    QLC+ holds port 6454: bind the relay to the NIC address. His models: 45 fitted (10 local-only, CGTrader); left: a real
-   press model, crates/tea chests, the signs, candelabra/candlesticks/tankards/lumber (not downloaded). HANDOFF's newest block.
+   press model, crates/tea chests, the signs, candelabra/candlesticks/tankards/lumber (not downloaded). HANDOFF's block.
 00. **His eye on Johnny Tremain (PR #8, merged)** — the "Johnny Tremain" button (Next/Prev or PageDown/PageUp,
    Auto), "Lifts", "Understage", "T2 rig"; Pages serves it. **His models are FITTED** (item 000; the sources stay in `Downloads\jt-models\`, refit
    any piece with `tools/jt-fit/`); still to get: Brass Candleholders (Poly Haven API, he has not said yes), Old
