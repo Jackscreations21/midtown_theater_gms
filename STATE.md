@@ -1,4 +1,4 @@
-# STATE — 2026-10-26 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#56 merged; `carol-morsani` open (the fourth house); the picks sessions stopped)
+# STATE — 2026-10-26 (OPEN ITEMS ONLY — `midtown_theater_gms`; PRs #1–#57 merged; nothing open; the picks sessions stopped)
 
 **Do not trust this file for what is next without fetching first.** `git fetch`, compare `origin/main`, then read
 this. **This file holds only what is open.** Everything finished is in HANDOFF.md (the "DONE" blocks, newest first)
@@ -6,7 +6,7 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
 
 ## Where things stand
 
-- **NEWEST: PR `carol-morsani` (OPEN, 2026-10-26; HANDOFF's DONE block; no ruling, GW next): Carol Morsani Hall, the fourth
+- **NEWEST: PR #57 (MERGED `9310e98`) `carol-morsani` (2026-10-26; HANDOFF's DONE block; no ruling, GW next): Carol Morsani Hall, the fourth
   house.** Jack: *"can you put this theater into the game … go to every door way and make sure it goes all the wy trought if
   not fix it. also just look if anything else is wrong. also there is a spot marked out for a spot booth so add that."*
   Asked: east of the Van Wezel on Broadway, street doors only (no hallway). Then *"the cahirs look like blaocks not chiars"*.
@@ -102,8 +102,8 @@ and everything wanted-but-not-built is in FUTURE.md. Do not append finished roun
   was already JOHNNY TREMAIN. Only the street's signs changed; everywhere else still says Theatre 2 (his word: "Leave the rest as
   Theatre 2").
 
-**Main** is **`4ff23b8`** (#56 the record; #55 `b2c88e1`; #53 `e77a6d6`, #52 `4ad5ee0`, #49 `9d54fb4`, #47 `4ee99bd`, #45 `6ec85ac`, #44 `df7322c`, #43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
-NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `places-upstage`, `booth-monitor-ghost`, `vw-full-house`, `record-45`, `vw-entrances`, `vw-entrances-security`, `record-47`, `vw-leaving`, `house1-empty`, `record-52`, `picks-slow-mo`, `claude/picks-ghost-light-8f29dc` and the agents' `worktree-agent-*` branches).
+**Main** is **`9310e98`** (#57 Carol Morsani Hall; #56 the record; #55 `b2c88e1`; #53 `e77a6d6`, #52 `4ad5ee0`, #49 `9d54fb4`, #47 `4ee99bd`, #45 `6ec85ac`, #44 `df7322c`, #43 `91f3770` before it). Nothing is local-only. **Post-merge tidy still owed:** only the remote branches (the list under
+NEXT below, plus `actor-whiteout`, `crew-walks`, `record-40`, `theatre2-sign`, `places-upstage`, `booth-monitor-ghost`, `vw-full-house`, `record-45`, `vw-entrances`, `vw-entrances-security`, `record-47`, `vw-leaving`, `house1-empty`, `record-52`, `picks-slow-mo`, `claude/picks-ghost-light-8f29dc`, `carol-morsani` and the agents' `worktree-agent-*` branches).
 
 - **Before it: PR #39 (MERGED `75b879b`) `actor-whiteout` (2026-10-25; HANDOFF's DONE block): lit actors no longer turn white.** Jack: "at some parts the lighting or the
   spotlights light up the people too much and they just turn entirely white". The cause: the engine's pools are added onto the
