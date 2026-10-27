@@ -229,7 +229,7 @@ compare the *same* production across stages instead.
 
 ---
 
-## DONE — 2026-10-26: Carol Morsani Hall, the fourth house (PR `carol-morsani`, OPEN; one session)
+## DONE — 2026-10-26: Carol Morsani Hall, the fourth house (PR #57 `carol-morsani`, merged `9310e98`; one session)
 
 Jack, with the model (another Claude session made it): *"can you put this theater into the game … go to every door way and
 make sure it goes all the wy trought if not fix it. also just look if anything else is wrong. also there is a spot marked out
