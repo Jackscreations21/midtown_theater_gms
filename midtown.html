@@ -39,6 +39,13 @@
   lobby's east end beside the bar into that foyer, an E door at each end; a stair and a pair of doors up into its stalls,
   its orchestra lift lowered and a stair onto its stage; the "Van Wezel" view; MIDTOWN.vanWezel.check().
 
+  THE FOURTH HOUSE (Jack, 2026-10-26: "can you put this theater into the game"; "THE FOURTH HOUSE: CAROL MORSANI HALL" below):
+  the Straz Center's Carol Morsani Hall (assets/carol-morsani-hall.glb, made for this project) on Broadway east of the Van
+  Wezel, square to the street, its glass lobby front on the pavement with three pairs of street doors and a marquee (THE
+  STREET places it); its side passages cut back so they reach their aisles, a stair each side onto its stage, a chair drawn at
+  each of its 3,203 seats (THE CHAIRS), the spot booth where the model marked it, up a ship's ladder from the gallery landing
+  (THE SPOT BOOTH AND THE STAGE STAIRS); the "Carol Morsani" view; MIDTOWN.carolMorsani.check().
+
   BACKSTAGE (Jack: "add an area behind both stages for dressing rooms and stuff and make it be one big area not 2 separate
   ones"): ONE block behind both stage houses (BACKSTAGE, "HOUSE WORKS: BACKSTAGE" below), its floor level with both decks
   — a crossover corridor the whole 40 m width along the stage-side wall and eight rooms off it: the stage door (its street
@@ -605,7 +612,7 @@ function colliderMeshes() {
   if (house2Root) house2Root.traverse(take);                 // Theatre 2, the same scan uncut
   setGroup.traverse(o => { if (!o.userData.rig) takeG(o); });  // the set; not the rig's 313 units (they hang overhead)
   if (rig) for (const o of rig.children) if (o.isMesh) takeG(o);   // the rig's structures: booms, trusses, the grid, the wing towers
-  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear|vw stage house|vw crew way|vw entrances)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR; vw stage house: THE THIRD HOUSE: THE STAGE HOUSE AS IT IS (not 'vw flies': what hangs); vw crew way: THE THIRD HOUSE: THE CREW WAY; vw entrances: THE THIRD HOUSE: THE ENTRANCES' SECURITY (its arches and podiums)
+  for (const o of scene.children) if (/^(proscenium|pros_wall|followspot booth|lighting desk|lobby|backstage|backstage fittings|hallway|understage|jt set|prompt desk|orchestra pit|van wezel|vw works|vw side doors|vw foyer|vw backstage|vw booths|vw booth gear|vw stage house|vw crew way|vw entrances|carol morsani|cmh works)$/.test(o.name)) o.traverse(take);   // prompt desk: THE STAGE MANAGER; orchestra pit: THE ORCHESTRA PIT (its structure; the band and kit are not); van wezel, vw works, vw foyer: THE THIRD HOUSE; vw side doors: THE THIRD HOUSE: THE SIDE DOORS; vw backstage: THE THIRD HOUSE: BACKSTAGE; vw booths: THE THIRD HOUSE: THE BOOTHS' WAY UP; vw booth gear: THE THIRD HOUSE: THE BOOTHS' GEAR; vw stage house: THE THIRD HOUSE: THE STAGE HOUSE AS IT IS (not 'vw flies': what hangs); vw crew way: THE THIRD HOUSE: THE CREW WAY; vw entrances: THE THIRD HOUSE: THE ENTRANCES' SECURITY (its arches and podiums)
   for (const o of scene.children) if (o.name === 'street') o.traverse(m => { if (m.isMesh && m.userData.collide) list.push(m); });   // THE STREET: drawn or not (stTick hides it indoors)
   for (const o of scene.children) if (o.name === 'street trim') o.traverse(take);   // THE STREET: the street doors' frames
   for (const o of baked.children) (onSet && onSet.has(o) ? o.traverse(takeG) : o.traverse(take));
@@ -14807,6 +14814,7 @@ function buildHouse2(src) {
 (async () => {
   const [house, set, rigSrc] = await Promise.all([load('assets/midtown-auditorium.glb'), load('assets/hamilton-set.glb'), loadRig()]);
   const vwP = vwLoad();                                       // the Van Wezel's model, fetched while the houses are measured (THE THIRD HOUSE; null if missing)
+  const cmhP = cmhLoad();                                     // Carol Morsani Hall's, the same (THE FOURTH HOUSE)
   // Theatre 2 first, off the scan as it came (THE SECOND HOUSE)
   house2Root = buildHouse2(house.scene);
   scene.add(house2Root);
@@ -14872,7 +14880,10 @@ function buildHouse2(src) {
   buildVanWezel(await vwP);                                  // the Van Wezel east of Theatre 2, its foyer, the hallway to it from the lobby (THE THIRD HOUSE)
   buildUnder();                                              // Theatre 2's basement and its two lifts; splits its scan before the cuts (THE UNDERGROUND)
   buildPit();                                                // the orchestra pit under house 1's stage, its passage and stair (THE ORCHESTRA PIT)
+  const cmhModel = cmhPrepare(await cmhP);                    // its looks, not yet placed: THE STREET places it east of the Van Wezel (THE FOURTH HOUSE)
+  if (cmhModel) scene.add(cmhModel.root);
   try { buildStreet(); } catch (e) { console.error('street: building the street failed —', e); }   // Broadway outside the three houses, their street doors (THE STREET)
+  if (cmhModel) try { buildCarolMorsani(cmhModel); } catch (e) { console.error('carol morsani: building the fourth house failed —', e); }   // its street doors, the curtain flown, the spot booth (THE FOURTH HOUSE)
   try { buildVwEntrances(); } catch (e) { console.error('van wezel entrances: building the security failed —', e); }   // the scanners and the metal detectors inside its three street doors (THE THIRD HOUSE: THE ENTRANCES' SECURITY)
   houseRoot = house.scene;
   gradeSetBrick(root);
@@ -14901,6 +14912,7 @@ function buildHouse2(src) {
   MIDTOWN.vanWezel = VAN_WEZEL_API;                          // the third house: .root, .works, .built, check() (THE THIRD HOUSE)
   MIDTOWN.doors = DOORS_API;                                 // MIDTOWN.doors.state(), .check(), .toggle(name)
   MIDTOWN.street = STREET_API;                               // the street outside: mode('actual' | 'day' | 'night'), state(), check(), view() (THE STREET)
+  MIDTOWN.carolMorsani = CMH_API;                             // the fourth house: .root, .built, check(), view() (THE FOURTH HOUSE)
   MIDTOWN.backstage = backstageReport();                     // the block measured as it now stands (the set at real size, the cuts made), one console line
   const [p, t] = VIEWS['v-back']; camera.position.set(...p); orbit.target.set(...t); orbit.update();
   MIDTOWN.backstageFittings = backstageFittings;             // { group, bulbs, byRoom, items, triangles, check() } (BACKSTAGE — THE FITTINGS)
@@ -15012,9 +15024,10 @@ function hangLeafAt(o) {
 // Everything of `mesh` (world-placed under its root) inside a world box, cut away: each triangle that reaches into the box is
 // clipped to what lies outside it (convex pieces, cut by the box's six planes in turn), its attributes interpolated; the
 // rest are kept as they were. The geometry comes back non-indexed. → triangles touched.
-function vwCutBox(mesh, box) {
+// local: the box is already in the mesh's own frame (a turned root, THE FOURTH HOUSE).
+function vwCutBox(mesh, box, local = false) {
   const g = mesh.geometry, inv = mesh.matrixWorld.clone().invert();
-  const B = new THREE.Box3().setFromPoints([box.min.clone().applyMatrix4(inv), box.max.clone().applyMatrix4(inv)]);   // the root is translated only: still a box
+  const B = local ? box.clone() : new THREE.Box3().setFromPoints([box.min.clone().applyMatrix4(inv), box.max.clone().applyMatrix4(inv)]);   // the root is translated only: still a box
   if (!g.boundingBox) g.computeBoundingBox();
   if (!g.boundingBox.intersectsBox(B)) return 0;                // most meshes: nothing near
   const src = g.index ? g.toNonIndexed() : g, P = src.attributes.position.array, names = Object.keys(src.attributes), n = src.attributes.position.count;
@@ -24865,6 +24878,419 @@ const JTL_API = {
   },
 };
 
+/* ---------------------------------------------------------------- THE FOURTH HOUSE: CAROL MORSANI HALL
+   Jack (2026-10-26), with the model: "can you put this theater into the game. it was created by cluade. can you go to every
+   door way and make sure it goes all the wy trought if not fix it. also just look if anything else is wrong. also there is
+   a spot marked out for a spot booth so add that." Asked, he put it east of the Van Wezel on Broadway's north side, entered
+   by its own street doors only (no hallway). The model is the Straz Center's Carol Morsani Hall (Tampa), made for this
+   project by another Claude session; assets/carol-morsani-hall.glb is its shrunk copy (tools/carol-morsani-optimise.py:
+   metres as it came, turned to this page's convention — upstage +z, the house toward −z —, the light baked into byte
+   vertex colours, merged to one mesh per region and look: 'house_lit', 'house_tex_3', 'curtain_tex_0', 'glass_glass'…; the
+   river, the Riverwalk and the marked-out booth dropped).
+   THE FILE'S FRAME (turned): the proscenium's middle on the stage floor at the origin, the stage at y 0 and toward +z, the
+   orchestra floor at −1.6 rising to the lobby's 3.2 at its back; a horseshoe of mezzanine, balcony and gallery with boxes,
+   each tier's hallway behind it; the lobby (x ±29.5, z −72…−2, floor 3.2, ceiling 28.0) wraps the hall's back and sides
+   with a landing at each tier and three spiral stairs (west, east, and in the middle before the cafe); its glass front at
+   z −72 faces the street.
+   PLACED by THE STREET (cmhSite, called from buildStreet): turned to face the street square, its glass CMH.setBack behind
+   the north building line, its west side CMH.gapU east of the north row's first lot (uNE); its lobby floor CMH.rise over
+   the pavement. The lots on Broadway run back in z, so a building square to the street leaves a wedge either side of it:
+   each is a plain block of its own (THE STREET's plan, 'poly'), and the row carries on east of it (STREET.u1 is longer).
+   THE STREET DOORS (CMH.doors): three pairs through the glass, its mullions cut round them, the frames THE STREET's look,
+   the leaves THE DOORS' (hangLeafAt, out over the pavement); a marquee over the middle pair (THE STREET).
+   THE LOOK: as the Van Wezel's (one unlit material per look, its light already in the vertices; the glass the lobby's).
+   The house curtain is flown out (CMH.curtainFly), as the Van Wezel's.
+   THE SPOT BOOTH where the model marked it ("SPOT BOOTH - TO DO"): THE FOURTH HOUSE: THE SPOT BOOTH, below.
+   MIDTOWN.carolMorsani: .root, .site, check(); the "Carol Morsani" view. IF THE FILE IS MISSING nothing is built and the
+   north row runs on as before; one console line. */
+const CMH = {
+  url: 'assets/carol-morsani-hall.glb',
+  lobby: 3.2,                       // the file's lobby floor (y)
+  glassZ: -72.0,                    // the file's glass front (z, turned)
+  half: 29.55,                      // half its width: the lobby's outer walls' outer faces (x, turned)
+  back: 16.7,                       // the stage house's back wall's outer face (z, turned)
+  top: 30.2,                        // its highest roof
+  hall: { x: 18.1, z0: -49.6, z1: -1.0 },   // the auditorium's outline inside the lobby (|x| < x, z0…z1): indoors, the street not drawn
+  setBack: 0.25,                    // the glass this far north of the building line (its mullions stand 0.2 either side of it)
+  gapU: 1.5,                        // its west side this far along the line past the north row's first lot
+  rise: 0.012,                      // its lobby floor over the pavement
+  doors: [                          // the street doors: their middles across the glass (x, turned; house right −x), the opening and head
+    { x: 0.0, name: 'Carol Morsani street doors' },
+    { x: -16.0, name: 'Carol Morsani street doors, house right' },
+    { x: 16.0, name: 'Carol Morsani street doors, house left' },
+  ],
+  doorW: 2.2, doorHead: 2.6, doorDepth: 0.2,
+  passages: [['mezzanine', 7.9, 16.1], ['balcony', 13.36, 15.8], ['gallery', 19.22, 16.5]],   // each tier's side passage: its floor and the house's side wall's |x| (the file's)
+  curtainFly: 12.6,                 // the house curtain and its valance flown out this far (its opening is 12.2 m tall)
+  missing: true, root: null, gltf: null, at: null, th: 0, ms: 0,
+};
+let cmhBuilt = null;
+function cmhLoad() {
+  return load(CMH.url).catch(e => { console.info(`carol morsani: ${CMH.url} not loaded (${e && e.message || e}) — the north row runs on without it`); return null; });
+}
+// The file's frame (turned) → world, once cmhSite has placed it: [x, z] or a Vector3 (y the file's).
+const cmhW = (x, y, z) => new THREE.Vector3(x, y, z).applyMatrix4(CMH.root.matrixWorld);
+const cmhL = (p) => p.clone().applyMatrix4(new THREE.Matrix4().copy(CMH.root.matrixWorld).invert());
+// The model in, not yet placed: its looks made unlit (their light is in the vertices), the glass the lobby's.
+function cmhPrepare(gltf) {
+  CMH.missing = !gltf; if (!gltf) return null;
+  const root = gltf.scene; root.name = 'carol morsani';
+  const mats = [];
+  root.traverse(o => {
+    if (!o.isMesh) return;
+    const s = o.material, name = o.name;
+    o.name = 'cmh: ' + name; o.castShadow = o.receiveShadow = false; o.userData.rig = true;
+    if (/glass$/.test(name)) { o.material = lobbyMat.glass; s.dispose(); return; }
+    const m = new THREE.MeshBasicMaterial({ map: s.map || null, color: s.color.clone(), vertexColors: true, side: THREE.DoubleSide, toneMapped: false, transparent: !!s.transparent, depthWrite: !s.transparent });
+    if (s.emissive && s.emissive.getHex()) m.color.add(s.emissive);
+    m.name = 'cmh: ' + name; mats.push(m); o.material = m; s.dispose();
+  });
+  CMH.root = root; CMH.gltf = gltf;
+  return { root, mats, byName: n => root.getObjectByName('cmh: ' + n) };
+}
+// Where it stands on Broadway: square to the street frame F, its west side at u uS. → the slot: the u its west and east sides
+// meet the line, the u the row carries on from (its east lot's west side, straight back in z, clear of the building's
+// back corner), and the two wedges' plans. Called by buildStreet before it lays out the north row.
+function cmhSite(F, uS) {
+  const Q = CMH, th = Math.atan2(F.N[0], F.N[1]), uC = uS + Q.half, [fx, fz] = F.P(uC, Q.setBack);
+  const s = Math.sin(th), c = Math.cos(th);
+  const root = Q.root; root.rotation.set(0, th, 0);
+  root.position.set(fx - Q.glassZ * s, STREET.top + Q.rise - Q.lobby, fz - Q.glassZ * c);
+  root.updateMatrixWorld(true);
+  Q.th = th; Q.at = root.position.clone();
+  const depth = Q.back - Q.glassZ, wBack = Q.setBack + depth, uB0 = uS, uB1 = uS + 2 * Q.half;
+  const bw = F.P(uB0, wBack), be = F.P(uB1, wBack), a0 = F.P(uB0, 0), a1 = F.P(uB1, 0);
+  const uNext = (Math.max(be[0], a1[0]) + 0.3 - STREET.O[0]) / F.U[0], n0 = F.P(uNext, 0);
+  return { th, uS, uB0, uB1, uNext, depth, wBack,
+    west: (uNE) => { const w0 = F.P(uNE, 0); return [w0, a0, bw, [w0[0], bw[1]]]; },   // the wedge west of it: the line, its west side, back, straight down z
+    east: [a1, n0, [n0[0], be[1]], be] };                                              // and east of it, to the next lot's west side
+}
+// Inside it, for drawing the street: 'foyer' in its lobby (the street through the glass), 'in' in the hall and the stage
+// house, null outside it.
+function cmhWhere(p) {
+  if (CMH.missing || !CMH.at) return null;
+  const q = cmhL(p), Q = CMH;
+  if (Math.abs(q.x) > Q.half + 0.3 || q.z < Q.glassZ - 0.3 || q.z > Q.back + 0.3 || q.y > Q.top || q.y < -6) return null;
+  if (q.z > Q.hall.z1 || (Math.abs(q.x) < Q.hall.x && q.z > Q.hall.z0)) return 'in';
+  return 'foyer';
+}
+// After THE STREET has placed it: the glass and its mullions cut for the street doors, the frames and leaves, the curtain flown,
+// the booth (THE FOURTH HOUSE: THE SPOT BOOTH).
+function buildCarolMorsani(model) {
+  if (!model || CMH.missing || !CMH.at) return null;
+  const t0 = performance.now(), Q = CMH, root = model.root, cut = {}, T = {}, fw = DOORS.frame, doors = [];
+  const Lf = Q.lobby, top = Lf + Q.doorHead, D = Q.doorDepth;
+  // 1. THE OPENINGS: through the glass and everything else within 0.3 of it (the mullions, the transom)
+  for (const d of Q.doors) {
+    const box = new THREE.Box3(new THREE.Vector3(d.x - Q.doorW / 2, Lf + 0.004, Q.glassZ - 0.32), new THREE.Vector3(d.x + Q.doorW / 2, top, Q.glassZ + 0.32));
+    root.traverse(o => { if (o.isMesh) { const k = vwCutBox(o, box, true); if (k) cut[o.name] = (cut[o.name] || 0) + k; } });
+  }
+  // 1a. THE SIDE PASSAGES' ENDS. Each tier's side passage (from the side door platform into the house) has walls that run on
+  // past the house's side wall and across the tier's side aisle (to |x| 15.47, 15.17, 15.88 in the file), leaving under 0.3 m
+  // beside the seats: the side doors went nowhere. Cut back to the side wall's line, between the passage's floor and ceiling.
+  for (const [t, ys, wall] of CMH.passages) for (const s of [-1, 1]) {
+    const x0 = s * (wall - 0.01), x1 = s * 14.9, b = new THREE.Box3(cmhF(Math.max(x0, x1), ys + 0.08, 21.6), cmhF(Math.min(x0, x1), ys + 2.62, 16.0));
+    root.traverse(o => { if (o.isMesh && /^cmh: house_/.test(o.name)) { const k = vwCutBox(o, b, true); if (k) cut[`${t} passage`] = (cut[`${t} passage`] || 0) + k; } });
+  }
+  // 2. THE FRAMES (THE STREET's look: dark bronze jambs and head through the glass's depth, a brass sill) and THE LEAVES,
+  // out over the pavement: boxes turned with the building, the leaves in a frame turned th + π (its local +z out)
+  const box = (key, x0, x1, y0, y1, z0, z1) => { const c = cmhW((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2); deskBox(T, key, x1 - x0, y1 - y0, z1 - z0, c.x, c.y, c.z, 0, Q.th, 0); };
+  for (const d of Q.doors) {
+    const a = d.x - Q.doorW / 2, b = d.x + Q.doorW / 2, z0 = Q.glassZ - D, z1 = Q.glassZ + D;
+    box('dark', a, a + fw, Lf, top, z0, z1); box('dark', b - fw, b, Lf, top, z0, z1); box('dark', a, b, top - DOORS.headH, top, z0, z1);
+    box('brass', a, b, Lf - 0.012, Lf + DOORS.sill, z0, z1);
+    const p = cmhW(d.x, Lf, z0);
+    doors.push(hangLeafAt({ name: d.name, px: p.x, pz: p.z, th: Q.th + Math.PI, x0: -Q.doorW / 2 + fw, x1: Q.doorW / 2 - fw, floor: Q.at.y + Lf, head: Q.at.y + top - DOORS.headH, zhi: 1.3, pair: true }));
+  }
+  const group = new THREE.Group(); group.name = 'cmh works';
+  for (const [key, geos] of Object.entries(T)) { const g = mergeGeometries(geos, false); geos.forEach(x => x.dispose()); const m = new THREE.Mesh(g, lobbyMat[key]); m.name = 'cmh works: ' + key; m.userData.rig = true; group.add(m); }
+  scene.add(group);
+  // 3. THE HOUSE CURTAIN AND ITS VALANCE flown out
+  const cur = []; root.traverse(o => { if (o.isMesh && /^cmh: curtain_/.test(o.name)) { o.position.y += Q.curtainFly; o.updateMatrixWorld(true); cur.push(o.name); } });
+  // 4. THE VIEW: high at the back of the orchestra, the stage ahead
+  VIEWS['v-morsani'] = [cmhW(0, 9.0, -44.0).toArray(), cmhW(0, 2.0, 2.0).toArray()];
+  cmhUI();
+  colliderStale();
+  Q.ms = performance.now() - t0;
+  cmhBuilt = { model, group, doors, cut, curtain: cur, booth: null, chairs: null };
+  try { cmhBuilt.chairs = cmhChairsBuild(model); } catch (e) { console.error('carol morsani: drawing the chairs failed —', e); }
+  try { cmhBuilt.booth = cmhBoothBuild(model); } catch (e) { console.error('carol morsani: building the spot booth failed —', e); }
+  const wb = new THREE.Box3().setFromObject(root);
+  console.info(`carol morsani: at (${Q.at.x.toFixed(2)}, ${Q.at.y.toFixed(3)}, ${Q.at.z.toFixed(2)}) turned ${(Q.th * 180 / Math.PI).toFixed(2)}° — world x ${wb.min.x.toFixed(1)}…${wb.max.x.toFixed(1)} y ${wb.min.y.toFixed(2)}…${wb.max.y.toFixed(2)} z ${wb.min.z.toFixed(1)}…${wb.max.z.toFixed(1)}`
+    + ` · ${doors.length} street doors (cut: ${Object.entries(cut).map(([k, v]) => `${k.replace(/^cmh: /, '')} ${v}`).join(', ')}) · the curtain flown ${Q.curtainFly} m (${cur.length} meshes) · ${model.mats.length} materials · ${Q.ms.toFixed(0)} ms`);
+  requestRender();
+  return cmhBuilt;
+}
+/* ---------------------------------------------------------------- THE FOURTH HOUSE: THE CHAIRS
+   Jack (2026-10-26), seeing them: "the cahirs look like blaocks not chiars". The file's 3,203 seats are three boxes each (a
+   red block, a textured block round it, a thin stand). tools/carol-morsani-optimise.py lists them (the scene's extras,
+   'seats': floor point, facing, width, the block's red) and keeps the boxes as 'seatcol_lit', the walk's collision, undrawn
+   here — so the rows walk as they did. A theatre chair is drawn at each instead: a sprung seat pan with a rolled front, a
+   raked upholstered back with a rolled top in a dark shell, an end standard each side with a wooden armrest on it (two
+   neighbours' halves meet as one standard). Two instanced meshes, outside the walk's grid ('cmh chairs'): the upholstery,
+   white with a fixed light in its vertices times each seat's own red (instanceColor), and the frame, its own colours. */
+const CMH_CHAIR = {
+  pan: { y0: 0.40, y1: 0.49, z0: -0.17, z1: 0.23, tilt: 0.07 },   // the seat pan: under and top faces, back and front, raked up at the front (rad)
+  back: { y0: 0.50, y1: 0.97, z: -0.235, t: 0.075, rake: 0.19 },  // the back cushion: its foot and top, its middle at the foot, thickness, raked back (rad)
+  shell: 0.025,                                                  // the back's shell behind it
+  standard: { t: 0.02, y1: 0.62, z0: -0.27, z1: 0.17 },          // half an end standard each side (the neighbour has the other half)
+  arm: { w: 0.032, h: 0.035, z0: -0.25, z1: 0.21 },              // the armrest on it
+  frame: 0x1d1b1d, wood: 0x6e4428,
+};
+function cmhChairGeos() {
+  const C = CMH_CHAIR, up = [], fr = [], hw = 0.23;
+  const box = (out, w, h, d, x, y, z, rx = 0) => { const g = new THREE.BoxGeometry(w, h, d); if (rx) g.rotateX(rx); g.translate(x, y, z); out.push(g); return g; };
+  const roll = (out, len, r, x, y, z) => { const g = new THREE.CylinderGeometry(r, r, len, 10); g.rotateZ(Math.PI / 2); g.translate(x, y, z); out.push(g); };
+  const P = C.pan, pm = (P.y0 + P.y1) / 2, pd = P.z1 - P.z0;
+  box(up, 2 * hw - 0.01, P.y1 - P.y0, pd, 0, pm, (P.z0 + P.z1) / 2, -P.tilt);                  // the pan
+  roll(up, 2 * hw - 0.01, (P.y1 - P.y0) / 2 + 0.005, 0, pm + Math.sin(P.tilt) * pd / 2, P.z1);   // its rolled front
+  box(fr, 2 * hw - 0.04, 0.04, pd - 0.04, 0, P.y0 - 0.02, (P.z0 + P.z1) / 2);                  // its pan underneath
+  const B = C.back, bh = B.y1 - B.y0, s = Math.sin(B.rake), c = Math.cos(B.rake);
+  const bmY = B.y0 + c * bh / 2, bmZ = B.z - s * bh / 2;                                         // the back's middle, raked back from its foot
+  box(up, 2 * hw - 0.02, bh, B.t, 0, bmY, bmZ, B.rake);
+  roll(up, 2 * hw - 0.02, B.t / 2 + 0.006, 0, B.y0 + c * bh, B.z - s * bh);                     // its rolled top
+  box(fr, 2 * hw, bh + 0.03, C.shell, 0, bmY - 0.005, bmZ - c * (B.t / 2 + C.shell / 2) + 0.0, B.rake);   // the shell behind it
+  const S = C.standard, A = C.arm;
+  for (const side of [-1, 1]) {
+    const x = side * (hw + 0.0225 - S.t / 2);
+    box(fr, S.t, S.y1, S.z1 - S.z0, x, S.y1 / 2, (S.z0 + S.z1) / 2);
+    box(fr, A.w / 2 + 0.002, A.h, A.z1 - A.z0, side * (hw + 0.0225 - A.w / 4), S.y1 + A.h / 2, (A.z0 + A.z1) / 2).userData.wood = true;
+  }
+  // a fixed light in the vertices (VW_LIGHT's), the frame's colours too
+  const L = VW_LIGHT, frame = new THREE.Color(C.frame), wood = new THREE.Color(C.wood);
+  const bake = (geos, colOf) => {
+    const g = mergeGeometries(geos.map(x => x.index ? x.toNonIndexed() : x), false), N = g.attributes.normal, n = N.count, col = new Float32Array(n * 3);
+    let v = 0;
+    for (const x of geos) { const m = x.index ? x.index.count : x.attributes.position.count, cc = colOf(x); for (let i = 0; i < m; i++, v++) {
+      const k = 0.50 + 0.30 * Math.abs(N.getX(v) * L.x + N.getY(v) * L.y + N.getZ(v) * L.z) + 0.20 * Math.max(0, N.getY(v));
+      col[3 * v] = cc.r * k; col[3 * v + 1] = cc.g * k; col[3 * v + 2] = cc.b * k; } }
+    g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.deleteAttribute('uv'); geos.forEach(x => x.dispose());
+    return g;
+  };
+  const white = new THREE.Color(1, 1, 1);
+  return { up: bake(up, () => white), frame: bake(fr, x => x.userData.wood ? wood : frame) };
+}
+function cmhChairsBuild(model) {
+  const S = model.root.userData.seats, col = model.byName('seatcol_lit');
+  if (col) { col.material.dispose(); col.material = VW_GLASS_BLOCK; }          // the file's blocks: the walk's, never drawn
+  if (!S || !S.length) { console.warn('carol morsani: no seat table in the file — its blocks are its chairs'); if (col) col.material = new THREE.MeshBasicMaterial({ color: 0x7a1020 }); return null; }
+  const n = S.length / 9, geo = cmhChairGeos(), group = new THREE.Group(); group.name = 'cmh chairs';
+  const mUp = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false }), mFr = new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false });
+  const up = new THREE.InstancedMesh(geo.up, mUp, n), fr = new THREE.InstancedMesh(geo.frame, mFr, n);
+  const M = new THREE.Matrix4(), q = new THREE.Quaternion(), Y = new THREE.Vector3(0, 1, 0), one = new THREE.Vector3(1, 1, 1), p = new THREE.Vector3(), c = new THREE.Color();
+  for (let i = 0; i < n; i++) {
+    const o = 9 * i, w = S[o + 5] / 0.505;
+    M.compose(p.set(S[o], S[o + 1], S[o + 2]), q.setFromAxisAngle(Y, Math.atan2(S[o + 3], S[o + 4])), one.set(w, 1, 1));
+    up.setMatrixAt(i, M); fr.setMatrixAt(i, M);
+    up.setColorAt(i, c.setRGB(S[o + 6], S[o + 7], S[o + 8]).multiplyScalar(1.6));   // the block's own red (unlit in the table), lifted: the shading in the vertices takes it to ~0.6
+  }
+  for (const m of [up, fr]) { m.frustumCulled = false; m.userData.rig = true; m.castShadow = m.receiveShadow = false; group.add(m); }
+  up.name = 'cmh chairs: upholstery'; fr.name = 'cmh chairs: frame';
+  group.matrixAutoUpdate = false; group.matrix.copy(model.root.matrixWorld); scene.add(group); group.updateMatrixWorld(true);
+  const tris = (geo.up.attributes.position.count + geo.frame.attributes.position.count) / 3;
+  console.info(`carol morsani chairs: ${n} chairs (${tris} triangles each, ${(n * tris / 1000).toFixed(0)}k in all, 2 draw calls); the file's blocks kept for the walk, undrawn`);
+  return { group, n, up, frame: fr };
+}
+
+/* ---------------------------------------------------------------- THE FOURTH HOUSE: THE SPOT BOOTH AND THE STAGE STAIRS
+   Jack: "there is a spot marked out for a spot booth so add that." The model marked it at the back of the hall in its
+   lighting cove (a floor and a back wall, "SPOT BOOTH - TO DO", over the gallery's back doors; the converter drops both).
+   Built here in the FILE's frame (x house left +, z toward the lobby +; cmhF turns it into the root's): a room x ±CMHB.x
+   from its open front (z CMHB.front, a parapet and a header, three mullions) back to the hall's curved back wall, measured
+   with rays every half metre (its inner face 48.85 at the middle, 46.9 at x ±6), floor 26.2 and ceiling 28.7 (the cove's);
+   everything of the model in that room cut out first. THE WAY UP is behind the hall, from the lobby's gallery landing
+   (22.32): a ship's ladder of 18 risers along the wall, a platform at the booth's floor, a door on E through the wall (its
+   leaf swings into the booth). The lobby's ceiling (28.0) leaves the walker 5 cm over the platform, so it is cut there and a
+   bulkhead boxes the hole in. Three follow spots on stands at the front, aimed at the stage. THE STAGE STAIRS: the file's
+   stage lip stands a metre over its front aisle with no way up anywhere: a stair each side of the apron, from the aisle up
+   to the lip, the risers measured to the floor at their foot. Everything here is one baked mesh (VW_LIGHT's light in its
+   vertex colours, as the chairs), a child of the root, so it is in the walk's grid. */
+const CMHB = {
+  x: 5.5, front: 45.6, floor: 26.2, ceil: 28.7, parapet: 27.15, header: 28.3, t: 0.12,
+  door: { x0: 1.0, x1: 2.0, head: 28.3 },                                     // through the hall's back wall (file x)
+  plat: { x0: 0.3, x1: 3.3, z0: 49.1, z1: 50.6 },                              // outside it, at the booth's floor
+  ladder: { top: 3.3, z0: 49.65, z1: 50.45, n: 18, going: 0.15, foot: 22.32 }, // climbing toward −x (file) to the platform's edge
+  bulk: { x0: 0.2, x1: 3.4, z0: 49.0, z1: 50.75, lid: 28.9 },                  // the lobby ceiling cut over the platform and boxed in
+  spots: [-2.6, 0, 2.6], spotZ: 46.25, aim: [0, 1.6, -5.0],                    // the follow spots across the booth, aimed at the stage's middle
+  stair: { xIn: 11.9, going: 0.28, z0: -1.15, z1: -0.15, w: 1.0, edgeZ: -0.95 }, // each side: its top tread out from the apron's curved edge (measured at z edgeZ, its outermost under the stair; xIn if not found), across z
+  col: { wall: 0x2c2729, floor: 0x26262a, trim: 0x111112, steel: 0x3a3c40, black: 0x161617, lens: 0xcfd8e0, stair: 0x1e1d1f, nose: 0x8a6a3a, plaster: 0xd8cfbf },
+};
+const cmhF = (x, y, z) => new THREE.Vector3(-x, y, -z);   // the file's frame → the root's (turned)
+function cmhBoothBuild(model) {
+  const Q = CMHB, root = model.root, t0 = performance.now(), parts = [], cut = {};
+  const meshes = []; root.traverse(o => { if (o.isMesh && !/seatcol|glass/.test(o.name)) meshes.push(o); });
+  // a box in the file's frame (x0…x1 etc.), coloured; rot: turned about y by a (rad) round its middle first
+  const box = (col, x0, x1, y0, y1, z0, z1) => { const g = new THREE.BoxGeometry(Math.abs(x1 - x0), Math.abs(y1 - y0), Math.abs(z1 - z0)); const c = cmhF((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2); g.translate(c.x, c.y, c.z); g.userData.col = col; parts.push(g); return g; };
+  const cyl = (col, r0, r1, len, from, to) => { const g = new THREE.CylinderGeometry(r1, r0, len, 14); g.translate(0, len / 2, 0); const d = to.clone().sub(from).normalize(); g.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0, 1, 0), d)); g.translate(from.x, from.y, from.z); g.userData.col = col; parts.push(g); };   // a rod from → to (root frame)
+  const cutBox = (name, x0, x1, y0, y1, z0, z1) => { const b = new THREE.Box3(cmhF(Math.max(x0, x1), y0, Math.max(z0, z1)), cmhF(Math.min(x0, x1), y1, Math.min(z0, z1))); for (const o of meshes) { const k = vwCutBox(o, b, true); if (k) cut[name] = (cut[name] || 0) + k; } };
+  // 1. THE BACK WALL'S INNER FACE across the booth, every half metre (file z at y 27.2), before anything is cut
+  const ray = new THREE.Raycaster(), inner = {};
+  for (let k = -2 * Math.ceil(Q.x); k <= 2 * Math.ceil(Q.x); k++) {                // every half metre, a little past the sides
+    const x = k / 2, a = root.localToWorld(cmhF(x, 27.2, Q.front - 0.6)), b = root.localToWorld(cmhF(x, 27.2, 52));
+    ray.set(a, b.clone().sub(a).normalize()); ray.far = a.distanceTo(b);
+    const h = ray.intersectObjects(meshes, false)[0];
+    inner[k] = h ? -root.worldToLocal(h.point.clone()).z : 48.0;
+  }
+  const wallZ = x => { const u = Math.max(-2 * Math.ceil(Q.x), Math.min(2 * Math.ceil(Q.x) - 1e-9, x * 2)), k = Math.floor(u), f = u - k; return inner[k] + (inner[k + 1] - inner[k]) * f; };   // between the samples
+  // 2. THE ROOM: cleared of the model, strip by strip to the wall; floor, ceiling, side walls, the open front
+  for (let x = -Q.x; x < Q.x - 1e-6; x += 0.5) {
+    const zb = Math.min(wallZ(x), wallZ(x + 0.5)) - 0.04;
+    cutBox('the booth', x, x + 0.5, Q.floor - 0.18, Q.ceil - 0.01, Q.front - Q.t, zb);
+    box(Q.col.floor, x, x + 0.5, Q.floor - 0.2, Q.floor, Q.front - Q.t, zb + 0.1);
+    box(Q.col.wall, x, x + 0.5, Q.ceil - 0.08, Q.ceil - 0.012, Q.front - Q.t, zb + 0.1);   // just under the cove's own ceiling (never in its plane)
+  }
+  for (const s of [-1, 1]) box(Q.col.wall, s * Q.x - Q.t / 2, s * Q.x + Q.t / 2, Q.floor, Q.ceil - 0.012, Q.front - Q.t, wallZ(s * Q.x) + 0.1);
+  box(Q.col.wall, -Q.x, Q.x, Q.floor, Q.parapet, Q.front - Q.t, Q.front);                         // the parapet
+  box(Q.col.trim, -Q.x, Q.x, Q.parapet, Q.parapet + 0.05, Q.front - Q.t - 0.03, Q.front + 0.25);   // its sill
+  box(Q.col.wall, -Q.x, Q.x, Q.header, Q.ceil - 0.012, Q.front - Q.t, Q.front);                    // the header
+  for (const x of [-Q.x / 2 - 1.3, Q.x / 2 + 1.3]) box(Q.col.trim, x - 0.05, x + 0.05, Q.parapet, Q.header, Q.front - Q.t, Q.front);   // mullions, clear of the spots
+  // 3. THE WAY IN: the door through the wall, the platform, the ladder, the bulkhead over them in the lobby's ceiling
+  const D = Q.door, Pl = Q.plat, Lk = Q.ladder, Bk = Q.bulk;
+  cutBox('the door', D.x0, D.x1, Q.floor + 0.004, D.head, Math.min(wallZ(D.x0), wallZ(D.x1)) - 0.3, Pl.z0 + 0.6);
+  cutBox('the lobby ceiling', Bk.x0 + 0.1, Bk.x1 - 0.1, 27.6, 28.6, Bk.z0 + 0.1, Bk.z1 - 0.1);
+  box(Q.col.trim, D.x0 - 0.06, D.x0, Q.floor, D.head + 0.06, wallZ(D.x0) - 0.06, Pl.z0 + 0.2); box(Q.col.trim, D.x1, D.x1 + 0.06, Q.floor, D.head + 0.06, wallZ(D.x1) - 0.06, Pl.z0 + 0.2);
+  box(Q.col.trim, D.x0 - 0.06, D.x1 + 0.06, D.head, D.head + 0.06, wallZ(D.x0) - 0.06, Pl.z0 + 0.2);
+  box(Q.col.floor, D.x0, D.x1, Q.floor - 0.2, Q.floor, wallZ((D.x0 + D.x1) / 2) - 0.1, Pl.z0 + 0.1);   // the threshold through the wall
+  box(Q.col.steel, Pl.x0, Pl.x1, Q.floor - 0.12, Q.floor, Pl.z0, Pl.z1);                            // the platform
+  box(Q.col.steel, Pl.x0, Pl.x0 + 0.05, Q.floor, Q.floor + 1.05, Pl.z0, Pl.z1); box(Q.col.steel, Pl.x0, Pl.x1, Q.floor + 1.0, Q.floor + 1.05, Pl.z1 - 0.05, Pl.z1);   // its rail
+  for (const z of [Pl.z1 - 0.05]) for (const x of [Pl.x0 + 0.05, (Pl.x0 + Pl.x1) / 2]) box(Q.col.steel, x, x + 0.04, Q.floor, Q.floor + 1.0, z, z + 0.04);
+  const rise = (Q.floor - Lk.foot) / Lk.n;
+  for (let i = 1; i < Lk.n; i++) {                                                                // the treads, grating on side plates
+    const x1 = Lk.top + (Lk.n - i) * Lk.going, x0 = x1 - Lk.going - 0.03, y = Lk.foot + i * rise;
+    box(Q.col.steel, x0, x1, y - 0.04, y, Lk.z0 + 0.04, Lk.z1 - 0.04);
+  }
+  const run = Lk.n * Lk.going;
+  for (const z of [Lk.z0, Lk.z1 - 0.04]) {                                                        // the side plates, stepped (a box a tread)
+    for (let i = 0; i < Lk.n; i++) { const x1 = Lk.top + (Lk.n - i) * Lk.going, y = Lk.foot + i * rise; box(Q.col.steel, x1 - Lk.going, x1, y - 0.12, y + rise + 0.05, z, z + 0.04); }
+  }
+  box(Q.col.plaster, Bk.x0, Bk.x1, 27.95, Bk.lid, Bk.z1 - 0.06, Bk.z1); box(Q.col.plaster, Bk.x0, Bk.x0 + 0.06, 27.95, Bk.lid, Bk.z0, Bk.z1); box(Q.col.plaster, Bk.x1 - 0.06, Bk.x1, 27.95, Bk.lid, Bk.z0, Bk.z1);
+  box(Q.col.plaster, Bk.x0, Bk.x1, Bk.lid, Bk.lid + 0.06, Bk.z0, Bk.z1);
+  for (const z of [Lk.z0 + 0.02, Lk.z1 - 0.02]) {                                                  // the handrails, 0.9 over the nosings, posts at both ends
+    const a = cmhF(Lk.top + run, Lk.foot + 0.9, z), b = cmhF(Lk.top, Q.floor + 0.9, z);
+    cyl(Q.col.steel, 0.022, 0.022, a.distanceTo(b), a, b);
+    cyl(Q.col.steel, 0.02, 0.02, 0.9, cmhF(Lk.top + run, Lk.foot, z), a); cyl(Q.col.steel, 0.02, 0.02, 0.9, cmhF(Lk.top, Q.floor, z), b);
+  }
+  // 4. THE FOLLOW SPOTS: a tripod and post, a yoke, the body (a lamp house, a tube, the lens), aimed at the stage
+  const aim = cmhF(...Q.aim);
+  for (const sx of Q.spots) {
+    const base = cmhF(sx, Q.floor, Q.spotZ + 0.2), pivot = cmhF(sx, Q.floor + 1.32, Q.spotZ + 0.2), dir = aim.clone().sub(pivot).normalize();
+    for (let k = 0; k < 3; k++) { const a = k * 2 * Math.PI / 3 + 0.4, foot = base.clone().add(new THREE.Vector3(Math.cos(a) * 0.45, 0, Math.sin(a) * 0.45)); cyl(Q.col.black, 0.018, 0.018, foot.distanceTo(cmhF(sx, Q.floor + 0.55, Q.spotZ + 0.2)), foot, cmhF(sx, Q.floor + 0.55, Q.spotZ + 0.2)); }
+    cyl(Q.col.black, 0.03, 0.03, 1.2, base.clone().setY(Q.floor + 0.05), pivot);
+    const back = pivot.clone().addScaledVector(dir, -0.55), front = pivot.clone().addScaledVector(dir, 0.6);
+    cyl(Q.col.black, 0.2, 0.2, 0.42, back, pivot.clone().addScaledVector(dir, -0.13));             // the lamp house
+    cyl(Q.col.steel, 0.15, 0.17, 0.73, pivot.clone().addScaledVector(dir, -0.13), front);           // the tube
+    cyl(Q.col.lens, 0.165, 0.165, 0.02, front, front.clone().addScaledVector(dir, 0.02));            // the lens
+    cyl(Q.col.black, 0.02, 0.02, 0.5, pivot.clone().addScaledVector(dir, -0.25).add(new THREE.Vector3(0, 0.22, 0)), pivot.clone().addScaledVector(dir, 0.25).add(new THREE.Vector3(0, 0.22, 0)));   // the handle on top
+  }
+  // 5. THE STAGE STAIRS, one each side of the apron: the floor at their foot measured, risers to the lip (the stage, y 0)
+  const S = Q.stair, stairs = [];
+  const floorAt = (x, z) => { ray.set(root.localToWorld(cmhF(x, 1.5, z)), DOWN); ray.far = 4; const h = ray.intersectObjects(meshes, false)[0]; return h ? root.worldToLocal(h.point.clone()).y : null; };
+  for (const s of [-1, 1]) {
+    let a = 9.5, b = 13.0;                                                                         // the apron's edge, halved to 1 cm: a on the stage, b off it
+    const on = x => { const y = floorAt(s * x, S.edgeZ); return y !== null && y >= -0.05; };
+    let xIn = S.xIn;
+    if (on(a) && !on(b)) { while (b - a > 0.01) { const m = (a + b) / 2; if (on(m)) a = m; else b = m; } xIn = b + 0.02; }
+    const foot = root.localToWorld(cmhF(s * (xIn + 1.2), 1.5, (S.z0 + S.z1) / 2));
+    ray.set(foot, DOWN); ray.far = 4; const h = ray.intersectObjects(meshes, false)[0];
+    const yf = h ? root.worldToLocal(h.point.clone()).y : -1.0, n = Math.max(2, Math.ceil((0 - yf) / 0.18)), r = (0 - yf) / n;
+    for (let i = 1; i < n; i++) {                                                                  // tread i (1 the lowest) out from the lip
+      const xa = xIn + (n - i - 1) * S.going, xb = xa + S.going;
+      box(Q.col.stair, s * xa, s * xb, yf - 0.02, yf + i * r, S.z0, S.z1);
+      box(Q.col.nose, s * xb - s * 0.03, s * xb, yf + i * r - 0.012, yf + i * r + 0.002, S.z0, S.z1);
+    }
+    box(Q.col.stair, s * (xIn - 0.6), s * xIn, yf - 0.02, -0.002, S.z0, S.z1);                    // the top: up to the lip, into the apron's edge
+    stairs.push({ side: s < 0 ? 'house right' : 'house left', xIn: +xIn.toFixed(2), foot: +yf.toFixed(3), risers: n, rise: +r.toFixed(3) });
+  }
+  // 6. ONE MESH, baked (each box's colour times VW_LIGHT's light), a child of the root
+  const L = VW_LIGHT, geo = mergeGeometries(parts.map(g => g.index ? g.toNonIndexed() : g), false), N = geo.attributes.normal, col = new Float32Array(N.count * 3), c = new THREE.Color();
+  let v = 0;
+  for (const g of parts) { c.set(g.userData.col); const m = g.index ? g.index.count : g.attributes.position.count; for (let i = 0; i < m; i++, v++) { const k = 0.50 + 0.30 * Math.abs(N.getX(v) * L.x + N.getY(v) * L.y + N.getZ(v) * L.z) + 0.20 * Math.max(0, N.getY(v)); col[3 * v] = c.r * k; col[3 * v + 1] = c.g * k; col[3 * v + 2] = c.b * k; } }
+  geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.deleteAttribute('uv'); parts.forEach(g => g.dispose());
+  const mesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, toneMapped: false, side: THREE.DoubleSide }));
+  mesh.name = 'cmh: booth and stairs'; mesh.userData.rig = true; root.add(mesh); mesh.updateMatrixWorld(true);
+  // 7. THE DOOR on E, in the wall's inner face, swinging into the booth (the root's +z is the file's −z)
+  const dm = (D.x0 + D.x1) / 2, fp = root.localToWorld(cmhF(dm, 0, wallZ(dm) - 0.06)), fw = DOORS.frame;
+  const door = hangLeafAt({ name: 'Carol Morsani spot booth', px: fp.x, pz: fp.z, th: CMH.th, x0: -(D.x1 - D.x0) / 2 + 0.01, x1: (D.x1 - D.x0) / 2 - 0.01, floor: CMH.at.y + Q.floor, head: CMH.at.y + D.head - 0.004, zhi: 1.2,
+    mats: { wood: backstageMat.door, glass: backstageMat.panel, brass: backstageMat.kick } });
+  colliderStale();
+  const ms = performance.now() - t0;
+  console.info(`carol morsani booth: x ±${Q.x} from z ${Q.front} to the back wall (its inner face z ${wallZ(0).toFixed(2)} at the middle, ${wallZ(Q.x).toFixed(2)} at the sides), floor ${Q.floor}, ceiling ${Q.ceil}; ${Q.spots.length} follow spots; a ladder of ${Lk.n} risers (${(rise * 1000).toFixed(0)} mm) from the gallery landing; the door on E; the stage stairs ${stairs.map(s => `${s.side} ${s.risers} × ${(s.rise * 1000).toFixed(0)} mm from ${s.foot}`).join(', ')}; cut ${Object.entries(cut).map(([k, n]) => `${k} ${n}`).join(', ')} · ${(geo.attributes.position.count / 3)} triangles · ${ms.toFixed(0)} ms`);
+  return { mesh, door, stairs, cut, inner, ms };
+}
+const CMH_API = {
+  spec: CMH, get root() { return CMH.root; }, get built() { return cmhBuilt; },
+  view: () => go('v-morsani'),
+  check: cmhCheck,
+};
+// THE CHECK (Jack: "go to every door way and make sure it goes all the wy trought"): with the walk's own step, every doorway
+// in and back out (the orchestra's two, each tier's two side doors and four back doorways), the three street doors (shut:
+// stopped at the glass; open: in and out), both stage stairs up and down, and the booth's way (its door shut: stopped at it;
+// open: up the ladder into the booth and back). The chairs: one a seat. Everything put back after. → the text.
+function cmhCheck() {
+  if (!cmhBuilt) return 'carol morsani: not built';
+  if (col.stale) buildCollider();
+  scene.updateMatrixWorld(true);
+  const out = [], f2 = v => v.toFixed(2), root = CMH.root, W = (x, y, z) => root.localToWorld(cmhF(x, y, z));
+  let fails = 0; const line = (ok, s) => { if (!ok) fails++; out.push(`${ok ? 'PASS' : 'FAIL'} ${s}`); };
+  const save = { pos: player.pos.clone(), vel: player.vel.clone(), g: player.onGround, yaw, pitch, cam: camera.position.clone(), q: camera.quaternion.clone(), want: DOORS.list.map(e => e.want), u: DOORS.list.map(e => e.u), spawn: player.spawn.clone() };
+  const place = p => { const g = groundAt(p.x, p.z, p.y + 0.6); player.pos.set(p.x, g === null ? p.y : g, p.z); player.vel.set(0, 0, 0); player.onGround = true; player.spawn.copy(player.pos); };
+  const file = () => { const q = root.worldToLocal(player.pos.clone()); return `(${f2(-q.x)}, ${f2(q.y)}, ${f2(-q.z)})`; };
+  const door = (name, open) => { const e = DOORS.list.find(d => d.name === name); if (!e) return; e.want = e.u = open ? 1 : 0; e.angle = e.u * DOORS.swing; for (const l of e.leaves) { l.rotation.y = -l.userData.s * e.angle; l.updateMatrixWorld(true); } };
+  // walking, not running (stWalkTo runs): at the check's 0.05 s a running stride is two of the ship's ladder's 0.15 m treads
+  const walkTo = (x, z) => { const p = player.pos; let t = 0, best = Infinity, stall = 0; keys.add('KeyW');
+    while (t < 60) { const dx = x - p.x, dz = z - p.z, d = Math.hypot(dx, dz); if (d < 0.35) break; yaw = Math.atan2(-dx, -dz); walkStep(0.05); t += 0.05; if (d < best - 0.02) { best = d; stall = 0; } else if ((stall += 0.05) > 3) break; }
+    keys.delete('KeyW'); return Math.hypot(x - p.x, z - p.z) < 0.35; };
+  // a route in the file's frame: → '' (through) or where it stopped
+  const walk = pts => { place(W(...pts[0])); for (let i = 1; i < pts.length; i++) { const p = W(...pts[i]); if (!walkTo(p.x, p.z)) return `stopped on leg ${i} at ${file()}`; } return ''; };
+  const run = (name, pts, want = true) => { const r = walk(pts); line(want ? !r : !!r, `${name}: ${want ? (r || 'through, feet at file y ' + file().split(', ')[1]) : (r ? 'stopped, as it should (' + r.replace('stopped on leg 1 at ', '') + ')' : 'walked through it')}`); };
+  // 1. EVERY DOORWAY, in 2.5 m and back out 1.6 m (the file's doorways: middle, floor, the lobby side's normal); a side door
+  // in through its passage to its tier's side aisle (0.5–0.75 m wide, along the side wall: |x| aisle) and down it 4 m
+  const D = [['orchestra, house right', -10.15, 3.2, 43.43, -0.78, 0.62], ['orchestra, house left', 10.15, 3.2, 43.43, 0.78, 0.62]];
+  for (const [t, y, ys, aisle] of [['mezzanine', 10.15, 7.9, 15.6], ['balcony', 16.16, 13.36, 15.5], ['gallery', 22.32, 19.22, 16.1]]) for (const s of [-1, 1]) {
+    const h = s < 0 ? 'house right' : 'house left';
+    D.push([`${t} side door, ${h}`, s * 17.77, ys, 19.01, s, 0.03, s * aisle], [`${t} outer doorway, ${h}`, s * 10.15, y, 43.43, s * 0.78, 0.62], [`${t} inner doorway, ${h}`, s * 6.11, y, 47.2, s * 0.55, 0.83]);
+  }
+  for (const [n, x, y, z, nx, nz, aisle] of D) {
+    const a = [x + nx * 1.6, y + 0.3, z + nz * 1.6], b = aisle === undefined ? [[x - nx * 2.5, y + 0.3, z - nz * 2.5]] : [[aisle, y + 0.3, z], [aisle, y + 0.3, z - 4]];
+    const r1 = walk([a, ...b]), r2 = walk([...b.slice().reverse(), a]);
+    line(!r1 && !r2, `${n}: in ${r1 || 'through'} · out ${r2 || 'through'}`);
+  }
+  // 2. THE STREET DOORS, shut then open
+  for (const d of CMH.doors) door(d.name, false);
+  for (const d of CMH.doors) run(`${d.name}, shut`, [[d.x, 3.5, 75.0], [d.x, 3.5, 69.5]], false);
+  for (const d of CMH.doors) door(d.name, true);
+  for (const d of CMH.doors) run(`${d.name}, open: the pavement into the lobby and out again`, [[d.x, 3.5, 75.0], [d.x, 3.5, 69.5], [d.x, 3.5, 75.5]]);
+  // 3. THE STAGE STAIRS, up and down
+  for (const s of [-1, 1]) {
+    const h = s < 0 ? 'house right' : 'house left';
+    run(`the stage stair ${h}: the front aisle up onto the stage`, [[s * 14.0, -0.6, 1.0], [s * 13.6, -0.6, -0.65], [s * 10.6, 0.2, -0.65], [s * 7.5, 0.2, 0.0], [s * 7.5, 0.2, -3], [0, 0.2, -8]]);
+    run(`the stage stair ${h}: down again`, [[0, 0.2, -8], [s * 7.5, 0.2, -3], [s * 7.5, 0.2, 0.0], [s * 10.6, 0.2, -0.65], [s * 13.8, -0.6, -0.65], [s * 14.0, -0.6, 2.0]]);
+  }
+  // 4. THE SPOT BOOTH: the ladder, its door shut then open, in, and back down
+  if (cmhBuilt.booth) {
+    const bn = cmhBuilt.booth.door.name;
+    door(bn, false); run('the spot booth, its door shut: up the ladder, stopped at the door', [[7.0, 22.6, 50.05], [3.0, 26.4, 50.05], [1.5, 26.4, 49.7], [1.5, 26.4, 47.8]], false);
+    door(bn, true); run('the spot booth, its door open: up the ladder and in', [[7.0, 22.6, 50.05], [3.0, 26.4, 50.05], [1.5, 26.4, 49.7], [1.5, 26.4, 47.6], [-3.5, 26.4, 46.9]]);
+    run('the spot booth: back down to the gallery landing', [[-3.5, 26.4, 46.9], [1.5, 26.4, 47.6], [1.5, 26.4, 49.8], [3.0, 26.4, 50.05], [7.2, 22.6, 50.05]]);
+  } else line(false, 'the spot booth: not built');
+  // 5. THE CHAIRS
+  const ch = cmhBuilt.chairs, n = ch ? ch.n : 0, ns = (root.userData.seats || []).length / 9;
+  line(!!ch && n === ns, `the chairs: ${n} drawn for the file's ${ns} seats`);
+  DOORS.list.forEach((e, i) => { e.want = save.want[i]; e.u = save.u[i]; });
+  doorsTick(0); DOORS.list.forEach(e => { e.angle = e.u * e.u * (3 - 2 * e.u) * DOORS.swing; for (const l of e.leaves) { l.rotation.y = -l.userData.s * e.angle; l.updateMatrixWorld(true); } });
+  player.pos.copy(save.pos); player.vel.copy(save.vel); player.onGround = save.g; player.spawn.copy(save.spawn); yaw = save.yaw; pitch = save.pitch;
+  camera.position.copy(save.cam); camera.quaternion.copy(save.q); camera.updateMatrixWorld();
+  const s = `carol morsani: ${fails ? `FAIL (${fails})` : 'PASS'} — ${out.length} lines\n` + out.join('\n');
+  console.info(s); return s;
+}
+function cmhUI() {
+  if (document.getElementById('v-morsani')) return;
+  const after = document.getElementById('v-vanwezel'), b = document.createElement('button');
+  b.id = 'v-morsani'; b.textContent = 'Carol Morsani'; b.title = 'Carol Morsani Hall, east of the Van Wezel: its orchestra from the back';
+  b.addEventListener('click', () => go('v-morsani'));
+  if (after) after.after(b); else document.querySelector('header .views').appendChild(b);
+}
+
 /* ---------------------------------------------------------------- THE STREET
    Jack (2026-10-25): "i want to make it so you can walk outside the theaters and it is like you are on broadway and there
    are a bunch of theaters (just put up empty fronts plus the 3 we already have for now) with marquis and stuff." His
@@ -24903,7 +25329,7 @@ const JTL_API = {
 const STREET = {
   O: [-12.25, -22.47],                              // the north building line's west anchor: the Midtown front's west corner
   vw: { c: [77.0, 13.5], gap: 2.4 },                // the line runs this far outside the Van Wezel's glass circle (its centre VWF.c)
-  u0: -130, u1: 250,                                // the street's ends along the line
+  u0: -130, u1: 320,                                // the street's ends along the line (east to 320 since THE FOURTH HOUSE took 120 m of the north row)
   walk: 5.0, road: 12.0, south: 5.0,                // the north sidewalk, the road, the south sidewalk (m)
   top: 0.86, kerb: 0.15,                            // the sidewalks' top (the terrace's 0.865, the lobby's pavement 0.855); the kerb
   skin: { x0: -12.25, x1: 30.40, z0: -22.47, z1: -22.32, back: 17.40, top: 18.0, t: 0.15 },   // the Midtown block's front and side skins
@@ -24944,7 +25370,8 @@ const ST_HOUSES = [
   ['LYCEUM', 'OH, MARY!', 'LYCEUM'], ['MARQUIS', 'STRANGER THINGS: THE FIRST SHADOW', 'MARQUIS'], ['WINTER GARDEN', 'MAMMA MIA!', 'GARDEN'],
   ['GERALD SCHOENFELD', 'BUENA VISTA SOCIAL CLUB', 'SCHOENFELD'], ['CIRCLE IN THE SQUARE', 'JUST IN TIME', 'CIRCLE'],
 ];
-const ST_OURS = [['MIDTOWN', 'HAMILTON', 'MIDTOWN'], ['MIDTOWN THEATER', 'JOHNNY TREMAIN', 'MIDTOWN THEATER'], ['PERFORMING ARTS HALL', 'VAN WEZEL HALL', 'VAN WEZEL']];
+const ST_OURS = [['MIDTOWN', 'HAMILTON', 'MIDTOWN'], ['MIDTOWN THEATER', 'JOHNNY TREMAIN', 'MIDTOWN THEATER'], ['PERFORMING ARTS HALL', 'VAN WEZEL HALL', 'VAN WEZEL'],
+  ['STRAZ CENTER', 'CAROL MORSANI HALL', 'MORSANI']];   // the last: THE FOURTH HOUSE
 const ST_SHOPS = ['DELI', 'PIZZA', 'HOTEL', 'GIFTS', 'PHARMACY', 'BAR & GRILL', 'SHOES', 'COFFEE', 'TICKETS', 'DINER'];
 let stBuilt = null;
 
@@ -25333,10 +25760,13 @@ function buildStreet() {
   const uArc = (w, r) => -a + Math.sqrt(Math.max(0, r * r - (b + w) * (b + w))), wArc = (u, r) => { const q = r * r - (a + u) * (a + u); return q > 0 ? -b - Math.sqrt(q) : Infinity; };
   const neDepth = 45, uNE = (terraceX + 0.3 - Q.O[0]) / F.U[0];                                  // the north row again east of the terrace's east edge (its lots' sides run in z)
   stGround(A, F, uArc(0, terraceR - 0.05), uNE, () => 0, u => Math.min(neDepth, Math.max(0, wArc(u, terraceR - 0.05))), G - 0.008, 2.5, flag);
+  // THE FOURTH HOUSE: Carol Morsani Hall square to the line just past uNE (cmhSite places it), the pavement up to its glass
+  const cmhS = !CMH.missing && CMH.root ? cmhSite(F, uNE + CMH.gapU) : null;
+  if (cmhS) stGround(A, F, cmhS.uB0, cmhS.uB1, () => 0, () => CMH.setBack, G, 2.5, flag);
   // the markings: a double yellow centre line, white dashed lanes, zebra crossings (one before our doors, the Van Wezel's, and two more)
   const wMid = (wN + wS) / 2, Mstrip = (u0, u1, w0, w1, col) => stGround(MK, F, u0, u1, () => w0, () => w1, RD + 0.003, 3, () => col);
   const yel = stRGB(0xd8b23a), wht = stRGB(0xe6e4dc), uMid = F.uw(10.1, K.z0 - 1)[0], uVW = F.uw(VD.x, vwDoorZ)[0];
-  const crossings = [Q.u0 + 45, uMid, uVW, Q.u1 - 50];
+  const crossings = [Q.u0 + 45, uMid, uVW, ...(cmhS ? [(cmhS.uB0 + cmhS.uB1) / 2] : []), Q.u1 - 50];
   const gaps = [...crossings.map(u => [u - 3.5, u + 3.5])], clearOf = (u0, u1) => { let s = [[u0, u1]]; for (const [a, b] of gaps) s = s.flatMap(([x, y]) => (b <= x || a >= y) ? [[x, y]] : [[x, a], [b, y]].filter(([p, q]) => q - p > 0.2)); return s; };
   for (const [u0, u1] of clearOf(Q.u0, Q.u1)) { Mstrip(u0, u1, wMid + 0.08, wMid + 0.2, yel); Mstrip(u0, u1, wMid - 0.2, wMid - 0.08, yel); }
   for (const wl of [wN - Q.road / 4, wS + Q.road / 4]) for (let u = Q.u0 + 2; u < Q.u1 - 3; u += 9) for (const [p, q] of clearOf(u, u + 3)) Mstrip(p, q, wl - 0.06, wl + 0.06, wht);
@@ -25391,9 +25821,21 @@ function buildStreet() {
       stBox(A, Ms, -VD.w / 2, VD.w / 2, top, top + 0.35, 0, 0.12, bronze, null);
     }
   }
+  // 5a. CAROL MORSANI HALL'S STREET DOORS (THE FOURTH HOUSE): the same bronze surround on each pair, a marquee over the middle one
+  const cmhDoorU = [];
+  if (cmhS) {
+    const Gc = CMH.at.y + CMH.lobby, top = Gc + CMH.doorHead, w = CMH.doorW;
+    for (const d of CMH.doors) {
+      const p = cmhW(d.x, CMH.lobby, CMH.glassZ - CMH.doorDepth), M = stFrameAt(p.x, p.z, -F.N[0], -F.N[1]);
+      stBox(A, M, -w / 2 - 0.35, -w / 2, G - 0.11, top + 0.35, 0, 0.12, bronze, null); stBox(A, M, w / 2, w / 2 + 0.35, G - 0.11, top + 0.35, 0, 0.12, bronze, null);
+      stBox(A, M, -w / 2, w / 2, top, top + 0.35, 0, 0.12, bronze, null);
+      if (!d.x) stMarquee(A, S, B, Po, M, houses[3], -4.6, 4.6, top + 0.35, top + 2.25, 3.0, rect, G);
+      cmhDoorU.push(F.uw(p.x, p.z)[0]);
+    }
+  }
   // 6. THE ROWS OF FRONTS. North of the line west of Midtown and east of the Van Wezel's terrace, south of the road the whole
   // length: theatres between fillers, every footprint a prism. The one against the Midtown block runs its side up x skin.x0.
-  let hi = 3, shop = 0, nT = 3;
+  let hi = ST_OURS.length, shop = 0, nT = ST_OURS.length;
   const plan = [];                                                                               // [u0, u1, side ±1, kind, house index]
   const fill = (ua, ub, s, pat) => {
     let u = ua, p = 0;
@@ -25405,7 +25847,11 @@ function buildStreet() {
     }
   };
   fill(Q.u0, (K.x0 - 0.05 - Q.O[0]) / F.U[0], 1, 'FTFT');
-  fill(uNE, Q.u1, 1, 'TFTF');
+  if (cmhS) {                                                                                    // the wedges either side of Carol Morsani Hall: plain blocks of their own plan
+    plan.push({ u0: uNE, u1: cmhS.uB0, s: 1, kind: 'F', poly: cmhS.west(uNE), plain: true });
+    plan.push({ u0: cmhS.uB1, u1: cmhS.uNext, s: 1, kind: 'F', poly: cmhS.east });
+    fill(cmhS.uNext, Q.u1, 1, 'TFTF');
+  } else fill(uNE, Q.u1, 1, 'TFTF');
   fill(Q.u0, Q.u1, -1, 'TFTF');
   const regions = [];                                                                            // every prism: its plan and height (the check)
   for (const b of plan) {
@@ -25414,14 +25860,14 @@ function buildStreet() {
     const H = b.kind === 'T' ? 15 + R() * 6 : (R() < 0.35 ? 30 + R() * 22 : 13 + R() * 14);
     // the lots run along the grid (z), the fronts along the street, as on Broadway: each side straight back in z
     const [x0, z0] = F.P(b.u0, wf), [x1, z1] = F.P(b.u1, wf), back = north ? (last ? K.back + 2 - z1 : 30) : -26;
-    const poly = north ? [[x0, z0], [x0, z0 + (last ? K.back + 2 - z0 : back)], [x1, z1 + back], [x1, z1]] : [[x0, z0], [x1, z1], [x1, z1 + back], [x0, z0 + back]];
+    const poly = b.poly || (north ? [[x0, z0], [x0, z0 + (last ? K.back + 2 - z0 : back)], [x1, z1 + back], [x1, z1]] : [[x0, z0], [x1, z1], [x1, z1 + back], [x0, z0 + back]]);
     const y0 = last ? G - 0.005 : G - 0.3;                                                       // the last stands over Jack's stage slab (box 21, its top 0.845, out to x −19.1): its walls start over it
     stPrism(A, poly, y0, H, stRGB(ST_WALLS[Math.floor(R() * ST_WALLS.length)]));
     regions.push({ poly, y0, y1: H + 0.4, name: b.kind === 'T' ? houses[hi].name : 'front at u ' + uc.toFixed(0) });
     const Wf = b.u1 - b.u0, ucf = (b.u0 + b.u1) / 2, [fx, fz] = F.P(ucf, wf), out = north ? [-F.N[0], -F.N[1]] : F.N;
     const M = stFrameAt(fx, fz, out[0], out[1]);
     if (b.kind === 'T') { const h = houses[hi++]; h.u = ucf; h.side = north ? 'north' : 'south'; stTheatre(A, S, B, Po, M, R, h, Wf, H, G, rect); }
-    else stFiller(A, S, B, Po, M, R, Wf, H, G, rect, shop++ % ST_SHOPS.length);
+    else if (!b.plain) stFiller(A, S, B, Po, M, R, Wf, H, G, rect, shop++ % ST_SHOPS.length);
   }
   // the ends: a tall block across the whole width at each end, its billboards lit at night
   for (const [u, s] of [[Q.u0, 1], [Q.u1, -1]]) {
@@ -25436,7 +25882,7 @@ function buildStreet() {
     }
   }
   // 7. THE LAMPS along both kerbs, staggered, kept off the crossings and off the doors' ways out
-  const doorU = [...Q.lobbyDoors.map(d => F.uw(d.x, K.z0)[0]), uVW, uMid, ...vwSides.map(d => F.uw(d.gx, d.gz)[0])];
+  const doorU = [...Q.lobbyDoors.map(d => F.uw(d.x, K.z0)[0]), uVW, uMid, ...vwSides.map(d => F.uw(d.gx, d.gz)[0]), ...cmhDoorU];
   for (const [w, s, off] of [[wN + 0.45, -1, 0], [wS - 0.45, 1, 13]]) for (let u = Q.u0 + 8 + off; u < Q.u1 - 6; u += 26) {
     if (crossings.some(c => Math.abs(c - u) < 5) || doorU.some(c => Math.abs(c - u) < 3)) continue;
     const [x, z] = F.P(u, w); stLamp(A, Po, x, z, G, F.N[0] * s, F.N[1] * s);
@@ -25497,7 +25943,7 @@ function buildStreet() {
   colliderStale();
   const k0 = stModeLoad();
   stBuilt = { F, group, sky, trim, mats, atlas, houses, regions, doors, fronts, mode: k0, k: 0, target: 0, clockT: 0, time: 0, shown: true, where: 'street', vw: null, vwF: 1,
-    glassR, terraceR, vwDoorZ, uNE, uMid, uVW, crossings, wN, wS, wB, vwSides, ms: 0 };
+    glassR, terraceR, vwDoorZ, uNE, uMid, uVW, crossings, wN, wS, wB, vwSides, cmh: cmhS, ms: 0 };
   stBuilt.target = stBuilt.k = stTarget(k0); stApplyK();
   const n = (o) => o.geometry.attributes.position.count / 3;
   stBuilt.ms = performance.now() - t0;
@@ -25561,6 +26007,7 @@ function stWhere(p) {
     return p.x > L.x0 && p.x < L.x1 && p.z < L.wallZ && p.z > L.wallZ - L.t - L.depth && p.y < L.roof ? 'lobby' : 'in';
   const H = VW_HALL;
   if (p.x > H.x0 - 0.3 && p.x < H.x1 + 0.3 && p.z > H.z0 - H.t - 0.1 && p.z < H.z1 + H.t + 0.1 && p.y < 4.5) return 'in';
+  const cw = cmhWhere(p); if (cw) return cw;                    // THE FOURTH HOUSE: its lobby sees the street through its glass
   if (VW.missing || !stBuilt) return 'street';
   if (!stBuilt.vwPoly) {                                         // the Van Wezel's footprint (the glass and the stage house), its foyer's plan
     const [g0, g1] = VWF.glass, [cx, cz] = VWF.c, Rg = Math.hypot(g1[0] - cx, g1[1] - cz), t0 = Math.atan2(g1[1] - cz, g1[0] - cx), arc = [];

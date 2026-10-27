@@ -2460,3 +2460,22 @@ include the place a failure would show — the corridor behind the house, not on
 - **The Bash tool turns `\n` inside a heredoc into a real newline** before Python sees it: a JS string written that way broke
   across lines. Make such edits with the Edit tool.
 
+
+## From the Carol Morsani round (2026-10-26)
+
+- **A GLTFExporter model can hide its colour in COLOR_0.** Carol Morsani Hall's seat cushions have a material with no colour
+  at all (white) and their reds only in per-vertex colours; an optimiser that rebuilt the colours from the materials made
+  every seat white, and Jack saw it at once. Read COLOR_0 (normalised bytes or floats) and multiply it in.
+- **A converter that walks only the root's children misses groups.** The model's "SPOT BOOTH - TO DO (placeholder)" was a
+  group; its sign (a floating "SPOT BOOTH - TO DO" over the gallery) came through. Walk every node, and drop by ancestor.
+- **One mesh in a model can be enormous**: an unnamed 420 × 110 m skyline quad 260 m behind the river made the hall's bounds
+  400 m wide. Print every mesh's bounds before placing a model.
+- **"The doorway is clear" is not "the way goes through".** All 20 of the hall's doorways were open, but each tier's side
+  passage wall ran 0.6 m past the house's side wall, across the side aisle: the six side doors led nowhere. Walk past the
+  doorway to where it is meant to take you (`MIDTOWN.carolMorsani.check()` walks into the side aisles).
+- **A check that runs (Shift) at a 0.05 s step cannot climb a ship's ladder**: a running stride is two 0.15 m treads, 0.43 m
+  of rise, over the 0.40 step. `stWalkTo` runs; the hall's check walks.
+- **Unaccelerated rays at a merged 300k-triangle model are slow**: a 2 cm scan for the apron's edge (350 rays) added ~4 s to
+  the load. Halve the interval instead (8 rays).
+- **A street of lots that run back in z cannot take a building square to a slanted street** without a wedge each side (the
+  street is at −16°: 89 m deep drifts 25 m east). The wedges are plain blocks of their own plan (`b.poly`).

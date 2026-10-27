@@ -77,3 +77,11 @@ file is the shrunk copy, made by `tools/van-wezel-optimise.py` from Jack's `van-
 318 materials, in feet): metres, turned to the page's convention (upstage +z), the site round it dropped (grounds, bay,
 parking, road, palms), merged to 57 meshes by region and look, welded — 109,782 triangles, 45 images, 7.4 MB. Re-run the
 script on a new source to redo it.
+
+`carol-morsani-hall.glb` — WIRED IN to `midtown.html` (THE FOURTH HOUSE: CAROL MORSANI HALL, 2026-10-26). **Carol Morsani Hall
+model (the Straz Center, Tampa): made for this project** (by another Claude session, for Jack; its images are its own
+textures). The committed file is the shrunk copy, made by `tools/carol-morsani-optimise.py` from Jack's
+`carol-morsani-hall.glb` (27.2 MB, 2,561 meshes, 43 materials, metres): turned to the page's convention (upstage +z), the
+site, the skyline picture and the marked-out booth dropped, the light baked into byte vertex colours, merged to 22 meshes by
+region and look, the seats' 3,203 box triples kept as collision with a seat table in the scene's extras — 303,790
+triangles, 15 images, 12.1 MB. Re-run the script on a new source to redo it.

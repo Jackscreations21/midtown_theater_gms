@@ -229,6 +229,33 @@ compare the *same* production across stages instead.
 
 ---
 
+## DONE — 2026-10-26: Carol Morsani Hall, the fourth house (PR `carol-morsani`, OPEN; one session)
+
+Jack, with the model (another Claude session made it): *"can you put this theater into the game … go to every door way and
+make sure it goes all the wy trought if not fix it. also just look if anything else is wrong. also there is a spot marked out
+for a spot booth so add that."* Asked: east of the Van Wezel on Broadway; in by its own street doors only. No ruling.
+- **The model** (`tools/carol-morsani-optimise.py` → `assets/carol-morsani-hall.glb`, 12.1 MB): metres as it came, turned to
+  the page's frame, the light baked into byte colours (no normals), merged to 22 meshes. Dropped: the river, the Riverwalk, a
+  420 m skyline quad 260 m out, the marked-out booth and its floating "SPOT BOOTH - TO DO" sign. Kept: the seats' own reds
+  (COLOR_0; the first cut lost them and the seats came out white — Jack saw it).
+- **On Broadway** (THE FOURTH HOUSE: CAROL MORSANI HALL; THE STREET): `cmhSite` stands it square to the street just past the
+  north row's first lot, glass 0.25 m back of the line, lobby floor 1 cm over the pavement; a wedge block each side (the lots
+  run back in z, the hall does not); `STREET.u1` 250 → 320 so the row carries on (the south row's fronts re-rolled). Three
+  pairs of street doors through the glass (THE DOORS), a CAROL MORSANI HALL marquee; `stWhere` draws the street from its lobby.
+- **Every doorway** walked in and out with the walk's own step: all 20 were clear, but each tier's side-passage walls ran
+  0.6 m past the house's side wall across the side aisle — the six side doors went nowhere; cut back (`CMH.passages`). A flood
+  from the street doors reached every doorway, landing and spiral stair.
+- **Anything else wrong**: no way onto the stage (its lip 1.0 m over the front aisle): a stair each side of the apron, its
+  edge measured. The seats were three boxes each: THE CHAIRS draws a chair at each (two instanced meshes; the boxes stay the
+  walk's collision, undrawn). The exit doors sit on their aisle (fine); the stage has no wings or backstage (left).
+- **The spot booth** where the model marked it: x ±5.5, front at z 45.6 (the file's), back the hall's curved wall, floor 26.2;
+  three follow spots; a door on E through the wall; outside, a platform and a ship's ladder (18 × 216 mm) from the gallery
+  landing; the lobby ceiling cut over the platform and boxed in (5 cm of headroom otherwise).
+- **Checks:** `MIDTOWN.carolMorsani.check()` PASS 34/34; street PASS (nothing in any front; both pavements end to end);
+  vanWezel PASS; doors 86/86; lx 301/313, `show.check` and ghost exactly as on main (both run side by side in headless Chrome);
+  console clean. Load +1.5 s (headless: ~7.5 s against main's ~6 s).
+- Traps (TRAPS.md, the Carol Morsani round).
+
 ## NEXT SESSION: **HIS EYE ON #52, #53 AND #55; THEN HIS PICKS WHERE THEY STOPPED** (2026-10-26; PRs #52–#55 merged, main `b2c88e1`)
 
 Rulings at **GV** (GW next; none made since). Today's rounds, newest first, each in its DONE block below: #55 the ghost
